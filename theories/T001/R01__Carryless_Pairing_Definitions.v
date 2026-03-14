@@ -1,0 +1,167 @@
+(* R01__Carryless_Pairing_Definitions.v *)
+
+From Coq Require Import Arith Bool List PeanoNat.
+Import ListNotations.
+
+(*************************************************************************)
+(*                                                                       *)
+(*  Proofcase / Carryless Pairing — Definitions                          *)
+(*                                                                       *)
+(*  This file isolates the computational definitions used by the         *)
+(*  carryless pairing device. We keep the development in plain Coq       *)
+(*  nat/list, with no external axioms, so later proofs can be stated     *)
+(*  with standard Rocq methodology.                                      *)
+(*                                                                       *)
+(*************************************************************************)
+
+(* 
+  Fibonacci sequence (structural recursion via pairs).
+  This avoids non-structural calls to fib (S k).
+*)
+
+Fixpoint fib_pair (n : nat) : nat * nat :=
+  match n with
+  | 0 => (0, 1)
+  | S n' =>
+      match fib_pair n' with
+      | (a, b) => (b, a + b)
+      end
+  end.
+
+(*
+  The n-th Fibonacci number.
+*)
+
+Definition fib (n : nat) : nat := fst (fib_pair n).
+
+(*
+  Sum of Fibonacci values over a list of indices.
+*)
+
+Fixpoint sum_fib (xs : list nat) : nat :=
+  match xs with
+  | [] => 0
+  | k :: xs' => fib k + sum_fib xs'
+  end.
+
+(*
+  Double: two n = n + n.
+*)
+
+Definition two (n : nat) : nat := n + n.
+
+(*
+  2j - 1, with Nat.pred 0 = 0.
+*)
+
+Definition two_j_minus1 (j : nat) : nat := Nat.pred (two j).
+
+(*
+  Boolean even test by structural recursion.
+*)
+
+Fixpoint is_even (n : nat) : bool :=
+  match n with
+  | 0 => true
+  | 1 => false
+  | S (S k) => is_even k
+  end.
+
+(*
+  Boolean odd test.
+*)
+
+Definition is_odd (n : nat) : bool := negb (is_even n).
+
+(*
+  Integer half, rounding down.
+*)
+
+Fixpoint div2 (n : nat) : nat :=
+  match n with
+  | 0 => 0
+  | 1 => 0
+  | S (S k) => S (div2 k)
+  end.
+
+(*
+  Parameters of the device:
+
+    (i) Z : Zeckendorf support extractor          
+
+   (ii) r : rank (first Fibonacci index strictly above x)
+  
+  We keep them abstract here; their specification appears in R02.
+*)
+
+Record Params : Type :=
+  {
+    Z : nat -> list nat;
+    r : nat -> nat
+  }.
+
+(*
+  Band offset: B(x) = 2 * r(x).
+*)
+
+Definition B (P : Params) (x : nat) : nat := 2 * r P x.
+
+(*
+  Even/Odd band encodings.
+*)
+
+Definition even_band (P : Params) (x : nat) : list nat :=
+  map (fun e => two e) (Z P x).
+
+Definition odd_band (P : Params) (x y : nat) : list nat :=
+  map (fun j => B P x + two_j_minus1 j) (Z P y).
+
+(*
+  Carryless pairing:
+  pair x y := sum_fib (even_band x ++ odd_band x y).
+*)
+
+Definition pair (P : Params) (x y : nat) : nat :=
+  sum_fib (even_band P x ++ odd_band P x y).
+
+(*
+  Even-index halves from the Zeckendorf support.
+*)
+
+Definition half_even_indices (zn : list nat) : list nat :=
+  map div2 (filter is_even zn).
+
+(*
+  Predicate: k is odd and k >= Bx + 1.
+*)
+
+Definition odd_ge_B1 (Bx k : nat) : bool :=
+  match is_odd k with
+  | false => false
+  | true => Nat.leb (S Bx) k
+  end.
+
+(*
+  Decode an odd-band index back to a Zeckendorf index.
+*)
+
+Definition decode_odd_index (Bx k : nat) : nat :=
+  div2 (S (k - Bx)).
+
+(*
+  Odd-band indices decoded from the Zeckendorf support.
+*)
+
+Definition y_indices (Bx : nat) (zn : list nat) : list nat :=
+  map (decode_odd_index Bx) (filter (odd_ge_B1 Bx) zn).
+
+(*
+  Carryless unpairing.
+*)
+
+Definition unpair (P : Params) (n : nat) : nat * nat :=
+  let zn := Z P n in
+  let x := sum_fib (half_even_indices zn) in
+  let Bx := B P x in
+  let y := sum_fib (y_indices Bx zn) in
+  (x, y).

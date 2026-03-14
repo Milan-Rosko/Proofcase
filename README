@@ -1,0 +1,113 @@
+(* README *)
+                  ____
+               .-[[__]]--.
+              |---------.|
+              |         ||              
+              |_________|/
+
+       ┏━┓┏━┓┏━┓┏━┓┏━╸┏━╸┏━┓┏━┓┏━╸ 
+       ┣━┛┣┳┛┃ ┃┃ ┃┣╸ ┃  ┣━┫┗━┓┣╸  
+       ╹  ╹┗╸┗━┛┗━┛╹  ┗━╸╹ ╹┗━┛┗━╸ 
+
+1 - About
+    -----
+
+    “Proofcase” is a collection of
+    self-contained Rocq developments.
+    Each component is designed to
+    stand independently, typically as
+    a formal companion to a paper,
+    note, or conceptual construction.
+
+
+2 - Style
+    -----
+
+    The formalizations prioritize
+    clarity and minimality.
+    Developments follow established
+    practices and conventions.
+
+
+3 - Structure
+    ---------
+
+.
+├── README
+│
+│      This file.
+│
+├── _CoqProject
+│
+│      Maps logical root, namespace
+│      mappings (-Q), and the complete
+│      ordered list of source files
+│      for compilation.
+│
+├── builders
+│    │
+│    ├── 1 compile.command
+│    │
+│    │      Compiles the project into 
+│    │      an isolated shadow build
+│    │      under scratch/shadow, runs
+│    │      axiom discipline checks,
+│    │      and writes a certificate
+│    │      after a clean compilation.
+│    │
+│    ├── 2 print.command
+│    │
+│    │      Concatenates selected .v
+│    │      files into a context
+│    │      dump. Source selection
+│    │      depebds on _Textslect
+│    │      or _CoqProject.
+│    │      
+│    │
+│    ├── 3 tree.command
+│    │
+│    │      Creates module dependency
+│    │      graphs via coqdep. Outputs
+│    │      a .dot graph, edge list,
+│    │      topological sort, and an
+│    │      SVG render inside the
+│    │      scratch folder,
+│    │
+│    ├── _TextslectFLT
+│    │
+│    │      A curated file list for
+│    │      selective concatenation.
+│    │      Read by 2 print.command to
+│    │      constrain output to a
+│    │      chosen subset of sources,
+│    │      independent of _CoqProject
+│    │      order.
+│    │
+│    └── success.txt
+│
+│           Custom pseudo
+│           certificate produced by
+│           compile.command, contains
+│           timestamp, rocq version,
+│           _CoqProject snapshot, and
+│           per-file hashes.
+│
+├── scratch
+│
+│      Typical “scratch” build folder.
+│
+└── theories
+     │
+     │      Rocq sources and files
+     │      Organized into numbered
+     │      theory folders.
+     │
+     ⋮
+
+
+4 - Contact
+    -------
+
+    www.milanrosko.com
+
+    hi "at" milanrosko "dot" com
