@@ -1,4 +1,16 @@
-(* R07__Table_Inspection.v *)
+(*
+
+  Proofcase / T003 / Table Inspection
+  ===================================
+
+    Overview
+    --------
+
+      We define the digest and inspection procedure used to pin the
+      coefficient table of the bounded universal cubic artifact. The goal
+      is to let the kernel confirm that the imported table matches the
+      expected locked artifact.
+*)
 
 From Coq Require Import ZArith List.
 Import ListNotations.

@@ -1214,53 +1214,7 @@ Definition audit_tier2_endpoint :
   ~ exists e : audit_decider_code, audit_correct_code e :=
   no_total_correct_code_CubicSat.
 
-(*************************************************************************)
-(*                                                                       *)
-(*                                  QED                                  *)
-(*                                                                       *)
-(*                No Total Correct Code For Single Cubics                *)
-(*                                                                       *)
-(*                            PROOF IN STEPS                             *)
-(*                                                                       *)
-(*    Step 1. Use the certified compiler to identify source-side         *)
-(*            provability with cubic satisfiability on the image of      *)
-(*            `audit_reduction_map`.                                     *)
-(*                                                                       *)
-(*    Step 2. For any coded decider `e`,                                 *)
-(*            obtain a source toggle point `u` with                      *)
-(*            `audit_thm u <-> audit_eval_code e (reduction_map u)       *)
-(*            false`.                                                    *)
-(*                                                                       *)
-(*    Step 3. Transport that source toggle point through the reduction   *)
-(*            interface to a cubic toggle witness.                       *)
-(*                                                                       *)
-(*    Step 4. Show that a correct coded decider cannot admit such a      *)
-(*            toggle witness, by determinism and totality of coded       *)
-(*            evaluation.                                                *)
-(*                                                                       *)
-(*    Step 5. Conclude that no total correct coded decider exists for    *)
-(*            the cubic target predicate.                                *)
-(*                                                                       *)
-(*                             MECHANIZATION                             *)
-(*                                                                       *)
-(*         ~ exists e : audit_decider_code, audit_correct_code e         *)
-(*                                                                       *)
-(*                                READING                                *)
-(*                                                                       *)
-(*    The single-cubic target predicate exported by `T002` is not        *)
-(*    decidable by any total coded decider admitted by the development.  *)
-(*    The contradiction is constructive: every candidate decider can be  *)
-(*    diagonalized against itself and then transported through the       *)
-(*    certified cubic reduction.                                         *)
-(*                                                                       *)
-(*                             QUALIFICATION                             *)
-(*                                                                       *)
-(*    This is the main mechanized impossibility endpoint of `T002`.      *)
-(*    Tier 3 adds only the section-parametric certification corollary;   *)
-(*    it does not change the constructive contradiction established      *)
-(*    here.                                                              *)
-(*                                                                       *)
-(*************************************************************************)
+(*  See T002__QED.v for the certified claims surface.  *)
 
 (*************************************************************************)
 (*                                                                       *)
@@ -1287,9 +1241,3 @@ Definition audit_tier3_endpoint :=
   no_RA_certified_decider_code.
 
 End Proof_Index.
-
-Print Assumptions check_iff_emit_cubic_all_zero.
-Print Assumptions sigma_reduction.
-Print Assumptions FixedPoint.
-Print Assumptions no_total_correct_code_CubicSat.
-Print Assumptions no_RA_certified_decider_code.

@@ -6,7 +6,8 @@ Import ListNotations.
 From T001 Require Import
   R01__Carryless_Pairing_Definitions
   R02__Carryless_Pairing_Correctness
-  R03__Carryless_Pairing_Examples.
+  R03__Carryless_Pairing_Examples
+  R04__Carryless_P0_Correctness.
 
 (*************************************************************************)
 (*                                   .                                   *)
@@ -24,7 +25,7 @@ From T001 Require Import
 (*    Proofcase / T001 -- Comprehension Layer                            *)
 (*                                                                       *)
 (*    This file serves as a proof-semantic synopsis and comprehension    *)
-(*    aid for project T004. It introduces no new constructive content    *)
+(*    aid for project T001. It introduces no new constructive content    *)
 (*    or  derivations; but consolidates the core semantics (theorems,    *)
 (*    lemmas,  and corollaries, together with their endpoints) into a    *)
 (*    unified structure for readability and auditability.                *)
@@ -37,7 +38,7 @@ Section Proof_Index.
   Overview
   --------
 
-  `T001` has one central route and one concrete realization layer.
+  `T001` has one abstract route and one concrete closure route.
 
   (i) COMPUTATIONAL DEFINITION LAYER
 
@@ -57,6 +58,11 @@ Section Proof_Index.
       `R03` instantiates the abstract device with a greedy support extractor
       `Z0`, a bounded rank search `r0`, and a concrete parameter pack `P0`,
       then records several `vm_compute` examples.
+
+  (iv) CONCRETE CLOSURE LAYER
+
+      `R04` discharges the abstract Zeckendorf criteria for `P0`, yielding
+      premise-free theorems `unpair_pair_P0` and `pair_inj_P0`.
 *)
 
 (*************************************************************************)
@@ -185,6 +191,12 @@ Definition audit_unpair_pair :=
 Definition audit_pair_inj :=
   @pair_inj.
 
+Definition audit_unpair_pair_P0 :=
+  R04__Carryless_P0_Correctness.unpair_pair_P0.
+
+Definition audit_pair_inj_P0 :=
+  R04__Carryless_P0_Correctness.pair_inj_P0.
+
 (*************************************************************************)
 (*                                                                       *)
 (*                    CONCRETE REALIZATION AND EXAMPLES                  *)
@@ -260,9 +272,8 @@ Definition audit_test_unpair_pair_5_3 :
   Canonical concrete endpoint alias for audit-facing reading.
 *)
 
-Definition audit_concrete_endpoint :
-  unpair audit_P0 (pair audit_P0 5 3) = (5, 3) :=
-  R03__Carryless_Pairing_Examples.Examples.test_unpair_pair_5_3.
+Definition audit_concrete_endpoint :=
+  R04__Carryless_P0_Correctness.unpair_pair_P0.
 
 (*************************************************************************)
 (*                                                                       *)
@@ -270,7 +281,7 @@ Definition audit_concrete_endpoint :
 (*                                                                       *)
 (*                           Carryless Pairing                           *)
 (*                                                                       *)
-(*                             PROOF IN STEPS                            *)
+(*                             PROOF SKETCH                              *)
 (*                                                                       *)
 (*    Step 1. Encode `x` into the even band and `y` into the odd band,   *)
 (*            then sum the corresponding Fibonacci weights to form       *)
@@ -301,12 +312,9 @@ Definition audit_concrete_endpoint :
 (*                             QUALIFICATION                             *)
 (*                                                                       *)
 (*    The  theorem  is abstract in the parameter pack `P`; `R03` then    *)
-(*    supplies  one  concrete  realization  `audit_P0`  together with    *)
-(*    executable examples.                                               *)
+(*    supplies one concrete realization `audit_P0`, and `R04` closes     *)
+(*    that realization into premise-free `P0` endpoints.                 *)
 (*                                                                       *)
 (*************************************************************************)
 
 End Proof_Index.
-
-Print Assumptions unpair_pair.
-Print Assumptions pair_inj.

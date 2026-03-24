@@ -1,4 +1,15 @@
-(* R03__Degree.v *)
+(*
+
+  Proofcase / T003 / Degree Bounds
+  ================================
+
+    Overview
+    --------
+
+      We verify the degree-side sanity conditions of the pinned bounded
+      cubic artifact. The lemmas here compute exponent sums, enforce
+      cubicity, and bound the support used by later inspection results.
+*)
 
 From Coq Require Import ZArith List Bool Arith Lia.
 Import ListNotations.

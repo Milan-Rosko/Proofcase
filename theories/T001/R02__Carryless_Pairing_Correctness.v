@@ -1,31 +1,21 @@
-(* R02__Carryless_Pairing_Correctness.v *)
+(*
+
+  Proofcase / T001 / Correctness
+  ==============================
+
+    Overview
+    --------
+
+      We prove the main correctness statement for the carryless pairing
+      device. The goal is to show that unpair (pair x y) recovers (x, y),
+      and the supporting lemmas isolate the representation invariants
+      needed by that proof.
+*)
 
 From Coq Require Import Arith Bool List PeanoNat.
 Import ListNotations.
 
 From T001 Require Import R01__Carryless_Pairing_Definitions.
-
-(*************************************************************************)
-(*                                                                       *)
-(*  Proofcase / Carryless Pairing — Correctness                          *)
-(*                                                                       *)
-(*  This file proves the standard correctness statement                  *)
-(*                                                                       *)
-(*      unpair (pair x y) = (x, y)                                       *)
-(*                                                                       *)
-(*  under an explicit Zeckendorf specification. The specification        *)
-(*  isolates the two nontrivial facts required for the algorithm:        *)
-(*                                                                       *)
-(*    (i)  Z is sound: it represents numbers as sums of Fibonacci        *)
-(*         values                                                        *)
-(*                                                                       *)
-(*   (ii)  Z respects the even/odd-band split for pair encodings         *)
-(*                                                                       *)
-(*  This is the “standard proof” wrapper: all heavy combinatorics        *)
-(*  (existence/uniqueness of Zeckendorf representations) are localized   *)
-(*  to the assumptions below.                                            *)
-(*                                                                       *)
-(*************************************************************************)
 
 Section Carryless_Correctness.
 
@@ -40,11 +30,14 @@ Section Carryless_Correctness.
   Hypothesis Z_sound : forall n, sum_fib (Z P n) = n.
 
   (*
-      Even/odd split of the Zeckendorf support for a paired value.
+    Even/odd split of the Zeckendorf
+    support for a paired value.
 
-      These two laws capture the semantic fact that the indices used by
-      the carryless encoding can be recovered by filtering the support
-      of the encoded number.
+    These two laws capture the semantic
+    fact that the indices used by the
+    carryless encoding can be recovered
+    by filtering the support of the
+    encoded number.
   *)
 
   Hypothesis Z_even_split :

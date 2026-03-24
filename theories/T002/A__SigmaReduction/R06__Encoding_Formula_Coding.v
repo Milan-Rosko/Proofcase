@@ -1,4 +1,15 @@
-(* R06__Formula_Coding.v *)
+(*
+
+  Proofcase / T002 / Encoding Formula Coding
+  ==========================================
+
+    Overview
+    --------
+
+      We develop the Encoding Formula Coding layer used by the T002 sigma-
+      reduction route. This file packages the definitions and lemmas
+      exported to later modules in the same route.
+*)
 
 From Coq Require Import Arith.
 From T002 Require Import

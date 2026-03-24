@@ -1,69 +1,32 @@
-(* R03__Carryless_Pairing_Examples.v *)
+(*
+
+  Proofcase / T001 / Examples
+  ===========================
+
+    Overview
+    --------
+
+      We instantiate the carryless pairing interface with a concrete
+      Zeckendorf-style realization. The examples in this file are meant to
+      be vm_compute-friendly and make the behavior of pair and unpair
+      directly inspectable.
+*)
 
 From Coq Require Import Arith Bool List PeanoNat.
 Import ListNotations.
 
 From T001 Require Import R01__Carryless_Pairing_Definitions.
-
-(*************************************************************************)
-(*                                                                       *)
-(*  Proofcase / Carryless Pairing — Examples                             *)
-(*                                                                       *)
-(*  This file provides concrete, vm_compute-friendly examples            *)
-(*  that witness the effectivity of the carryless pairing device.        *)
-(*                                                                       *)
-(*  We instantiate Params with a standard Zeckendorf-style realization   *)
-(*  (greedy support + Fibonacci rank) matching the behavior in BHK_R.    *)
-(*                                                                       *)
-(*************************************************************************)
+From T002 Require Import R02__Foundation_Zeckendorf.
 
 Module Realization.
 
-  (*
-    Rank r(x): first index k such that fib k > x.
-    Bounded scan with fuel S(S x) (primitive recursive).
-  *)
+  Definition find_r_aux := R02__Foundation_Zeckendorf.find_r_aux.
 
-  Fixpoint find_r_aux (x k fuel : nat) : nat :=
-    match fuel with
-    | 0 => k
-    | S fuel' =>
-        if Nat.ltb x (fib k)
-        then k
-        else find_r_aux x (S k) fuel'
-    end.
+  Definition r0 := R02__Foundation_Zeckendorf.r0.
 
-  (*
-    Concrete rank: first Fibonacci index strictly above x.
-  *)
+  Definition zeck_greedy_down := R02__Foundation_Zeckendorf.zeck_greedy_down.
 
-  Definition r0 (x : nat) : nat := find_r_aux x 0 (S (S x)).
-
-  (*
-    Greedy Zeckendorf support, scanning downward.
-  *)
-
-  Fixpoint zeck_greedy_down (k rem : nat) (prev_taken : bool)
-    : list nat * nat :=
-    match k with
-    | 0 => ([], rem)
-    | S k' =>
-        if prev_taken then
-          zeck_greedy_down k' rem false
-        else
-          if Nat.leb (fib k) rem then
-            let pr := zeck_greedy_down k' (rem - fib k) true in
-            (k :: fst pr, snd pr)
-          else
-            zeck_greedy_down k' rem false
-    end.
-
-  (*
-    Concrete Zeckendorf support extractor via greedy decomposition.
-  *)
-
-  Definition Z0 (x : nat) : list nat :=
-    fst (zeck_greedy_down (r0 x) x false).
+  Definition Z0 := R02__Foundation_Zeckendorf.Z0.
 
   (*
     Concrete parameter pack.

@@ -1,7 +1,19 @@
+(*
+
+  Proofcase / T002 / Carryless Sequence Indexing
+  ==============================================
+
+    Overview
+    --------
+
+      We develop the Carryless Sequence Indexing layer used by the T002
+      sigma-reduction route. This file packages the definitions and lemmas
+      exported to later modules in the same route.
+*)
+
 From T002 Require Export R01__Foundation_Fibonacci.
 From T002 Require Export R02__Foundation_Zeckendorf.
 
-(* Canonical projections over the P0 carryless pairing instance. *)
 Definition hd0 (u : nat) : nat := fst (unpair P0 u).
 Definition tl0 (u : nat) : nat := snd (unpair P0 u).
 

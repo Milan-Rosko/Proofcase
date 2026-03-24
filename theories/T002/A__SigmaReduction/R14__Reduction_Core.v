@@ -1,4 +1,15 @@
-(* R14__Reduction_Core.v *)
+(*
+
+  Proofcase / T002 / Reduction Core
+  =================================
+
+    Overview
+    --------
+
+      We develop the Reduction Core layer used by the T002 sigma-reduction
+      route. This file packages the definitions and lemmas exported to
+      later modules in the same route.
+*)
 
 From Coq Require Import List.
 Import ListNotations.

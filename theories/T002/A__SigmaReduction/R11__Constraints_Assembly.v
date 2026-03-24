@@ -1,4 +1,15 @@
-(* R11__Assembly.v *)
+(*
+
+  Proofcase / T002 / Constraints Assembly
+  =======================================
+
+    Overview
+    --------
+
+      We develop the Constraints Assembly layer used by the T002 sigma-
+      reduction route. This file packages the definitions and lemmas
+      exported to later modules in the same route.
+*)
 
 From Coq Require Import Arith Bool Lia List PeanoNat.
 Import ListNotations.

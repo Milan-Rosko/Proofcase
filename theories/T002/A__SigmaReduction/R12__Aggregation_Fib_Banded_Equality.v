@@ -1,4 +1,15 @@
-(* R12__Aggregation_Fib_Banded_Equality.v *)
+(*
+
+  Proofcase / T002 / Aggregation Fib Banded Equality
+  ==================================================
+
+    Overview
+    --------
+
+      We develop the Aggregation Fib Banded Equality layer used by the
+      T002 sigma-reduction route. This file packages the definitions and
+      lemmas exported to later modules in the same route.
+*)
 
 From Coq Require Import Arith Lia List PeanoNat.
 Import ListNotations.

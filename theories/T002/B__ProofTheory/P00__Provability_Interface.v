@@ -1,13 +1,20 @@
-(* P00__Provability_Interface.v *)
+(*
+
+  Proofcase / T002 / Provability Interface
+  ========================================
+
+    Overview
+    --------
+
+      We develop the Provability Interface layer used by the T002 proof-
+      theory route. This file packages the definitions and lemmas exported
+      to later modules in the same route.
+*)
 
 From Coq Require Import Bool.
 
 From T002 Require Import R19__Sigma_Reduction_Minimal_API.
 From T002 Require Import P00__Concrete_Provability.
-
-(*
-  Provability: u is provable iff it has a coded proof witness.
-*)
 
 Definition Prov (u : nat) : Prop :=
   ProvCode u.

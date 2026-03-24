@@ -1,3 +1,16 @@
+(*
+
+  Proofcase / T003 / Artifact Parameters
+  ======================================
+
+    Overview
+    --------
+
+      We record the pinned metadata for the bounded universal cubic
+      artifact. The constants in this file fix variable counts, base
+      parameters, and degree data used by the rest of T003.
+*)
+
 From Coq Require Import ZArith List String.
 Import ListNotations.
 Open Scope Z_scope.

@@ -30,345 +30,232 @@ From T000 Require Import
 (*                                                                       *)
 (*************************************************************************)
 
-
 Section Proof_Index.
 
 (*
+
+Proofcase / T000 / Comprehension
+================================
+  
   Overview
   --------
 
-  `T000` has one main constructive route. It remains the recommended template
-  for small, closed Proofcase packages whose proofs factor into a clean sequence
-  of explicit local lemmas and one final endpoint theorem.
+  `T000` has two routes: an arithmetic layer and a combinatorial layer.
 
-  (i) MAIN RESULT
+  (i) ODD-PART DEFINITION LAYER
 
-    (a) ARITHMETIC NORMAL-FORM LAYER
+      `R01` defines the odd-part map and the 2-adic valuation in plain
+      `nat` terms: `odd_part_aux` strips factors of 2 with a fuel
+      parameter, `odd_part` instantiates it, and `val2` / `val2_aux`
+      count the extracted factors.
 
-        Every positive integer is decomposed into a power of two times an odd
-        factor.  The odd factor is treated as the canonical invariant relevant
-        to divisibility.
+  (ii) ODD-PART PROPERTIES LAYER
 
-    (b) FINITE ODD-CODOMAIN LAYER
+      `R01` establishes the core arithmetic facts: `odd_part` is odd,
+      bounded, positive, and divides its argument; every positive
+      integer decomposes as `2^(val2 n) * odd_part n`; and the key
+      bridge theorem `same_odd_part_divides` shows that sharing the
+      same odd part implies divisibility.
 
-        For inputs restricted to `{1, ..., 2n}`, the odd-part map lands inside
-        the explicit n-element list `odd_range n` of odd values.
+  (iii) ODD RANGE LAYER
 
-    (c) COMBINATORIAL COLLISION LAYER
+      `R01` builds the explicit pigeonhole codomain: the list
+      `odd_range n` of the n odd numbers in {1, ..., 2n}, and proves
+      its length, membership characterization, bounds, and that the
+      odd-part map lands in this list.
 
-        A generic list-based pigeonhole principle converts the cardinality gap
-        `|A| = n + 1` versus `|odd_range n| = n` into a pair of distinct
-        elements with equal odd part.
+  (iv) PIGEONHOLE AND MAIN THEOREM LAYER
 
-    (d) THEOREM
-
-        Equality of odd parts is translated back into the divisibility
-        conclusion by comparing the respective 2-adic exponents.
+      `R02` proves a list-based pigeonhole principle, then combines it
+      with the odd-part infrastructure from `R01` to derive the main
+      theorem: any n+1 distinct elements of {1, ..., 2n} contain a
+      divisibility pair.
 *)
 
 (*************************************************************************)
 (*                                                                       *)
-(*                              MAIN RESULT                              *)
+(*                       ODD-PART DEFINITION LAYER                       *)
 (*                                                                       *)
 (*************************************************************************)
 
 (*
-  (a)
-  ARITHMETIC NORMAL-FORM LAYER
-*)
-
-(*
-  (1)
-  Auxiliary recursion computing the odd part of a natural number by
-  repeatedly removing factors of 2.  The fuel is a structural device
-  ensuring totality of the recursive program inside Rocq; mathematically,
-  the intended output is the odd factor in the 2-adic decomposition.
+  (i)
+  CORE ARITHMETIC DEFINITIONS
 *)
 
 Definition audit_odd_part_aux : nat -> nat -> nat :=
   odd_part_aux.
 
-(*
-  (2)
-  Canonical odd-part normalization map.  This is the arithmetic invariant
-  used throughout the package to collapse the ambient interval
-  `{1, ..., 2n}` onto only `n` relevant odd classes.
-*)
-
 Definition audit_odd_part : nat -> nat :=
   odd_part.
-
-(*
-  (3)
-  Auxiliary recursion for the 2-adic valuation, i.e. the exponent of the
-  highest power of `2` dividing the input.  Together with `odd_part`, this
-  records the full decomposition of a positive integer into its dyadic
-  exponent and its odd residue.
-*)
 
 Definition audit_val2_aux : nat -> nat -> nat :=
   val2_aux.
 
-(*
-  (4)
-  Canonical 2-adic valuation map.  It measures the dyadic depth of an
-  integer and is the companion invariant to `odd_part` in the package's
-  normal-form analysis.
-*)
-
 Definition audit_val2 : nat -> nat :=
   val2.
 
+(*************************************************************************)
+(*                                                                       *)
+(*                      ODD-PART PROPERTIES LAYER                        *)
+(*                                                                       *)
+(*************************************************************************)
+
 (*
-  (5)
-  Certification that the normalization really lands in the odd stratum:
-  every positive integer has an odd odd part.  This is the first half of
-  the arithmetic preparation for the finite pigeonhole target.
+  (ii)
+  BOUNDS AND STRUCTURE OF odd_part_aux
 *)
 
-Definition audit_odd_part_odd :
-  forall n,
-    1 <= n ->
-    Nat.odd (audit_odd_part n) = true :=
+Definition audit_odd_part_aux_le :=
+  odd_part_aux_le.
+
+Definition audit_odd_part_aux_odd :=
+  odd_part_aux_odd.
+
+Definition audit_odd_part_aux_divides :=
+  odd_part_aux_divides.
+
+(*
+  (iii)
+  PUBLIC-FACING PROPERTIES OF odd_part
+*)
+
+Definition audit_odd_part_odd :=
   odd_part_odd.
 
-(*
-  (6)
-  The normalized odd part is not merely associated to the original input;
-  it actually divides it.  This identifies `odd_part` as a genuine divisor
-  extracted canonically from the number.
-*)
+Definition audit_odd_part_le :=
+  odd_part_le.
 
-Definition audit_odd_part_divides :
-  forall n,
-    1 <= n ->
-    Nat.divide (audit_odd_part n) n :=
+Definition audit_odd_part_pos :=
+  odd_part_pos.
+
+Definition audit_odd_part_divides :=
   odd_part_divides.
 
 (*
-  (7)
-  Full decomposition theorem: every positive integer factors as a power of `2`
-  multiplied by its odd part.  This is the structural statement that later turns
-  equality of odd parts into a direct divisibility relation.
+  (iv)
+  DECOMPOSITION AND DIVISIBILITY BRIDGE
 *)
 
-Definition audit_decomposition :
-  forall n,
-    1 <= n ->
-    n = 2 ^ (audit_val2 n) * audit_odd_part n :=
+Definition audit_decomposition_aux :=
+  decomposition_aux.
+
+Definition audit_decomposition :=
   decomposition.
 
 (*
-  (8)
-  Arithmetic comparison theorem. If two positive integers share the same odd 
-  part, then their difference lies entirely in the 2-adic exponent, so one of
-  them must divide the other.
+  Key bridge theorem: if two positive integers share the same odd
+  part, one divides the other.
 *)
 
-Definition audit_same_odd_part_divides :
-  forall a b,
-    1 <= a ->
-    1 <= b ->
-    audit_odd_part a = audit_odd_part b ->
-    Nat.divide a b \/ Nat.divide b a :=
+Definition audit_same_odd_part_divides :=
   same_odd_part_divides.
 
-(*
-  (b)
-  FINITE ODD-CODOMAIN LAYER
-*)
+(*************************************************************************)
+(*                                                                       *)
+(*                           ODD RANGE LAYER                             *)
+(*                                                                       *)
+(*************************************************************************)
 
 (*
-  (1)
-  Explicit finite codomain for the odd-part map on `{1, ..., 2n}`: the list of
-  the first n positive odd numbers.  This is the concrete carrier of the
-  pigeonholes used in the main theorem.
+  (v)
+  PIGEONHOLE CODOMAIN CONSTRUCTION
 *)
 
 Definition audit_odd_range : nat -> list nat :=
   odd_range.
 
-(*
-  (2)
-  Cardinality computation for the codomain list.  This is the precise
-  quantitative input needed to compare the n odd categories against an
-  (n+1)-element source list.
-*)
-
-Definition audit_odd_range_length :
-  forall n,
-    length (audit_odd_range n) = n :=
+Definition audit_odd_range_length :=
   odd_range_length.
 
-(*
-  (3)
-  Structural characterization of the codomain list: membership in
-  `odd_range n` is equivalent to being representable as `2i + 1` for some
-  index i strictly below n.
-*)
-
-Definition audit_odd_range_in_iff :
-  forall n k,
-    In k (audit_odd_range n) <-> exists i, i < n /\ k = 2 * i + 1 :=
+Definition audit_odd_range_in_iff :=
   odd_range_in_iff.
 
-(*
-  (4)
-  The codomain list is duplicate-free. This ensures that `odd_range n` behaves
-  as a genuine finite family of n distinct categories rather than merely as a
-  list with repeated labels. In particular, the subsequent cardinality
-  comparison is mathematically honest at the level of distinct values and not
-  just list length.
-*)
+Definition audit_odd_range_all_odd :=
+  odd_range_all_odd.
 
-Definition audit_odd_range_NoDup :
-  forall n,
-    NoDup (audit_odd_range n) :=
+Definition audit_odd_range_bounds :=
+  odd_range_bounds.
+
+Definition audit_odd_range_NoDup :=
   odd_range_NoDup.
 
 (*
-  (5)
-  Bridge from arithmetic normalization to finite codomain control:
-  whenever `a` lies in `{1, ..., 2n}`, its odd part belongs to `odd_range n`.
-  This is the exact input needed to instantiate the abstract pigeonhole
-  principle with the odd-part map.
+  The counting lemma: the odd part of any element of {1, ..., 2n}
+  belongs to the n-element list odd_range n.
 *)
 
-Definition audit_odd_part_in_range :
-  forall n a,
-    1 <= a ->
-    a <= 2 * n ->
-    In (audit_odd_part a) (audit_odd_range n) :=
+Definition audit_odd_part_in_range :=
   odd_part_in_range.
-
-(*
-  (c)
-  COMBINATORIAL COLLISION LAYER
-*)
-
-(*
-  (1)
-  Generic list-based pigeonhole principle. It is phrased abstractly so that the
-  combinatorial collision mechanism is cleanly separated from the theoretic
-  content of odd parts and divisibility. This separation is the template: The
-  combinatorial engine should remain reusable, while arithmetic meaning enters
-  only through the choice of the map and the target category list.
-*)
-
-Definition audit_pigeonhole :
-  forall (A : Type) (f : A -> nat) (xs : list A) (cats : list nat),
-    NoDup xs ->
-    (forall x, In x xs -> In (f x) cats) ->
-    length cats < length xs ->
-    exists a b,
-      In a xs /\
-      In b xs /\
-      a <> b /\
-      f a = f b :=
-  pigeonhole.
-
-(*
-  (d)
-  THEOREM
-*)
-
-(*
-  (1)
-  Principal `T000` endpoint. The abstract collision theorem is applied to the
-  odd-part map on a duplicate-free list `A` of length `n + 1` contained in
-  `{1, ..., 2n}`; the resulting same-odd-part pair is then discharged by the
-  arithmetic comparison theorem to obtain a divisibility pair.
-*)
-
-Definition audit_pigeonhole_divisibility :
-  forall n A,
-    (forall a, In a A -> 1 <= a /\ a <= 2 * n) ->
-    NoDup A ->
-    length A = n + 1 ->
-    exists a b,
-      In a A /\
-      In b A /\
-      a <> b /\
-      (Nat.divide a b \/ Nat.divide b a) :=
-  pigeonhole_divisibility.
-
-(*
-  (2)
-  Canonical public alias for the package endpoint. This gives downstream readers
-  a stable theorem name inside the audit layer without changing the mathematical
-  content. In audit-facing reading, this is the preferred symbol under which the
-  entire `T000` route may be cited.
-*)
-
-Definition audit_template_endpoint :
-  forall n A,
-    (forall a, In a A -> 1 <= a /\ a <= 2 * n) ->
-    NoDup A ->
-    length A = n + 1 ->
-  exists a b,
-      In a A /\
-      In b A /\
-      a <> b /\
-      (Nat.divide a b \/ Nat.divide b a) :=
-  pigeonhole_divisibility.
 
 (*************************************************************************)
 (*                                                                       *)
-(*                                  QED                                  *)
+(*                  PIGEONHOLE AND MAIN THEOREM LAYER                    *)
+(*                                                                       *)
+(*************************************************************************)
+
+(*
+  (vi)
+  LIST-BASED PIGEONHOLE PRINCIPLE
+*)
+
+Definition audit_pigeonhole :=
+  pigeonhole.
+
+(*
+  Main theorem: any n+1 distinct elements drawn from {1, ..., 2n}
+  contain two distinct elements where one divides the other.
+
+  The theorem is section-parametric in n, A, and three hypotheses
+  (boundedness, distinctness, cardinality).
+*)
+
+Definition audit_pigeonhole_divisibility :=
+  @pigeonhole_divisibility.
+
+(*************************************************************************)
 (*                                                                       *)
 (*                        Pigeonhole Divisibility                        *)
 (*                                                                       *)
-(*                                 PROOF                                 *)
+(*                             PROOF SKETCH                              *)
 (*                                                                       *)
-(*    Step 1. Normalize each admissible input `a` by passing to          *)
-(*            `odd_part a`.                                              *)
+(*    Step 1. Decompose every element a in A as a = 2^k * odd_part(a)    *)
+(*            where odd_part(a) is odd.  The odd-part map sends each     *)
+(*            element of {1, ..., 2n} to one of the n odd numbers        *)
+(*            in {1, 3, 5, ..., 2n - 1}.                                 *)
 (*                                                                       *)
-(*    Step 2. Show that all such normalized values lie in                *)
-(*            `odd_range n`,  an explicit n-element family of odd        *)
-(*            numbers.                                                   *)
+(*    Step 2. Since A has n + 1 elements and there are only n odd        *)
+(*            pigeonholes, by the pigeonhole principle two distinct      *)
+(*            elements a, b in A satisfy odd_part(a) = odd_part(b).      *)
 (*                                                                       *)
-(*    Step 3. Apply the abstract pigeonhole theorem to the `n + 1`       *)
-(*            source elements and the `n` target categories to obtain    *)
-(*            a collision.                                               *)
-(*                                                                       *)
-(*    Step 4. Convert that collision back into divisibility using the    *)
-(*            decomposition `a = 2^(val2 a) * odd_part a`.               *)
+(*    Step 3. Since a = 2^j * m and b = 2^k * m share the same odd       *)
+(*            factor m, the element with the smaller 2-adic valuation    *)
+(*            divides the other.                                         *)
 (*                                                                       *)
 (*                             MECHANIZATION                             *)
 (*                                                                       *)
 (*    forall n A,                                                        *)
-(*     (forall a, In a A -> 1 <= a /\ a <= 2 * n) ->                     *)
-(*       NoDup A ->                                                      *)
-(*       length A = n + 1 ->                                             *)
-(*       exists a b,                                                     *)
-(*         In a A /\ In b A /\ a <> b /\                                 *)
-(*         (Nat.divide a b \/ Nat.divide b a)                            *)
+(*      (forall a, In a A -> 1 <= a /\ a <= 2 * n) ->                    *)
+(*      NoDup A ->                                                       *)
+(*      length A = n + 1 ->                                              *)
+(*      exists a b,                                                      *)
+(*        In a A /\ In b A /\ a <> b /\                                  *)
+(*        (Nat.divide a b \/ Nat.divide b a)                             *)
 (*                                                                       *)
 (*                                READING                                *)
 (*                                                                       *)
-(*    Any  list  `A of n + 1` pairwise distinct natural numbers drawn    *)
-(*    from  the  interval {1, ..., 2n} contains two distinct elements    *)
-(*    such  that one divides the other. The proof proceeds by mapping    *)
-(*    each  element  of  `A`  to  its  odd part, noting that all such    *)
-(*    images  lie within the explicit `n`-element set `odd_range(n)`.    *)
-(*    By  the  pigeonhole  principle,  there  must exist two distinct    *)
-(*    elements  of  `A`  whose  odd  parts  coincide. Comparing their    *)
-(*    `2-adic` valuations then shows that one divides the other.         *)
+(*    Under  the  explicit  pigeonhole  argument  carried  in  `R02`,    *)
+(*    the  theorem  is  fully  closed:  any  sufficiently  large  set    *)
+(*    of  naturals  drawn  from  {1, ..., 2n}  necessarily  contains     *)
+(*    a  divisibility  pair.  The  bridge  lemma  `same_odd_part_        *)
+(*    divides`  converts  an  odd-part  collision  into divisibility.    *)
 (*                                                                       *)
 (*                             QUALIFICATION                             *)
 (*                                                                       *)
-(*    This  result  (famously appearing in an anecdote of Paul Erdős)    *)
-(*    is  “Closed  within  its  ambient  context”  and relies only on    *)
-(*    effective  assumptions.  It thus serves not merely as the final    *)
-(*    claim  of  T000, but also as a model example of the “Proofcase”    *)
-(*    design  principle:  each  package should make its logical route    *)
-(*    explicit,  progressing through arithmetic normalization, finite    *)
-(*    codomain control, abstract combinatorics, and final discharge.     *)
+(*    T000  is intended to be fully closed: the assumption reports at    *)
+(*    the end of `T000__QED.v` confirm that no axioms beyond the Rocq    *)
+(*    kernel are used.                                                   *)
 (*                                                                       *)
 (*************************************************************************)
 
 End Proof_Index.
-
-Print Assumptions same_odd_part_divides.
-Print Assumptions pigeonhole.
-Print Assumptions pigeonhole_divisibility.

@@ -1,4 +1,15 @@
-(* R08__Bounded_Universality.v *)
+(*
+
+  Proofcase / T003 / Bounded Universality
+  =======================================
+
+    Overview
+    --------
+
+      We state the bounded universality theorem exported by T003. The file
+      packages the universal cubic artifact together with the
+      representation bounds required by later clients.
+*)
 
 From Coq Require Import ZArith List Lia.
 Import ListNotations.
@@ -63,7 +74,3 @@ Proof.
   - exact bounded_endpoint_inspects_table.
   - exact (bounded_universal_cubic t).
 Qed.
-
-Print Assumptions bounded_universal_cubic.
-Print Assumptions bounded_endpoint_inspects_table.
-Print Assumptions bounded_universal_cubic_endpoint.

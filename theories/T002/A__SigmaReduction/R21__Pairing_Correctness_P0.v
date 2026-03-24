@@ -1,4 +1,15 @@
-(* R21__Pairing_Correctness_P0.v *)
+(*
+
+  Proofcase / T002 / Pairing Correctness P0
+  =========================================
+
+    Overview
+    --------
+
+      We develop the Pairing Correctness P0 layer used by the T002 sigma-
+      reduction route. This file packages the definitions and lemmas
+      exported to later modules in the same route.
+*)
 
 From Coq Require Import Arith Lia List.
 Import ListNotations.

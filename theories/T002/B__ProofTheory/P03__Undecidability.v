@@ -1,14 +1,19 @@
-(* P03__Undecidability.v *)
+(*
+
+  Proofcase / T002 / Undecidability
+  =================================
+
+    Overview
+    --------
+
+      We develop the Undecidability layer used by the T002 proof-theory
+      route. This file packages the definitions and lemmas exported to
+      later modules in the same route.
+*)
 
 From T002 Require Import P00__Provability_Interface.
 From T002 Require Import P05__Toggle_Contradiction.
 From T002 Require Import P06__SourceToggle_Generator.
-
-(*************************************************************************)
-(*                                                                       *)
-(*  Tier 2 endpoint over coded deciders                                  *)
-(*                                                                       *)
-(*************************************************************************)
 
 Theorem no_total_correct_code_CubicSat :
   ~ exists e : DeciderCode, CorrectCode e.

@@ -1,13 +1,18 @@
-(* P04__RA_Certification.v *)
+(*
+
+  Proofcase / T002 / RA Certification
+  ===================================
+
+    Overview
+    --------
+
+      We develop the RA Certification layer used by the T002 proof-theory
+      route. This file packages the definitions and lemmas exported to
+      later modules in the same route.
+*)
 
 From T002 Require Import P00__Provability_Interface.
 From T002 Require Import P03__Undecidability.
-
-(*************************************************************************)
-(*                                                                       *)
-(*  Tier 3: Internal certification endpoint (coded deciders)             *)
-(*                                                                       *)
-(*************************************************************************)
 
 Section Tier3.
 

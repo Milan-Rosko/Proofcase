@@ -1,4 +1,15 @@
-(* P02__Diagonal.v *)
+(*
+
+  Proofcase / T002 / Diagonal
+  ===========================
+
+    Overview
+    --------
+
+      We develop the Diagonal layer used by the T002 proof-theory route.
+      This file packages the definitions and lemmas exported to later
+      modules in the same route.
+*)
 
 From T002 Require Import P00__Concrete_Provability.
 From T002 Require Import R01__Foundation_Fibonacci R02__Foundation_Zeckendorf.

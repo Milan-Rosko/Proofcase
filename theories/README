@@ -4,8 +4,9 @@
     -----------
 
     This directory contains all Rocq theory developments in Proofcase. Each
-    subdirectory T### is a self-contained theorem package with its own README,
-    source files, and artifacts.
+    active subdirectory T### is a self-contained theorem package with its own
+    README, source files, and artifacts. Archived developments may also appear
+    under non-numeric names.
 
 2 - Index
     -----
@@ -37,3 +38,13 @@
             Pinned bounded universal cubic polynomial, generated from a
             Python constructor pipeline. Coefficient table, degree certificates,
             digest gate, and bounded universality endpoint.
+
+    T004    Constraints on Rule 30's eventual behavior
+
+            Mechanized analysis of Rule 30 as a one-dimensional cellular
+            automaton over bi-infinite configurations. Establishes unconditional
+            structural obstructions together with conditional aperiodicity
+            results. The development separates semantic core, geometric/causal
+            structure (light-cone bounds and transversality), and impossibility
+            principles (reconstruction and verification limits), yielding a
+            modular proof pipeline.

@@ -8,12 +8,14 @@
     and PeanoNat.
 
     `T001__Comprehension.v` packages the core definitions, the abstract
-    correctness theorem, and the concrete `P0` realizations into one
-    audit-facing synopsis layer.
+    correctness theorem, the concrete `P0` realizations, and the closed
+    `P0` endpoint theorems into one audit-facing synopsis layer.
 
-    `T001__Extraction_Interface.v` exposes the root-level OCaml extraction
-    surface for the concrete `P0` realization and the core carryless pairing
-    operations.
+    `T001__QED.v` is the canonical QED surface for T001: it documents the
+    Rocq criteria in `PROPOSITIO`, exposes a premise-free concrete
+    `PROPOSITIO_P0`, discharges both endpoint layers in Q.E.D. by direct
+    reuse of the correctness stack, and exposes the OCaml extraction surface
+    for the concrete `P0` realization.
 
     The `appendix/` directory contains the proof-erasure outputs generated from
     the development.
@@ -31,10 +33,11 @@
     │
     │      Audit/comprehension layer for the carryless pairing package.
     │
-    ├── T001__Extraction_Interface.v
+    ├── T001__QED.v
     │
-    │      Root extraction interface exposing the executable `P0` pairing
-    │      surface and the OCaml export directives.
+    │      Canonical QED surface for T001. States and documents PROPOSITIO,
+    │      certifies the proof obligations (Q.E.D.), and exposes the
+    │      executable `P0` extraction interface.
     │
     ├── R01__Carryless_Pairing_Definitions.v
     │
@@ -53,23 +56,27 @@
     │      Concrete realizations and computational examples, including a greedy
     │      Zeckendorf construction and `vm_compute` evaluations.
     │
+    ├── R04__Carryless_P0_Correctness.v
+    │
+    │      Concrete closure layer discharging the abstract Zeckendorf criteria
+    │      for `P0` and deriving premise-free `unpair_pair_P0` / `pair_inj_P0`.
+    │
     └── appendix
+           ├── assumptions
+           │       │
+           │       ├── unpair_pair_QED.out
+           │       ├── pair_inj_QED.out
+           │       ├── carryless_pairing_QED.out
+           │       ├── unpair_pair_P0_QED.out
+           │       ├── pair_inj_P0_QED.out
+           │       └── carryless_pairing_P0_QED.out
+           │
+           │              Redirect-generated Print Assumptions outputs for
+           │              the abstract and concrete QED theorems.
+           │
            ├── Carryless_Pairing.ml
            │
-           │      Extracted OCaml implementation of the verified “Carryless
-           │      pairing construction.
-           │
-           ├── Carryless_Pairing.mli
-           │
-           │      Generated OCaml interface exposing the extracted types and
-           │      functions.
-           │
-           ├── assumptions.log
-           │
-           │      Output of `Print Assumptions` for the principal correctness
-           │      theorems.
-           │
-           └── v.context.txt
-           
-                  Snapshot of the main `.v` sources at extraction
-                  time, included for traceability.
+           └── Carryless_Pairing.mli
+
+                  Generated OCaml interface exposing the extracted types and
+                  functions.

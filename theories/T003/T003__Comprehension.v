@@ -485,62 +485,6 @@ Definition audit_t003_endpoint :
         audit_U_table rho = 0) :=
   bounded_universal_cubic_endpoint.
 
-(*************************************************************************)
-(*                                                                       *)
-(*                                  QED                                  *)
-(*                                                                       *)
-(*                    Bounded Universal Cubic Endpoint                   *)
-(*                                                                       *)
-(*                             PROOF IN STEPS                            *)
-(*                                                                       *)
-(*    Step 1. Fix the generated coefficient table `audit_poly` together  *)
-(*            with its pinned public-input index `audit_ix_u`.           *)
-(*                                                                       *)
-(*    Step 2. Certify the table structurally by two independent gates:   *)
-(*            degree at most 3 and the representation-sensitive digest   *)
-(*            identity `audit_table_digest = audit_table_digest_expected`. *)
-(*                                                                       *)
-(*    Step 3. Package the artifact as `audit_UC`, exposing both the      *)
-(*            evaluator `audit_U_table` and the digest certificate.      *)
-(*                                                                       *)
-(*    Step 4. Define bounded theoremhood by existence of an environment  *)
-(*            satisfying the pinned input encoding, the representation   *)
-(*            bound, and the cubic equation.                             *)
-(*                                                                       *)
-(*    Step 5. Show that this bounded theoremhood predicate is exactly    *)
-(*            the solvability predicate for the pinned table artifact.   *)
-(*                                                                       *)
-(*                             MECHANIZATION                             *)
-(*                                                                       *)
-(*    forall t,                                                          *)
-(*      table_digest_of (uc_poly audit_UC) = audit_table_digest_expected *)
-(*      /\                                                              *)
-(*      (audit_bounded_thm_k t <->                                      *)
-(*        exists rho : audit_env,                                       *)
-(*          audit_input_encoding_table t rho /\                         *)
-(*          audit_representation_bound rho /\                           *)
-(*          audit_U_table rho = 0)                                      *)
-(*                                                                       *)
-(*                                READING                                *)
-(*                                                                       *)
-(*    For the fixed bounded artifact pinned in `T003`, a code `t`        *)
-(*    satisfies the bounded theoremhood predicate exactly when there     *)
-(*    exists an admissible environment whose public input slot encodes   *)
-(*    `t` and whose evaluation makes the cubic table vanish.            *)
-(*                                                                       *)
-(*                             QUALIFICATION                             *)
-(*                                                                       *)
-(*    This is a bounded endpoint for one pinned cubic artifact. It is    *)
-(*    not the claim that this single fixed table is already universal    *)
-(*    for all theoremhood; the larger undecidability content belongs to  *)
-(*    the scaling family, not to this one bounded instance.              *)
-(*                                                                       *)
-(*************************************************************************)
+(*  See T003__QED.v for the certified claims surface.  *)
 
 End Proof_Index.
-
-Print Assumptions degree_le_3.
-Print Assumptions table_digest_ok.
-Print Assumptions bounded_universal_cubic.
-Print Assumptions bounded_endpoint_inspects_table.
-Print Assumptions bounded_universal_cubic_endpoint.

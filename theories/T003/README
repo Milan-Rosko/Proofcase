@@ -33,6 +33,10 @@
     packaged artifact records, effectivity checks, and bounded endpoint theorem
     into one audit-facing synopsis layer.
 
+    `T003__QED.v` is the certified claims surface for the bounded artifact:
+    degree and digest gates, bounded endpoint theorems, and centralized
+    `Print Assumptions` reports.
+
 2 - On Python
     ---------
     
@@ -58,9 +62,14 @@
     │      Audit/comprehension layer for the bounded cubic artifact and its
     │      endpoint theorem.
     │
+    ├── T003__QED.v
+    │
+    │      QED/claims surface for bounded-artifact endpoints and assumption
+    │      reports.
+    │
     ├── Chunks
     │       │
-    │       │      Equation/cefficients packed in “chunks” for handling.
+    │       │      Equation/coefficients packed in “chunks” for handling.
     │       │
     │       ├── Coeff_chunk_0.v
     │       ├── Coeff_chunk_1.v
@@ -82,6 +91,10 @@
     │       ├── Coeff_chunk_7.v
     │       ├── Coeff_chunk_8.v
     │       └── Coeff_chunk_9.v
+    │
+    ├── R00__VarMap.v
+    │
+    │      Pinned public variable map for the artifact, including `ix_u`.
     │
     ├── R01__Coeff_types.v
     │
@@ -129,19 +142,29 @@
     │
     └── appendix
            │
-           ├── universal_cubic.minimal.coefficients.json
+           ├── assumptions
+           │
+           │      Redirect-generated `Print Assumptions` outputs for the
+           │      certified `T003__QED.v` endpoints.
+           │
+           │      Files:
+           │      `bounded_universal_cubic_artifact_QED.out`
+           │      `bounded_universal_cubic_endpoint_QED.out`
+           │      `degree_le_3_QED.out`
+           │
+           ├── universal_cubic.minimal.json
            │
            │      Minimal (Rocq-focused) bounded cubic table.
            │
-           ├── universal_cubic.minimal.web.html
+           ├── universal_cubic.minimal.html
            │
            │      Rendered long-form equation view for the minimal table.
            │
-           ├── universal_cubic.effective.coefficients.json
+           ├── universal_cubic.effective.json
            │
            │      Effective (demo-focused) bounded cubic table.
            │
-           └── universal_cubic.effective.web.html
+           └── universal_cubic.effective.html
 
                   Rendered long-form equation view for the effective table.
 
@@ -151,27 +174,27 @@
 
     Generate minimal JSON (Rocq-focused):
 
-    python3 theories/T003/python/generator/gen.py \
+    python3 theories/T003/python/gen.py \
       --k 3 --w 4 --base 5 --mode hierarchical --block-size 32 --outer-base 7 \
       --public-vars u:trace_code \
-      --out theories/T003/artifacts/universal_cubic.minimal.coefficients.json
+      --out theories/T003/appendix/universal_cubic.minimal.json
 
     Generate effective JSON (web/demo-focused):
 
-    python3 theories/T003/python/generator/gen.py \
+    python3 theories/T003/python/gen.py \
       --k 1 --w 9 --base 6000001 --mode hierarchical --block-size 32 \
       --outer-base 6000003 --public-vars u:trace_code --reserve-public-slots \
-      --out theories/T003/artifacts/universal_cubic.effective.coefficients.json
+      --out theories/T003/appendix/universal_cubic.effective.json
 
     Render web equation HTML from a generated JSON:
 
-    python3 theories/T003/python/generator/webgen.py \
-      --in theories/T003/artifacts/universal_cubic.minimal.coefficients.json \
-      --emit-html theories/T003/artifacts/universal_cubic.minimal.web.html
+    python3 theories/T003/python/webgen.py \
+      --in theories/T003/appendix/universal_cubic.minimal.json \
+      --emit-html theories/T003/appendix/universal_cubic.minimal.html
 
-    python3 theories/T003/python/generator/webgen.py \
-      --in theories/T003/artifacts/universal_cubic.effective.coefficients.json \
-      --emit-html theories/T003/artifacts/universal_cubic.effective.web.html
+    python3 theories/T003/python/webgen.py \
+      --in theories/T003/appendix/universal_cubic.effective.json \
+      --emit-html theories/T003/appendix/universal_cubic.effective.html
 
 
 5 - Semantics
@@ -179,7 +202,7 @@
 
     Source of truth for encoding is the Python code
 
-    `theories/T003/python/generator/gen.py`.
+    `theories/T003/python/gen.py`.
 
     The cubic artifact does not define a new encoding in Rocq. Rocq consumes
     the generated table + VarMap. If you want to encode a sentence/formula,
@@ -240,7 +263,7 @@
              concrete code that flows into `trace_code`/`u`.
 
     (vii)   One would always regenerate via
-            `python3 theories/T003/python/generator/gen.py` with explicit
+            `python3 theories/T003/python/gen.py` with explicit
             profile parameters, and ensure constructor gates pass via
             `--self-check` and `--contract-check`.
 

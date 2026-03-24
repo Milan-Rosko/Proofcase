@@ -1,4 +1,15 @@
-(* R22__Channel_Bounds.v *)
+(*
+
+  Proofcase / T002 / Channel Bounds
+  =================================
+
+    Overview
+    --------
+
+      We develop the Channel Bounds layer used by the T002 sigma-reduction
+      route. This file packages the definitions and lemmas exported to
+      later modules in the same route.
+*)
 
 From Coq Require Import Arith Lia List PeanoNat.
 Import ListNotations.

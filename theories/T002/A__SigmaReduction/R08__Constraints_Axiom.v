@@ -1,4 +1,15 @@
-(* R08__Axiom_Constraint.v *)
+(*
+
+  Proofcase / T002 / Constraints Axiom
+  ====================================
+
+    Overview
+    --------
+
+      We develop the Constraints Axiom layer used by the T002 sigma-
+      reduction route. This file packages the definitions and lemmas
+      exported to later modules in the same route.
+*)
 
 From Coq Require Import Arith Bool Lia List PeanoNat.
 Import ListNotations.
@@ -6,6 +17,7 @@ Import ListNotations.
 From T002 Require Import R00__Degree_Framework.
 
 From T002 Require Export
+
   R06__Encoding_Formula_Coding.
 
 From T002 Require Import

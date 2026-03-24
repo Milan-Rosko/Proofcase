@@ -1,13 +1,12 @@
-(* R17__Extraction_Interface.v *)
+(*
 
-(*************************************************************************)
-(*                                                                       *)
-(*  DEPRECATED                                                           *)
-(*                                                                       *)
-(*  The sanctioned extraction surface for T002 now lives at the package  *)
-(*  root in `T002__Extraction_Interface.v`, alongside the comprehension  *)
-(*  layer.  This numbered file is retained only as a historical marker   *)
-(*  inside the sigma-reduction chain and intentionally exports no        *)
-(*  extraction commands or executable surface.                           *)
-(*                                                                       *)
-(*************************************************************************)
+  Proofcase / T002 / Extraction Interface
+  =======================================
+
+    Overview
+    --------
+
+      We develop the Extraction Interface layer used by the T002 sigma-
+      reduction route. This file packages the definitions and lemmas
+      exported to later modules in the same route.
+*)

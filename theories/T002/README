@@ -5,7 +5,7 @@
 
     T002 provides a mechanized Rocq development of a Hilbert-style proof
     checker and its reduction to a cubic polynomial satisfiability witness
-    system.  The construction is organized into three audit-facing parts:
+    system.  The construction is organized into five audit-facing parts:
 
       (i) `A__SigmaReduction`
 
@@ -29,6 +29,13 @@
 
           The sanctioned root-level OCaml extraction surface for the checker,
           compiler, and carryless-pairing utilities.
+
+      (v) `T002__QED.v`
+
+          Certified claims surface for the public T002 endpoints (Tier 1
+          reduction, Tier 2 undecidability, Tier 3 parametric certification
+          corollary), proved by direct endpoint reuse and accompanied by
+          centralized `Print Assumptions` reports.
 
     The coded-decider semantics used by Tier 2 is execution-based through
     `EvalRM`/`TotalRM`, exposed at the stable API boundary `R18`/`R19`.
@@ -59,6 +66,12 @@
     │
     │      Root-level OCaml extraction interface exposing the checker,
     │      compiler summaries, and P0-specialized carryless-pairing wrappers.
+    │
+    ├── T002__QED.v
+    │
+    │      QED surface.  States the exact public targets of T002
+    │      (PROPOSITIO), certifies each endpoint by direct reuse
+    │      (Q.E.D.), and exposes the key assumption reports.
     │
     ├── A__SigmaReduction
     │         │
@@ -235,6 +248,12 @@
     │                impossibility theorem.
     │
     └── appendix
+        │
+        ├── assumptions
+        │
+        │      Checked destination for redirect-generated `Print Assumptions`
+        │      outputs for the principal `T002__QED.v` theorems. Reports are
+        │      copied in from the shadow build when produced.
         │
         ├── carryless_pairing.ml
         │

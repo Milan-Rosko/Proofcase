@@ -1,4 +1,15 @@
-(* R09__MP_Constraint.v *)
+(*
+
+  Proofcase / T002 / Constraints MP
+  =================================
+
+    Overview
+    --------
+
+      We develop the Constraints MP layer used by the T002 sigma-reduction
+      route. This file packages the definitions and lemmas exported to
+      later modules in the same route.
+*)
 
 From Coq Require Import Arith Bool Lia List PeanoNat.
 Import ListNotations.

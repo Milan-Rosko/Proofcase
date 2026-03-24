@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Diagonal Rays — Rule 30</title>
+  <style>
+    :root {
+      --page-bg: #000;
+      --frame: #000;
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+    }
+
+    body {
+      background: var(--page-bg);
+      font-family: "Georgia", "Times New Roman", serif;
+      overflow: hidden;
+    }
+
+    .viewport {
+      box-sizing: border-box;
+      width: 100vw;
+      height: 100vh;
+      padding: 24px;
+      overflow: auto;
+    }
+
+    .stack {
+      display: grid;
+      gap: 24px;
+      width: max-content;
+      margin: 0 auto;
+    }
+
+    canvas {
+      display: block;
+      border: 1px solid var(--frame);
+      image-rendering: pixelated;
+      background: #ffffff;
+    }
+  </style>
+</head>
+<body>
+  <div class="viewport">
+    <div class="stack">
+      <canvas id="ray" aria-label="Rule 30 diagonal traces"></canvas>
+
+      <script>
+        const PIXEL_SIZE = 1;
+        const STEPS_L = 1000;
+        const NUM_DIAGS_L = 300;
+
+        const STEPS = STEPS_L;
+        const NUM_DIAGS = NUM_DIAGS_L;
+
+        // ── Compute Rule 30 ──────────────────────────────────────────
+        // Strip 2k from D_k to clear the seed-cone overlap.
+        // D_k display[x] = Rule30_row(2k+x)((2k+x)−k) = Rule30_row(2k+x)(k+x)
+        const TOTAL = STEPS + 2 * NUM_DIAGS;
+        const SIZE = 2 * TOTAL + 1;
+        const C = TOTAL;
+        let prev = new Uint8Array(SIZE);
+        let curr = new Uint8Array(SIZE);
+
+        prev[C] = 1;  // seed
+
+        const diags = Array.from({ length: NUM_DIAGS }, () => new Uint8Array(STEPS));
+        diags[0][0] = 1;
+
+        for (let t = 1; t < TOTAL; t++) {
+          curr.fill(0);
+          for (let p = -t; p <= t; p++) {
+            const a = prev[C + p - 1];
+            const b = prev[C + p];
+            const c = prev[C + p + 1];
+            curr[C + p] = a ^ (b | c);
+          }
+
+          // D_k: offset = 2k.  Display index x = t − 2k.
+          // Position in row = t − k.
+          for (let k = 0; k < NUM_DIAGS; k++) {
+            const x = t - 2 * k;
+            if (x >= 0 && x < STEPS) {
+              const pos = t - k;
+              diags[k][x] = curr[C + pos];
+            }
+          }
+
+          [prev, curr] = [curr, prev];
+        }
+
+        // ── Draw: 10 data rows with 1px separator between each ─────
+        // Layout bottom-to-top: D_0 (1111...) at bottom, D_9 at top.
+        // Each data row = 1px high.  Separator = 1px white.
+        // Total height = NUM_DIAGS + (NUM_DIAGS - 1) = 2*NUM_DIAGS - 1
+        const CANVAS_H = 2 * NUM_DIAGS - 1;   // 19px
+        const canvas = document.getElementById("ray");
+        canvas.width  = STEPS;
+        canvas.height = CANVAS_H;
+        canvas.style.width = `${STEPS * PIXEL_SIZE}px`;
+        canvas.style.height = `${CANVAS_H * PIXEL_SIZE}px`;
+        const ctx   = canvas.getContext("2d");
+        const image = ctx.createImageData(STEPS, CANVAS_H);
+        const data  = image.data;
+
+        // fill white
+        for (let i = 0; i < data.length; i += 4) {
+          data[i] = 255; data[i+1] = 255; data[i+2] = 255; data[i+3] = 255;
+        }
+
+        // plot: D_0 at bottom row (y = CANVAS_H-1), D_1 one above that, etc.
+        // D_k → pixel row y = CANVAS_H - 1 - k*2
+        for (let k = 0; k < NUM_DIAGS; k++) {
+          const y = CANVAS_H - 1 - k * 2;
+          for (let t = 0; t < STEPS; t++) {
+            if (diags[k][t]) {
+              const idx = (y * STEPS + t) * 4;
+              data[idx] = 0; data[idx+1] = 0; data[idx+2] = 0; data[idx+3] = 255;
+            }
+          }
+        }
+
+        ctx.putImageData(image, 0, 0);
+      </script>
+
+      <canvas id="ray-left" aria-label="Rule 30 left diagonal traces"></canvas>
+
+      <script>
+        // ── Left-side diagonals: L_k(t) = Rule30_row(t)(−t + k) ─────
+        // Same Rule 30, but traced from the LEFT frontier inward.
+        {
+
+          const TOTAL_L = STEPS_L + 2 * NUM_DIAGS_L;
+          const SIZE_L = 2 * TOTAL_L + 1;
+          const CL = TOTAL_L;
+          let prevL = new Uint8Array(SIZE_L);
+          let currL = new Uint8Array(SIZE_L);
+
+          prevL[CL] = 1;
+
+          const diagsL = Array.from({ length: NUM_DIAGS_L }, () => new Uint8Array(STEPS_L));
+          diagsL[0][0] = 1;
+
+          for (let t = 1; t < TOTAL_L; t++) {
+            currL.fill(0);
+            for (let p = -t; p <= t; p++) {
+              const a = prevL[CL + p - 1];
+              const b = prevL[CL + p];
+              const c = prevL[CL + p + 1];
+              currL[CL + p] = a ^ (b | c);
+            }
+
+            // L_k: offset = 2k.  Display index x = t − 2k.
+            // Position in row is the NE -> SW trace, with the higher
+            // odd-index channels shifted one cell further left to keep
+            // the packed family aligned.
+            for (let k = 0; k < NUM_DIAGS_L; k++) {
+              const x = t - 2 * k;
+              if (x >= 0 && x < STEPS_L) {
+                const oddShift = k >= 3 && (k & 1) ? 1 : 0;
+                const pos = -k - x - oddShift;
+                diagsL[k][x] = currL[CL + pos];
+              }
+            }
+
+            [prevL, currL] = [currL, prevL];
+          }
+
+          // ── Draw left-side canvas ──────────────────────────────────
+          const CANVAS_H_L = 2 * NUM_DIAGS_L - 1;
+          const canvasL = document.getElementById("ray-left");
+          canvasL.width  = STEPS_L;
+          canvasL.height = CANVAS_H_L;
+          canvasL.style.width = `${STEPS_L * PIXEL_SIZE}px`;
+          canvasL.style.height = `${CANVAS_H_L * PIXEL_SIZE}px`;
+          const ctxL   = canvasL.getContext("2d");
+          const imageL = ctxL.createImageData(STEPS_L, CANVAS_H_L);
+          const dataL  = imageL.data;
+
+          for (let i = 0; i < dataL.length; i += 4) {
+            dataL[i] = 255; dataL[i+1] = 255; dataL[i+2] = 255; dataL[i+3] = 255;
+          }
+
+          // L_0 at bottom, L_(N-1) at top — same layout as right side
+          for (let k = 0; k < NUM_DIAGS_L; k++) {
+            const y = CANVAS_H_L - 1 - k * 2;
+            for (let t = 0; t < STEPS_L; t++) {
+              if (diagsL[k][t]) {
+                const idx = (y * STEPS_L + t) * 4;
+                dataL[idx] = 0; dataL[idx+1] = 0; dataL[idx+2] = 0; dataL[idx+3] = 255;
+              }
+            }
+          }
+
+          ctxL.putImageData(imageL, 0, 0);
+        }
+      </script>
+    </div>
+  </div>
+</body>
+</html>

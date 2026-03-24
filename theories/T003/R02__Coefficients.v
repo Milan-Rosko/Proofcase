@@ -1,3 +1,16 @@
+(*
+
+  Proofcase / T003 / Coefficient Assembly
+  =======================================
+
+    Overview
+    --------
+
+      We assemble the full coefficient table of the pinned bounded cubic
+      artifact. This file imports the chunked data and reconstructs the
+      polynomial evaluated by the later universal interface.
+*)
+
 From Coq Require Import ZArith List String.
 Import ListNotations.
 Open Scope Z_scope.

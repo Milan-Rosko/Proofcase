@@ -1,29 +1,29 @@
-(* R01__Pigeonhole_Divisibility.v *)
+(*
+
+  Proofcase / T000 / Main Theorem
+  ===============================
+
+    Overview
+    --------
+
+      We prove that any subset A of {1, ..., 2n} with |A| = n+1 contains two
+      distinct elements a, b such that a | b or b | a.
+
+      The proof proceeds in three steps:
+
+      Step 1.   We state a list-based pigeonhole principle: if a map sends n+1
+                distinct values into a codomain of size n, two inputs collide.
+
+      Step 2.   We apply it to the odd-part map on the elements of A, whose
+                codomain is the n odd numbers in {1, ..., 2n}.
+
+      Step 3.   We invoke same_odd_part_divides from R01 to conclude.
+*)
 
 From Coq Require Import Arith Bool Lia List PeanoNat.
 Import ListNotations.
 
 From T000 Require Import R01__Odd_Part.
-
-(*************************************************************************)
-(*                                                                       *)
-(*  Proofcase / Pigeonhole Divisibility — Main Theorem                   *)
-(*                                                                       *)
-(*  We prove that any subset A of {1, ..., 2n} with |A| = n+1 contains   *)
-(*  two distinct elements a, b such that a | b or b | a.                 *)
-(*                                                                       *)
-(*  The proof proceeds in three steps:                                   *)
-(*                                                                       *)
-(*    (i)   We state a list-based pigeonhole principle: if a map sends   *)
-(*          n+1 distinct values into a codomain of size n, two inputs    *)
-(*          collide.                                                     *)
-(*                                                                       *)
-(*    (ii)  We apply it to the odd-part map on the elements of A, whose  *)
-(*          codomain is the n odd numbers in {1, ..., 2n}.               *)
-(*                                                                       *)
-(*    (iii) We invoke same_odd_part_divides from R01 to conclude.        *)
-(*                                                                       *)
-(*************************************************************************)
 
 Section Pigeonhole.
 
@@ -125,8 +125,8 @@ Theorem pigeonhole_divisibility :
 Proof.
 
   (*
-    Step 1.  We apply the pigeonhole principle with the odd-part map
-    and the list odd_range n as the set of categories.
+    Step 1.  We apply the pigeonhole principle with the odd-part map and the
+    list odd_range n as the set of categories.
   *)
   
   destruct (pigeonhole nat odd_part A (odd_range n)) as [a [b [Ha [Hb [Hneq Heq]]]]].
@@ -141,8 +141,8 @@ Proof.
     lia.
 
   (*
-    Step 2.  We have a <> b in A with odd_part a = odd_part b.
-    By same_odd_part_divides, one divides the other.
+    Step 2.  We have a <> b in A with odd_part a = odd_part b. By
+    same_odd_part_divides, one divides the other.
   *)
   
   - exists a, b.
@@ -157,9 +157,9 @@ Proof.
 Qed.
 
 (*
-  The bound n + 1 is tight: the set {n+1, n+2, ..., 2n} has exactly n
-  elements and contains no pair where one divides the other (for n >= 2).
-  We record this as a remark rather than a formal proof.
+  The bound n + 1 is tight: the set {n+1, n+2, ..., 2n} has exactly n elements
+  and contains no pair where one divides the other (for n >= 2). We record this
+  as a remark rather than a formal proof.
 *)
 
 End Main_Theorem.

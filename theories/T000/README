@@ -53,13 +53,21 @@
     │      abstract pigeonhole principle, and the final divisibility
     │      endpoint.
     │
-    ├── T000__Extraction_Interface.v
+    ├── T000__QED.v
     │
-    │      OCaml extraction surface for odd-part computations, odd-range
-    │      inspection, finite witness search, and assumption reporting for
-    │      the principal theorems.
+    │      QED surface.  States the exact public target of T000 (PROPOSITIO),
+    │      certifies it by a single appeal to pigeonhole_divisibility (Q.E.D.),
+    │      and exposes the executable OCaml extraction interface for odd-part
+    │      computations, odd-range inspection, and finite witness search.
     │
     └── appendix
+           ├── assumptions
+           │       │
+           │       └── pigeonhole_divisibility_QED.out
+           │
+           │              Redirect-generated Print Assumptions output for
+           │              the principal QED theorem.
+           │
            ├── Canonicalization
            │
            │      Canonical style memorandum for template-level Proofcase
@@ -83,6 +91,6 @@
            │      same-odd-part collisions and divisibility classification.
            │
            └── PigeonholeDivisibilityWitness.mli
-           
+
                   Generated OCaml interface for the extracted witness-search
                   surface.

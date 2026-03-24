@@ -1,4 +1,15 @@
-(* R05__Hilbert_Checker.v *)
+(*
+
+  Proofcase / T002 / Verification Hilbert Checker
+  ===============================================
+
+    Overview
+    --------
+
+      We develop the Verification Hilbert Checker layer used by the T002
+      sigma-reduction route. This file packages the definitions and lemmas
+      exported to later modules in the same route.
+*)
 
 From Coq Require Import Arith Bool Init.Logic List.
 Import ListNotations.

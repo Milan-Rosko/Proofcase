@@ -1,4 +1,16 @@
-(* R04__Universal.v *)
+(*
+
+  Proofcase / T003 / Universal Interface
+  ======================================
+
+    Overview
+    --------
+
+      We expose the kernel-facing universal interface for the pinned
+      bounded cubic artifact. This file wraps the concrete coefficient
+      table as U and records the inspection boundary used by downstream
+      results.
+*)
 
 From Coq Require Import ZArith List String Lia.
 Import ListNotations.

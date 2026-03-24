@@ -1,10 +1,17 @@
-(* R00__Degree_Framework.v *)
+(*
+
+  Proofcase / T002 / Degree Framework
+  ===================================
+
+    Overview
+    --------
+
+      We develop the Degree Framework layer used by the T002 sigma-
+      reduction route. This file packages the definitions and lemmas
+      exported to later modules in the same route.
+*)
 
 From Coq Require Import Arith Lia.
-
-(*
-  Polynomial expressions over natural-number variables.
-*)
 
 Inductive Expr : Type :=
   | Const : nat -> Expr

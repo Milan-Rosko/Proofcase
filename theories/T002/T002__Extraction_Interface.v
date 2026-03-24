@@ -202,8 +202,3 @@ Extraction "carryless_pairing.ml"
 (*  honest with respect to the certified kernel interface.               *)
 (*                                                                       *)
 (*************************************************************************)
-
-Print Assumptions cubic_accepts_iff_cubic_witness.
-Print Assumptions check_iff_emit_cubic_all_zero.
-Print Assumptions emit_single_cubic_degree_le_3.
-Print Assumptions unpair_pair_P0.

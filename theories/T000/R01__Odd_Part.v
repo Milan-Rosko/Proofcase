@@ -1,31 +1,34 @@
-(* R01__Odd_Part.v *)
+(*
+
+  Proofcase / T000 / Definitions
+  ==============================
+
+    Overview
+    --------
+
+      We define the odd-part map and establish the properties needed by the
+      divisibility theorem in R01.  Every positive integer a admits a unique
+      decomposition a = 2^k m with m odd; we call m the odd part of a. The key
+      facts are:
+
+      (i)    odd_part a is always odd
+      (ii)   odd_part a divides a
+      (iii)  odd_part a <= a
+      (iv)   same odd part implies divisibility
+      (v)    there are exactly n odd numbers in {1, ..., 2n}
+*)
 
 From Coq Require Import Arith Bool Lia List PeanoNat.
 Import ListNotations.
 
-(*************************************************************************)
-(*                                                                       *)
-(*  Proofcase / Pigeonhole Divisibility — Odd-Part Decomposition         *)
-(*                                                                       *)
-(*  We define the odd-part map and establish the properties needed by    *)
-(*  the divisibility theorem in R01.  Every positive integer a admits    *)
-(*  a unique decomposition a = 2^k m with m odd; we call m the odd       *)
-(*  part of a.  The key facts are:                                       *)
-(*                                                                       *)
-(*    (i)   odd_part a is always odd                                     *)
-(*    (ii)  odd_part a divides a                                         *)
-(*    (iii) odd_part a <= a                                              *)
-(*    (iv)  same odd part implies divisibility                           *)
-(*    (v)   there are exactly n odd numbers in {1, ..., 2n}              *)
-(*                                                                       *)
-(*************************************************************************)
-
 Section Odd_Part_Definitions.
 
 (*
-  We strip all factors of 2 from a positive natural number.
-  The fuel parameter bounds the recursion; n itself suffices
-  since div2 strictly decreases positive values.
+  We strip all factors of 2 from a
+  positive natural number. The fuel
+  parameter bounds the recursion; n
+  itself suffices since div2 strictly
+  decreases positive values.
 *)
 
 Fixpoint odd_part_aux (fuel n : nat) : nat :=
@@ -45,7 +48,8 @@ Definition odd_part (n : nat) : nat :=
   odd_part_aux n n.
 
 (*
-  The 2-adic valuation: the exponent k in a = 2^k odd_part(a).
+  The 2-adic valuation: the exponent
+  k in a = 2^k odd_part(a).
 *)
 
 Fixpoint val2_aux (fuel n : nat) : nat :=
@@ -144,7 +148,8 @@ Proof.
 Qed.
 
 (*
-  The odd part of n is at least 1 when n >= 1.
+  The odd part of n is at least 1 when
+  n >= 1.
 *)
 
 Lemma odd_part_pos :
@@ -211,7 +216,8 @@ Proof.
 Qed.
 
 (*
-  Fuel-indexed decomposition: n = 2^(val2_aux fuel n) * odd_part_aux fuel n.
+  Fuel-indexed decomposition:
+  n = 2^(val2_aux fuel n) * odd_part_aux fuel n.
 *)
 
 Lemma decomposition_aux :
@@ -249,7 +255,8 @@ Proof.
 Qed.
 
 (*
-  The quotient n / odd_part(n) is a power of 2.  We express this as:
+  The quotient n / odd_part(n) is a
+  power of 2. We express this as:
   n = 2^(val2 n) times odd_part(n).
 *)
 
@@ -266,9 +273,11 @@ Proof.
 Qed.
 
 (*
-  If two positive integers share the same odd part, one divides the
-  other.  This follows because a = 2^k m and b = 2^l m, so
-  assuming k <= l we get b = 2^(l-k) a.
+  If two positive integers share the
+  same odd part, one divides the
+  other. This follows because a = 2^k
+  m and b = 2^l m, so assuming k <= l
+  we get b = 2^(l-k) a.
 *)
 
 Theorem same_odd_part_divides :
@@ -312,9 +321,11 @@ End Odd_Part_Properties.
 Section Odd_Range.
 
 (*
-  We generate the list of odd numbers in {1, ..., 2n}.
-  This list has exactly n elements and serves as the set of
-  pigeonholes in the main theorem.
+  We generate the list of odd numbers
+  in {1, ..., 2n}. This list has
+  exactly n elements and serves as
+  the set of pigeonholes in the main
+  theorem.
 *)
 
 Fixpoint odd_range (n : nat) : list nat :=
@@ -338,8 +349,9 @@ Proof.
 Qed.
 
 (*
-  Characterization of membership in odd_range: k is in the list
-  iff k = 2i + 1 for some i < n.
+    Characterization of membership in
+    odd_range: k is in the list iff
+    k = 2i + 1 for some i < n.
 *)
 
 Lemma odd_range_in_iff :
@@ -384,7 +396,8 @@ Proof.
 Qed.
 
 (*
-  Every element of odd_range n is between 1 and 2n - 1.
+  Every element of odd_range n is
+  between 1 and 2n - 1.
 *)
 
 Lemma odd_range_bounds :
@@ -426,8 +439,10 @@ Proof.
 Qed.
 
 (*
-  The odd part of any a in {1, ..., 2n} belongs to odd_range n.
-  This is the counting fact that gives us only n pigeonholes.
+  The odd part of any a in {1, ...,
+  2n} belongs to odd_range n. This is
+  the counting fact that gives us
+  only n pigeonholes.
 *)
 
 Lemma odd_part_in_range :

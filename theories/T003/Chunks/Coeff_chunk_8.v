@@ -1,3 +1,16 @@
+(*
+
+  Proofcase / T003 / Coefficient Chunk 8
+  ======================================
+
+    Overview
+    --------
+
+      We record coefficient chunk 8 of the pinned bounded cubic artifact.
+      This file contains a contiguous slice of the coefficient table
+      imported by R02__Coefficients to reconstruct the full polynomial.
+*)
+
 From Coq Require Import ZArith List String.
 Import ListNotations.
 Open Scope Z_scope.

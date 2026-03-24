@@ -1,4 +1,15 @@
-(* P00__Concrete_Provability.v *)
+(*
+
+  Proofcase / T002 / Concrete Provability
+  =======================================
+
+    Overview
+    --------
+
+      We develop the Concrete Provability layer used by the T002 proof-
+      theory route. This file packages the definitions and lemmas exported
+      to later modules in the same route.
+*)
 
 From Coq Require Import Arith Bool Lia.
 

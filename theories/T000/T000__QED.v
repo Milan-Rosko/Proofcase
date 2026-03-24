@@ -1,4 +1,4 @@
-(* T000__Extraction_Interface.v *)
+(* T000__QED.v *)
 
 From Coq Require Import Arith Bool Extraction List PeanoNat.
 Import ListNotations.
@@ -9,12 +9,86 @@ From T000 Require Import
 
 (*************************************************************************)
 (*                                                                       *)
-(*  Proofcase / Pigeonhole Divisibility -- OCaml Extraction Interface    *)
+(*    ________________________  _________________                        *)
+(*    ___________________  __ \ ___  ____/__  __ \                       *)
+(*    __________________  / / / __  __/  __  / / /                       *)
+(*    _________________/ /_/ /___  /______  /_/ /__                      *)
+(*    _________________\___\_\(_)_____/(_)_____/_(_)                     *)
 (*                                                                       *)
-(*  T000 is primarily a proof package, but its local arithmetic is       *)
-(*  executable.  This file exposes a small computational surface for     *)
-(*  odd-part analysis, odd-range inspection, and finite witness search   *)
-(*  mirroring the main theorem statement.                                *)
+(*    Proofcase / T000 -- QED Surface                                    *)
+(*                                                                       *)
+(*    This file states an exact public target, the Rocq-side criteria    *)
+(*    required  by  the reductions, certifies each endpoint by direct    *)
+(*    reuse, and exposes the key assumption reports.                     *)
+(*                                                                       *)
+(*************************************************************************)
+
+(*************************************************************************)
+(*                                                                       *)
+(*                              PROPOSITIO                               *)
+(*                                                                       *)
+(*************************************************************************)
+
+(*
+  Proofcase / T000 / QED
+  ======================
+
+    Overview
+    --------
+
+      PIGEONHOLE DIVISIBILITY  (Erdős / Aigner, Proofs from THE BOOK)
+
+      Let n be a positive natural number and let A be a finite collection
+      of n + 1 pairwise distinct elements drawn from the interval
+      {1, 2, ..., 2n}.  Then A necessarily contains two distinct elements
+      a and b such that a divides b or b divides a.
+
+      The proof proceeds in four steps:
+
+        Step 1.  Every positive integer m admits a unique decomposition
+                 m = 2^k * odd_part(m) with odd_part(m) odd.  We call
+                 odd_part(m) the odd part of m.
+
+        Step 2.  For inputs in {1, ..., 2n}, the odd-part map lands in
+                 the explicit n-element list odd_range(n) of odd numbers
+                 {1, 3, 5, ..., 2n - 1}.
+
+        Step 3.  The list A has n + 1 elements and odd_range(n) has n
+                 elements.  By the pigeonhole principle, two distinct
+                 elements a, b in A satisfy odd_part(a) = odd_part(b).
+
+        Step 4.  Since a = 2^j * odd_part(a) and b = 2^k * odd_part(b)
+                 share the same odd factor, the one with the smaller
+                 2-adic valuation divides the other.
+*)
+
+Definition PROPOSITIO : Prop :=
+  forall n A,
+    (forall a, In a A -> 1 <= a /\ a <= 2 * n) ->
+    NoDup A ->
+    length A = n + 1 ->
+    exists a b,
+      In a A /\
+      In b A /\
+      a <> b /\
+      (Nat.divide a b \/ Nat.divide b a).
+
+(*************************************************************************)
+(*                                                                       *)
+(*                                Q.E.D.                                 *)
+(*                                                                       *)
+(*************************************************************************)
+
+Theorem pigeonhole_divisibility_QED : PROPOSITIO.
+Proof.
+  exact pigeonhole_divisibility.
+Qed.
+
+Print Assumptions pigeonhole_divisibility_QED.
+
+(*************************************************************************)
+(*                                                                       *)
+(*                           OCaml Extraction                            *)
 (*                                                                       *)
 (*************************************************************************)
 
@@ -213,7 +287,8 @@ Definition classify_divisibility_direction
 
 (*
   (19)
-  Package a collision as an explicit witness object.
+  Package a collision as an explicit
+  witness object.
 *)
 
 Definition build_witness_from_collision
@@ -269,13 +344,16 @@ Extraction "PigeonholeDivisibilityWitness.ml"
 
 (*************************************************************************)
 (*                                                                       *)
-(*  KEY ASSUMPTION REPORT                                                *)
+(*    ASSUMPTION REPORT                                                  *)
 (*                                                                       *)
-(*  T000 is intended to be fully closed.  The reports below keep that    *)
-(*  visible in the sanctioned build output.                              *)
+(*    T000  is  intended  to  be fully closed. The reports below keep    *)
+(*    that visible in the sanctioned build output.                       *)
 (*                                                                       *)
 (*************************************************************************)
 
 Print Assumptions same_odd_part_divides.
 Print Assumptions pigeonhole.
 Print Assumptions pigeonhole_divisibility.
+
+Redirect "theories/T000/appendix/assumptions/pigeonhole_divisibility_QED"
+  Print Assumptions pigeonhole_divisibility_QED.

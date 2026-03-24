@@ -1,4 +1,15 @@
-(* R16__Sigma_Reduction.v *)
+(*
+
+  Proofcase / T002 / Sigma Reduction
+  ==================================
+
+    Overview
+    --------
+
+      We develop the Sigma Reduction layer used by the T002 sigma-
+      reduction route. This file packages the definitions and lemmas
+      exported to later modules in the same route.
+*)
 
 From Coq Require Import Arith Lia List.
 Import ListNotations.

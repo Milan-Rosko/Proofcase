@@ -1,18 +1,21 @@
-(* R05__Effectivity *)
+(*
+
+  Proofcase / T003 / Effectivity Checks
+  =====================================
+
+    Overview
+    --------
+
+      We record executable sanity checks for the pinned bounded universal
+      cubic artifact. The computations in this file show that the
+      assembled polynomial can be evaluated concretely inside Rocq.
+*)
 
 From Coq Require Import ZArith List Bool Arith.
 Import ListNotations.
 Open Scope Z_scope.
 
-(*
-  Effectivity tests for the concrete T003 universal polynomial.
-*)
-
 From T003 Require Import R01__Coeff_types R02__Coefficients R03__Degree R04__Universal.
-
-(*
-  Basic semantic sanity
-*)
 
 Definition zero_env : env := fun _ => 0%Z.
 
@@ -116,11 +119,3 @@ Qed.
 (*
   Assumption audit for the concrete effectivity tests.
 *)
-
-Print Assumptions test_eval_zero_env_computable.
-Print Assumptions test_eval_small_env.
-Print Assumptions test_all_indices_bounded.
-Print Assumptions test_no_zero_monomials.
-Print Assumptions test_degree_at_most_3.
-Print Assumptions test_max_degree_eq_3.
-Print Assumptions test_has_degree_3_true.

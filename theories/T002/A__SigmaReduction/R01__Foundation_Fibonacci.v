@@ -1,18 +1,18 @@
-(* R01__Foundation_Fibonacci.v *)
+(*
+
+  Proofcase / T002 / Foundation Fibonacci
+  =======================================
+
+    Overview
+    --------
+
+      We develop the Foundation Fibonacci layer used by the T002 sigma-
+      reduction route. This file packages the definitions and lemmas
+      exported to later modules in the same route.
+*)
 
 From Coq Require Import Arith Bool List PeanoNat.
 Import ListNotations.
-
-(*************************************************************************)
-(*                                                                       *)
-(*  Carryless Pairing — Definitions                                      *)
-(*                                                                       *)
-(*************************************************************************)
-
-(*
-   Fibonacci sequence (structural recursion via pairs).
-   This avoids non-structural calls to fib (S k).
-*)
 
 Fixpoint fib_pair (n : nat) : nat * nat :=
   match n with

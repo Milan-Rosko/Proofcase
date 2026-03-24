@@ -1,4 +1,15 @@
-(* R13__Kernel_API.v *)
+(*
+
+  Proofcase / T002 / Kernel API
+  =============================
+
+    Overview
+    --------
+
+      We develop the Kernel API layer used by the T002 sigma-reduction
+      route. This file packages the definitions and lemmas exported to
+      later modules in the same route.
+*)
 
 From Coq Require Import List.
 Import ListNotations.

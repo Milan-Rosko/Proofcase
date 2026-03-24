@@ -1,0 +1,6 @@
+Axioms:
+Transversal_Bridge :
+  forall T P k : nat,
+  (0 < P)%nat ->
+  (forall t : nat, (T <= t)%nat -> center_strip (t + P) = center_strip t) ->
+  divides (2 ^ k) P

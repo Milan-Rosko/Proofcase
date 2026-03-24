@@ -1,4 +1,15 @@
-(* P01__HBL.v *)
+(*
+
+  Proofcase / T002 / HBL
+  ======================
+
+    Overview
+    --------
+
+      We develop the HBL layer used by the T002 proof-theory route. This
+      file packages the definitions and lemmas exported to later modules
+      in the same route.
+*)
 
 From Coq Require Import Bool List.
 Import ListNotations.

@@ -1,4 +1,15 @@
-(* R15__Code_Bridge.v *)
+(*
+
+  Proofcase / T002 / Code Bridge
+  ==============================
+
+    Overview
+    --------
+
+      We develop the Code Bridge layer used by the T002 sigma-reduction
+      route. This file packages the definitions and lemmas exported to
+      later modules in the same route.
+*)
 
 From Coq Require Import Arith List.
 Import ListNotations.

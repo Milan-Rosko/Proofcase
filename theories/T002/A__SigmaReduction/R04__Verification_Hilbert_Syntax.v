@@ -1,14 +1,21 @@
-(* R04__Hilbert_Syntax.v *)
+(*
+
+  Proofcase / T002 / Verification Hilbert Syntax
+  ==============================================
+
+    Overview
+    --------
+
+      We develop the Verification Hilbert Syntax layer used by the T002
+      sigma-reduction route. This file packages the definitions and lemmas
+      exported to later modules in the same route.
+*)
 
 From Coq Require Import Arith Bool Init.Logic List.
 Import ListNotations.
 
 Set Implicit Arguments.
 Unset Strict Implicit.
-
-(*
-  Hilbert-style formula type: bottom and implication.
-*)
 
 Inductive Form : Type :=
   | F_Bot : Form

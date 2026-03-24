@@ -1,12 +1,17 @@
-(* P05__Toggle_Contradiction.v *)
+(*
+
+  Proofcase / T002 / Toggle Contradiction
+  =======================================
+
+    Overview
+    --------
+
+      We develop the Toggle Contradiction layer used by the T002 proof-
+      theory route. This file packages the definitions and lemmas exported
+      to later modules in the same route.
+*)
 
 From T002 Require Import P00__Provability_Interface.
-
-(*************************************************************************)
-(*                                                                       *)
-(*  Tier 2 toggle contradiction core (coded deciders only)               *)
-(*                                                                       *)
-(*************************************************************************)
 
 Definition ToggleWitnessCode (e : DeciderCode) : Prop :=
   exists s : nat,

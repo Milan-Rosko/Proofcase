@@ -1,23 +1,19 @@
-(* R01__Carryless_Pairing_Definitions.v *)
+(*
+
+  Proofcase / T001 / Definitions
+  ==============================
+
+    Overview
+    --------
+
+      We define the carryless pairing interface used throughout T001. The
+      file introduces the parameter record, the Fibonacci-based support
+      functions, and the pair and unpair operators studied in the later
+      correctness and example files.
+*)
 
 From Coq Require Import Arith Bool List PeanoNat.
 Import ListNotations.
-
-(*************************************************************************)
-(*                                                                       *)
-(*  Proofcase / Carryless Pairing — Definitions                          *)
-(*                                                                       *)
-(*  This file isolates the computational definitions used by the         *)
-(*  carryless pairing device. We keep the development in plain Coq       *)
-(*  nat/list, with no external axioms, so later proofs can be stated     *)
-(*  with standard Rocq methodology.                                      *)
-(*                                                                       *)
-(*************************************************************************)
-
-(* 
-  Fibonacci sequence (structural recursion via pairs).
-  This avoids non-structural calls to fib (S k).
-*)
 
 Fixpoint fib_pair (n : nat) : nat * nat :=
   match n with

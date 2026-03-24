@@ -1484,6 +1484,16 @@ def _write_coeff_types(dst: Path, data: dict, coeff_hash: str) -> None:
     vars_list = data["vars"]
     meta = data["meta"]
     with dst.open("w", encoding="utf-8") as f:
+        _write_proofcase_banner(
+            f,
+            "T003",
+            "Artifact Parameters",
+            [
+                "We record the pinned metadata for the bounded universal cubic artifact.",
+                "The constants in this file fix variable counts, base parameters, and degree",
+                "data used by the rest of T003.",
+            ],
+        )
         f.write("From Coq Require Import ZArith List String.\n")
         f.write("Import ListNotations.\n")
         f.write("Open Scope Z_scope.\n")
@@ -1520,6 +1530,27 @@ def _chunked(xs: List[dict], size: int) -> Iterable[List[dict]]:
         yield xs[i : i + size]
 
 
+def _write_proofcase_banner(
+    f,
+    theory: str,
+    title: str,
+    overview_lines: List[str],
+) -> None:
+    heading = f"Proofcase / {theory} / {title}"
+    underline = "=" * len(heading)
+    f.write("(*\n\n")
+    f.write(f"  {heading}\n")
+    f.write(f"  {underline}\n\n")
+    f.write("    Overview\n")
+    f.write("    --------\n\n")
+    for line in overview_lines:
+        if line:
+            f.write(f"      {line}\n")
+        else:
+            f.write("\n")
+    f.write("*)\n\n")
+
+
 def _write_chunks(chunks_dir: Path, monomials: List[dict], chunk_count: int) -> int:
     if chunk_count <= 0:
         raise ValueError("chunk_count must be positive")
@@ -1532,6 +1563,16 @@ def _write_chunks(chunks_dir: Path, monomials: List[dict], chunk_count: int) -> 
 
     for idx, chunk in enumerate(chunks):
         with (chunks_dir / f"Coeff_chunk_{idx}.v").open("w", encoding="utf-8") as f:
+            _write_proofcase_banner(
+                f,
+                "T003",
+                f"Coefficient Chunk {idx}",
+                [
+                    f"We record coefficient chunk {idx} of the pinned bounded cubic artifact.",
+                    "This file contains a contiguous slice of the coefficient table",
+                    "imported by R02__Coefficients to reconstruct the full polynomial.",
+                ],
+            )
             f.write("From Coq Require Import ZArith List String.\n")
             f.write("Import ListNotations.\n")
             f.write("Open Scope Z_scope.\n\n")
@@ -1550,6 +1591,16 @@ def _write_chunks(chunks_dir: Path, monomials: List[dict], chunk_count: int) -> 
 
 def _write_coefficients(dst: Path, chunk_count: int) -> None:
     with dst.open("w", encoding="utf-8") as f:
+        _write_proofcase_banner(
+            f,
+            "T003",
+            "Coefficient Assembly",
+            [
+                "We assemble the full coefficient table of the pinned bounded cubic artifact.",
+                "This file imports the chunked data and reconstructs the polynomial evaluated",
+                "by the later universal interface.",
+            ],
+        )
         f.write("From Coq Require Import ZArith List String.\n")
         f.write("Import ListNotations.\n")
         f.write("Open Scope Z_scope.\n")
@@ -1571,12 +1622,21 @@ def _write_coefficients(dst: Path, chunk_count: int) -> None:
 def _write_varmap(dst: Path, data: dict, public_indices: Dict[str, int], lock: dict) -> None:
     source = {str(k): str(v) for k, v in lock.get("public_var_sources", {}).items()}
     with dst.open("w", encoding="utf-8") as f:
+        _write_proofcase_banner(
+            f,
+            "T003",
+            "Variable Map",
+            [
+                "We expose the public variable map for the pinned bounded cubic artifact.",
+                "This file names the distinguished coordinates used by the universal interface",
+                "and proves the corresponding index bounds.",
+            ],
+        )
         f.write("From Coq Require Import ZArith List String Lia Arith.\n")
         f.write("Import ListNotations.\n")
         f.write("Open Scope Z_scope.\n")
         f.write("Open Scope string_scope.\n\n")
         f.write("From T003 Require Import R01__Coeff_types.\n\n")
-        f.write("(* Auto-generated public variable map for the pinned bounded cubic artifact. *)\n\n")
         for public_name in sorted(public_indices.keys()):
             idx = int(public_indices[public_name])
             src_name = source.get(public_name, public_name)
@@ -1631,8 +1691,16 @@ def _compute_table_digest(monomials: List[dict]) -> int:
 def _write_table_inspection(dst: Path, digest_value: int) -> None:
     mod, mul_exps, mul_monom, mul_table = _digest_constants()
     with dst.open("w", encoding="utf-8") as f:
-        f.write("(* R07__Table_Inspection.v *)\n")
-        f.write("(* Mandatory table-inspection gate for the pinned coefficient list. *)\n\n")
+        _write_proofcase_banner(
+            f,
+            "T003",
+            "Table Inspection",
+            [
+                "We define the digest and inspection procedure used to pin the coefficient",
+                "table of the bounded universal cubic artifact. The goal is to let the kernel",
+                "confirm that the imported table matches the expected locked artifact.",
+            ],
+        )
         f.write("From Coq Require Import ZArith List.\n")
         f.write("Import ListNotations.\n")
         f.write("Open Scope Z_scope.\n\n")
