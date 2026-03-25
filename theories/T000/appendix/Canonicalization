@@ -22,7 +22,8 @@
 
          We begin numbering at 00 and increment sequentially.  When a file
          is removed we note the gap in the README rather than reusing the
-         number.
+         number.  If a package begins at 01 because it has no standalone
+         framework layer, we note that in the README as well.
 
     2.3  Suffix
 
@@ -146,10 +147,12 @@
 
     5.5  Boolean tests
 
-         We give boolean decision functions an is_ prefix and write the
-         remainder in snake_case.
+         We name boolean decision functions in snake_case.  For
+         predicate-style booleans we prefer an is_ prefix.  For extracted
+         checks and validator-style routines, a terminal b or a descriptive
+         snake_case name is also acceptable.
 
-             is_even   is_odd   is_axiom   is_K
+             is_even   is_odd   member_natb   dividesb   bounded_by_2n
 
     5.6  Lemma and theorem names
 

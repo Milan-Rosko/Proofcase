@@ -21,6 +21,10 @@
     the packaging and naming conventions that later T### developments are
     expected to follow.
 
+    T000 begins its route numbering at R01.  There is no separate R00
+    framework layer in this package; the arithmetic development starts
+    directly with the odd-part route.
+
 
 2 - Repository Tree
     ---------------
@@ -73,18 +77,20 @@
            │       │
            │       ├── OddPartComputations.ml
            │       │
-           │       ├── OddPartComputations.ml
+           │       ├── OddPartComputations.mli
            │       │
-           │       │      Extracted OCaml implementation of the odd-part and
-           │       │      2-adic valuation computations, together with odd-range
-           │       │      and profiling utilities.
+           │       │      Extracted OCaml implementation and generated
+           │       │      interface for the odd-part and 2-adic valuation
+           │       │      computations, together with odd-range and profiling
+           │       │      utilities.
            │       │
            │       ├── PigeonholeDivisibilityWitness.ml
            │       │
            │       └── PigeonholeDivisibilityWitness.mli
            │
-           │               Generated OCaml interface for the extracted
-           │               witness-search surface.
+           │               Extracted witness-search implementation and
+           │               generated interface for the finite divisibility
+           │               certificate surface.
            │
            └── Canonicalization
            

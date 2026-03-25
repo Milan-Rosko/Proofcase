@@ -27,7 +27,7 @@
 │                                   `-´                                   │
 │                                                                         │
 │     This file serves as a proof-semantic synopsis and comprehension     │
-│     aid for project T003. It introduces no new constructive content     │
+│     aid for project T000. It introduces no new constructive content     │
 │     or derivations; but consolidates the pinned metadata, artifact      │
 │     semantics, certification gates, and bounded endpoints into one      │
 │     unified structure for readability and auditability.                 │
@@ -69,26 +69,34 @@
           removed, and the count of how many times `2` was removed. This gives
           the basic arithmetic viewpoint used in the rest of the package.
 
-      (ii) ARITHMETIC PROPERTY LAYER
+      (ii) BOUNDS AND STRUCTURE OF odd_part_aux
 
-          `R01` proves that the odd core is odd, bounded, positive, and
-          divisive; establishes the exact factorization
-          `n = 2^(val2 n) * odd_part n`; and derives the bridge theorem
+          `R01` records the auxiliary boundedness, oddness, and divisibility
+          lemmas that control the fuel-indexed odd-part recursion.
+
+      (iii) PUBLIC-FACING PROPERTIES OF odd_part
+
+          `R01` proves that the public odd-part map is odd, bounded, positive,
+          and divisive on positive inputs.
+
+      (iv) DECOMPOSITION AND DIVISIBILITY BRIDGE
+
+          `R01` establishes the factorization
+          `n = 2^(val2 n) * odd_part n` and derives
           `same_odd_part_divides`.
 
-      (iii) FINITE CODOMAIN LAYER
+      (v) PIGEONHOLE CODOMAIN CONSTRUCTION
 
           `R01` constructs the explicit codomain `odd_range n` of odd numbers
           in `{1, ..., 2n}`, and proves its length, membership
           characterization, bounds, non-duplication, and the landing theorem
           `odd_part_in_range`.
 
-      (iv) PIGEONHOLE CLOSURE LAYER
+      (vi) LIST-BASED PIGEONHOLE PRINCIPLE
 
-          `R02` proves a list-based pigeonhole principle and combines it with
-          the odd-core codomain and divisibility bridge to obtain the closed
-          theorem `pigeonhole_divisibility`.
-│
+          `R02` proves the abstract list pigeonhole theorem and combines it
+          with the odd-core codomain and divisibility bridge to obtain the
+          closed theorem `pigeonhole_divisibility`.
 *)
 
 From Coq Require Import Arith Bool List PeanoNat.
@@ -327,7 +335,7 @@ Definition audit_same_odd_part_divides :=
 ║ (v)
 ║
 ║ PIGEONHOLE CODOMAIN CONSTRUCTION
-│
+║
 *)
 
 Definition audit_odd_range : nat -> list nat :=
@@ -419,7 +427,7 @@ Definition audit_odd_part_in_range :=
 ║ (vi)
 ║
 ║ LIST-BASED PIGEONHOLE PRINCIPLE
-│
+║
 *)
 
 Definition audit_pigeonhole :=

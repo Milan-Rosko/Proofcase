@@ -172,12 +172,6 @@ Qed.
 (*                                                                       *)
 (*************************************************************************)
 
-(*************************************************************************)
-(*                                                                       *)
-(*                           OCaml Extraction                            *)
-(*                                                                       *)
-(*************************************************************************)
-
 Section Extraction_Interface.
 
 (*
@@ -488,7 +482,7 @@ End Extraction_Interface.
 │  Extraction.
 *)
 
-Set Extraction Output Directory "T000_Extraction".
+Set Extraction Output Directory "appendix/extracted".
 Extraction Language OCaml.
 
 Extraction "OddPartComputations.ml"
@@ -550,3 +544,97 @@ Print Assumptions pigeonhole_divisibility.
 
 Redirect "theories/T000/appendix/assumptions/pigeonhole_divisibility_QED"
   Print Assumptions pigeonhole_divisibility_QED.
+
+(*
+╔═══════════════╗
+║               ║
+║   CHECKLIST   ║
+║               ║
+╚═══════════════╝
+
+  FILE IDENTITY
+
+    [ ] File name and first-line header match exactly:
+        `T<nnn>__QED.v`.
+    [ ] The file begins with the canonical ASCII-art banner and
+        synopsis stating:
+          - exact public-target role,
+          - direct certification role,
+          - assumption-report role,
+          - correct project number.
+
+  OVERVIEW STRUCTURE
+
+    [ ] The overview block starts with:
+            Proofcase / T<nnn> / Certification Layer
+    [ ] The line `WARNING. DO NOT ALTER.` appears verbatim.
+    [ ] The overview explains:
+          - public contract,
+          - direct reuse of the established theorem,
+          - extraction interface,
+          - assumption transparency.
+
+  CONTENTS SECTION
+
+    [ ] A `Contents` section lists:
+          - `PROPOSITIO`,
+          - `Q.E.D.`,
+          - `EXTRACTION`,
+          - `ASSUMPTION REPORT`.
+    [ ] Each item includes a short semantic description.
+    [ ] The listed sections match exactly those implemented below.
+
+  IMPORTS
+
+    [ ] Standard-library imports include extraction support.
+    [ ] All route files needed by the public surface are imported, in order.
+
+  PUBLIC CONTRACT
+
+    [ ] `PROPOSITIO` states the exact public theorem contract.
+    [ ] The contract quantifies the boundedness, distinctness, and
+        cardinality hypotheses explicitly.
+    [ ] The conclusion states existence of two distinct inputs related
+        by divisibility.
+
+  Q.E.D.
+
+    [ ] The principal theorem is named `<public theorem>_QED`.
+    [ ] The proof discharges the contract by direct reuse of the
+        established theorem, with no additional proof layer.
+
+  EXTRACTION INTERFACE
+  --------------------
+
+    [ ] Executable definitions are grouped inside
+        `Section Extraction_Interface.` ... `End Extraction_Interface.`.
+    [ ] The interface exposes arithmetic projections, list checks,
+        collision search, and witness construction.
+    [ ] Extraction directives target the checked-in artifacts directory.
+    [ ] Extracted filenames match the package tree and appendix layout.
+
+  ASSUMPTION REPORT
+  -----------------
+
+    [ ] `Print Assumptions` is issued for the principal intermediate
+        and final theorems.
+    [ ] A `Redirect` command persists the final assumption report to the
+        appendix assumptions artifact.
+
+  PROSE DISCIPLINE
+  ----------------
+
+    [ ] Explanations use concise, present-tense statements
+        ("We state", "We discharge", "We expose").
+    [ ] Each comment explains semantic meaning, not proof tactics.
+    [ ] Identifiers appear in backticks; no external formatting
+        (markdown, emojis, etc.) is used.
+
+  COVERAGE AND CONSISTENCY
+  ------------------------
+
+    [ ] The file contains the public contract, the terminal theorem,
+        the extraction surface, and the assumption report.
+    [ ] Artifact paths named in the file agree with the package layout.
+    [ ] The file is readable as a standalone certification surface.
+*)
