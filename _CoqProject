@@ -14,8 +14,6 @@ theories/T000/R02__Pigeonhole_Divisibility.v
 theories/T000/T000__Comprehension.v
 theories/T000/T000__Extraction_Interface.v
 
-
-
 # Carryless Pairing
 
 -Q theories/T001 T001
@@ -25,8 +23,6 @@ theories/T001/R02__Carryless_Pairing_Correctness.v
 theories/T001/R03__Carryless_Pairing_Examples.v
 theories/T001/T001__Comprehension.v
 theories/T001/T001__Extraction_Interface.v
-
-
 
 
 # Cubic aggregated polynomial certificate
