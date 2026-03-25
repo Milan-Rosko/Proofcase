@@ -37,8 +37,6 @@ From T002 Require Import
 (*                          ´      (===)      `                          *)
 (*                                  `-´                                  *)
 (*                                                                       *)
-(*    Proofcase / T002 -- Comprehension Layer                            *)
-(*                                                                       *)
 (*    This file serves as a proof-semantic synopsis and comprehension    *)
 (*    aid for project T002. It introduces no new constructive content    *)
 (*    or  derivations; but consolidates the core semantics (theorems,    *)

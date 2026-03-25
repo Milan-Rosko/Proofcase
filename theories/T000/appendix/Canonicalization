@@ -37,20 +37,47 @@
          others, and never use a letter prefix such as RX.
 
 
-3 - Header Comment
-    --------------
+3 - Opening Comment
+    ---------------
 
-    We place a comment on line 1 of every .v file containing the exact
-    filename:
+    Proofcase currently uses two accepted opening shapes.
 
-        (* R04__Verification_Hilbert_Syntax.v *)
+    3.1  Root-surface filename line
 
-    We require the string inside the comment to match the filename on disk
-    character-for-character, including the .v extension.
+         Root/public surface files (`T###__Comprehension.v`,
+         `T###__QED.v`, root extraction interfaces, and newer standalone
+         layers) open with a line-1 comment containing the exact filename:
 
-        GOOD:  (* R05__Effectivity.v *)
-        BAD:   (* R05__Effectivity *)
-        BAD:   (* RX__Carryless_Pairing_Export.v *)  when file is R04__...
+             (* R04__Verification_Hilbert_Syntax.v *)
+
+         When this shape is used, the string inside the comment must match
+         the filename on disk character-for-character, including the
+         `.v` extension.
+
+             GOOD:  (* R05__Effectivity.v *)
+             BAD:   (* R05__Effectivity *)
+             BAD:   (* RX__Carryless_Pairing_Export.v *)  when file is R04__...
+
+    3.2  Working-file overview block
+
+         Canonical working files may instead open with the long-form
+         overview block used by the T000 template and many older packages:
+
+             (*
+               Proofcase / T001 / Definitions
+               ==============================
+               ...
+             *)
+
+         This is an accepted live convention for internal theorem-building
+         files.
+
+    3.3  Package-level expectation
+
+         Within a package, root/public surfaces should use the exact
+         filename line. Working files may use either opening shape, but the
+         choice should be deliberate and package-local rather than mixed by
+         accident.
 
 
 4 - Imports
@@ -128,8 +155,8 @@
 
          We follow a subject_property pattern in snake_case.
 
-             div2_two          (subject: div2, property: two)
-             form_eqb_refl     (subject: form_eqb, property: refl)
+             div2_two             (subject: div2, property: two)
+             form_eqb_refl        (subject: form_eqb, property: refl)
              EvalRM_deterministic
 
          When the subject is a PascalCase name we preserve its casing in
@@ -195,13 +222,13 @@
     7.1  Block banner
 
          We use block banners only for major section separators and set
-         them at 73 characters wide:
+         them at 75 characters wide:
 
-             (*****************************************************************)
-             (*                                                               *)
-             (*  Section Title                                                *)
-             (*                                                               *)
-             (*****************************************************************)
+        (*************************************************************************)
+        (*                                                                       *)
+        (*                             SECTION TITLE                             *)
+        (*                                                                       *)
+        (*************************************************************************)
 
     7.2  Doc comments
 
@@ -210,85 +237,52 @@
          form with the text indented inside the delimiters, and we leave a
          blank line between the closing *) and the definition:
 
-             (*
-               Sum of Fibonacci values over a list of indices.
-             *)
-
-             Fixpoint sumF (xs : list nat) : nat := ...
-
-         We omit comments only for trivial re-exports in API files.
-
-    7.3  No trailing inline comments
-
          We place explanatory comments on their own line above the
          definition, not inline after the code.
 
-             BAD: Definition two_j_minus1 (j : nat) := Nat.pred (two j). (* 2j-1 *)
+         We use the box-drawing characters (e.g. “│”), also known as line-drawing
+         characters.
+
+            BAD:
+
+            Theorem pigeonhole_divisibility :  Main theorem: A contains two distinct elements where one divides the other. *)
+
+              exists a b,
+                In a A /\
+                In b A /\
+                a <> b /\
+                (Nat.divide a b \/ Nat.divide b a).
+            Proof.
              
              BAD:
-             (* 2j - 1, with Nat.pred 0 = 0. *)
-             Definition two_j_minus1 (j : nat) := Nat.pred (two j).
-             
-             ALMOST:
 
-             (*
-             2j - 1, with Nat.pred 0 = 0. 
-             *)
-             Definition two_j_minus1 (j : nat) := Nat.pred (two j).
+            (* Main theorem: A contains two
+               distinct elements where one divides
+               the other. *)
 
-             GOOD:
+            Theorem pigeonhole_divisibility :
+              exists a b,
+                In a A /\
+                In b A /\
+                a <> b /\
+                (Nat.divide a b \/ Nat.divide b a).
+            Proof.
 
-             (*
-               2j - 1, with Nat.pred 0 = 0.
-             *)
+             CORRECT:
 
-             Definition two_j_minus1 (j : nat) := Nat.pred (two j).
+            (*
+            │  Main theorem: A contains two
+            │  distinct elements where one divides
+            │  the other.
+            *)
 
-    7.4  QED boxes
-
-         We place a QED box immediately after the principal endpoint of
-         each major theorem in the Comprehension layer.  The box is a
-         73-character-wide block banner with fixed section headings:
-
-             (*****************************************************************)
-             (*                                                               *)
-             (*                                QED                            *)
-             (*                                                               *)
-             (*  Theorem Name                                                 *)
-             (*                                                               *)
-             (*                          PROOF IN STEPS                       *)
-             (*                                                               *)
-             (*  Step 1. ...                                                  *)
-             (*  Step 2. ...                                                  *)
-             (*                                                               *)
-             (*                           MECHANIZATION                       *)
-             (*                                                               *)
-             (*  formal statement                                             *)
-             (*                                                               *)
-             (*                              READING                          *)
-             (*                                                               *)
-             (*  Plain English reading of the result.                         *)
-             (*                                                               *)
-             (*                           QUALIFICATION                       *)
-             (*                                                               *)
-             (*  Status note on the theorem's role in the package.            *)
-             (*                                                               *)
-             (*****************************************************************)
-
-         The four sections are:
-
-         PROOF IN STEPS   Numbered summary of the proof route.
-         MECHANIZATION    The exact Rocq statement, centered.
-         READING          One paragraph restating the result in prose.
-         QUALIFICATION    Scope, closure status, or dependency remarks.
-
-         QUALIFICATION may be omitted when the theorem's role is
-         self-evident.
-
-         In working files (R## files) the same layout is used with
-         THEOREM in place of QED.  PROOF ROUTE may replace PROOF IN
-         STEPS and REALIZATION may replace MECHANIZATION.  These
-         lightweight variants do not require a QUALIFICATION section.
+            Theorem pigeonhole_divisibility :
+              exists a b,
+                In a A /\
+                In b A /\
+                a <> b /\
+                (Nat.divide a b \/ Nat.divide b a).
+            Proof.
 
 
 8 - Proof Style
@@ -393,16 +387,13 @@
 
                (* README *)
 
-               1 - Description
-                   -----------
-                   ...
+            3 - Repository Tree
+                ---------------
 
-               2 - Repository Tree
-                   ---------------
-                   .
-                   +-- README
-                   |      (This file.)
-                   +-- R00__First_File.v
+                .
+                ├── README
+                │
+                │      (This file.)#
                    ...
 
      10.2  Tree accuracy
@@ -415,54 +406,3 @@
 
            We add further sections as needed (Regeneration, Semantics, etc.)
            and number them sequentially from 3 onward.
-
-
-11 - Known Deviations
-     ----------------
-
-     The following deviations from this guide exist in the current codebase.
-     We track them here for correction.
-
-     T001
-     ----
-
-     (i)    File numbering starts at R01, not R00.
-
-     (ii)   The extraction interface has since been normalized to the
-            root-level name T001__Extraction_Interface.v.
-
-     (iii)  The old numbered export file no longer exists in the live tree.
-
-     (iv)   R02 uses { } braces for sub-goals instead of bullets.
-
-     (v)    R01 has no Section despite all definitions sharing P : Params.
-
-     (vi)   The extraction output directory is set to "witness" instead of
-            "artifacts".
-
-     (vii)  Single-letter top-level definitions: F, B.
-
-     (viii) Mixed casing: sumF (camelCase) alongside fib_pair (snake_case).
-
-     T002
-     ----
-
-     (i)    R01__Foundation_Fibonacci.v inherits the T001 naming: F, sumF, B.
-
-     (ii)   R00__Degree_Framework.v has no doc comments above definitions.
-
-     (iii)  The header comment in R01 reads (* R01__Fibonacci.v *) instead of
-            (* R01__Foundation_Fibonacci.v *).
-
-     T003
-     ----
-
-     (i)    The header comment in R05 reads (* R05__Effectivity *), missing
-            the .v extension.
-
-     (ii)   R01__Coeff_types.v has no header comment.
-
-     (iii)  R00__VarMap.v has no doc comments (auto-generated, but we expect
-            them regardless).
-
-     (iv)   The numbering gap at R06 is not noted in the README.

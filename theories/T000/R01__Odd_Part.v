@@ -1,5 +1,15 @@
-(*
 
+(* R01__Odd_Part.v *)
+
+(*
+╔══════════════╗
+║              ║
+║   TEMPLATE   ║
+║              ║
+╚══════════════╝
+*)
+
+(*
   Proofcase / T000 / Definitions
   ==============================
 
@@ -24,11 +34,11 @@ Import ListNotations.
 Section Odd_Part_Definitions.
 
 (*
-  We strip all factors of 2 from a
-  positive natural number. The fuel
-  parameter bounds the recursion; n
-  itself suffices since div2 strictly
-  decreases positive values.
+│  We strip all factors of 2 from a
+│  positive natural number. The fuel
+│  parameter bounds the recursion; n
+│  itself suffices since div2 strictly
+│  decreases positive values.
 *)
 
 Fixpoint odd_part_aux (fuel n : nat) : nat :=
@@ -41,15 +51,15 @@ Fixpoint odd_part_aux (fuel n : nat) : nat :=
   end.
 
 (*
-  The odd part of n.
+│  The odd part of n.
 *)
 
 Definition odd_part (n : nat) : nat :=
   odd_part_aux n n.
 
 (*
-  The 2-adic valuation: the exponent
-  k in a = 2^k odd_part(a).
+│  The 2-adic valuation: the exponent
+│  k in a = 2^k odd_part(a).
 *)
 
 Fixpoint val2_aux (fuel n : nat) : nat :=
@@ -62,7 +72,7 @@ Fixpoint val2_aux (fuel n : nat) : nat :=
   end.
 
 (*
-  The 2-adic valuation of n.
+│  The 2-adic valuation of n.
 *)
 
 Definition val2 (n : nat) : nat :=
@@ -73,7 +83,7 @@ End Odd_Part_Definitions.
 Section Odd_Part_Properties.
 
 (*
-  The odd_part_aux result is bounded by n.
+│  The odd_part_aux result is bounded by n.
 *)
 
 Lemma odd_part_aux_le :
@@ -120,7 +130,7 @@ Proof.
 Qed.
 
 (*
-  The odd part of n is odd.
+│  The odd part of n is odd.
 *)
 
 Lemma odd_part_odd :
@@ -136,7 +146,7 @@ Proof.
 Qed.
 
 (*
-  The odd part of n is at most n.
+│  The odd part of n is at most n.
 *)
 
 Lemma odd_part_le :
@@ -148,8 +158,8 @@ Proof.
 Qed.
 
 (*
-  The odd part of n is at least 1 when
-  n >= 1.
+│   The odd part of n is at least 1
+│   when n >= 1.
 *)
 
 Lemma odd_part_pos :
@@ -165,7 +175,7 @@ Proof.
 Qed.
 
 (*
-  The odd_part_aux result divides n.
+│  The odd_part_aux result divides n.
 *)
 
 Lemma odd_part_aux_divides :
@@ -200,7 +210,7 @@ Proof.
 Qed.
 
 (*
-  The odd part of n divides n.
+│  The odd part of n divides n.
 *)
 
 Lemma odd_part_divides :
@@ -216,8 +226,9 @@ Proof.
 Qed.
 
 (*
-  Fuel-indexed decomposition:
-  n = 2^(val2_aux fuel n) * odd_part_aux fuel n.
+│  Fuel-indexed decomposition: n =
+│  2^(val2_aux fuel n) * odd_part_aux
+│  fuel n.
 *)
 
 Lemma decomposition_aux :
@@ -255,9 +266,9 @@ Proof.
 Qed.
 
 (*
-  The quotient n / odd_part(n) is a
-  power of 2. We express this as:
-  n = 2^(val2 n) times odd_part(n).
+│  The quotient n / odd_part(n) is a
+│  power of 2. We express this as:
+│  n = 2^(val2 n) times odd_part(n).
 *)
 
 Lemma decomposition :
@@ -273,11 +284,11 @@ Proof.
 Qed.
 
 (*
-  If two positive integers share the
-  same odd part, one divides the
-  other. This follows because a = 2^k
-  m and b = 2^l m, so assuming k <= l
-  we get b = 2^(l-k) a.
+│  If two positive integers share the
+│  same odd part, one divides the
+│  other. This follows because a = 2^k
+│  m and b = 2^l m, so assuming k <= l
+│  we get b = 2^(l-k) a.
 *)
 
 Theorem same_odd_part_divides :
@@ -321,11 +332,11 @@ End Odd_Part_Properties.
 Section Odd_Range.
 
 (*
-  We generate the list of odd numbers
-  in {1, ..., 2n}. This list has
-  exactly n elements and serves as
-  the set of pigeonholes in the main
-  theorem.
+│  We generate the list of odd numbers
+│  in {1, ..., 2n}. This list has
+│  exactly n elements and serves as
+│  the set of pigeonholes in the main
+│  theorem.
 *)
 
 Fixpoint odd_range (n : nat) : list nat :=
@@ -335,7 +346,7 @@ Fixpoint odd_range (n : nat) : list nat :=
   end.
 
 (*
-  The odd_range has exactly n elements.
+│  The odd_range has exactly n elements.
 *)
 
 Lemma odd_range_length :
@@ -349,9 +360,9 @@ Proof.
 Qed.
 
 (*
-    Characterization of membership in
-    odd_range: k is in the list iff
-    k = 2i + 1 for some i < n.
+│   Characterization of membership in
+│   odd_range: k is in the list iff
+│   k = 2i + 1 for some i < n.
 *)
 
 Lemma odd_range_in_iff :
@@ -378,7 +389,7 @@ Proof.
 Qed.
 
 (*
-  Every element of odd_range n is odd.
+│  Every element of odd_range n is odd.
 *)
 
 Lemma odd_range_all_odd :
@@ -396,8 +407,8 @@ Proof.
 Qed.
 
 (*
-  Every element of odd_range n is
-  between 1 and 2n - 1.
+│  Every element of odd_range n is
+│  between 1 and 2n - 1.
 *)
 
 Lemma odd_range_bounds :
@@ -417,7 +428,7 @@ Proof.
 Qed.
 
 (*
-  The odd_range has no duplicate entries.
+│  The odd_range has no duplicate entries.
 *)
 
 Lemma odd_range_NoDup :
@@ -439,10 +450,10 @@ Proof.
 Qed.
 
 (*
-  The odd part of any a in {1, ...,
-  2n} belongs to odd_range n. This is
-  the counting fact that gives us
-  only n pigeonholes.
+│  The odd part of any a in {1, ...,
+│  2n} belongs to odd_range n. This is
+│  the counting fact that gives us
+│  only n pigeonholes.
 *)
 
 Lemma odd_part_in_range :

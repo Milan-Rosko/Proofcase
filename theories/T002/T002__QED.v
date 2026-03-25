@@ -1,37 +1,26 @@
 (* T002__QED.v *)
 
-From Coq Require Import Bool List PeanoNat.
-Import ListNotations.
-
-From T002 Require Import
-  R18__Sigma_Reduction_API
-  P00__Provability_Interface
-  P03__Undecidability
-  P04__RA_Certification.
-
-(*************************************************************************)
-(*                                                                       *)
-(*    ________________________  _________________                        *)
-(*    ___________________  __ \ ___  ____/__  __ \                       *)
-(*    __________________  / / / __  __/  __  / / /                       *)
-(*    _________________/ /_/ /___  /______  /_/ /__                      *)
-(*    _________________\___\_\(_)_____/(_)_____/_(_)                     *)
-(*                                                                       *)
-(*    Proofcase / T002 -- QED Surface                                    *)
-(*                                                                       *)
-(*    This file states an exact public target, the Rocq-side criteria    *)
-(*    required  by  the reductions, certifies each endpoint by direct    *)
-(*    reuse, and exposes the key assumption reports.                     *)
-(*                                                                       *)
-(*************************************************************************)
-
-(*************************************************************************)
-(*                                                                       *)
-(*                              PROPOSITIO                               *)
-(*                                                                       *)
-(*************************************************************************)
+(*
+┌─────────────────────────────────────────────────────────────────────────┐
+│                                                                         │
+│     ________________________  _________________                         │
+│     ___________________  __ \ ___  ____/__  __ \                        │
+│     __________________  / / / __  __/  __  / / /                        │
+│     _________________/ /_/ /___  /______  /_/ /__                       │
+│     _________________\___\_\(_)_____/(_)_____/_(_)                      │
+│                                                                         │
+│                                                                         │
+│     This file states an exact public target, the Rocq-side criteria     │
+│     required  by  the reductions, certifies each endpoint by direct     │
+│     reuse, and exposes the key assumption reports.                      │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+*)
 
 (*
+  Proofcase / T002 / Certification Layer
+  ======================================
+
   TIER 1 -- CERTIFIED COMPILATION  (Definitions, then claim)
 
   Step 1.  FORMULAS AND PROOFS.
@@ -114,6 +103,21 @@ From T002 Require Import
            to the Tier-2 endpoint.
 *)
 
+From Coq Require Import Bool List PeanoNat.
+Import ListNotations.
+
+From T002 Require Import
+  R18__Sigma_Reduction_API
+  P00__Provability_Interface
+  P03__Undecidability
+  P04__RA_Certification.
+
+(*************************************************************************)
+(*                                                                       *)
+(*                              PROPOSITIO                               *)
+(*                                                                       *)
+(*************************************************************************)
+
 Definition PROPOSITIO : Prop :=
   (* Tier 1: Certified compilation *)
   (forall u, Thm u <-> CubicSat (f u)) /\
@@ -182,7 +186,7 @@ End Tier3.
 
 (*************************************************************************)
 (*                                                                       *)
-(*                           KEY ASSUMPTION REPORT                       *)
+(*                         KEY ASSUMPTION REPORT                         *)
 (*                                                                       *)
 (*************************************************************************)
 

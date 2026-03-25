@@ -61,6 +61,7 @@
     │      computations, odd-range inspection, and finite witness search.
     │
     └── appendix
+           │
            ├── assumptions
            │       │
            │       └── pigeonhole_divisibility_QED.out
@@ -68,29 +69,25 @@
            │              Redirect-generated Print Assumptions output for
            │              the principal QED theorem.
            │
-           ├── Canonicalization
+           ├── extracted
+           │       │
+           │       ├── OddPartComputations.ml
+           │       │
+           │       ├── OddPartComputations.ml
+           │       │
+           │       │      Extracted OCaml implementation of the odd-part and
+           │       │      2-adic valuation computations, together with odd-range
+           │       │      and profiling utilities.
+           │       │
+           │       ├── PigeonholeDivisibilityWitness.ml
+           │       │
+           │       └── PigeonholeDivisibilityWitness.mli
            │
-           │      Canonical style memorandum for template-level Proofcase
-           │      packaging: file naming, headers, imports, naming
-           │      conventions, and structural organization.
+           │               Generated OCaml interface for the extracted
+           │               witness-search surface.
            │
-           ├── OddPartComputations.ml
-           │
-           │      Extracted OCaml implementation of the odd-part and 2-adic
-           │      valuation computations, together with odd-range and
-           │      profiling utilities.
-           │
-           ├── OddPartComputations.mli
-           │
-           │      Generated OCaml interface exposing the extracted odd-part
-           │      computation surface.
-           │
-           ├── PigeonholeDivisibilityWitness.ml
-           │
-           │      Extracted OCaml implementation of finite witness search for
-           │      same-odd-part collisions and divisibility classification.
-           │
-           └── PigeonholeDivisibilityWitness.mli
-
-                  Generated OCaml interface for the extracted witness-search
-                  surface.
+           └── Canonicalization
+           
+                  Canonical style memorandum for template-level Proofcase
+                  packaging: file naming, headers, imports, naming
+                  conventions, and structural organization.

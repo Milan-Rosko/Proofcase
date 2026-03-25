@@ -1,5 +1,14 @@
-(*
+(* R02__Pigeonhole_Divisibility.v *)
 
+(*
+╔══════════════╗
+║              ║
+║   TEMPLATE   ║
+║              ║
+╚══════════════╝
+*)
+
+(*
   Proofcase / T000 / Main Theorem
   ===============================
 
@@ -28,9 +37,11 @@ From T000 Require Import R01__Odd_Part.
 Section Pigeonhole.
 
 (*
-  A list-based pigeonhole principle.  If we map a NoDup list of length
-  n+1 into a list of n categories, two distinct elements of the source
-  must map to the same category.
+│  A list-based pigeonhole principle.
+│  If we map a NoDup list of length
+│  n+1 into a list of n categories,
+│  two distinct elements of the source
+│  must map to the same category.
 *)
 
 Theorem pigeonhole :
@@ -91,12 +102,16 @@ End Pigeonhole.
 Section Main_Theorem.
 
 (*
-  We represent the subset A as a list of distinct naturals drawn from
-  {1, ..., 2n}.  The hypotheses are:
-
-    - elements_bound:  every element of A is between 1 and 2n
-    - elements_NoDup:  the elements of A are pairwise distinct
-    - elements_size:   |A| = n + 1
+│  We represent the subset A as a list
+│  of distinct naturals drawn from
+│  {1, ..., 2n}. The hypotheses are:
+│
+│  -> elements_bound:
+│  every element of A is between 1 and 2n
+│  -> elements_NoDup:
+│  the elements of A are pairwise distinct 
+│  -> elements_size:
+│  |A| = n + 1
 *)
 
 Variable n : nat.
@@ -112,8 +127,9 @@ Hypothesis elements_size :
   length A = n + 1.
 
 (*
-  Main theorem: A contains two distinct elements where one divides
-  the other.
+│  Main theorem: A contains two
+│  distinct elements where one divides
+│  the other.
 *)
 
 Theorem pigeonhole_divisibility :
@@ -124,10 +140,14 @@ Theorem pigeonhole_divisibility :
     (Nat.divide a b \/ Nat.divide b a).
 Proof.
 
-  (*
-    Step 1.  We apply the pigeonhole principle with the odd-part map and the
-    list odd_range n as the set of categories.
-  *)
+(*
+│  (Step 1.)
+│  We apply the pigeonhole principle
+│  with the odd-part map and the list
+│  odd_range n as the set of
+│  categories.
+│
+*)
   
   destruct (pigeonhole nat odd_part A (odd_range n)) as [a [b [Ha [Hb [Hneq Heq]]]]].
   - exact elements_NoDup.
@@ -140,10 +160,13 @@ Proof.
     rewrite elements_size.
     lia.
 
-  (*
-    Step 2.  We have a <> b in A with odd_part a = odd_part b. By
-    same_odd_part_divides, one divides the other.
-  *)
+(*
+│  (Step 2.)
+│  We have a <> b in A with odd_part a
+│  = odd_part b. By
+│  same_odd_part_divides, one divides
+│  the other.
+*)
   
   - exists a, b.
     repeat split.
@@ -157,9 +180,12 @@ Proof.
 Qed.
 
 (*
-  The bound n + 1 is tight: the set {n+1, n+2, ..., 2n} has exactly n elements
-  and contains no pair where one divides the other (for n >= 2). We record this
-  as a remark rather than a formal proof.
+│   The bound n + 1 is tight: the set
+│   {n+1, n+2, ..., 2n} has exactly n
+│   elements and contains no pair where
+│   one divides the other (for n >= 2).
+│   We record this as a remark rather
+│   than a formal proof.
 *)
 
 End Main_Theorem.

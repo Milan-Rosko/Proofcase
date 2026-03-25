@@ -28,8 +28,6 @@ From T003 Require Import
 (*                          ´      (===)      `                          *)
 (*                                  `-´                                  *)
 (*                                                                       *)
-(*    Proofcase / T003 -- Comprehension Layer                            *)
-(*                                                                       *)
 (*    This file serves as the proof-semantic synopsis for project        *)
 (*    T003. It introduces no new constructive content or derivations;    *)
 (*    rather, it consolidates the pinned metadata, coefficient-table     *)
