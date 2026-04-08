@@ -1,0 +1,19 @@
+Assumption reports
+Generated (UTC): 2026-04-07T23:28:47Z
+coqc: /Users/wuksh/.opam/rocq-native/bin/coqc
+
+N_CubicEqSat_RE_complete_QED
+  dump: /Users/wuksh/Monotyper/_INPUT/ProofcaseExport/_tools/Dump/assumptions/N_CubicEqSat_RE_complete_QED.txt
+  appendix: /Users/wuksh/Monotyper/_INPUT/ProofcaseExport/theories/P002/appendix/assumptions/N_CubicEqSat_RE_complete_QED.txt
+  sha256: 7b07a4f89dcd6dc511c07a505637d74eb991027bf03df346adbe396d5dc3cd40
+
+H10Nd3n_equals_U_in_RA_QED
+  dump: /Users/wuksh/Monotyper/_INPUT/ProofcaseExport/_tools/Dump/assumptions/H10Nd3n_equals_U_in_RA_QED.txt
+  appendix: /Users/wuksh/Monotyper/_INPUT/ProofcaseExport/theories/P002/appendix/assumptions/H10Nd3n_equals_U_in_RA_QED.txt
+  sha256: 9604c0389a4606a39b81297f5d11ad2cbec2c52a281b93e68724794d1549f491
+
+H10Nd3n_equals_U_QED
+  dump: /Users/wuksh/Monotyper/_INPUT/ProofcaseExport/_tools/Dump/assumptions/H10Nd3n_equals_U_QED.txt
+  appendix: /Users/wuksh/Monotyper/_INPUT/ProofcaseExport/theories/P002/appendix/assumptions/H10Nd3n_equals_U_QED.txt
+  sha256: d25ce524024a460e2ee28ca8523a5a19e2a751a7f427b29e7c1b99851936abec
+

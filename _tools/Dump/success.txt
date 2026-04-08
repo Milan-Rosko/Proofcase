@@ -1,0 +1,122 @@
+(successful 'makefile' run.) 
+
+ . . . . . . . . .....*************************.                           
+. . . . . ... ..... ....***************************.                       
+ . . . . . . . . . . .. ... .. ... .....**************                     
+. . . . . .. .. .. .....********************************                   
+ . . . . ... ..... ......********************************                  
+. . . . . . . . . . .. .... .... ....*********************                 
+ . . . . . . ... .... .....**********************   *******                
+. . . . . . . .  .... ....*********************************.               
+ . . . . .. .. ..... ....***********************************               
+. . . ... ... ..... .....***********************************               
+ . . . .. ... ..... .....***********************************               
+. . . . .. ... ..... .....******************          *****                
+ . . . . .. ... ..... .....***************              ***                
+. . . . . .. ... ..... .....************                 *                 
+ . . . . . .. ... ..... .....*********                                     
+. . . . . . .. ... ..... ......******                                      
+ . . . . . . ... ........ .......**                                        
+---------------------------------------------------------------------------
+
+                    Date (UTC): 2026-04-08T14:00:18Z,
+
+                   Rocq version: The Rocq Prover, version 9.0.1
+                   Method: isolated shadow, scratch folder (cached)
+                   Build jobs: 12
+
+---------------------------------------------------------------------------
+
+Axioms:
+
+theories/P001/P001_98_Reasoning/P001_98_00_1_Initial.v
+theories/P001/P001_98_Reasoning/P001_98_00_2_Expansion.v
+theories/P002/P002_98_Rewrite/P002_98_01_Phase.v
+theories/P002/P002_98_Rewrite/P002_98_02_Phase.v
+theories/P002/appendix/assumptions/H10Nd3n_equals_U_QED.txt
+theories/P002/appendix/assumptions/H10Nd3n_equals_U_in_RA_QED.txt
+theories/P002/appendix/assumptions/N_CubicEqSat_RE_complete_QED.txt
+theories/P002/appendix/intuition/paperexcerpt.tex
+---------------------------------------------------------------------------
+
+_CoqProject file contents:
+
+=== BEGIN ===
+
+   # root settings 
+    
+   -docroot proofcase 
+   -arg -w 
+   -arg -abstract-large-number 
+   -arg -output-directory 
+   -arg output 
+   -arg -native-compiler 
+   -arg ondemand 
+    
+   # Dependency: “Register Arithmetic: Finitistic Language of Addition” 
+    
+   -Q theories/D001 D001 
+    
+   	theories/D001/D001_00_Premises.v 
+    
+   	theories/D001/D001_01__Carryless_Pairing.v 
+   	theories/D001/D001_02__Base_Fibonacci.v 
+   	theories/D001/D001_03__RA.v 
+   	theories/D001/D001_04__Mapping.v 
+   	theories/D001/D001_05__Classes.v 
+   	theories/D001/D001_06__Schemas.v 
+   	theories/D001/D001_07__RA_Theory.v 
+   	theories/D001/D001_08__Proof_Theory_Input.v 
+   	theories/D001/D001_09__Carryless_Numbering.v 
+   	theories/D001/D001_10__Evaluation.v 
+   	theories/D001/D001_11__Provability.v 
+   	theories/D001/D001_12__Local_Chain.v 
+   	theories/D001/D001_13__Public_Prelude.v 
+   	theories/D001/D001_14__RA_Language.v 
+   	theories/D001/D001_15__Examples.v 
+    
+   	theories/D001/D001_99_API.v 
+    
+   # Effective Function: “Carryless Pairing” 
+    
+   -Q theories/E001 E001 
+    
+   	theories/E001/E001_00_Premises.v 
+    
+   	theories/E001/E001_02__Definitions.v 
+   	theories/E001/E001_03__Correctness.v 
+   	theories/E001/E001_04__Base_Fibonacci.v 
+   	theories/E001/E001_06__Carryless_Pairing_Examples.v 
+   	theories/E001/E001_05__Carryless_Base_Correctness.v 
+   	theories/E001/E001_01__CIC.v 
+    
+   	theories/E001/E001_99_FUN.v 
+    
+   # Proof: “Pigeonhole Divisibility” 
+    
+   -Q theories/P001 P001 
+    
+   	theories/P001/P001_00_Premises.v 
+    
+   	theories/P001/P001_98_Reasoning/P001_98_00_1_Initial.v 
+   	theories/P001/P001_98_Reasoning/P001_98_00_2_Expansion.v 
+    
+   	theories/P001/P001_98_Reasoning/P001_98_98_Router.v 
+    
+   	theories/P001/P001_99_QED.v 
+    
+   # Proof: "Undecidability of H10N3dn" 
+    
+   -Q theories/P002 P002 
+    
+
+=== END ===
+
+---------------------------------------------------------------------------
+
+Hash(es): skipped (set CERT_HASHES=1 to enable)
+
+---------------------------------------------------------------------------
+
+------------------------
+

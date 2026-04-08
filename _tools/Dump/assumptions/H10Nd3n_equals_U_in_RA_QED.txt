@@ -1,0 +1,13 @@
+Axioms:
+family_to_cubic_code : ConcreteRE.API.Tier3.ConstraintFamily -> nat
+decode_h10_nd3n_instance : nat -> option h10_nd3n_instance
+ClassicalEpsilon.constructive_indefinite_description :
+  forall (A : Type) (P : A -> Prop), (exists x : A, P x) -> {x : A | P x}
+Classical_Prop.classic : forall P : Prop, P \/ ~ P
+ax_ra_source_toggle_generator_discharged :
+  forall (eval_code : eval_code_sig) (e : decider_code),
+  exists u : nat, prov_ra_coded u <-> eval_code e u = Some false
+ax_family_to_cubic_spec :
+  forall fam : ConcreteRE.API.HEV.ConstraintFamily,
+  ConcreteRE.API.FamilySat fam <->
+  ConcreteRE.cubic_eq_sat (family_to_cubic_code fam)

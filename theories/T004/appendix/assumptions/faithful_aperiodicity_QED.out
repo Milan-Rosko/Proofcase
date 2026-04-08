@@ -1,4 +1,0 @@
-Axioms:
-Faithfulness_Hypothesis :
-  forall R T P : nat,
-  observational_periodic_tail R T P -> observational_periodic_tail (S R) T P
