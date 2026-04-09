@@ -1,73 +1,17 @@
-# root
+# root settings
 
 -docroot proofcase
 -arg -w
 -arg -abstract-large-number
+-arg -output-directory
+-arg output
+-arg -native-compiler
+-arg ondemand
 
+# “Carryless Pairing”
 
-# T000 Pigeonhole Divisibility (Canonical Project)
+-Q theories/A001 A001
 
--Q theories/T000 T000
-
-theories/T000/R01__Odd_Part.v
-theories/T000/R02__Pigeonhole_Divisibility.v
-theories/T000/T000__Comprehension.v
-theories/T000/T000__Extraction_Interface.v
-
-# Carryless Pairing
-
--Q theories/T001 T001
-
-theories/T001/R01__Carryless_Pairing_Definitions.v
-theories/T001/R02__Carryless_Pairing_Correctness.v
-theories/T001/R03__Carryless_Pairing_Examples.v
-theories/T001/T001__Comprehension.v
-theories/T001/T001__Extraction_Interface.v
-
-
-# Cubic aggregated polynomial certificate
-
--Q theories/T003 T003
-
-theories/T003/R00__VarMap.v
-theories/T003/R01__Coeff_types.v
-theories/T003/Chunks/Coeff_chunk_0.v
-theories/T003/Chunks/Coeff_chunk_1.v
-theories/T003/Chunks/Coeff_chunk_2.v
-theories/T003/Chunks/Coeff_chunk_3.v
-theories/T003/Chunks/Coeff_chunk_4.v
-theories/T003/Chunks/Coeff_chunk_5.v
-theories/T003/Chunks/Coeff_chunk_6.v
-theories/T003/Chunks/Coeff_chunk_7.v
-theories/T003/Chunks/Coeff_chunk_8.v
-theories/T003/Chunks/Coeff_chunk_9.v
-theories/T003/Chunks/Coeff_chunk_10.v
-theories/T003/Chunks/Coeff_chunk_11.v
-theories/T003/Chunks/Coeff_chunk_12.v
-theories/T003/Chunks/Coeff_chunk_13.v
-theories/T003/Chunks/Coeff_chunk_14.v
-theories/T003/Chunks/Coeff_chunk_15.v
-theories/T003/Chunks/Coeff_chunk_16.v
-theories/T003/Chunks/Coeff_chunk_17.v
-theories/T003/Chunks/Coeff_chunk_18.v
-theories/T003/Chunks/Coeff_chunk_19.v
-theories/T003/R02__Coefficients.v
-theories/T003/R03__Degree.v
-theories/T003/R07__Table_Inspection.v
-theories/T003/R04__Universal.v
-theories/T003/R08__Bounded_Universality.v
-theories/T003/R05__Effectivity.v
-theories/T003/T003__Comprehension.v
-
-# T004 Rule 30 finite obstruction
-
--Q theories/T004 T004
-
-theories/T004/R01__Phase_One.v
-theories/T004/R02__Phase_Two.v
-theories/T004/R03__Phase_Three.v
-theories/T004/R04__1st_Corollary.v
-theories/T004/R05__2nd_Corollary.v
-theories/T004/R06__3rd_Corollary.v
-theories/T004/T004__Comprehension.v
-theories/T004/T004__Extraction.v
+	theories/A001/A001_01__Base_Fibonacci.v
+	theories/A001/A001_02__Pair_Unpair_Correct.v
+	theories/A001/A001_99_IO.v

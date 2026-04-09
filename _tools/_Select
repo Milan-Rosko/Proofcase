@@ -1,27 +1,16 @@
-	theories/D001/D001_01__Carryless_Pairing.v
-	theories/D001/D001_02__Base_Fibonacci.v
-	theories/D001/D001_03__RA.v
-	theories/D001/D001_04__Mapping.v
-	theories/D001/D001_05__Classes.v
-	theories/D001/D001_06__Schemas.v
-	theories/D001/D001_07__RA_Theory.v
-	theories/D001/D001_08__Proof_Theory_Input.v
-	theories/D001/D001_09__Carryless_Numbering.v
-	theories/D001/D001_10__Evaluation.v
-	theories/D001/D001_11__Provability.v
-	theories/D001/D001_12__Local_Chain.v
-	theories/D001/D001_13__Public_Prelude.v
-	theories/D001/D001_14__RA_Language.v
-	theories/D001/D001_15__Examples.v
+	theories/P001/P001_00_Premises.v
 
-	theories/P002/P002_00_Premises.v
-	
-	theories/P002/P002_01__CIC.v
-	theories/P002/P002_02__Object_Theory.v
-	theories/P002/P002_03__Register_Arithmetic.v
-	theories/P002/P002_06__RE_Calculus.v
-	theories/P002/P002_07__Diophantine_Semantics.v
-	theories/P002/P002_08__Fixed_Point_Logic.v
-	theories/P002/P002_09__Rewrite.v
+	theories/P001/P001_01_Divisibility_Wiring.v
+	theories/P001/P001_02_Pigeonhole.v
 
-	theories/P002/P002_99_QED.v
+	theories/P001/P001_98_Currying/P001_98_00_0_Initial.v
+	theories/P001/P001_98_Currying/P001_98_00_1_Expansion.v
+	theories/P001/P001_98_Currying/P001_98_00_2_Rewrite.v
+	theories/P001/P001_98_Currying/P001_98_01_0_Discharge.v
+	theories/P001/P001_98_Currying/P001_98_01_1_Expansion.v
+	theories/P001/P001_98_Currying/P001_98_01_2_Rewrite.v
+	theories/P001/P001_98_Currying/P001_98_02_3_Proof.v
+
+	theories/P001/P001_98_Currying/P001_98_98_Router.v
+
+	theories/P001/P001_99_QED.v
