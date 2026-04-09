@@ -6,7 +6,7 @@
 │             ╭╮╮╮─╮             Milan Rosko  https://www.milanrosko.com  │
 │             ││││╭╯             Licence. This file is distributed under  │
 │              ╯╯╯╰              the Mozilla Public License Version 2.0,  │
-│                                visit http://.mozilla.org/en-US/MPL/2.0  │
+│                                visit https://www.mozilla.org/en-US/MPL  │
 └─────────────────────────────────────────────────────────────────────────┘
 ┌─────────────────────────────────────────────────────────────────────────┐
 │         Proofcase / A001_01__Base_Fibonacci : “Base Fibonacci”          │
