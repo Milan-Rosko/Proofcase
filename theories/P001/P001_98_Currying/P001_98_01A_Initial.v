@@ -1,17 +1,35 @@
-(*@file@*)
+(*P001_98_01A_Initial.v*)
 
-(*@head.start@*)
-(*@copyright@*)
-(*@doc.proofcase@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                      Author and Copyright remark. Author(s): │
+│                ╭╮╮╮─╮                Milan Rosko  https://www.milanrosko.com │
+│                ││││╭╯                Licence. This file is distributed under │
+│                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
+│                                      visit https://www.mozilla.org/en-US/MPL │
+└──────────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                       Proofcase / P001_98_01A_Initial                        │
+└──────────────────────────────────────────────────────────────────────────────┘
 
-(*@doc.header@[[Overview]]@*)
+  OVERVIEW
 
-(*@doc.pl@[[At the present “template” stage, we assume that we can prove our original statement (`PROPOSITION`).]]@*)
+  At the present “template” stage, we assume that we can prove our original
+  statement (`PROPOSITION`).
 
-(*@head.end@*)
+*)
 
 From P001 Require Export P001_00_Premises.
 
-(*@inline@[[We assume by conjecture: We can prove by `UNCONDITIONAL_PROOF` that “Among any collection of n+1 pairwise distinct integers chosen from the integers 1 through 2n, there must exist at least two distinct members of that collection such that one of them divides the other“ follows from `WITNESS`.]]@*)
+(*
+│
+│          We assume by conjecture: We can prove by
+│          `UNCONDITIONAL_PROOF` that “Among any collection of n+1
+│          pairwise distinct integers chosen from the integers 1
+│          through 2n, there must exist at least two distinct members
+│          of that collection such that one of them divides the other“
+│          follows from `WITNESS`.
+│
+*)
 
 Conjecture UNCONDITIONAL_PROOF : WITNESS.

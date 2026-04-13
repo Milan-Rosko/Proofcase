@@ -1,20 +1,43 @@
-(*@file@*)
+(*P001_98_02C_Proof.v*)
 
-(*@head.start@*)
-(*@copyright@*)
-(*@doc.proofcase@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                      Author and Copyright remark. Author(s): │
+│                ╭╮╮╮─╮                Milan Rosko  https://www.milanrosko.com │
+│                ││││╭╯                Licence. This file is distributed under │
+│                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
+│                                      visit https://www.mozilla.org/en-US/MPL │
+└──────────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                        Proofcase / P001_98_02C_Proof                         │
+└──────────────────────────────────────────────────────────────────────────────┘
 
-(*@doc.header@[[Overview]]@*)
+  OVERVIEW
 
-(*@doc.pl@[[We discharges the peeled goals by a single local proof development built from lemmas and reconstruct the (i) 2-adic core, (ii) the finite odd codomain, (iii) the collision step, (iv) and the divisibility orientation. We then exports the endpoint witness.]]@*)
+  We discharges the peeled goals by a single local proof development built
+  from lemmas and reconstruct the (i) 2-adic core, (ii) the finite odd
+  codomain, (iii) the collision step, (iv) and the divisibility orientation.
+  We then exports the endpoint witness.
 
-(*@head.end@*)
+*)
 
 From P001 Require Export P001_01_Reframing.
 
-(*@section@[[PEELED GOALS]]@*)
+(*
+┌─────────────────────────────────────────────────────────────────────────┐
+│                                                                         │
+│                               PEELED GOALS                              │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+*)
 
-(*@inline@[[The proof phase restates the peeled goals locally so it remains sequentially above `P001_01_Reframing` without importing `P001_98_01_0_Peeling`.]]@*)
+(*
+│
+│          The proof phase restates the peeled goals locally so it
+│          remains sequentially above `P001_01_Reframing` without
+│          importing `P001_98_01_0_Peeling`.
+│
+*)
 
 Definition show_two_adic_factorization : Prop :=
   forall n x,
@@ -66,7 +89,13 @@ Definition peeling_package : Prop :=
   show_odd_core_collision /\
   show_common_odd_core_implies_divisibility.
 
-(*@box.section@[[2-ADIC CORE]]@*)
+(*
+╔═════════════════════════════════════════════════════════════════════════╗
+║                                                                         ║
+║                               2-ADIC CORE                               ║
+║                                                                         ║
+╚═════════════════════════════════════════════════════════════════════════╝
+*)
 
 Fixpoint odd_part_aux (fuel n : nat) : nat :=
   match fuel with
@@ -267,7 +296,13 @@ Proof.
     exact (Hdyadic j i (Nat.lt_le_incl _ _ Hji)).
 Qed.
 
-(*@section@[[FINITE ODD CODOMAIN]]@*)
+(*
+┌─────────────────────────────────────────────────────────────────────────┐
+│                                                                         │
+│                           FINITE ODD CODOMAIN                           │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+*)
 
 Fixpoint odd_range (n : nat) : list nat :=
   match n with
@@ -387,7 +422,13 @@ Proof.
     + exact Hodd.
 Qed.
 
-(*@section@[[PIGEONHOLE PRINCIPLE]]@*)
+(*
+┌─────────────────────────────────────────────────────────────────────────┐
+│                                                                         │
+│                           PIGEONHOLE PRINCIPLE                          │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+*)
 
 Lemma collision_from_tail_image :
   forall (A : Type) (f : A -> nat) (x : A) (xs : list A),
@@ -525,7 +566,13 @@ Proof.
         exact (IH (remove Nat.eq_dec (f x) cats) Hnodup_xs Hcat_xs Hlen_xs).
 Qed.
 
-(*@section@[[FINAL DISCHARGE]]@*)
+(*
+┌─────────────────────────────────────────────────────────────────────────┐
+│                                                                         │
+│                             FINAL DISCHARGE                             │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+*)
 
 Theorem show_two_adic_factorization_holds :
   show_two_adic_factorization.

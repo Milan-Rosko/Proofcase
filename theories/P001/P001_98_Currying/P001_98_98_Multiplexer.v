@@ -1,18 +1,47 @@
-(*@file@*)
+(*P001_98_98_Multiplexer.v*)
 
-(*@head.start@*)
-(*@copyright@*)
-(*@doc.proofcase@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                      Author and Copyright remark. Author(s): │
+│                ╭╮╮╮─╮                Milan Rosko  https://www.milanrosko.com │
+│                ││││╭╯                Licence. This file is distributed under │
+│                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
+│                                      visit https://www.mozilla.org/en-US/MPL │
+└──────────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                      Proofcase / P001_98_98_Multiplexer                      │
+└──────────────────────────────────────────────────────────────────────────────┘
 
-(*@genre.multiplexer@*)
+│                                               _____
+│                        _______     _______   /____|\__
+│                       | _____ |   | _____ |  \    \ \ |
+│                       ||_   _||   ||_   _||   \    \ ||
+│                       |/    /||   |/    /||   |\_  _\||
+│                       /    / ||   /    / ||   ||     ||
+│                      /____/ /-|  /____/ / |   |'—————'|
+│                      \____|/––'  \____|/––'    –––––––'
+│                        Phase 1     Phase 2     Phase 3
+│
+│
+│        This file  specifies the order by selecting imported components
+│        and governing the overall sequence length. Each imported module
+│        is  routed  according  to structural role and dependency order,
+│        ensuring   that  control  passes  through  a  single,  coherent
+│        coordination layer.
 
-(*@doc.header@[[Overview]]@*)
 
-(*@doc.pl@[[We implement a switch system as a project-level routing mechanism between a public contract, one or more internal proof realizations, and the terminal certification layer.]]@*)
+  OVERVIEW
 
-(*@doc.pl@[[The design intention is architectural rather than theorem-specific: the certification layer should depend on a stable routed interface, while internal proof phases may be curried or factorized without changing the external contracts (Premises and QED).]]@*)
+  We implement a switch system as a project-level routing mechanism between a
+  public contract, one or more internal proof realizations, and the terminal
+  certification layer.
 
-(*@head.end@*)
+  The design intention is architectural rather than theorem-specific: the
+  certification layer should depend on a stable routed interface, while
+  internal proof phases may be curried or factorized without changing the
+  external contracts (Premises and QED).
+
+*)
 
 (*
 	From P001.P001_98_Currying Require Export P001_98_01A_Initial. 

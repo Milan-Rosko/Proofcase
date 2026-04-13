@@ -1,14 +1,24 @@
-(*@file@*)
+(*A001_98__Artifacts.v*)
 
-(*@head.start@*)
-(*@copyright@*)
-(*@doc.proofcase@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                      Author and Copyright remark. Author(s): │
+│                ╭╮╮╮─╮                Milan Rosko  https://www.milanrosko.com │
+│                ││││╭╯                Licence. This file is distributed under │
+│                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
+│                                      visit https://www.mozilla.org/en-US/MPL │
+└──────────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                        Proofcase / A001_98__Artifacts                        │
+└──────────────────────────────────────────────────────────────────────────────┘
 
-(*@doc.header@[[Overview]]@*)
+  OVERVIEW
 
-(*@doc.pl@[[This driver file isolates assumption reports and extraction commands for A001. The proof-facing theory files remain import-safe, while artifact generation is still available through a single explicit entry point.]]@*)
+  This driver file isolates assumption reports and extraction commands for
+  A001. The proof-facing theory files remain import-safe, while artifact
+  generation is still available through a single explicit entry point.
 
-(*@head.end@*)
+*)
 
 From A001 Require Import A001_99_IO.
 From Stdlib Require Import ExtrOcamlBasic ExtrOcamlNatBigInt.

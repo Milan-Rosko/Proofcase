@@ -1,21 +1,44 @@
-(*@file@*)
+(*A001_01__Binary_Engine.v*)
 
-(*@head.start@*)
-(*@copyright@*)
-(*@doc.proofcase@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                      Author and Copyright remark. Author(s): │
+│                ╭╮╮╮─╮                Milan Rosko  https://www.milanrosko.com │
+│                ││││╭╯                Licence. This file is distributed under │
+│                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
+│                                      visit https://www.mozilla.org/en-US/MPL │
+└──────────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                      Proofcase / A001_01__Binary_Engine                      │
+└──────────────────────────────────────────────────────────────────────────────┘
 
-(*@doc.header@[[Overview]]@*)
+  OVERVIEW
 
-(*@doc.pl@[[The present construction introduces a computation-oriented binary engine for the A001 carryless pairing substrate. It keeps the existing proof-facing `nat` development untouched, but provides fast-doubling Fibonacci arithmetic, a binary greedy Zeckendorf extractor, a clean specification predicate, and `nat` bridge wrappers for future extraction and migration work. At the zero boundary, we intentionally leave open how the bridge should be identified with the `nat`-level cutoff / pairing surface over `N+0`; the unary development remains the authoritative proof-facing definition there.]]@*)
+  The present construction introduces a computation-oriented binary engine
+  for the A001 carryless pairing substrate. It keeps the existing
+  proof-facing `nat` development untouched, but provides fast-doubling
+  Fibonacci arithmetic, a binary greedy Zeckendorf extractor, a clean
+  specification predicate, and `nat` bridge wrappers for future extraction
+  and migration work. At the zero boundary, we intentionally leave open how
+  the bridge should be identified with the `nat`-level cutoff / pairing
+  surface over `N+0`; the unary development remains the authoritative
+  proof-facing definition there.
 
-(*@head.end@*)
+*)
 
 From Stdlib Require Export Arith PeanoNat Bool Lia List Ring ZArith Extraction.
 Export ListNotations.
 Global Open Scope list_scope.
 Local Open Scope N_scope.
 
-(*@inline@[[`fib_fast_pos` computes `(F(p), F(p+1))` by fast doubling over the binary shape of a positive index. The recursion depth is logarithmic in the index, unlike the original unary descent.]]@*)
+(*
+│
+│          `fib_fast_pos` computes `(F(p), F(p+1))` by fast doubling
+│          over the binary shape of a positive index. The recursion
+│          depth is logarithmic in the index, unlike the original
+│          unary descent.
+│
+*)
 
 Fixpoint fib_fast_pos (p : positive) : N * N :=
   match p with
@@ -75,7 +98,14 @@ Fixpoint all_ge_2N (xs : list N) : Prop :=
 Definition zeck_validN (xs : list N) : Prop :=
   strictly_decreasingN xs /\ no_adjacentN xs /\ all_ge_2N xs.
 
-(*@inline@[[`IsZeckendorf` decouples the logical notion of a valid support from the concrete greedy extractor. Downstream proofs can reason by inversion on this predicate without unfolding the executable search engine.]]@*)
+(*
+│
+│          `IsZeckendorf` decouples the logical notion of a valid
+│          support from the concrete greedy extractor. Downstream
+│          proofs can reason by inversion on this predicate without
+│          unfolding the executable search engine.
+│
+*)
 
 Inductive IsZeckendorf : N -> list N -> Prop :=
 | Z_Empty :
@@ -104,7 +134,15 @@ Proof.
     now rewrite IHHz.
 Qed.
 
-(*@inline@[[`search_boundN` is a bit-length based computational bound for the binary search surface. It is deliberately small compared with the unary `x`-sized fuel used by the original engine, and can later be tightened by a proved upper-bound lemma without changing the executable interface.]]@*)
+(*
+│
+│          `search_boundN` is a bit-length based computational bound
+│          for the binary search surface. It is deliberately small
+│          compared with the unary `x`-sized fuel used by the original
+│          engine, and can later be tightened by a proved upper-bound
+│          lemma without changing the executable interface.
+│
+*)
 
 Definition search_boundN (x : N) : N :=
   2 * N.size x + 2.
@@ -171,7 +209,16 @@ Definition unpairN (n : N) : N * N :=
   let y := sum_fibN (y_indicesN (boundaryN x) zn) in
   (x, y).
 
-(*@inline@[[The following wrappers provide a `nat`-shaped computational bridge into the binary engine. They are intended for extraction and benchmarking, not as replacements for the existing proof-facing definitions; in particular, the identification of the bridge with the unary surface at the zero boundary is deliberately left open over `N+0`.]]@*)
+(*
+│
+│          The following wrappers provide a `nat`-shaped computational
+│          bridge into the binary engine. They are intended for
+│          extraction and benchmarking, not as replacements for the
+│          existing proof-facing definitions; in particular, the
+│          identification of the bridge with the unary surface at the
+│          zero boundary is deliberately left open over `N+0`.
+│
+*)
 
 Definition fib_fast_nat (n : nat) : nat :=
   N.to_nat (fibN (N.of_nat n)).

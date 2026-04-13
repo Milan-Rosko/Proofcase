@@ -1,22 +1,36 @@
-(*@file@*)
+(*P001_98_02B_Rewrite.v*)
 
-(*@head.start@*)
-(*@copyright@*)
-(*@doc.proofcase@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                      Author and Copyright remark. Author(s): │
+│                ╭╮╮╮─╮                Milan Rosko  https://www.milanrosko.com │
+│                ││││╭╯                Licence. This file is distributed under │
+│                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
+│                                      visit https://www.mozilla.org/en-US/MPL │
+└──────────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                       Proofcase / P001_98_02B_Rewrite                        │
+└──────────────────────────────────────────────────────────────────────────────┘
 
-(*@doc.header@[[Overview]]@*)
+  OVERVIEW
 
-(*@doc.pl@[[This stage no longer carries the derived or conjectural payload.]]@*)
+  This stage no longer carries the derived or conjectural payload.
 
-(*@doc.pl@[[The derived semantic content now lives in `P001_01_Reframing`, while the remaining conjectural payload lives in `P001_98_01_0_Peeling`.]]@*)
+  The derived semantic content now lives in `P001_01_Reframing`, while the
+  remaining conjectural payload lives in `P001_98_01_0_Peeling`.
 
-(*@head.end@*)
+*)
 
 From P001 Require Export P001_01_Reframing.
 
 From P001 Require Export P001_00_Premises.
 
-(*@inline@[[The reframing layer splits the expanded sentence into smaller semantic packages.]]@*)
+(*
+│
+│          The reframing layer splits the expanded sentence into
+│          smaller semantic packages.
+│
+*)
 
 Definition bounded_selection_package (n : nat) (A : list nat) : Prop :=
   (forall a, In a A -> 1 <= a /\ a <= 2 * n) /\
@@ -62,7 +76,14 @@ Definition odd_core_divisibility_package (n : nat) (A : list nat) : Prop :=
     z = 2 ^ j * m ->
     Nat.divide y z \/ Nat.divide z y.
 
-(*@inline@[[The reframed expansion says that any bounded distinct selection of size `n + 1` comes equipped with factorization, odd-domain, collision, and divisibility packages.]]@*)
+(*
+│
+│          The reframed expansion says that any bounded distinct
+│          selection of size `n + 1` comes equipped with
+│          factorization, odd-domain, collision, and divisibility
+│          packages.
+│
+*)
 Definition first_expansion : Prop :=
   forall n A,
     bounded_selection_package n A ->
@@ -71,7 +92,13 @@ Definition first_expansion : Prop :=
     odd_core_collision_package n A /\
     odd_core_divisibility_package n A.
 
-(*@inline@[[The reframed package is stronger than the original witness because the divisibility package applies to the collision package.]]@*)
+(*
+│
+│          The reframed package is stronger than the original witness
+│          because the divisibility package applies to the collision
+│          package.
+│
+*)
 Theorem first_expansion_implies_WITNESS :
   first_expansion ->
   WITNESS.
@@ -87,36 +114,74 @@ Proof.
   exact (Horient y z m i j Hy Hz Hneq Hm_pos Hm_bound Hm_odd Hy_eq Hz_eq).
 Qed.
 
-(*@inline@[[At the rewrite stage, the single endpoint conjecture is split into four smaller conjectures matching the semantic packages above.]]@*)
+(*
+│
+│          At the rewrite stage, the single endpoint conjecture is
+│          split into four smaller conjectures matching the semantic
+│          packages above.
+│
+*)
 
 Module Export four_conjectures.
 
-(*@box.section@[[REWRITE CONJECTURE PACKAGE]]@*)
+(*
+╔═════════════════════════════════════════════════════════════════════════╗
+║                                                                         ║
+║                        REWRITE CONJECTURE PACKAGE                       ║
+║                                                                         ║
+╚═════════════════════════════════════════════════════════════════════════╝
+*)
 
-(*@inline@[[Every bounded source element factors into a power of `2` times an odd core.]]@*)
+(*
+│
+│          Every bounded source element factors into a power of `2`
+│          times an odd core.
+│
+*)
 Conjecture show_two_adic_factorization :
   forall n,
     two_adic_factorization_package n.
 
-(*@inline@[[The odd integers in `1` through `2n` are exhausted by a list of cardinality `n`.]]@*)
+(*
+│
+│          The odd integers in `1` through `2n` are exhausted by a
+│          list of cardinality `n`.
+│
+*)
 Conjecture show_odd_domain_exhaustion :
   forall n,
     odd_domain_package n.
 
-(*@inline@[[Any bounded distinct selection of length `n+1` contains two distinct members sharing one odd core.]]@*)
+(*
+│
+│          Any bounded distinct selection of length `n+1` contains two
+│          distinct members sharing one odd core.
+│
+*)
 Conjecture show_odd_core_collision :
   forall n A,
     bounded_selection_package n A ->
     odd_core_collision_package n A.
 
-(*@inline@[[Two distinct selected integers with the same odd core are ordered by divisibility.]]@*)
+(*
+│
+│          Two distinct selected integers with the same odd core are
+│          ordered by divisibility.
+│
+*)
 Conjecture show_common_odd_core_implies_divisibility :
   forall n A,
     odd_core_divisibility_package n A.
 
 End four_conjectures.
 
-(*@box.section@[[REWRITE ASSEMBLY]]@*)
+(*
+╔═════════════════════════════════════════════════════════════════════════╗
+║                                                                         ║
+║                             REWRITE ASSEMBLY                            ║
+║                                                                         ║
+╚═════════════════════════════════════════════════════════════════════════╝
+*)
 
 Theorem the_four_conjectures_hold :
   first_expansion.

@@ -1,28 +1,52 @@
-(*@file@*)
+(*P001_01_Reframing.v*)
 
-(*@head.start@*)
-(*@copyright@*)
-(*@doc.proofcase@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                      Author and Copyright remark. Author(s): │
+│                ╭╮╮╮─╮                Milan Rosko  https://www.milanrosko.com │
+│                ││││╭╯                Licence. This file is distributed under │
+│                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
+│                                      visit https://www.mozilla.org/en-US/MPL │
+└──────────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                        Proofcase / P001_01_Reframing                         │
+└──────────────────────────────────────────────────────────────────────────────┘
 
-(*@doc.header@[[Overview]]@*)
+  OVERVIEW
 
-(*@doc.pl@[[This file is the derived semantic layer that sits directly above the immutable premises.]]@*)
+  This file is the derived semantic layer that sits directly above the
+  immutable premises.
 
-(*@doc.pl@[[It packages the proof target into smaller semantic components and proves that this reframed package implies the original witness.]]@*)
+  It packages the proof target into smaller semantic components and proves
+  that this reframed package implies the original witness.
 
-(*@doc.header@[[Analogy]]@*)
+  ANALOGY
 
-(*@doc.pl@[[The reframing layer splits the expanded semantics with higher resolution:]]@*)
+  The reframing layer splits the expanded semantics with higher resolution:
 
-(*@doc.pl@[[Level 1: (( We prove ) (( X )( from )( necessity. ))) -> QED]]@*)
+  Level 1: (( We prove ) (( X )( from )( necessity. ))) -> QED
 
-(*@doc.pl@[[Level 2: (( We prove ) that (( among any collection of n+1 pairwise distinct integers chosen from the integers 1 through 2n, there must exist at least two distinct members of that collection such that one of them divides the other ( with no remainder ))( from )( necessity ))) -> QED]]@*)
+  Level 2: (( We prove ) that (( among any collection of n+1 pairwise
+  distinct integers chosen from the integers 1 through 2n, there must exist
+  at least two distinct members of that collection such that one of them
+  divides the other ( with no remainder ))( from )( necessity ))) -> QED
 
-(*@doc.pl@[[Level 3: (( We prove ) that (((( every integer $x$ )( chosen from the domain )( 1 through 2n ))( can be strictly factored into )((( the integer 2 )( raised to the power of )( some non-negative integer $k$ ))( multiplied by )( some odd integer $m$ ))) AND (( bounding )(( the maximum count of )( distinct odd integers $m$ )( existing between )( 1 and 2n ))( is exactly equal to )( $n$ )))( must collide )(( since ) ((( selecting )( a count of $n+1$ integers ))( forces )(( at least two selected integers )( $A$ and $B$ ))( to share )(( the exact same )( odd integer $m$ ))))( which ultimately guarantees that )(( by )( $A = 2^j \cdot m$ ) AND ( $B = 2^k \cdot m$ ))(( the integer possessing )( the smaller power of 2 ))( must perfectly divide )(( the integer possessing )( the larger power of 2 ))( with no remainder )))) -> QED]]@*)
+  Level 3: (( We prove ) that (((( every integer $x$ )( chosen from the
+  domain )( 1 through 2n ))( can be strictly factored into )((( the integer 2
+  )( raised to the power of )( some non-negative integer $k$ ))( multiplied
+  by )( some odd integer $m$ ))) AND (( bounding )(( the maximum count of )(
+  distinct odd integers $m$ )( existing between )( 1 and 2n ))( is exactly
+  equal to )( $n$ )))( must collide )(( since ) ((( selecting )( a count of
+  $n+1$ integers ))( forces )(( at least two selected integers )( $A$ and $B$
+  ))( to share )(( the exact same )( odd integer $m$ ))))( which ultimately
+  guarantees that )(( by )( $A = 2^j \cdot m$ ) AND ( $B = 2^k \cdot m$ ))((
+  the integer possessing )( the smaller power of 2 ))( must perfectly divide
+  )(( the integer possessing )( the larger power of 2 ))( with no remainder
+  )))) -> QED
 
-(*@doc.pl@[[Level 4: Lambda term processed by Rocq.]]@*)
+  Level 4: Lambda term processed by Rocq.
 
-(*@head.end@*)
+*)
 
 From P001 Require Export P001_00_Premises.
 
@@ -70,7 +94,14 @@ Definition odd_core_divisibility_package (n : nat)(A : list nat) : Prop :=
     z = 2 ^ j * m ->
     Nat.divide y z \/ Nat.divide z y.
 
-(*@inline@[[The reframed expansion above says that any bounded distinct selection of size `n + 1` comes equipped with factorization, odd-domain, collision, and divisibility packages.]]@*)
+(*
+│
+│          The reframed expansion above says that any bounded distinct
+│          selection of size `n + 1` comes equipped with
+│          factorization, odd-domain, collision, and divisibility
+│          packages.
+│
+*)
 
 Definition first_expansion : Prop :=
   forall n A,
@@ -80,7 +111,13 @@ Definition first_expansion : Prop :=
     odd_core_collision_package n A /\
     odd_core_divisibility_package n A.
 
-(*@inline@[[The reframed package is still a “stronger” claim than the original witness because the divisibility package applies to the collision package.]]@*)
+(*
+│
+│          The reframed package is still a “stronger” claim than the
+│          original witness because the divisibility package applies
+│          to the collision package.
+│
+*)
 
 Theorem first_expansion_implies_WITNESS :
   first_expansion ->

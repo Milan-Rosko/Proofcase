@@ -1,20 +1,37 @@
-(*@file@*)
+(*D001_08__Universality.v*)
 
-(*@head.start@*)
-(*@copyright@*)
-(*@doc.proofcase@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                      Author and Copyright remark. Author(s): │
+│                ╭╮╮╮─╮                Milan Rosko  https://www.milanrosko.com │
+│                ││││╭╯                Licence. This file is distributed under │
+│                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
+│                                      visit https://www.mozilla.org/en-US/MPL │
+└──────────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                      Proofcase / D001_08__Universality                       │
+└──────────────────────────────────────────────────────────────────────────────┘
 
-(*@doc.header@[[Overview]]@*)
+  OVERVIEW
 
-(*@doc.pl@[[This file records the machine-level universality targets together with a concrete subtraction example.]]@*)
+  This file records the machine-level universality targets together with a
+  concrete subtraction example.
 
-(*@doc.pl@[[At the instruction level, the FM already contains the target two-counter Minsky kernel, so compilation into FM ROM is the identity; the real coding work lies in the band-encoded state architecture.]]@*)
+  At the instruction level, the FM already contains the target two-counter
+  Minsky kernel, so compilation into FM ROM is the identity; the real coding
+  work lies in the band-encoded state architecture.
 
-(*@head.end@*)
+*)
 
 From D001 Require Export D001_07__Step_Arithmetization.
 
-(*@inline@[[`compile_program` is the identity translation because the FM instruction set is already the target two-counter Minsky kernel.]]@*)
+(*
+│
+│          `compile_program` is the identity translation because the
+│          FM instruction set is already the target two-counter Minsky
+│          kernel.
+│
+*)
 
 Definition compile_program (prog : program) : program := prog.
 
@@ -26,8 +43,17 @@ Proof.
   reflexivity.
 Qed.
 
-(*@inline@[[`AbstractConfig` and `abstract_step` define the stripped-down Minsky reference semantics for the FM instruction set. They forget the Zeckendorf coding and expose only the control-flow triple `(IP, R1, R2)`.]]@*)
-(*@unicodemath@[[abstract_step(prog, (ip, r₁, r₂), (ip', r₁', r₂'))]][[is the abstract one-step transition induced by the ROM instruction at address `ip`.]]@*)
+(*
+│
+│          `AbstractConfig` and `abstract_step` define the
+│          stripped-down Minsky reference semantics for the FM
+│          instruction set. They forget the Zeckendorf coding and
+│          expose only the control-flow triple `(IP, R1, R2)`.
+│
+*)
+(*             abstract_step(prog, (ip, r₁, r₂), (ip', r₁', r₂'))             *)
+(*   is the abstract one-step transition induced by the ROM instruction at    *)
+(*                               address `ip`.                                *)
 
 Definition AbstractConfig : Type := (nat * nat * nat)%type.
 
@@ -121,8 +147,17 @@ Proof.
   reflexivity.
 Qed.
 
-(*@inline@[[`abstract_well_formed_of_config_to_state` is the bookkeeping bridge for limit invariants. Once a `MachineLimits` package has been fixed, the abstract `(IP, R1, R2)` view and the structured FM state carry exactly the same boundedness information.]]@*)
-(*@unicodemath@[[abstract_well_formed_of(L, (ip, r₁, r₂)) ⇔ state_well_formed_of(L, config_to_state((ip, r₁, r₂))).]]@*)
+(*
+│
+│          `abstract_well_formed_of_config_to_state` is the
+│          bookkeeping bridge for limit invariants. Once a
+│          `MachineLimits` package has been fixed, the abstract `(IP,
+│          R1, R2)` view and the structured FM state carry exactly the
+│          same boundedness information.
+│
+*)
+(*     abstract_well_formed_of(L, (ip, r₁, r₂)) ⇔ state_well_formed_of(L,     *)
+(*                      config_to_state((ip, r₁, r₂))).                       *)
 
 Lemma abstract_well_formed_of_config_to_state :
   forall L cfg,
@@ -266,8 +301,17 @@ Proof.
       exact Hfetch.
 Qed.
 
-(*@inline@[[`abstract_step_iff_step_state` packages the soundness and completeness bridge between the stripped abstract semantics and the structured FM transition function, while `FM_simulates_abstract` transports the same fact to any mapped state.]]@*)
-(*@unicodemath@[[abstract_step(prog, c, c') ⇔ step_state(prog, config_to_state(c)) = config_to_state(c').]]@*)
+(*
+│
+│          `abstract_step_iff_step_state` packages the soundness and
+│          completeness bridge between the stripped abstract semantics
+│          and the structured FM transition function, while
+│          `FM_simulates_abstract` transports the same fact to any
+│          mapped state.
+│
+*)
+(*    abstract_step(prog, c, c') ⇔ step_state(prog, config_to_state(c)) =     *)
+(*                            config_to_state(c').                            *)
 
 Corollary abstract_step_iff_step_state :
   forall prog cfg cfg',
@@ -322,8 +366,15 @@ Proof.
   exact (abstract_step_sound prog (q, a, b) cfg' Hstep).
 Qed.
 
-(*@inline@[[The universality target is phrased as a Σ₁-completeness obligation: every recursively enumerable language in the chosen meta-framework should be realized by some compiled FM program.]]@*)
-(*@unicodemath@[[MachineComputes(prog, L) ≔ ∀ n, MachineAccepts(prog, n) ⇔ L(n).]]@*)
+(*
+│
+│          The universality target is phrased as a Σ₁-completeness
+│          obligation: every recursively enumerable language in the
+│          chosen meta-framework should be realized by some compiled
+│          FM program.
+│
+*)
+(*      MachineComputes(prog, L) ≔ ∀ n, MachineAccepts(prog, n) ⇔ L(n).       *)
 
 Definition MachineAccepts : program -> nat -> Prop :=
   halts_on_input.
@@ -341,8 +392,14 @@ Definition CubicCompilerReady (prog : program) : Prop :=
   forall s t,
     step_relation prog s t <-> stepb prog s t = true.
 
-(*@inline@[[`MachineAccepts_compile_program_iff` is the first identity-compilation lemma: acceptance may be stated either before or after compilation without changing meaning.]]@*)
-(*@unicodemath@[[MachineAccepts(compile_program(prog), input) ⇔ MachineAccepts(prog, input).]]@*)
+(*
+│
+│          `MachineAccepts_compile_program_iff` is the first
+│          identity-compilation lemma: acceptance may be stated either
+│          before or after compilation without changing meaning.
+│
+*)
+(*MachineAccepts(compile_program(prog), input) ⇔ MachineAccepts(prog, input). *)
 
 Lemma MachineAccepts_compile_program_iff :
   forall prog input,
@@ -354,8 +411,14 @@ Proof.
   tauto.
 Qed.
 
-(*@inline@[[`MachineComputes_compile_program_iff` lifts the same identity-compilation fact from single inputs to whole semantic specifications.]]@*)
-(*@unicodemath@[[MachineComputes(compile_program(prog), L) ⇔ MachineComputes(prog, L).]]@*)
+(*
+│
+│          `MachineComputes_compile_program_iff` lifts the same
+│          identity-compilation fact from single inputs to whole
+│          semantic specifications.
+│
+*)
+(*   MachineComputes(compile_program(prog), L) ⇔ MachineComputes(prog, L).    *)
 
 Lemma MachineComputes_compile_program_iff :
   forall prog L,
@@ -367,8 +430,15 @@ Proof.
   tauto.
 Qed.
 
-(*@inline@[[`Sigma1CompletenessTarget_identity_iff` collapses the machine-level target to the uncompiled semantics, because `compile_program` is presently the identity.]]@*)
-(*@unicodemath@[[Sigma1CompletenessTarget(RELanguage) ⇔ ∀ L, RELanguage(L) → ∃ prog, MachineComputes(prog, L).]]@*)
+(*
+│
+│          `Sigma1CompletenessTarget_identity_iff` collapses the
+│          machine-level target to the uncompiled semantics, because
+│          `compile_program` is presently the identity.
+│
+*)
+(*    Sigma1CompletenessTarget(RELanguage) ⇔ ∀ L, RELanguage(L) → ∃ prog,     *)
+(*                         MachineComputes(prog, L).                          *)
 
 Lemma Sigma1CompletenessTarget_identity_iff :
   forall RELanguage,
@@ -408,8 +478,16 @@ Proof.
   tauto.
 Qed.
 
-(*@inline@[[`run_steps` is the finite-iteration operator for `step_state`. It is the execution-level object used in the worked example and the natural bridge from local step simulation to compiler-level correctness statements.]]@*)
-(*@unicodemath@[[run_steps(prog, 0, st) = st]][[run_steps(prog, fuel + 1, st) = run_steps(prog, fuel, step_state(prog, st)).]]@*)
+(*
+│
+│          `run_steps` is the finite-iteration operator for
+│          `step_state`. It is the execution-level object used in the
+│          worked example and the natural bridge from local step
+│          simulation to compiler-level correctness statements.
+│
+*)
+(*                        run_steps(prog, 0, st) = st                         *)
+(*run_steps(prog, fuel + 1, st) = run_steps(prog, fuel, step_state(prog, st)).*)
 
 Fixpoint run_steps (prog : program) (fuel : nat) (st : FMState) : FMState :=
   match fuel with
@@ -436,7 +514,13 @@ Proof.
     reflexivity.
 Qed.
 
-(*@inline@[[`run_steps_halted_fixed` records the inertness of halting: once a run reaches a halted state, further iteration leaves it unchanged.]]@*)
+(*
+│
+│          `run_steps_halted_fixed` records the inertness of halting:
+│          once a run reaches a halted state, further iteration leaves
+│          it unchanged.
+│
+*)
 
 Lemma run_steps_halted_fixed :
   forall prog fuel st,
@@ -451,8 +535,18 @@ Proof.
     exact IH.
 Qed.
 
-(*@inline@[[`run_respects_limits` is the hidden invariant that makes the family semantics honest. It says that one chosen `MachineLimits` package is wide enough for every prefix of the run, so later encoded-state and decode/encode lemmas may be applied at each time step without changing the machine.]]@*)
-(*@unicodemath@[[run_respects_limits(L, prog, fuel, st) ≡ ∀ k ≤ fuel, state_well_formed_of(L, run_steps(prog, k, st)).]]@*)
+(*
+│
+│          `run_respects_limits` is the hidden invariant that makes
+│          the family semantics honest. It says that one chosen
+│          `MachineLimits` package is wide enough for every prefix of
+│          the run, so later encoded-state and decode/encode lemmas
+│          may be applied at each time step without changing the
+│          machine.
+│
+*)
+(*run_respects_limits(L, prog, fuel, st) ≡ ∀ k ≤ fuel, state_well_formed_of(L,*)
+(*                          run_steps(prog, k, st)).                          *)
 
 Definition run_respects_limits
     (L : MachineLimits) (prog : program) (fuel : nat) (st : FMState) : Prop :=
@@ -460,16 +554,37 @@ Definition run_respects_limits
     k <= fuel ->
     state_well_formed_of L (run_steps prog k st).
 
-(*@inline@[[`FamilyMachineAccepts` is the first honest asymptotic acceptance notion for the band-parameterized machine family: there must exist a sufficiently large `MachineLimits` package whose windows accommodate the whole halting run.]]@*)
-(*@unicodemath@[[FamilyMachineAccepts(prog, input) ⇔ ∃ L, fuel, run_respects_limits(L, prog, fuel, initial_state(input)) ∧ halted_state(run_steps(prog, fuel, initial_state(input))).]]@*)
+(*
+│
+│          `FamilyMachineAccepts` is the first honest asymptotic
+│          acceptance notion for the band-parameterized machine
+│          family: there must exist a sufficiently large
+│          `MachineLimits` package whose windows accommodate the whole
+│          halting run.
+│
+*)
+(*FamilyMachineAccepts(prog, input) ⇔ ∃ L, fuel, run_respects_limits(L, prog, *)
+(*      fuel, initial_state(input)) ∧ halted_state(run_steps(prog, fuel,      *)
+(*                          initial_state(input))).                           *)
 
 Definition FamilyMachineAccepts (prog : program) (input : nat) : Prop :=
   exists L fuel,
     run_respects_limits L prog fuel (initial_state input) /\
     halted_state (run_steps prog fuel (initial_state input)).
 
-(*@inline@[[`FamilyRawTraceWitness` is the internalized numeric witness format for the same family semantics. Instead of quantifying over a Coq list of states, it asks for one natural-number witness whose coded-list structure follows `NextState_of L`.]]@*)
-(*@unicodemath@[[FamilyRawTraceWitness(L, prog, input, w) ⇔ raw_trace_witness_from(NextState_of(L, prog), c ↦ halted_state(decode_state_of(L, c)), encode_state_of(L, initial_state(input)), w).]]@*)
+(*
+│
+│          `FamilyRawTraceWitness` is the internalized numeric witness
+│          format for the same family semantics. Instead of
+│          quantifying over a Coq list of states, it asks for one
+│          natural-number witness whose coded-list structure follows
+│          `NextState_of L`.
+│
+*)
+(*                 FamilyRawTraceWitness(L, prog, input, w) ⇔                 *)
+(*             raw_trace_witness_from(NextState_of(L, prog), c ↦              *)
+(*          halted_state(decode_state_of(L, c)), encode_state_of(L,           *)
+(*                         initial_state(input)), w).                         *)
 
 Definition FamilyRawTraceWitness
     (L : MachineLimits) (prog : program) (input witness : nat) : Prop :=
@@ -510,8 +625,19 @@ Proof.
   lia.
 Qed.
 
-(*@inline@[[`code_run_last_NextState_of` is the key compatibility lemma between the numeric witness generator and the structured machine execution. Under a fixed limit invariant, iterating `NextState_of` on encoded states computes exactly the same final code as running `run_steps` on states and encoding only at the end.]]@*)
-(*@unicodemath@[[run_respects_limits(L, prog, fuel, st) ⇒ code_run_last(NextState_of(L, prog), fuel, encode_state_of(L, st)) = encode_state_of(L, run_steps(prog, fuel, st)).]]@*)
+(*
+│
+│          `code_run_last_NextState_of` is the key compatibility lemma
+│          between the numeric witness generator and the structured
+│          machine execution. Under a fixed limit invariant, iterating
+│          `NextState_of` on encoded states computes exactly the same
+│          final code as running `run_steps` on states and encoding
+│          only at the end.
+│
+*)
+(*   run_respects_limits(L, prog, fuel, st) ⇒ code_run_last(NextState_of(L,   *)
+(* prog), fuel, encode_state_of(L, st)) = encode_state_of(L, run_steps(prog,  *)
+(*                                fuel, st)).                                 *)
 
 Lemma code_run_last_NextState_of :
   forall L prog fuel st,
@@ -538,7 +664,15 @@ Proof.
 	      exact Hrun.
 Qed.
 
-(*@inline@[[`FamilyMachineAccepts_input_fits` isolates the first necessary size condition hidden inside the existential family semantics: any accepting family witness must choose limits large enough to place the external input into the `R1` window of the initial state.]]@*)
+(*
+│
+│          `FamilyMachineAccepts_input_fits` isolates the first
+│          necessary size condition hidden inside the existential
+│          family semantics: any accepting family witness must choose
+│          limits large enough to place the external input into the
+│          `R1` window of the initial state.
+│
+*)
 
 Lemma FamilyMachineAccepts_input_fits :
   forall prog input,
@@ -552,8 +686,17 @@ Proof.
   exact Hinput.
 Qed.
 
-(*@inline@[[`FamilyMachineAccepts_has_raw_witness` is the first internal witness theorem for the asymptotic FM semantics. It converts an existential halting run with sufficiently large limits into one natural-number trace witness whose local successor relation is `NextState_of L`.]]@*)
-(*@unicodemath@[[FamilyMachineAccepts(prog, input) ⇒ ∃ L, w, FamilyRawTraceWitness(L, prog, input, w).]]@*)
+(*
+│
+│          `FamilyMachineAccepts_has_raw_witness` is the first
+│          internal witness theorem for the asymptotic FM semantics.
+│          It converts an existential halting run with sufficiently
+│          large limits into one natural-number trace witness whose
+│          local successor relation is `NextState_of L`.
+│
+*)
+(* FamilyMachineAccepts(prog, input) ⇒ ∃ L, w, FamilyRawTraceWitness(L, prog, *)
+(*                                 input, w).                                 *)
 
 Theorem FamilyMachineAccepts_has_raw_witness :
   forall prog input,
@@ -579,8 +722,14 @@ Proof.
     + exact Hrun.
 Qed.
 
-(*@inline@[[`FamilyMachineAccepts_compile_program_iff` is the family-level identity-compilation lemma for single inputs.]]@*)
-(*@unicodemath@[[FamilyMachineAccepts(compile_program(prog), input) ⇔ FamilyMachineAccepts(prog, input).]]@*)
+(*
+│
+│          `FamilyMachineAccepts_compile_program_iff` is the
+│          family-level identity-compilation lemma for single inputs.
+│
+*)
+(*            FamilyMachineAccepts(compile_program(prog), input) ⇔            *)
+(*                     FamilyMachineAccepts(prog, input).                     *)
 
 Lemma FamilyMachineAccepts_compile_program_iff :
   forall prog input,
@@ -592,8 +741,15 @@ Proof.
   tauto.
 Qed.
 
-(*@inline@[[`FamilyMachineComputes_compile_program_iff` lifts the same identity-compilation fact to family-level semantic specifications.]]@*)
-(*@unicodemath@[[FamilyMachineComputes(compile_program(prog), Lang) ⇔ FamilyMachineComputes(prog, Lang).]]@*)
+(*
+│
+│          `FamilyMachineComputes_compile_program_iff` lifts the same
+│          identity-compilation fact to family-level semantic
+│          specifications.
+│
+*)
+(*            FamilyMachineComputes(compile_program(prog), Lang) ⇔            *)
+(*                     FamilyMachineComputes(prog, Lang).                     *)
 
 Lemma FamilyMachineComputes_compile_program_iff :
   forall prog Lang,
@@ -605,8 +761,15 @@ Proof.
   tauto.
 Qed.
 
-(*@inline@[[`FamilySigma1CompletenessTarget_identity_iff` collapses the family-level universality target to the uncompiled semantics, again because `compile_program` is the identity.]]@*)
-(*@unicodemath@[[FamilySigma1CompletenessTarget(RELanguage) ⇔ ∀ Lang, RELanguage(Lang) → ∃ prog, FamilyMachineComputes(prog, Lang).]]@*)
+(*
+│
+│          `FamilySigma1CompletenessTarget_identity_iff` collapses the
+│          family-level universality target to the uncompiled
+│          semantics, again because `compile_program` is the identity.
+│
+*)
+(* FamilySigma1CompletenessTarget(RELanguage) ⇔ ∀ Lang, RELanguage(Lang) → ∃  *)
+(*                  prog, FamilyMachineComputes(prog, Lang).                  *)
 
 Lemma FamilySigma1CompletenessTarget_identity_iff :
   forall RELanguage,
@@ -627,7 +790,13 @@ Proof.
     exact Hprog.
 Qed.
 
-(*@inline@[[`subtraction_program` is the canonical worked example: it alternates between decrementing `R2` and decrementing `R1` until `R2` hits zero, then halts with `R1 = n - m`.]]@*)
+(*
+│
+│          `subtraction_program` is the canonical worked example: it
+│          alternates between decrementing `R2` and decrementing `R1`
+│          until `R2` hits zero, then halts with `R1 = n - m`.
+│
+*)
 
 Definition subtraction_program : program :=
   [HALT;
@@ -682,8 +851,16 @@ Proof.
     lia.
 Qed.
 
-(*@inline@[[`subtraction_program_halts` is the worked halting theorem for the subtraction example: after `2m + 1` steps, the program reaches the halted state with register content `n - m`, provided `m ≤ n`.]]@*)
-(*@unicodemath@[[m ≤ n ⇒ run_steps(subtraction_program, 2m + 1, initial_state2(n, m)) = (0, n - m, 0).]]@*)
+(*
+│
+│          `subtraction_program_halts` is the worked halting theorem
+│          for the subtraction example: after `2m + 1` steps, the
+│          program reaches the halted state with register content `n -
+│          m`, provided `m ≤ n`.
+│
+*)
+(*m ≤ n ⇒ run_steps(subtraction_program, 2m + 1, initial_state2(n, m)) = (0, n*)
+(*                                  - m, 0).                                  *)
 
 Theorem subtraction_program_halts :
   forall n m,
@@ -698,7 +875,14 @@ Proof.
   apply subtraction_halt_step.
 Qed.
 
-(*@inline@[[The subtraction example is the first concrete place where the abstract step semantics, the structured FM execution function, and the family-level acceptance viewpoint line up on an explicit program.]]@*)
+(*
+│
+│          The subtraction example is the first concrete place where
+│          the abstract step semantics, the structured FM execution
+│          function, and the family-level acceptance viewpoint line up
+│          on an explicit program.
+│
+*)
 
 Corollary subtraction_program_correct :
   forall n m,

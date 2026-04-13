@@ -1,16 +1,25 @@
-(*@file@*)
+(*D001_03__State_Codec.v*)
 
-(*@head.start@*)
-(*@copyright@*)
-(*@doc.proofcase@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                      Author and Copyright remark. Author(s): │
+│                ╭╮╮╮─╮                Milan Rosko  https://www.milanrosko.com │
+│                ││││╭╯                Licence. This file is distributed under │
+│                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
+│                                      visit https://www.mozilla.org/en-US/MPL │
+└──────────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                       Proofcase / D001_03__State_Codec                       │
+└──────────────────────────────────────────────────────────────────────────────┘
 
-(*@doc.header@[[Overview]]@*)
+  OVERVIEW
 
-(*@doc.pl@[[This file implements the carryless state codec of the Fibonacci Machine.]]@*)
+  This file implements the carryless state codec of the Fibonacci Machine.
 
-(*@doc.pl@[[A machine state is a triple `(IP, R1, R2)`, and its code is obtained by summing the Fibonacci supports carried by the three disjoint fixed bands.]]@*)
+  A machine state is a triple `(IP, R1, R2)`, and its code is obtained by
+  summing the Fibonacci supports carried by the three disjoint fixed bands.
 
-(*@head.end@*)
+*)
 
 From D001 Require Export D001_02__Carryless_Bands.
 
@@ -21,23 +30,38 @@ Record FMState : Type := Build_FMState
   state_r2 : nat
 }.
 
-(*@inline@[[`state_well_formed` is the static range discipline of the machine state: each component must fit inside the Fibonacci window reserved for its band.]]@*)
+(*
+│
+│          `state_well_formed` is the static range discipline of the
+│          machine state: each component must fit inside the Fibonacci
+│          window reserved for its band.
+│
+*)
 
-(*@unicodemath@[[state_well_formed(ip, r1, r2) ≔ ip < ip_limit ∧ r1 < r1_limit ∧ r2 < r2_limit.]]@*)
+(*    state_well_formed(ip, r1, r2) ≔ ip < ip_limit ∧ r1 < r1_limit ∧ r2 <    *)
+(*                                 r2_limit.                                  *)
 
 Definition state_well_formed (st : FMState) : Prop :=
   state_ip st < ip_limit /\
   state_r1 st < r1_limit /\
   state_r2 st < r2_limit.
 
-(*@inline@[[`state_support` concatenates the three band supports in descending-band order, and `encode_state` reads that combined support as a single natural number.]]@*)
+(*
+│
+│          `state_support` concatenates the three band supports in
+│          descending-band order, and `encode_state` reads that
+│          combined support as a single natural number.
+│
+*)
 
 Definition state_support (st : FMState) : list nat :=
   r2_support (state_r2 st) ++
   r1_support (state_r1 st) ++
   ip_support (state_ip st).
 
-(*@unicodemath@[[encode_state(st) = sum_fib(state_support(st))]][[= sum_fib(r2_support(state_r2(st)) ⧺ r1_support(state_r1(st)) ⧺ ip_support(state_ip(st))).]]@*)
+(*               encode_state(st) = sum_fib(state_support(st))                *)
+(*      = sum_fib(r2_support(state_r2(st)) ⧺ r1_support(state_r1(st)) ⧺       *)
+(*                         ip_support(state_ip(st))).                         *)
 
 Definition encode_state (st : FMState) : nat :=
   sum_fib (state_support st).
@@ -60,9 +84,25 @@ Definition decode_r1 (s : nat) : nat :=
 Definition decode_r2 (s : nat) : nat :=
   decode_r2_from_support (Z0 s).
 
-(*@inline@[[`decode_state` computes the canonical support `Z0(s)` once and reuses it across the three band decoders. In this way, the greedy Zeckendorf extraction is performed only once rather than separately for each register projection.]]@*)
+(*
+│
+│          `decode_state` computes the canonical support `Z0(s)` once
+│          and reuses it across the three band decoders. In this way,
+│          the greedy Zeckendorf extraction is performed only once
+│          rather than separately for each register projection.
+│
+*)
 
-(*@inline@[[`decode_state_from_support` slices a canonical support into the `IP`, `R1`, and `R2` windows and reconstructs the corresponding machine state. The resulting `decode_state` is total on all naturals, but it is a projection into the bounded state image rather than a global inverse of `encode_state` on arbitrary codes.]]@*)
+(*
+│
+│          `decode_state_from_support` slices a canonical support into
+│          the `IP`, `R1`, and `R2` windows and reconstructs the
+│          corresponding machine state. The resulting `decode_state`
+│          is total on all naturals, but it is a projection into the
+│          bounded state image rather than a global inverse of
+│          `encode_state` on arbitrary codes.
+│
+*)
 
 Definition decode_state_from_support (zn : list nat) : FMState :=
   Build_FMState
@@ -73,7 +113,8 @@ Definition decode_state_from_support (zn : list nat) : FMState :=
 Definition decode_state (s : nat) : FMState :=
   decode_state_from_support (Z0 s).
 
-(*@unicodemath@[[normalize_state_code(s) = encode_state(decode_state(s))]][[valid_state_code(s) ≔ ∃ st, state_well_formed(st) ∧ s = encode_state(st).]]@*)
+(*          normalize_state_code(s) = encode_state(decode_state(s))           *)
+(* valid_state_code(s) ≔ ∃ st, state_well_formed(st) ∧ s = encode_state(st).  *)
 
 Definition normalize_state_code (s : nat) : nat :=
   encode_state (decode_state s).
@@ -83,7 +124,14 @@ Definition valid_state_code (s : nat) : Prop :=
     state_well_formed st /\
     s = encode_state st.
 
-(*@inline@[[`state_well_formed_build` is the canonical constructor lemma for the state-range invariant. It lets later proofs rebuild a well-formed state from its three component bounds without reopening the conjunction structure by hand.]]@*)
+(*
+│
+│          `state_well_formed_build` is the canonical constructor
+│          lemma for the state-range invariant. It lets later proofs
+│          rebuild a well-formed state from its three component bounds
+│          without reopening the conjunction structure by hand.
+│
+*)
 
 Lemma state_well_formed_build :
   forall ip r1 r2,
@@ -471,9 +519,16 @@ Proof.
     + apply all_ge_2_app; assumption.
 Qed.
 
-(*@inline@[[`encode_state_support` identifies the canonical support of an encoded state with the intended three-band support decomposition. It is the exact bridge from the numeric code back to the geometric band layout.]]@*)
+(*
+│
+│          `encode_state_support` identifies the canonical support of
+│          an encoded state with the intended three-band support
+│          decomposition. It is the exact bridge from the numeric code
+│          back to the geometric band layout.
+│
+*)
 
-(*@unicodemath@[[state_well_formed(st) ⇒ Z0(encode_state(st)) = state_support(st).]]@*)
+(*     state_well_formed(st) ⇒ Z0(encode_state(st)) = state_support(st).      *)
 
 Theorem encode_state_support :
   forall st,
@@ -487,7 +542,14 @@ Proof.
   exact Hwf.
 Qed.
 
-(*@inline@[[`encode_state_as_components` exposes the state code as the sum of three independent band codes. This additive decomposition is the algebraic bridge used later in the arithmetization layer.]]@*)
+(*
+│
+│          `encode_state_as_components` exposes the state code as the
+│          sum of three independent band codes. This additive
+│          decomposition is the algebraic bridge used later in the
+│          arithmetization layer.
+│
+*)
 
 Theorem encode_state_as_components :
   forall st,
@@ -503,7 +565,14 @@ Proof.
   reflexivity.
 Qed.
 
-(*@inline@[[`filter_state_support` is the bookkeeping lemma behind the projection corollaries: filtering a full state support is the same as filtering each band separately and preserving their concatenation order.]]@*)
+(*
+│
+│          `filter_state_support` is the bookkeeping lemma behind the
+│          projection corollaries: filtering a full state support is
+│          the same as filtering each band separately and preserving
+│          their concatenation order.
+│
+*)
 
 Lemma filter_state_support :
   forall (p : nat -> bool) ip r1 r2,
@@ -661,9 +730,15 @@ Proof.
   apply Z0_sound.
 Qed.
 
-(*@inline@[[`decode_state_encode_state` is the roundtrip theorem for the concrete state codec: every well-formed state is recovered exactly after encoding and then decoding.]]@*)
+(*
+│
+│          `decode_state_encode_state` is the roundtrip theorem for
+│          the concrete state codec: every well-formed state is
+│          recovered exactly after encoding and then decoding.
+│
+*)
 
-(*@unicodemath@[[state_well_formed(st) ⇒ decode_state(encode_state(st)) = st.]]@*)
+(*        state_well_formed(st) ⇒ decode_state(encode_state(st)) = st.        *)
 
 Theorem decode_state_encode_state :
   forall st,
@@ -722,7 +797,14 @@ Proof.
     lia.
 Qed.
 
-(*@inline@[[`decode_state_well_formed` makes the projection semantics explicit: every raw natural code decodes to a bounded machine state, even when the code was not originally produced by `encode_state`.]]@*)
+(*
+│
+│          `decode_state_well_formed` makes the projection semantics
+│          explicit: every raw natural code decodes to a bounded
+│          machine state, even when the code was not originally
+│          produced by `encode_state`.
+│
+*)
 
 Theorem decode_state_well_formed :
   forall s, state_well_formed (decode_state s).
@@ -759,9 +841,16 @@ Proof.
   reflexivity.
 Qed.
 
-(*@inline@[[`valid_state_code_iff_fixed` characterizes the exact image of the codec: a natural number is an actual encoded machine state precisely when decode-then-encode leaves it unchanged.]]@*)
+(*
+│
+│          `valid_state_code_iff_fixed` characterizes the exact image
+│          of the codec: a natural number is an actual encoded machine
+│          state precisely when decode-then-encode leaves it
+│          unchanged.
+│
+*)
 
-(*@unicodemath@[[valid_state_code(s) ⇔ normalize_state_code(s) = s.]]@*)
+(*             valid_state_code(s) ⇔ normalize_state_code(s) = s.             *)
 
 Theorem valid_state_code_iff_fixed :
   forall s,
@@ -841,11 +930,23 @@ Proof.
   reflexivity.
 Qed.
 
-(*@inline@[[The `_of` state codec is the parameterized counterpart of the concrete one. It reuses the same `FMState` record, but interprets well-formedness, supports, and decoding relative to an arbitrary `MachineLimits` package.]]@*)
+(*
+│
+│          The `_of` state codec is the parameterized counterpart of
+│          the concrete one. It reuses the same `FMState` record, but
+│          interprets well-formedness, supports, and decoding relative
+│          to an arbitrary `MachineLimits` package.
+│
+*)
 
-(*@unicodemath@[[state_well_formed_of(L, (ip, r1, r2)) ≔ ip < ip_limit_of(L) ∧ r1 < r1_limit_of(L) ∧ r2 < r2_limit_of(L).]]@*)
-(*@unicodemath@[[encode_state_of(L, st) = sum_fib(state_support_of(L, st))]][[= sum_fib(r2_support_of(L, state_r2(st)) ⧺ r1_support_of(L, state_r1(st)) ⧺ ip_support_of(L, state_ip(st))).]]@*)
-(*@unicodemath@[[normalize_state_code_of(L, s) = encode_state_of(L, decode_state_of(L, s))]][[valid_state_code_of(L, s) ≔ ∃ st, state_well_formed_of(L, st) ∧ s = encode_state_of(L, st).]]@*)
+(*     state_well_formed_of(L, (ip, r1, r2)) ≔ ip < ip_limit_of(L) ∧ r1 <     *)
+(*                   r1_limit_of(L) ∧ r2 < r2_limit_of(L).                    *)
+(*         encode_state_of(L, st) = sum_fib(state_support_of(L, st))          *)
+(*= sum_fib(r2_support_of(L, state_r2(st)) ⧺ r1_support_of(L, state_r1(st)) ⧺ *)
+(*                      ip_support_of(L, state_ip(st))).                      *)
+(* normalize_state_code_of(L, s) = encode_state_of(L, decode_state_of(L, s))  *)
+(*    valid_state_code_of(L, s) ≔ ∃ st, state_well_formed_of(L, st) ∧ s =     *)
+(*                          encode_state_of(L, st).                           *)
 
 Definition state_well_formed_of (L : MachineLimits) (st : FMState) : Prop :=
   state_ip st < ip_limit_of L /\
@@ -994,9 +1095,20 @@ Proof.
     + apply all_ge_2_app; assumption.
 Qed.
 
-(*@inline@[[`encode_state_support_of` and `encode_state_as_components_of` lift the concrete codec bridge to an arbitrary limit package. These are the key algebraic facts required once the later universality layer begins to quantify over sufficiently large band layouts.]]@*)
+(*
+│
+│          `encode_state_support_of` and
+│          `encode_state_as_components_of` lift the concrete codec
+│          bridge to an arbitrary limit package. These are the key
+│          algebraic facts required once the later universality layer
+│          begins to quantify over sufficiently large band layouts.
+│
+*)
 
-(*@unicodemath@[[state_well_formed_of(L, st) ⇒ Z0(encode_state_of(L, st)) = state_support_of(L, st)]][[encode_state_of(L, st) = r2_code_of(L, state_r2(st)) + r1_code_of(L, state_r1(st)) + ip_code_of(L, state_ip(st)).]]@*)
+(*         state_well_formed_of(L, st) ⇒ Z0(encode_state_of(L, st)) =         *)
+(*                          state_support_of(L, st)                           *)
+(*    encode_state_of(L, st) = r2_code_of(L, state_r2(st)) + r1_code_of(L,    *)
+(*                state_r1(st)) + ip_code_of(L, state_ip(st)).                *)
 
 Theorem encode_state_support_of :
   forall L st,

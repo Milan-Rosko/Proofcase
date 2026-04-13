@@ -1,16 +1,26 @@
-(*@file@*)
+(*D001_02__Carryless_Bands.v*)
 
-(*@head.start@*)
-(*@copyright@*)
-(*@doc.proofcase@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                      Author and Copyright remark. Author(s): │
+│                ╭╮╮╮─╮                Milan Rosko  https://www.milanrosko.com │
+│                ││││╭╯                Licence. This file is distributed under │
+│                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
+│                                      visit https://www.mozilla.org/en-US/MPL │
+└──────────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                     Proofcase / D001_02__Carryless_Bands                     │
+└──────────────────────────────────────────────────────────────────────────────┘
 
-(*@doc.header@[[Overview]]@*)
+  OVERVIEW
 
-(*@doc.pl@[[This file fixes the concrete carryless band layout of the Vector Iterant.]]@*)
+  This file fixes the concrete carryless band layout of the Vector Iterant.
 
-(*@doc.pl@[[Starting from the Zeckendorf substrate imported from `A001`, it places canonical supports into three disjoint windows for `IP`, `R1`, and `R2`, and proves the basic separation facts needed by the machine layer.]]@*)
+  Starting from the Zeckendorf substrate imported from `A001`, it places
+  canonical supports into three disjoint windows for `IP`, `R1`, and `R2`,
+  and proves the basic separation facts needed by the machine layer.
 
-(*@head.end@*)
+*)
 
 From D001 Require Export D001_01__Arithmetic_Base.
 
@@ -25,9 +35,19 @@ Definition R2_offset : nat := 64.
 Definition guard_ip_r1 : nat := 13.
 Definition guard_r1_r2 : nat := 65.
 
-(*@inline@[[`MachineLimits` packages the width, offset, separation, and boundedness data required to instantiate the carryless band calculus. It is the parameter block used later for asymptotic and classical universality statements.]]@*)
+(*
+│
+│          `MachineLimits` packages the width, offset, separation, and
+│          boundedness data required to instantiate the carryless band
+│          calculus. It is the parameter block used later for
+│          asymptotic and classical universality statements.
+│
+*)
 
-(*@unicodemath@[[MachineLimits = (K_IP, K_R1, K_R2, off_IP, off_R1, off_R2)]][[off_IP + K_IP ≤ off_R1 + 1, off_R1 + K_R1 ≤ off_R2 + 1, off_IP + K_IP ≤ off_R2 + 1]][[1 < fib(K_IP), 0 < fib(K_R2).]]@*)
+(*         MachineLimits = (K_IP, K_R1, K_R2, off_IP, off_R1, off_R2)         *)
+(*  off_IP + K_IP ≤ off_R1 + 1, off_R1 + K_R1 ≤ off_R2 + 1, off_IP + K_IP ≤   *)
+(*                                 off_R2 + 1                                 *)
+(*                       1 < fib(K_IP), 0 < fib(K_R2).                        *)
 
 Record MachineLimits : Type := Build_MachineLimits
 {
@@ -65,9 +85,16 @@ Proof.
     lia.
 Defined.
 
-(*@inline@[[The three limits are the payload capacities of the fixed `IP`, `R1`, and `R2` windows. Each is expressed as a Fibonacci cutoff so that all later band arguments remain inside the Zeckendorf arithmetic imported from `A001`.]]@*)
+(*
+│
+│          The three limits are the payload capacities of the fixed
+│          `IP`, `R1`, and `R2` windows. Each is expressed as a
+│          Fibonacci cutoff so that all later band arguments remain
+│          inside the Zeckendorf arithmetic imported from `A001`.
+│
+*)
 
-(*@unicodemath@[[ip_limit = fib(K_IP), r1_limit = fib(K_R1), r2_limit = fib(K_R2).]]@*)
+(*     ip_limit = fib(K_IP), r1_limit = fib(K_R1), r2_limit = fib(K_R2).      *)
 
 Definition ip_limit : nat := fib K_IP.
 Definition r1_limit : nat := fib K_R1.
@@ -78,7 +105,13 @@ Definition r2_limit : nat := fib K_R2.
    into enormous Peano numerals during preprocessing. *)
 Opaque fib r0 Z0.
 
-(*@inline@[[`band_support` translates a canonical support by a fixed offset, thereby placing the payload into one of the reserved Fibonacci windows of the machine layout.]]@*)
+(*
+│
+│          `band_support` translates a canonical support by a fixed
+│          offset, thereby placing the payload into one of the
+│          reserved Fibonacci windows of the machine layout.
+│
+*)
 
 Definition band_support (offset : nat) (x : nat) : list nat :=
   map (fun i => offset + i) (Z0 x).
@@ -86,12 +119,18 @@ Definition band_support (offset : nat) (x : nat) : list nat :=
 Definition band_code (offset : nat) (x : nat) : nat :=
   sum_fib (band_support offset x).
 
-(*@unicodemath@[[band_pred(offset, K, k) = true ⇔ offset + 2 ≤ k < offset + K.]]@*)
+(*       band_pred(offset, K, k) = true ⇔ offset + 2 ≤ k < offset + K.        *)
 
 Definition band_pred (offset K k : nat) : bool :=
   Nat.leb (offset + 2) k && Nat.ltb k (offset + K).
 
-(*@inline@[[`band_indices` is the inverse window projection: it selects the indices lying in the chosen band and subtracts the offset in order to recover their local coordinates.]]@*)
+(*
+│
+│          `band_indices` is the inverse window projection: it selects
+│          the indices lying in the chosen band and subtracts the
+│          offset in order to recover their local coordinates.
+│
+*)
 
 Definition band_indices (offset K : nat) (zn : list nat) : list nat :=
   map (fun k => k - offset) (filter (band_pred offset K) zn).
@@ -170,7 +209,15 @@ Proof.
     exact Htail.
 Qed.
 
-(*@inline@[[`band_support_valid` shows that Zeckendorf admissibility is preserved under translation by a fixed offset. In particular, strict decrease and non-adjacency survive unchanged, and all translated indices remain above the forbidden positions `0` and `1`.]]@*)
+(*
+│
+│          `band_support_valid` shows that Zeckendorf admissibility is
+│          preserved under translation by a fixed offset. In
+│          particular, strict decrease and non-adjacency survive
+│          unchanged, and all translated indices remain above the
+│          forbidden positions `0` and `1`.
+│
+*)
 
 Lemma band_support_valid :
   forall offset x,
@@ -189,9 +236,16 @@ Proof.
       exact Hge.
 Qed.
 
-(*@inline@[[`band_support_window` is the basic window-containment lemma: whenever the payload satisfies `x < fib(K)`, every occupied index of the translated support lies strictly inside the band `[offset + 2, offset + K)`.]]@*)
+(*
+│
+│          `band_support_window` is the basic window-containment
+│          lemma: whenever the payload satisfies `x < fib(K)`, every
+│          occupied index of the translated support lies strictly
+│          inside the band `[offset + 2, offset + K)`.
+│
+*)
 
-(*@unicodemath@[[x < fib(K) ∧ i ∈ band_support(offset, x) ⇒ offset + 2 ≤ i < offset + K.]]@*)
+(*  x < fib(K) ∧ i ∈ band_support(offset, x) ⇒ offset + 2 ≤ i < offset + K.   *)
 
 Lemma band_support_window :
   forall offset K x i,
@@ -304,9 +358,16 @@ Proof.
   lia.
 Qed.
 
-(*@inline@[[The next helper lemmas package the generic window-separation arguments. Once the relative position of two bands has been fixed arithmetically, predicate exclusion and pointwise index separation follow uniformly.]]@*)
+(*
+│
+│          The next helper lemmas package the generic
+│          window-separation arguments. Once the relative position of
+│          two bands has been fixed arithmetically, predicate
+│          exclusion and pointwise index separation follow uniformly.
+│
+*)
 
-(*@unicodemath@[[{k − offset ∣ k ∈ band_support(offset, x)} = Z0(x).]]@*)
+(*            {k − offset ∣ k ∈ band_support(offset, x)} = Z0(x).             *)
 
 Lemma map_sub_band_support :
   forall offset x,
@@ -582,9 +643,17 @@ Proof.
     lia.
 Qed.
 
-(*@inline@[[`IP_R1_Isolation` is the first concrete isolation theorem for the machine layout: every occupied `R1` index lies at least two Fibonacci positions above every occupied `IP` index, so the two windows cannot interfere.]]@*)
+(*
+│
+│          `IP_R1_Isolation` is the first concrete isolation theorem
+│          for the machine layout: every occupied `R1` index lies at
+│          least two Fibonacci positions above every occupied `IP`
+│          index, so the two windows cannot interfere.
+│
+*)
 
-(*@unicodemath@[[ip < ip_limit ∧ r1 < r1_limit ∧ i1 ∈ r1_support(r1) ∧ i0 ∈ ip_support(ip)]][[⇒ i1 ≥ i0 + 2.]]@*)
+(* ip < ip_limit ∧ r1 < r1_limit ∧ i1 ∈ r1_support(r1) ∧ i0 ∈ ip_support(ip)  *)
+(*                               ⇒ i1 ≥ i0 + 2.                               *)
 
 Theorem IP_R1_Isolation :
   forall ip r1 i1 i0,
@@ -598,9 +667,21 @@ Proof.
   apply (r1_support_gap_ip_support r1 ip i1 i0); assumption.
 Qed.
 
-(*@inline@[[The `_of` family is the generic carryless-band API parameterized by a `MachineLimits` package. The concrete constants remain available, but these definitions provide the abstraction boundary used later by the `Classic_Universality` layer.]]@*)
+(*
+│
+│          The `_of` family is the generic carryless-band API
+│          parameterized by a `MachineLimits` package. The concrete
+│          constants remain available, but these definitions provide
+│          the abstraction boundary used later by the
+│          `Classic_Universality` layer.
+│
+*)
 
-(*@unicodemath@[[ip_limit_of(L) = fib(ml_K_IP(L)), r1_limit_of(L) = fib(ml_K_R1(L)), r2_limit_of(L) = fib(ml_K_R2(L))]][[ip_support_of(L, x) = band_support(ml_IP_offset(L), x)]][[r1_support_of(L, x) = band_support(ml_R1_offset(L), x)]][[r2_support_of(L, x) = band_support(ml_R2_offset(L), x).]]@*)
+(*    ip_limit_of(L) = fib(ml_K_IP(L)), r1_limit_of(L) = fib(ml_K_R1(L)),     *)
+(*                      r2_limit_of(L) = fib(ml_K_R2(L))                      *)
+(*           ip_support_of(L, x) = band_support(ml_IP_offset(L), x)           *)
+(*           r1_support_of(L, x) = band_support(ml_R1_offset(L), x)           *)
+(*          r2_support_of(L, x) = band_support(ml_R2_offset(L), x).           *)
 
 Definition ip_limit_of (L : MachineLimits) : nat := fib (ml_K_IP L).
 Definition r1_limit_of (L : MachineLimits) : nat := fib (ml_K_R1 L).

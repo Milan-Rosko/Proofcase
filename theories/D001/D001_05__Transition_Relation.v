@@ -1,14 +1,25 @@
-(*@file@*)
+(*D001_05__Transition_Relation.v*)
 
-(*@head.start@*)
-(*@copyright@*)
-(*@doc.proofcase@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                      Author and Copyright remark. Author(s): │
+│                ╭╮╮╮─╮                Milan Rosko  https://www.milanrosko.com │
+│                ││││╭╯                Licence. This file is distributed under │
+│                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
+│                                      visit https://www.mozilla.org/en-US/MPL │
+└──────────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                   Proofcase / D001_05__Transition_Relation                   │
+└──────────────────────────────────────────────────────────────────────────────┘
 
-(*@doc.header@[[Overview]]@*)
+  OVERVIEW
 
-(*@doc.pl@[[This file defines the one-step execution kernel of the Fibonacci Machine. Externally, a machine state is represented by a single natural number `s`, and `NextState` is obtained by decoding `s`, executing one Minsky step, and re-encoding the result.]]@*)
+  This file defines the one-step execution kernel of the Fibonacci Machine.
+  Externally, a machine state is represented by a single natural number `s`,
+  and `NextState` is obtained by decoding `s`, executing one Minsky step, and
+  re-encoding the result.
 
-(*@head.end@*)
+*)
 
 From D001 Require Export D001_04__Machine_Definition.
 
@@ -18,7 +29,13 @@ Definition fetch_instruction (prog : program) (st : FMState) : option instructio
 Definition halted_state (st : FMState) : Prop :=
   state_ip st = 0.
 
-(*@inline@[[`step_state` is the internal one-step execution kernel on structured machine states. It performs a single ROM fetch and then applies the corresponding Minsky update.]]@*)
+(*
+│
+│          `step_state` is the internal one-step execution kernel on
+│          structured machine states. It performs a single ROM fetch
+│          and then applies the corresponding Minsky update.
+│
+*)
 
 Definition step_state (prog : program) (st : FMState) : FMState :=
   match state_ip st with
@@ -36,12 +53,21 @@ Definition step_state (prog : program) (st : FMState) : FMState :=
       end
   end.
 
-(*@unicodemath@[[step_state_relation(prog, st, st') ⇔ st' = step_state(prog, st).]]@*)
+(*      step_state_relation(prog, st, st') ⇔ st' = step_state(prog, st).      *)
 
 Definition step_state_relation (prog : program) (st st' : FMState) : Prop :=
   st' = step_state prog st.
 
-(*@inline@[[`NextState` is the external transition on numeric state codes: decode the raw code through the total codec projection, execute one structured step, and then re-encode. On arbitrary naturals, the machine therefore first collapses to the canonical bounded state image before stepping.]]@*)
+(*
+│
+│          `NextState` is the external transition on numeric state
+│          codes: decode the raw code through the total codec
+│          projection, execute one structured step, and then
+│          re-encode. On arbitrary naturals, the machine therefore
+│          first collapses to the canonical bounded state image before
+│          stepping.
+│
+*)
 
 Definition NextState (prog : program) (s : nat) : nat :=
   encode_state (step_state prog (decode_state s)).
@@ -54,9 +80,22 @@ Definition step_relation (prog : program) (s t : nat) : Prop :=
 Definition stepb (prog : program) (s t : nat) : bool :=
   Nat.eqb (NextState prog s) t.
 
-(*@inline@[[`stepb` is the boolean recognizer for the single-step graph on encoded states. It packages the total transition function as a decidable edge test.]]@*)
+(*
+│
+│          `stepb` is the boolean recognizer for the single-step graph
+│          on encoded states. It packages the total transition
+│          function as a decidable edge test.
+│
+*)
 
-(*@inline@[[`step_state_relation_step` and `step_relation_next` are the canonical witnesses for the structured and encoded transition graphs. They package the defining equalities that later existential and determinism proofs appeal to.]]@*)
+(*
+│
+│          `step_state_relation_step` and `step_relation_next` are the
+│          canonical witnesses for the structured and encoded
+│          transition graphs. They package the defining equalities
+│          that later existential and determinism proofs appeal to.
+│
+*)
 
 Lemma step_state_relation_step :
   forall prog st,
@@ -74,7 +113,8 @@ Proof.
   reflexivity.
 Qed.
 
-(*@unicodemath@[[state_well_formed(st) ⇒ NextState(prog, encode_state(st)) = encode_state(step_state(prog, st)).]]@*)
+(*        state_well_formed(st) ⇒ NextState(prog, encode_state(st)) =         *)
+(*                    encode_state(step_state(prog, st)).                     *)
 
 Theorem NextState_on_encoded_state :
   forall prog st,
@@ -87,7 +127,7 @@ Proof.
   reflexivity.
 Qed.
 
-(*@unicodemath@[[stepb(prog, s, t) = true ⇔ step_relation(prog, s, t).]]@*)
+(*           stepb(prog, s, t) = true ⇔ step_relation(prog, s, t).            *)
 
 Theorem stepb_correct :
   forall prog s t,
@@ -132,7 +172,14 @@ Proof.
   congruence.
 Qed.
 
-(*@inline@[[`NextState_of` is the corresponding projected external step relative to an arbitrary limit package `L`: total decode into the bounded image for `L`, one structured transition, and then re-encode.]]@*)
+(*
+│
+│          `NextState_of` is the corresponding projected external step
+│          relative to an arbitrary limit package `L`: total decode
+│          into the bounded image for `L`, one structured transition,
+│          and then re-encode.
+│
+*)
 
 Definition NextState_of (L : MachineLimits) (prog : program) (s : nat) : nat :=
   encode_state_of L (step_state prog (decode_state_of L s)).
@@ -146,13 +193,32 @@ Definition step_relation_of (L : MachineLimits) (prog : program) (s t : nat) : P
 Definition stepb_of (L : MachineLimits) (prog : program) (s t : nat) : bool :=
   Nat.eqb (NextState_of L prog s) t.
 
-(*@inline@[[The `_of` transition API lifts the external numeric step relation to an arbitrary `MachineLimits` package. The underlying structured machine step is unchanged; only the surrounding state codec becomes parameterized.]]@*)
+(*
+│
+│          The `_of` transition API lifts the external numeric step
+│          relation to an arbitrary `MachineLimits` package. The
+│          underlying structured machine step is unchanged; only the
+│          surrounding state codec becomes parameterized.
+│
+*)
 
-(*@unicodemath@[[NextState_of(L, prog, s) = encode_state_of(L, step_state(prog, decode_state_of(L, s))).]]@*)
+(*       NextState_of(L, prog, s) = encode_state_of(L, step_state(prog,       *)
+(*                          decode_state_of(L, s))).                          *)
 
-(*@inline@[[`NextState_on_encoded_state_of`, `stepb_correct_of`, and `step_total_of` are the generic external-dynamics facts for the parameterized family. They are the exact analogues of the concrete encoded-step theorems, now prepared for later statements quantified over `MachineLimits`.]]@*)
+(*
+│
+│          `NextState_on_encoded_state_of`, `stepb_correct_of`, and
+│          `step_total_of` are the generic external-dynamics facts for
+│          the parameterized family. They are the exact analogues of
+│          the concrete encoded-step theorems, now prepared for later
+│          statements quantified over `MachineLimits`.
+│
+*)
 
-(*@unicodemath@[[state_well_formed_of(L, st) ⇒ NextState_of(L, prog, encode_state_of(L, st)) = encode_state_of(L, step_state(prog, st))]][[stepb_of(L, prog, s, t) = true ⇔ step_relation_of(L, prog, s, t)]][[∀ s, ∃ t, step_relation_of(L, prog, s, t).]]@*)
+(*state_well_formed_of(L, st) ⇒ NextState_of(L, prog, encode_state_of(L, st)) *)
+(*                 = encode_state_of(L, step_state(prog, st))                 *)
+(*      stepb_of(L, prog, s, t) = true ⇔ step_relation_of(L, prog, s, t)      *)
+(*                 ∀ s, ∃ t, step_relation_of(L, prog, s, t).                 *)
 
 Theorem NextState_on_encoded_state_of :
   forall L prog st,

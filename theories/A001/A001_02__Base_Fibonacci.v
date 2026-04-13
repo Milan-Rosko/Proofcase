@@ -1,14 +1,24 @@
-(*@file@*)
+(*A001_02__Base_Fibonacci.v*)
 
-(*@head.start@*)
-(*@copyright@*)
-(*@doc.proofcase@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                      Author and Copyright remark. Author(s): │
+│                ╭╮╮╮─╮                Milan Rosko  https://www.milanrosko.com │
+│                ││││╭╯                Licence. This file is distributed under │
+│                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
+│                                      visit https://www.mozilla.org/en-US/MPL │
+└──────────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                     Proofcase / A001_02__Base_Fibonacci                      │
+└──────────────────────────────────────────────────────────────────────────────┘
 
-(*@doc.header@[[Overview]]@*)
+  OVERVIEW
 
-(*@doc.pl@[[The present construction constitutes full arithmetic base of A001. It contains the Fibonacci arithmetic, the concrete Zeckendorf support engine, and the structural lemmas later used by the pairing and unpairing layers.]]@*)
+  The present construction constitutes full arithmetic base of A001. It
+  contains the Fibonacci arithmetic, the concrete Zeckendorf support engine,
+  and the structural lemmas later used by the pairing and unpairing layers.
 
-(*@head.end@*)
+*)
 
 From Stdlib Require Export Arith PeanoNat Bool Lia List Ring ZArith Extraction.
 From A001 Require Import A001_01__Binary_Engine.
@@ -26,7 +36,14 @@ Fixpoint fib_pair (n : nat) : nat * nat :=
 
 Definition fib (n : nat) : nat := fst (fib_pair n).
 
-(*@inline@[[`sum_fib` evaluates a finite support of Fibonacci indices by summing the corresponding Fibonacci values. This is the numeric reading map used throughout the “carryless” encoding.]]@*)
+(*
+│
+│          `sum_fib` evaluates a finite support of Fibonacci indices
+│          by summing the corresponding Fibonacci values. This is the
+│          numeric reading map used throughout the “carryless”
+│          encoding.
+│
+*)
 
 Fixpoint sum_fib (xs : list nat) : nat :=
   match xs with
@@ -67,11 +84,12 @@ Definition r (P : Params) : nat -> nat :=
   | Build_Params _ r0 => r0
   end.
 
-(*@unicodemath@[[B_P(x) = 2·r_P(x)]]@*)
+(*                             B_P(x) = 2·r_P(x)                              *)
 
 Definition B (P : Params) (x : nat) : nat := 2 * r P x.
 
-(*@unicodemath@[[even_band_P(x) = {2e ∣ e ∈ Z_P(x)}]][[odd_band_P(x, y) = {B_P(x) + (2j − 1) ∣ j ∈ Z_P(y)}]]@*)
+(*                     even_band_P(x) = {2e ∣ e ∈ Z_P(x)}                     *)
+(*            odd_band_P(x, y) = {B_P(x) + (2j − 1) ∣ j ∈ Z_P(y)}             *)
 
 Definition even_band (P : Params) (x : nat) : list nat :=
   map (fun e => two e) (Z P x).
@@ -79,17 +97,30 @@ Definition even_band (P : Params) (x : nat) : list nat :=
 Definition odd_band (P : Params) (x y : nat) : list nat :=
   map (fun j => B P x + two_j_minus1 j) (Z P y).
 
-(*@inline@[[We form the abstract “carryless” code by taking the even-band support of the left input together with the odd-band support of the right input and then evaluating the resulting finite Fibonacci support.]]@*)
+(*
+│
+│          We form the abstract “carryless” code by taking the
+│          even-band support of the left input together with the
+│          odd-band support of the right input and then evaluating the
+│          resulting finite Fibonacci support.
+│
+*)
 
 Definition pair (P : Params) (x y : nat) : nat :=
   sum_fib (even_band P x ++ odd_band P x y).
 
-(*@inline@[[We isolate the even Zeckendorf indices and renormalize them by halving, thereby recovering the candidate support from which the left component will be reconstructed.]]@*)
+(*
+│
+│          We isolate the even Zeckendorf indices and renormalize them
+│          by halving, thereby recovering the candidate support from
+│          which the left component will be reconstructed.
+│
+*)
 
 Definition half_even_indices (zn : list nat) : list nat :=
   map div2 (filter is_even zn).
 
-(*@unicodemath@[[odd_ge_B1(B, k) = true ⇔ 2 ∤ k ∧ B + 1 ≤ k]]@*)
+(*                 odd_ge_B1(B, k) = true ⇔ 2 ∤ k ∧ B + 1 ≤ k                 *)
 
 Definition odd_ge_B1 (Bx k : nat) : bool :=
   match is_odd k with
@@ -97,17 +128,32 @@ Definition odd_ge_B1 (Bx k : nat) : bool :=
   | true => Nat.leb (S Bx) k
   end.
 
-(*@unicodemath@[[decode_odd_index(B, k) = ⌊(k − B + 1)/2⌋]]@*)
+(*                  decode_odd_index(B, k) = ⌊(k − B + 1)/2⌋                  *)
 
 Definition decode_odd_index (Bx k : nat) : nat :=
   div2 (S (k - Bx)).
 
-(*@inline@[[We recover the candidate right-hand support by selecting exactly those odd indices that lie strictly above the boundary and transporting them back through the inverse affine reindexing.]]@*)
+(*
+│
+│          We recover the candidate right-hand support by selecting
+│          exactly those odd indices that lie strictly above the
+│          boundary and transporting them back through the inverse
+│          affine reindexing.
+│
+*)
 
 Definition y_indices (Bx : nat) (zn : list nat) : list nat :=
   map (decode_odd_index Bx) (filter (odd_ge_B1 Bx) zn).
 
-(*@inline@[[`unpair` is the abstract recovery map attached to a parameter package `P`. It reconstructs the left component from the even support and then reconstructs the right component from the odd support above the recovered boundary.]]@*)
+(*
+│
+│          `unpair` is the abstract recovery map attached to a
+│          parameter package `P`. It reconstructs the left component
+│          from the even support and then reconstructs the right
+│          component from the odd support above the recovered
+│          boundary.
+│
+*)
 
 Definition unpair (P : Params) (n : nat) : nat * nat :=
   let zn := Z P n in
@@ -142,9 +188,16 @@ Fixpoint all_ge_2 (xs : list nat) : Prop :=
   | a :: xs' => 2 <= a /\ all_ge_2 xs'
   end.
 
-(*@inline@[[`zeck_valid` is the admissibility predicate for Zeckendorf supports. It enforces strict descent, exclusion of adjacent indices, and the lower bound `2` on all used indices.]]@*)
+(*
+│
+│          `zeck_valid` is the admissibility predicate for Zeckendorf
+│          supports. It enforces strict descent, exclusion of adjacent
+│          indices, and the lower bound `2` on all used indices.
+│
+*)
 
-(*@unicodemath@[[zeck_valid(xs) ≔ strictly_decreasing(xs)]][[∧ no_adjacent(xs) ∧ all_ge_2(xs).]]@*)
+(*                  zeck_valid(xs) ≔ strictly_decreasing(xs)                  *)
+(*                     ∧ no_adjacent(xs) ∧ all_ge_2(xs).                      *)
 
 Definition zeck_valid (xs : list nat) : Prop :=
   strictly_decreasing xs /\ no_adjacent xs /\ all_ge_2 xs.
@@ -158,9 +211,15 @@ Fixpoint find_r_aux (x k fuel : nat) : nat :=
       else find_r_aux x (S k) fuel'
   end.
 
-(*@inline@[[`r0(x)` is the first Fibonacci cutoff strictly above `x`. The greedy constructor only needs to search below this index.]]@*)
+(*
+│
+│          `r0(x)` is the first Fibonacci cutoff strictly above `x`.
+│          The greedy constructor only needs to search below this
+│          index.
+│
+*)
 
-(*@unicodemath@[[r0(x) = min{k ∈ ℕ ∣ x < fib(k)}]]@*)
+(*                      r0(x) = min{k ∈ ℕ ∣ x < fib(k)}                       *)
 
 Definition r0 (x : nat) : nat := find_r_aux x 0 (S (S x)).
 
@@ -183,12 +242,25 @@ Fixpoint zeck_greedy_down (k rem : nat) (prev_taken : bool)
       end
   end.
 
-(*@inline@[[`Z0` is the concrete greedy Zeckendorf support. It computes the canonical non-adjacent Fibonacci index set that later feeds the pairing and decoding layers.]]@*)
+(*
+│
+│          `Z0` is the concrete greedy Zeckendorf support. It computes
+│          the canonical non-adjacent Fibonacci index set that later
+│          feeds the pairing and decoding layers.
+│
+*)
 
 Definition Z0 (x : nat) : list nat :=
   fst (zeck_greedy_down (r0 x) x false).
 
-(*@inline@[[We now fix the distinguished parameter package by pairing the concrete greedy support extractor with its associated cutoff function; all subsequent concrete pairing statements specialize the abstract interface to this package.]]@*)
+(*
+│
+│          We now fix the distinguished parameter package by pairing
+│          the concrete greedy support extractor with its associated
+│          cutoff function; all subsequent concrete pairing statements
+│          specialize the abstract interface to this package.
+│
+*)
 
 Definition base_params : Params :=
   Build_Params Z0 r0.
@@ -306,7 +378,8 @@ Proof.
       exact Hlt.
 Qed.
 
-(*@unicodemath@[[k ≤ j < find_r_aux(x, k, fuel)]][[⇒ fib(j) ≤ x.]]@*)
+(*                       k ≤ j < find_r_aux(x, k, fuel)                       *)
+(*                               ⇒ fib(j) ≤ x.                                *)
 
 Lemma find_r_aux_before_false :
   forall x k fuel j,
@@ -327,9 +400,14 @@ Proof.
         eapply IH; eauto.
 Qed.
 
-(*@inline@[[`r0_upper` gives the upper half of the cutoff characterization: the search really stops above `n`.]]@*)
+(*
+│
+│          `r0_upper` gives the upper half of the cutoff
+│          characterization: the search really stops above `n`.
+│
+*)
 
-(*@unicodemath@[[∀ n, n < fib(r0(n)).]]@*)
+(*                            ∀ n, n < fib(r0(n)).                            *)
 
 Lemma r0_upper :
   forall n, n < fib (r0 n).
@@ -351,11 +429,22 @@ Proof.
   lia.
 Qed.
 
-(*@inline@[[We obtain the lower half of the cutoff characterization as well: every Fibonacci index strictly below `r0(n)` still evaluates to a value at most `n`.]]@*)
+(*
+│
+│          We obtain the lower half of the cutoff characterization as
+│          well: every Fibonacci index strictly below `r0(n)` still
+│          evaluates to a value at most `n`.
+│
+*)
 
-(*@inline@[[r0(n) is the least Fibonacci index whose value lies strictly above n.]]@*)
+(*
+│
+│          r0(n) is the least Fibonacci index whose value lies
+│          strictly above n.
+│
+*)
 
-(*@unicodemath@[[k < r0(n) ⇒ fib(k) ≤ n]]@*)
+(*                           k < r0(n) ⇒ fib(k) ≤ n                           *)
 
 Lemma r0_minimal :
   forall n k, k < r0 n -> fib k <= n.
@@ -401,7 +490,15 @@ Proof.
   - simpl. split; [lia | exact Hge].
 Qed.
 
-(*@inline@[[`greedy_inv` packages the greedy correctness invariant: xs encodes the extracted support, rem' is the leftover remainder, xs stays within the current bound, and the remainder remains below the next admissible Fibonacci threshold.]]@*)
+(*
+│
+│          `greedy_inv` packages the greedy correctness invariant: xs
+│          encodes the extracted support, rem' is the leftover
+│          remainder, xs stays within the current bound, and the
+│          remainder remains below the next admissible Fibonacci
+│          threshold.
+│
+*)
 
 Definition greedy_inv k rem prev_taken xs rem' :=
   sum_fib xs + rem' = rem /\
@@ -424,9 +521,17 @@ Proof.
   exact Hle.
 Qed.
 
-(*@inline@[[`zeck_greedy_down_correct_core` is the main recursive engine lemma. It shows that every branch of the greedy descent produces a support/remainder pair satisfying the full invariant package `greedy_inv`.]]@*)
+(*
+│
+│          `zeck_greedy_down_correct_core` is the main recursive
+│          engine lemma. It shows that every branch of the greedy
+│          descent produces a support/remainder pair satisfying the
+│          full invariant package `greedy_inv`.
+│
+*)
 
-(*@unicodemath@[[zeck_greedy_down(k, rem, prev) = (xs, rem')]][[⇒ greedy_inv(k, rem, prev, xs, rem').]]@*)
+(*                zeck_greedy_down(k, rem, prev) = (xs, rem')                 *)
+(*                   ⇒ greedy_inv(k, rem, prev, xs, rem').                    *)
 
 Lemma zeck_greedy_down_correct_core :
   forall k rem prev_taken xs rem',
@@ -550,7 +655,14 @@ Proof.
   exact H.
 Qed.
 
-(*@inline@[[`zeck_greedy_down_correct` is the public wrapper around the core recursion lemma. It exposes the invariant without committing downstream proofs to the internal case split on `k` and `prev`.]]@*)
+(*
+│
+│          `zeck_greedy_down_correct` is the public wrapper around the
+│          core recursion lemma. It exposes the invariant without
+│          committing downstream proofs to the internal case split on
+│          `k` and `prev`.
+│
+*)
 
 Theorem zeck_greedy_down_correct :
   forall k rem prev xs rem',
@@ -573,7 +685,13 @@ Proof.
            ++ exact H.
 Qed.
 
-(*@inline@[[Specializing the greedy invariant at the cutoff `r0(n)` shows that the residual remainder already lies below the next admissible Fibonacci threshold.]]@*)
+(*
+│
+│          Specializing the greedy invariant at the cutoff `r0(n)`
+│          shows that the residual remainder already lies below the
+│          next admissible Fibonacci threshold.
+│
+*)
 
 Lemma greedy_top_bound :
   forall n xs rem',
@@ -588,7 +706,13 @@ Proof.
   apply r0_upper_S.
 Qed.
 
-(*@inline@[[Whenever the greedy support begins with index `S(S(k))`, the realized Fibonacci sum of that prefix remains strictly below the next Fibonacci value.]]@*)
+(*
+│
+│          Whenever the greedy support begins with index `S(S(k))`,
+│          the realized Fibonacci sum of that prefix remains strictly
+│          below the next Fibonacci value.
+│
+*)
 
 Lemma sum_fib_prefix_lt_next :
   forall k rem xs rem',
@@ -691,9 +815,15 @@ Proof.
   apply r0_upper_S.
 Qed.
 
-(*@inline@[[`Z0_sound` is the basic adequacy theorem for the concrete support extractor: reading the greedy support back through `sum_fib` returns exactly the original number.]]@*)
+(*
+│
+│          `Z0_sound` is the basic adequacy theorem for the concrete
+│          support extractor: reading the greedy support back through
+│          `sum_fib` returns exactly the original number.
+│
+*)
 
-(*@unicodemath@[[∀ n, sum_fib(Z0(n)) = n.]]@*)
+(*                          ∀ n, sum_fib(Z0(n)) = n.                          *)
 
 Theorem Z0_sound : forall n, sum_fib (Z0 n) = n.
 Proof.
@@ -709,9 +839,14 @@ Proof.
   exact Hsum.
 Qed.
 
-(*@inline@[[`Z0_valid` complements `Z0_sound`: the extractor produces a canonical admissible support, not merely a summing support.]]@*)
+(*
+│
+│          `Z0_valid` complements `Z0_sound`: the extractor produces a
+│          canonical admissible support, not merely a summing support.
+│
+*)
 
-(*@unicodemath@[[∀ n, zeck_valid(Z0(n)).]]@*)
+(*                          ∀ n, zeck_valid(Z0(n)).                           *)
 
 Theorem Z0_valid : forall n, zeck_valid (Z0 n).
 Proof.
@@ -834,9 +969,16 @@ Proof.
   - apply fib_monotone_le. lia.
 Qed.
 
-(*@inline@[[`Zeckendorf_unique_core` is the canonicality theorem for valid supports: equal Fibonacci sums force equality of the supports themselves.]]@*)
+(*
+│
+│          `Zeckendorf_unique_core` is the canonicality theorem for
+│          valid supports: equal Fibonacci sums force equality of the
+│          supports themselves.
+│
+*)
 
-(*@unicodemath@[[zeck_valid(xs) ∧ zeck_valid(ys) ∧ sum_fib(xs) = sum_fib(ys)]][[⇒ xs = ys.]]@*)
+(*        zeck_valid(xs) ∧ zeck_valid(ys) ∧ sum_fib(xs) = sum_fib(ys)         *)
+(*                                 ⇒ xs = ys.                                 *)
 
 Lemma Zeckendorf_unique_core :
   forall xs ys,
@@ -883,9 +1025,14 @@ Proof.
         -- simpl in Heq. lia.
 Qed.
 
-(*@inline@[[`Z0_of_sum_fib` is the converse of `Z0_sound`: every valid support is fixed by the extractor.]]@*)
+(*
+│
+│          `Z0_of_sum_fib` is the converse of `Z0_sound`: every valid
+│          support is fixed by the extractor.
+│
+*)
 
-(*@unicodemath@[[zeck_valid(xs) ⇒ Z0(sum_fib(xs)) = xs.]]@*)
+(*                   zeck_valid(xs) ⇒ Z0(sum_fib(xs)) = xs.                   *)
 
 Theorem Z0_of_sum_fib :
   forall xs, zeck_valid xs -> Z0 (sum_fib xs) = xs.
@@ -897,7 +1044,13 @@ Proof.
   - apply Z0_sound.
 Qed.
 
-(*@inline@[[We may therefore treat admissible Fibonacci supports as canonical objects: among valid supports, equality of the evaluated sums forces equality of the supports themselves.]]@*)
+(*
+│
+│          We may therefore treat admissible Fibonacci supports as
+│          canonical objects: among valid supports, equality of the
+│          evaluated sums forces equality of the supports themselves.
+│
+*)
 
 Theorem Zeckendorf_unique :
   forall xs ys,
@@ -952,7 +1105,13 @@ Proof.
     + specialize (IH k Hin). lia.
 Qed.
 
-(*@inline@[[Every index produced by the concrete extractor lies strictly below the cutoff `r0(x)`, so the recovered support never reaches the boundary-defining index itself.]]@*)
+(*
+│
+│          Every index produced by the concrete extractor lies
+│          strictly below the cutoff `r0(x)`, so the recovered support
+│          never reaches the boundary-defining index itself.
+│
+*)
 
 Lemma Z0_indices_below_r0 :
   forall x e,
@@ -1141,7 +1300,13 @@ Proof.
   - apply IH. exact Htail.
 Qed.
 
-(*@inline@[[The next block transports Zeckendorf admissibility through the even and odd embedding maps that define the pairing support.]]@*)
+(*
+│
+│          The next block transports Zeckendorf admissibility through
+│          the even and odd embedding maps that define the pairing
+│          support.
+│
+*)
 
 Lemma even_band_valid :
   forall x, zeck_valid (even_band base_params x).
@@ -1169,7 +1334,7 @@ Proof.
     + apply all_ge_2_map_odd. exact Hge.
 Qed.
 
-(*@unicodemath@[[e ∈ even_band(x) ⇒ e < B(x).]]@*)
+(*                        e ∈ even_band(x) ⇒ e < B(x).                        *)
 
 Lemma even_band_lt_B :
   forall x e, In e (even_band base_params x) -> e < B base_params x.
@@ -1189,7 +1354,7 @@ Proof.
     lia.
 Qed.
 
-(*@unicodemath@[[o ∈ odd_band(x, y) ⇒ B(x) + 1 ≤ o.]]@*)
+(*                     o ∈ odd_band(x, y) ⇒ B(x) + 1 ≤ o.                     *)
 
 Lemma odd_band_ge_B1 :
   forall x y o, In o (odd_band base_params x y) -> S (B base_params x) <= o.
@@ -1210,7 +1375,13 @@ Proof.
     lia.
 Qed.
 
-(*@inline@[[The odd band sits strictly above the even band: every odd-band index dominates every even-band index associated with the same left coordinate.]]@*)
+(*
+│
+│          The odd band sits strictly above the even band: every
+│          odd-band index dominates every even-band index associated
+│          with the same left coordinate.
+│
+*)
 
 Lemma odd_band_gt_even_band :
   forall x y o e,
@@ -1294,7 +1465,14 @@ Proof.
       apply Hcross; simpl; auto.
 Qed.
 
-(*@inline@[[`odd_even_concat_valid` is the structural compatibility lemma for pairing. The two bands remain sufficiently separated that their concatenation is again a valid Zeckendorf support.]]@*)
+(*
+│
+│          `odd_even_concat_valid` is the structural compatibility
+│          lemma for pairing. The two bands remain sufficiently
+│          separated that their concatenation is again a valid
+│          Zeckendorf support.
+│
+*)
 
 Lemma odd_even_concat_valid :
   forall x y,
@@ -1325,9 +1503,14 @@ Proof.
   lia.
 Qed.
 
-(*@inline@[[The “carryless” code therefore admits a canonical odd/even support decomposition.]]@*)
+(*
+│
+│          The “carryless” code therefore admits a canonical odd/even
+│          support decomposition.
+│
+*)
 
-(*@unicodemath@[[Z0(pair(x, y)) = odd_band(x, y) ⧺ even_band(x).]]@*)
+(*              Z0(pair(x, y)) = odd_band(x, y) ⧺ even_band(x).               *)
 
 Theorem Z0_pair_is_concat :
   forall x y,
@@ -1433,9 +1616,14 @@ Proof.
     simpl; auto.
 Qed.
 
-(*@inline@[[The final filtering corollaries recover the two pairing bands directly from the canonical support of a paired code.]]@*)
+(*
+│
+│          The final filtering corollaries recover the two pairing
+│          bands directly from the canonical support of a paired code.
+│
+*)
 
-(*@unicodemath@[[∀ x y, {e ∈ Z0(pair(x, y)) ∣ 2 ∣ e} = even_band(x).]]@*)
+(*            ∀ x y, {e ∈ Z0(pair(x, y)) ∣ 2 ∣ e} = even_band(x).             *)
 
 Corollary Z0_even_split :
   forall x y,
@@ -1452,7 +1640,8 @@ Proof.
     + rewrite Hodd_nil, Heven_id. reflexivity.
 Qed.
 
-(*@unicodemath@[[∀ x y, {k ∈ Z0(pair(x, y)) ∣ 2 ∤ k ∧ B(x) + 1 ≤ k}]][[= odd_band(x, y).]]@*)
+(*             ∀ x y, {k ∈ Z0(pair(x, y)) ∣ 2 ∤ k ∧ B(x) + 1 ≤ k}             *)
+(*                             = odd_band(x, y).                              *)
 
 Corollary Z0_odd_split :
   forall x y,

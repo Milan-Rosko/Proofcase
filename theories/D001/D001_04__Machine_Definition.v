@@ -1,16 +1,26 @@
-(*@file@*)
+(*D001_04__Machine_Definition.v*)
 
-(*@head.start@*)
-(*@copyright@*)
-(*@doc.proofcase@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                      Author and Copyright remark. Author(s): │
+│                ╭╮╮╮─╮                Milan Rosko  https://www.milanrosko.com │
+│                ││││╭╯                Licence. This file is distributed under │
+│                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
+│                                      visit https://www.mozilla.org/en-US/MPL │
+└──────────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                   Proofcase / D001_04__Machine_Definition                    │
+└──────────────────────────────────────────────────────────────────────────────┘
 
-(*@doc.header@[[Overview]]@*)
+  OVERVIEW
 
-(*@doc.pl@[[This file defines the instruction set and basic state accessors of the Vector Iterant.]]@*)
+  This file defines the instruction set and basic state accessors of the
+  Vector Iterant.
 
-(*@doc.pl@[[The machine is a two-counter Minsky-style kernel operating over the band-coded state space developed in the preceding files.]]@*)
+  The machine is a two-counter Minsky-style kernel operating over the
+  band-coded state space developed in the preceding files.
 
-(*@head.end@*)
+*)
 
 From D001 Require Export D001_03__State_Codec.
 
@@ -23,7 +33,12 @@ Inductive instruction : Type :=
 | JZDEC : counter -> nat -> nat -> instruction
 | HALT : instruction.
 
-(*@inline@[[A `program` is a ROM list of instructions indexed by the machine's instruction pointer.]]@*)
+(*
+│
+│          A `program` is a ROM list of instructions indexed by the
+│          machine's instruction pointer.
+│
+*)
 
 Definition program : Type := list instruction.
 
@@ -34,9 +49,16 @@ Definition counter_eqb (c1 c2 : counter) : bool :=
   | _, _ => false
   end.
 
-(*@inline@[[`counter_eqb_correct` turns the machine's boolean counter test into propositional equality, so later proofs can pass cleanly between executable case analyses and logical reasoning.]]@*)
+(*
+│
+│          `counter_eqb_correct` turns the machine's boolean counter
+│          test into propositional equality, so later proofs can pass
+│          cleanly between executable case analyses and logical
+│          reasoning.
+│
+*)
 
-(*@unicodemath@[[counter_eqb(c1, c2) = true ⇔ c1 = c2.]]@*)
+(*                   counter_eqb(c1, c2) = true ⇔ c1 = c2.                    *)
 
 Lemma counter_eqb_correct :
   forall c1 c2,
@@ -58,16 +80,30 @@ Definition write_counter (c : counter) (v : nat) (st : FMState) : FMState :=
   | Counter2 => Build_FMState (state_ip st) (state_r1 st) v
   end.
 
-(*@inline@[[`write_counter` updates exactly one register while leaving the instruction pointer and the other register unchanged.]]@*)
+(*
+│
+│          `write_counter` updates exactly one register while leaving
+│          the instruction pointer and the other register unchanged.
+│
+*)
 
-(*@unicodemath@[[write_counter(Counter1, v, (ip, r1, r2)) = (ip, v, r2)]][[write_counter(Counter2, v, (ip, r1, r2)) = (ip, r1, v).]]@*)
+(*           write_counter(Counter1, v, (ip, r1, r2)) = (ip, v, r2)           *)
+(*          write_counter(Counter2, v, (ip, r1, r2)) = (ip, r1, v).           *)
 
 Definition set_ip (ip : nat) (st : FMState) : FMState :=
   Build_FMState ip (state_r1 st) (state_r2 st).
 
-(*@inline@[[`initial_state` loads a one-counter input into `R1` with `IP = 1`, while `initial_state2` exposes the more general two-register starting configuration used in worked machine examples.]]@*)
+(*
+│
+│          `initial_state` loads a one-counter input into `R1` with
+│          `IP = 1`, while `initial_state2` exposes the more general
+│          two-register starting configuration used in worked machine
+│          examples.
+│
+*)
 
-(*@unicodemath@[[initial_state(input) = (1, input, 0)]][[initial_state2(r1, r2) = (1, r1, r2).]]@*)
+(*                    initial_state(input) = (1, input, 0)                    *)
+(*                   initial_state2(r1, r2) = (1, r1, r2).                    *)
 
 Definition initial_state (input : nat) : FMState :=
   Build_FMState 1 input 0.
@@ -75,9 +111,17 @@ Definition initial_state (input : nat) : FMState :=
 Definition initial_state2 (r1 r2 : nat) : FMState :=
   Build_FMState 1 r1 r2.
 
-(*@inline@[[`state_well_formed_intro` is the constructor lemma for the machine-side range invariant. It packages the three scalar window bounds into the single state predicate used by the operational semantics.]]@*)
+(*
+│
+│          `state_well_formed_intro` is the constructor lemma for the
+│          machine-side range invariant. It packages the three scalar
+│          window bounds into the single state predicate used by the
+│          operational semantics.
+│
+*)
 
-(*@unicodemath@[[ip < ip_limit ∧ r1 < r1_limit ∧ r2 < r2_limit ⇒ state_well_formed(ip, r1, r2).]]@*)
+(* ip < ip_limit ∧ r1 < r1_limit ∧ r2 < r2_limit ⇒ state_well_formed(ip, r1,  *)
+(*                                    r2).                                    *)
 
 Lemma state_well_formed_intro :
   forall ip r1 r2,
@@ -94,7 +138,13 @@ Proof.
     + exact Hr2.
 Qed.
 
-(*@inline@[[`initial_ip_bounded` and `zero_below_r2_limit` isolate the two fixed arithmetic facts needed to justify the standard initial configurations.]]@*)
+(*
+│
+│          `initial_ip_bounded` and `zero_below_r2_limit` isolate the
+│          two fixed arithmetic facts needed to justify the standard
+│          initial configurations.
+│
+*)
 
 Lemma initial_ip_bounded :
   1 < ip_limit.
@@ -174,7 +224,15 @@ Proof.
   destruct c; reflexivity.
 Qed.
 
-(*@inline@[[The preservation lemmas for `write_counter` and `set_ip` isolate the two update modes used by the operational semantics: register writes preserve well-formedness when the new payload is admissible, and IP updates preserve the register bounds automatically.]]@*)
+(*
+│
+│          The preservation lemmas for `write_counter` and `set_ip`
+│          isolate the two update modes used by the operational
+│          semantics: register writes preserve well-formedness when
+│          the new payload is admissible, and IP updates preserve the
+│          register bounds automatically.
+│
+*)
 
 Lemma state_well_formed_write_counter :
   forall st c v,
@@ -202,9 +260,23 @@ Proof.
   apply state_well_formed_intro; assumption.
 Qed.
 
-(*@inline@[[The `_of` well-formedness lemmas lift the machine-definition layer to arbitrary `MachineLimits`. They are the direct parameterized counterparts of the concrete initialization and preservation facts used by the later `Classic_Universality` development.]]@*)
+(*
+│
+│          The `_of` well-formedness lemmas lift the
+│          machine-definition layer to arbitrary `MachineLimits`. They
+│          are the direct parameterized counterparts of the concrete
+│          initialization and preservation facts used by the later
+│          `Classic_Universality` development.
+│
+*)
 
-(*@unicodemath@[[input < r1_limit_of(L) ⇒ state_well_formed_of(L, initial_state(input))]][[state_well_formed_of(L, st) ∧ v < r1_limit_of(L) ⇒ state_well_formed_of(L, write_counter(Counter1, v, st))]][[state_well_formed_of(L, st) ∧ v < r2_limit_of(L) ⇒ state_well_formed_of(L, write_counter(Counter2, v, st))]][[state_well_formed_of(L, st) ∧ ip < ip_limit_of(L) ⇒ state_well_formed_of(L, set_ip(ip, st)).]]@*)
+(*   input < r1_limit_of(L) ⇒ state_well_formed_of(L, initial_state(input))   *)
+(* state_well_formed_of(L, st) ∧ v < r1_limit_of(L) ⇒ state_well_formed_of(L, *)
+(*                      write_counter(Counter1, v, st))                       *)
+(* state_well_formed_of(L, st) ∧ v < r2_limit_of(L) ⇒ state_well_formed_of(L, *)
+(*                      write_counter(Counter2, v, st))                       *)
+(*state_well_formed_of(L, st) ∧ ip < ip_limit_of(L) ⇒ state_well_formed_of(L, *)
+(*                              set_ip(ip, st)).                              *)
 
 Lemma state_well_formed_intro_of :
   forall L ip r1 r2,

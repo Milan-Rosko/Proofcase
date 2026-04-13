@@ -1,18 +1,38 @@
-(*@file@*)
+(*P001_98_01B_Expansion.v*)
 
-(*@head.start@*)
-(*@copyright@*)
-(*@doc.proofcase@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                      Author and Copyright remark. Author(s): │
+│                ╭╮╮╮─╮                Milan Rosko  https://www.milanrosko.com │
+│                ││││╭╯                Licence. This file is distributed under │
+│                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
+│                                      visit https://www.mozilla.org/en-US/MPL │
+└──────────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                      Proofcase / P001_98_01B_Expansion                       │
+└──────────────────────────────────────────────────────────────────────────────┘
 
-(*@doc.header@[[Overview]]@*)
+  OVERVIEW
 
-(*@doc.pl@[[At the next stage of our reasoning, we replace the short divisibility witness by one longer proposition whose content is expressed as a single sentence with multiple conjunctive clauses.]]@*)
+  At the next stage of our reasoning, we replace the short divisibility
+  witness by one longer proposition whose content is expressed as a single
+  sentence with multiple conjunctive clauses.
 
-(*@head.end@*)
+*)
 
 From P001 Require Export P001_00_Premises.
 
-(*@inline@[[We expand `PROPOSITIO` to one (awkwardly) long FOL statement: every integer in `1` through `2n` factors as a power of `2` times an odd integer, the odd integers in that interval are exhausted by a list of length `n`, selecting `n+1` bounded distinct integers forces two selected integers to share an odd core, and any such shared odd core gives a divisibility orientation.]]@*)
+(*
+│
+│          We expand `PROPOSITIO` to one (awkwardly) long FOL
+│          statement: every integer in `1` through `2n` factors as a
+│          power of `2` times an odd integer, the odd integers in that
+│          interval are exhausted by a list of length `n`, selecting
+│          `n+1` bounded distinct integers forces two selected
+│          integers to share an odd core, and any such shared odd core
+│          gives a divisibility orientation.
+│
+*)
 
 Definition first_expansion : Prop :=
   forall n A,
@@ -51,7 +71,14 @@ Definition first_expansion : Prop :=
        z = 2 ^ j * m ->
        Nat.divide y z \/ Nat.divide z y).
 
-(*@inline@[[The expanded sentence is stronger than the original witness, as the final conjunct already furnishes the divisibility orientation for the colliding pair produced by the previous conjunct.]]@*)
+(*
+│
+│          The expanded sentence is stronger than the original
+│          witness, as the final conjunct already furnishes the
+│          divisibility orientation for the colliding pair produced by
+│          the previous conjunct.
+│
+*)
 
 Lemma first_expansion_conserves_WITNESS :
   first_expansion ->
@@ -68,6 +95,11 @@ Proof.
   exact (Horient y z m i j Hy Hz Hneq Hm_pos Hm_bound Hm_odd Hy_eq Hz_eq).
 Qed.
 
-(*@inline@[[We keep the long expanded sentence above while the witness is still postulated at the present stage.]]@*)
+(*
+│
+│          We keep the long expanded sentence above while the witness
+│          is still postulated at the present stage.
+│
+*)
 
 Conjecture UNCONDITIONAL_PROOF : WITNESS.

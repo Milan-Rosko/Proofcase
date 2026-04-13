@@ -1,15 +1,45 @@
-(*@file@*)
+(*A001_99_IO.v*)
 
-(*@head.start@*)
-(*@copyright@*)
-(*@doc.proofcase@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                      Author and Copyright remark. Author(s): │
+│                ╭╮╮╮─╮                Milan Rosko  https://www.milanrosko.com │
+│                ││││╭╯                Licence. This file is distributed under │
+│                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
+│                                      visit https://www.mozilla.org/en-US/MPL │
+└──────────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                            Proofcase / A001_99_IO                            │
+└──────────────────────────────────────────────────────────────────────────────┘
 
-(*@doc.header@[[Overview]]@*)
+  OVERVIEW
 
-(*@doc.pl@[[We expose herein the executable dispatcher over a concrete pairing device: either pair an input `(A,B)`, or inspect a code `C` by decoding it, re-encoding the decoded pair, and classifying `C` as either an actual image point or a dead end.]]@*)
+  We expose herein the executable dispatcher over a concrete pairing device:
+  either pair an input `(A,B)`, or inspect a code `C` by decoding it,
+  re-encoding the decoded pair, and classifying `C` as either an actual image
+  point or a dead end.
 
-(*@genre.io@*)
-(*@head.end@*)
+│              _____
+│             ´  _  \
+│            ( /  \  \
+│             `    \  \            ,--.    ,-           ,--.    ,-
+│                   \  \          (_.\ \  //\_)        (_.\ \  //\_)
+│                  /    \             \ \//                \ \//
+│                 /  /\  \             \ (                  \ (
+│                /  /  \  \            /, \                 /, \
+│               /  /    \  \          // \ \               // \ \
+│              /  /      \  \_,     _//   \ \_,   .-.    _//   \ \_,
+│             /__/        \___/    (_/     \__/   ._.   (_/     \__/
+│
+│
+│        This file specifies the effective interface of the development,
+│        exposing   computational  content  together  with  input–output
+│        contracts.   Each  computational  artifact  is  linked  to  its
+│        semantic  interpretation  via  adequacy theorems. This layer is
+│        machine-oriented   and   designed   to   remain   stable  under
+│        extraction, testing, automation, and downstream reuse.
+ 
+*)
 
 From A001 Require Export A001_03__Pair_Unpair_Correct.
 
@@ -31,18 +61,25 @@ Definition Paired_AB : nat -> nat -> nat :=
 Definition Unpaired_C : nat -> nat * nat :=
   decode.
 
-(*@unicodemath@[[Check_Pairing(c) = Paired_AB(π₁(Unpaired_C(c)), π₂(Unpaired_C(c)))]]@*)
+(*     Check_Pairing(c) = Paired_AB(π₁(Unpaired_C(c)), π₂(Unpaired_C(c)))     *)
 
 Definition Check_Pairing (c : nat) : nat :=
   let ab := Unpaired_C c in
   Paired_AB (fst ab) (snd ab).
 
-(*@inline@[[We test image membership by a fixed-point criterion: a code belongs to the realized pairing graph exactly when decoding and re-encoding return the same natural number.]]@*)
+(*
+│
+│          We test image membership by a fixed-point criterion: a code
+│          belongs to the realized pairing graph exactly when decoding
+│          and re-encoding return the same natural number.
+│
+*)
 
 Definition In_Imageb (c : nat) : bool :=
   Nat.eqb (Check_Pairing c) c.
 
-(*@unicodemath@[[Status_Of_Code(c) = Part_Of_Injective_Function, if In_Imageb(c) = true]][[Status_Of_Code(c) = Dead_End, if In_Imageb(c) = false]]@*)
+(*   Status_Of_Code(c) = Part_Of_Injective_Function, if In_Imageb(c) = true   *)
+(*           Status_Of_Code(c) = Dead_End, if In_Imageb(c) = false            *)
 
 Definition Status_Of_Code (c : nat) : Code_Status :=
   if In_Imageb c
@@ -52,7 +89,13 @@ Definition Status_Of_Code (c : nat) : Code_Status :=
 Definition Pair_IO (a b : nat) : IO_Result :=
   Pair_Result (Paired_AB a b).
 
-(*@inline@[[We package the inspection output as a small certificate: the decoded pair, its repaired re-encoding, and the corresponding image-status judgment for the queried code.]]@*)
+(*
+│
+│          We package the inspection output as a small certificate:
+│          the decoded pair, its repaired re-encoding, and the
+│          corresponding image-status judgment for the queried code.
+│
+*)
 
 Definition Unpair_IO (c : nat) : IO_Result :=
   Inspect_Result (Unpaired_C c) (Check_Pairing c) (Status_Of_Code c).
@@ -68,7 +111,14 @@ Definition Compute_Pair_Unpair_Check (a b : nat)
   let c := Paired_AB a b in
   (c, Unpaired_C c, Check_Pairing c, Status_Of_Code c).
 
-(*@inline@[[Direct `Compute (Pair_IO 12 33)` overflows because Rocq tries to print `Pair_Result` with a Peano `nat` of size 601965. Use the compact `*_Z` views for interactive evaluation.]]@*)
+(*
+│
+│          Direct `Compute (Pair_IO 12 33)` overflows because Rocq
+│          tries to print `Pair_Result` with a Peano `nat` of size
+│          601965. Use the compact `*_Z` views for interactive
+│          evaluation.
+│
+*)
 
 Definition Paired_AB_Z (a b : nat) : BinNums.Z :=
   Z.of_nat (Paired_AB a b).
@@ -96,7 +146,16 @@ Definition A001_IO_Z (q : IO_Query) : IO_Result_Z :=
   | Inspect_Query c => Unpair_IO_Z c
   end.
 
-(*@inline@[[We bundle the full pair-inspect-repair diagnostic in compact integer form so that large examples can be evaluated interactively without expanding enormous Peano numerals. Keep the sample `vm_compute` probes disabled during normal compilation so imports of this file do not eagerly re-run them.]]@*)
+(*
+│
+│          We bundle the full pair-inspect-repair diagnostic in
+│          compact integer form so that large examples can be
+│          evaluated interactively without expanding enormous Peano
+│          numerals. Keep the sample `vm_compute` probes disabled
+│          during normal compilation so imports of this file do not
+│          eagerly re-run them.
+│
+*)
 
 Definition Compute_Pair_Unpair_Check_Z (a b : nat)
   : BinNums.Z * (BinNums.Z * BinNums.Z) * BinNums.Z * Code_Status :=

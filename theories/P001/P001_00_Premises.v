@@ -1,24 +1,65 @@
-(*@file@*)
+(*P001_00_Premises.v*)
 
-(*@head.start@*)
-(*@copyright@*)
-(*@doc.proofcase@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                      Author and Copyright remark. Author(s): │
+│                ╭╮╮╮─╮                Milan Rosko  https://www.milanrosko.com │
+│                ││││╭╯                Licence. This file is distributed under │
+│                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
+│                                      visit https://www.mozilla.org/en-US/MPL │
+└──────────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                         Proofcase / P001_00_Premises                         │
+└──────────────────────────────────────────────────────────────────────────────┘
 
-(*@genre.premise@*)
+│                   ___________________   ___________________
+│               .-´|                   \ /                   |`-.
+│               ||||    PROBLEM X.     .|    ___________     ||||
+│               ||||    ----------     .|   |     |     |    ||||
+│               ||||    Given:         .|   |  -+-+-+-  |    ||||
+│               ||||    -= --- - - ==  .|   |     |     |    ||||
+│               ||||       -=-=--      .|   `-----------´    ||||
+│               ||||    -- ==-- -- =-  .|   -= -- -===- -    ||||
+│               ||||    -=- =--=- - -  .|   Such that:       ||||
+│               ||||    Show:          .|   -=- -==- --=-    ||||
+│               ||||    --=- --= - -=  .|   -- --- -= - =    ||||
+│               ||||    - =--          .|   -=- --           ||||
+│               ||||                   .|                    ||||
+│               ||||         --        .|         --         ||||
+│               ||||___________________.| ___________________||||
+│               ||/====================\|/====================\||
+│                `----------------------„_„----------------------´
+│
+│
+│        This file provides the canonical specification of the problem’s
+│        premises,  to  the exclusion of any source of such. Its role is
+│        not  to certify premises established elsewhere, but to fix them
+│        at the level of the semantics themselves.
 
-(*@doc.header@[[Overview]]@*)
 
-(*@doc.pl@[[All downstream P001 files import this immutable file; the `Require Export` block makes the standard library available transitively throughout the package.]]@*)
+  OVERVIEW
 
-(*@head.end@*)
+  All downstream P001 files import this immutable file; the `Require Export`
+  block makes the standard library available transitively throughout the
+  package.
+
+*)
 
 From Stdlib Require Export Arith PeanoNat Bool Lia List.
 Export ListNotations.
 Global Open Scope list_scope.
 
-(*@inline@[[`PROPOSITIO` is our “quod esset” problem: “Show that among any `n + 1` distinct positive integers bounded by `2n`, two must be related by divisibility.” This anecdotal Erdős-Pósa is referenced by Aigner's “Proofs from THE BOOK”.]]@*)
+(*
+│
+│          `PROPOSITIO` is our “quod esset” problem: “Show that among
+│          any `n + 1` distinct positive integers bounded by `2n`, two
+│          must be related by divisibility.” This anecdotal Erdős-Pósa
+│          is referenced by Aigner's “Proofs from THE BOOK”.
+│
+*)
 
-(*@unicodemath@[[∀ n A. (∀ a ∈ A, 1 ≤ a ≤ 2n) → |A|= n + 1 ]][[→ ∃ a b ∈ A such that a ≠ b ∧ (a | b ∨ b | a)]]@*)
+(*                 ∀ n A. (∀ a ∈ A, 1 ≤ a ≤ 2n) → |A|= n + 1                  *)
+(*               → ∃ a b ∈ A such that a ≠ b ∧ (a | b ∨ b | a)                *)
 
 Definition PROPOSITIO : Prop :=
   forall n A,
@@ -31,7 +72,11 @@ Definition PROPOSITIO : Prop :=
       a <> b /\
       (Nat.divide a b \/ Nat.divide b a).
 
-(*@inline@[[There is of course “something” that witnesses the above.]]@*)
+(*
+│
+│          There is of course “something” that witnesses the above.
+│
+*)
 
 
 Definition WITNESS : Prop := PROPOSITIO.
