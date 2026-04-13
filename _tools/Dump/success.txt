@@ -19,7 +19,7 @@
  . . . . . . ... ........ .......**                                        
 ---------------------------------------------------------------------------
 
-                    Date (UTC): 2026-04-09T17:22:05Z,
+                    Date (UTC): 2026-04-11T19:02:19Z,
 
                    Rocq version: The Rocq Prover, version 9.0.1
                    Method: isolated shadow, scratch folder (cached)
@@ -45,13 +45,15 @@ _CoqProject file contents:
    -arg -native-compiler 
    -arg ondemand 
     
-   # “Carryless Pairing” 
+   # “Carryless Pairing” (Pairing by Zeckendorf's Theorem) 
     
    -Q theories/A001 A001 
     
+   	theories/A001/A001_00_Premise.v 
    	theories/A001/A001_01__Base_Fibonacci.v 
    	theories/A001/A001_02__Pair_Unpair_Correct.v 
    	theories/A001/A001_99_IO.v 
+    
 
 === END ===
 
