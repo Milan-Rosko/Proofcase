@@ -12,20 +12,6 @@
 │                           Proofcase / P001_99_QED                            │
 └──────────────────────────────────────────────────────────────────────────────┘
 
-│        _____________________________ ___ _____ ________ ___
-│        ____________________________  __ \ ___  ____/__  __ \
-│        ___________________________  / / / __  __/  __  / / /
-│        __________________________  /_/ /___  /______  /_/ /__
-│        __________________________\___\_\(_)_____/(_)_____/_(_)
-│
-│
-│        This  file specifies the exact public targets and the Rocq-side
-│        criteria  required by the development. It serves as the central
-│        certification layer, fixes the public contracts, certifies each
-│        endpoint  by  direct  reuse,  and  makes  the  key  assumptions
-│        explicit for inspection and audit.
- 
-
   OVERVIEW
 
 (*

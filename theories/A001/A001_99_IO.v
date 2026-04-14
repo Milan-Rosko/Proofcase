@@ -19,26 +19,6 @@
   re-encoding the decoded pair, and classifying `C` as either an actual image
   point or a dead end.
 
-│              _____
-│             ´  _  \
-│            ( /  \  \
-│             `    \  \            ,--.    ,-           ,--.    ,-
-│                   \  \          (_.\ \  //\_)        (_.\ \  //\_)
-│                  /    \             \ \//                \ \//
-│                 /  /\  \             \ (                  \ (
-│                /  /  \  \            /, \                 /, \
-│               /  /    \  \          // \ \               // \ \
-│              /  /      \  \_,     _//   \ \_,   .-.    _//   \ \_,
-│             /__/        \___/    (_/     \__/   ._.   (_/     \__/
-│
-│
-│        This file specifies the effective interface of the development,
-│        exposing   computational  content  together  with  input–output
-│        contracts.   Each  computational  artifact  is  linked  to  its
-│        semantic  interpretation  via  adequacy theorems. This layer is
-│        machine-oriented   and   designed   to   remain   stable  under
-│        extraction, testing, automation, and downstream reuse.
- 
 *)
 
 From A001 Require Export A001_03__Pair_Unpair_Correct.

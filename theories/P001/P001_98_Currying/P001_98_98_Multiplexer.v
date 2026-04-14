@@ -12,24 +12,6 @@
 │                      Proofcase / P001_98_98_Multiplexer                      │
 └──────────────────────────────────────────────────────────────────────────────┘
 
-│                                               _____
-│                        _______     _______   /____|\__
-│                       | _____ |   | _____ |  \    \ \ |
-│                       ||_   _||   ||_   _||   \    \ ||
-│                       |/    /||   |/    /||   |\_  _\||
-│                       /    / ||   /    / ||   ||     ||
-│                      /____/ /-|  /____/ / |   |'—————'|
-│                      \____|/––'  \____|/––'    –––––––'
-│                        Phase 1     Phase 2     Phase 3
-│
-│
-│        This file  specifies the order by selecting imported components
-│        and governing the overall sequence length. Each imported module
-│        is  routed  according  to structural role and dependency order,
-│        ensuring   that  control  passes  through  a  single,  coherent
-│        coordination layer.
-
-
   OVERVIEW
 
   We implement a switch system as a project-level routing mechanism between a

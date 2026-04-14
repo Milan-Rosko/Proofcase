@@ -12,31 +12,6 @@
 │                         Proofcase / P001_00_Premises                         │
 └──────────────────────────────────────────────────────────────────────────────┘
 
-│                   ___________________   ___________________
-│               .-´|                   \ /                   |`-.
-│               ||||    PROBLEM X.     .|    ___________     ||||
-│               ||||    ----------     .|   |     |     |    ||||
-│               ||||    Given:         .|   |  -+-+-+-  |    ||||
-│               ||||    -= --- - - ==  .|   |     |     |    ||||
-│               ||||       -=-=--      .|   `-----------´    ||||
-│               ||||    -- ==-- -- =-  .|   -= -- -===- -    ||||
-│               ||||    -=- =--=- - -  .|   Such that:       ||||
-│               ||||    Show:          .|   -=- -==- --=-    ||||
-│               ||||    --=- --= - -=  .|   -- --- -= - =    ||||
-│               ||||    - =--          .|   -=- --           ||||
-│               ||||                   .|                    ||||
-│               ||||         --        .|         --         ||||
-│               ||||___________________.| ___________________||||
-│               ||/====================\|/====================\||
-│                `----------------------„_„----------------------´
-│
-│
-│        This file provides the canonical specification of the problem’s
-│        premises,  to  the exclusion of any source of such. Its role is
-│        not  to certify premises established elsewhere, but to fix them
-│        at the level of the semantics themselves.
-
-
   OVERVIEW
 
   All downstream P001 files import this immutable file; the `Require Export`

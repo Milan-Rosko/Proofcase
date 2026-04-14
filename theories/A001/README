@@ -1,0 +1,93 @@
+(* README *)
+
+1 - Summary
+    -------
+
+    A001 formalizes a concrete “carryless pairing” device over naturals.
+
+2 - Repository Tree
+    ---------------
+
+    .
+    ├── README
+    │
+    │      Package-level overview for A001.
+    │
+    ├── A001_00__Binary_Engine.v
+    │
+    │      Standalone binary computation layer. Defines `fibN`, `Z0N`,
+    │      `pairN`, `unpairN`, the logical predicate `IsZeckendorf`,
+    │      and `nat`-bridge wrappers such as `encode_fast_nat`.
+    │
+    ├── A001_01__Base_Fibonacci.v
+    │
+    │      Concrete Fibonacci / Zeckendorf base layer. Defines `fib`,
+    │      `sum_fib`, `r0`, `Z0`, the even / odd band constructions,
+    │      and the structural correctness lemmas that support the
+    │      pairing device.
+    │
+    ├── A001_02__Pair_Unpair_Correct.v
+    │
+    │      Concrete carryless pairing layer. Defines `encode`,
+    │      `decode`, support projections, and proves roundtrip and
+    │      injectivity for the base realization.
+    │
+    ├── A001_99_IO.v
+    │
+    │      Executable IO layer. Provides query datatypes, pairing and
+    │      inspection dispatchers, compact `*_Z` interfaces, example
+    │      computations, and the extraction entry points.
+    │
+    │
+    └── _appendix
+           │
+           ├── _artifacts
+           │       │
+           │       ├── carryless_pairing_io.ml
+           │       ├── carryless_pairing_io.mli
+           │       ├── carryless_pairing_io.cmi
+           │       ├── carryless_pairing_io.cmx
+           │       └── carryless_pairing_io.o
+           │
+           │              Extracted OCaml surface and compiled build
+           │              artifacts for the executable pairing /
+           │              inspection interface.
+           │
+           └── python_tool
+                   │
+                   ├── __init__.py
+                   ├── __main__.py
+                   ├── cli.py
+                   ├── core.py
+                   ├── plotting.py
+                   ├── probes.py
+                   └── test_core.py
+
+                          Auxiliary Python workspace for empirical
+                          carryless-pairing probes, plotting utilities,
+                          and lightweight regression tests.
+
+
+3 - Notes
+    -----
+
+    The main user-facing operations are:
+
+      - `encode : nat -> nat -> nat`
+      - `decode : nat -> nat * nat`
+      - `encode_fast_nat : nat -> nat -> nat`
+      - `decode_fast_nat : nat -> nat * nat`
+      - `Paired_AB`, `Unpaired_C`, `Check_Pairing`, `In_Imageb`,
+        `Status_Of_Code`
+      - `A001_IO` and `A001_IO_Z`
+
+    The key correctness endpoints are:
+
+      - `decode_encode`
+      - `encode_injective`
+
+    Edge case:
+
+      At the zero boundary, we leave open how this bridge should be
+      identified over `N+0`; no proof in A001 currently uses that
+      identification as part of the certified interface.
