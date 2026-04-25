@@ -14,11 +14,14 @@
 
   OVERVIEW
 
-  This file defines the instruction set and basic state accessors of the
-  Vector Iterant.
+  In this file we define the instruction set and basic state accessors of the
+  Iterant Machine.
 
-  The machine is a two-counter Minsky-style kernel operating over the
-  band-coded state space developed in the preceding files.
+  We now move from the carryless state codec to the machine layer itself. The
+  machine is a two-counter Minsky-style kernel whose mutable data live in the
+  band-coded state space developed in the preceding files, and this file
+  isolates the purely structural operations on states before the transition
+  relation is introduced.
 
 *)
 
@@ -32,6 +35,19 @@ Inductive instruction : Type :=
 | INC : counter -> nat -> instruction
 | JZDEC : counter -> nat -> nat -> instruction
 | HALT : instruction.
+
+(*
+│
+│          `counter` names the two mutable registers of the machine,
+│          while `instruction` is the finite control alphabet that
+│          will later drive the one-step semantics. At this stage we
+│          only fix the syntax; the operational reading comes in the
+│          next file.
+│
+*)
+
+(*                       counter ∈ {Counter1, Counter2}                       *)
+(*             instruction ∈ {INC(c, j), JZDEC(c, j₀, j₁), HALT}.             *)
 
 (*
 │
@@ -68,16 +84,30 @@ Proof.
   destruct c1, c2; simpl; split; intro H; try reflexivity; try discriminate.
 Qed.
 
-Definition read_counter (c : counter) (st : FMState) : nat :=
+Definition read_counter (c : counter) (st : IterantState) : nat :=
   match c with
   | Counter1 => state_r1 st
   | Counter2 => state_r2 st
   end.
 
-Definition write_counter (c : counter) (v : nat) (st : FMState) : FMState :=
+(*
+│
+│          `read_counter`, `write_counter`, and `set_ip` are the three
+│          primitive state lenses used later by the small-step
+│          semantics. They let us discuss register updates and
+│          control-flow updates without reopening the concrete
+│          `IterantState` record structure in every proof.
+│
+*)
+
+(*                 read_counter(Counter1, (ip, r1, r2)) = r1                  *)
+(*                 read_counter(Counter2, (ip, r1, r2)) = r2                  *)
+(*                   set_ip(j, (ip, r1, r2)) = (j, r1, r2).                   *)
+
+Definition write_counter (c : counter) (v : nat) (st : IterantState) : IterantState :=
   match c with
-  | Counter1 => Build_FMState (state_ip st) v (state_r2 st)
-  | Counter2 => Build_FMState (state_ip st) (state_r1 st) v
+  | Counter1 => Build_IterantState (state_ip st) v (state_r2 st)
+  | Counter2 => Build_IterantState (state_ip st) (state_r1 st) v
   end.
 
 (*
@@ -90,8 +120,8 @@ Definition write_counter (c : counter) (v : nat) (st : FMState) : FMState :=
 (*           write_counter(Counter1, v, (ip, r1, r2)) = (ip, v, r2)           *)
 (*          write_counter(Counter2, v, (ip, r1, r2)) = (ip, r1, v).           *)
 
-Definition set_ip (ip : nat) (st : FMState) : FMState :=
-  Build_FMState ip (state_r1 st) (state_r2 st).
+Definition set_ip (ip : nat) (st : IterantState) : IterantState :=
+  Build_IterantState ip (state_r1 st) (state_r2 st).
 
 (*
 │
@@ -105,18 +135,20 @@ Definition set_ip (ip : nat) (st : FMState) : FMState :=
 (*                    initial_state(input) = (1, input, 0)                    *)
 (*                   initial_state2(r1, r2) = (1, r1, r2).                    *)
 
-Definition initial_state (input : nat) : FMState :=
-  Build_FMState 1 input 0.
+Definition initial_state (input : nat) : IterantState :=
+  Build_IterantState 1 input 0.
 
-Definition initial_state2 (r1 r2 : nat) : FMState :=
-  Build_FMState 1 r1 r2.
+Definition initial_state2 (r1 r2 : nat) : IterantState :=
+  Build_IterantState 1 r1 r2.
 
 (*
 │
-│          `state_well_formed_intro` is the constructor lemma for the
-│          machine-side range invariant. It packages the three scalar
+│          `state_well_formed_intro` is the machine-side compatibility
+│          wrapper for the canonical constructor lemma
+│          `state_well_formed_build`. It packages the three scalar
 │          window bounds into the single state predicate used by the
-│          operational semantics.
+│          operational semantics while keeping the older machine-layer
+│          name available.
 │
 *)
 
@@ -128,41 +160,45 @@ Lemma state_well_formed_intro :
     ip < ip_limit ->
     r1 < r1_limit ->
     r2 < r2_limit ->
-    state_well_formed (Build_FMState ip r1 r2).
+    state_well_formed (Build_IterantState ip r1 r2).
 Proof.
-  intros ip r1 r2 Hip Hr1 Hr2.
-  split.
-  - exact Hip.
-  - split.
-    + exact Hr1.
-    + exact Hr2.
+  exact state_well_formed_build.
 Qed.
 
 (*
 │
-│          `initial_ip_bounded` and `zero_below_r2_limit` isolate the
-│          two fixed arithmetic facts needed to justify the standard
-│          initial configurations.
+│          `initial_ip_bounded` and `zero_below_r2_limit` are the
+│          fixed-instance compatibility wrappers for the corresponding
+│          `MachineLimits` field facts on `fixed_limits`. They justify
+│          the standard initial configurations without reopening the
+│          concrete arithmetic proof of the limit package here.
 │
 *)
 
 Lemma initial_ip_bounded :
   1 < ip_limit.
 Proof.
-  unfold ip_limit, K_IP.
-  vm_compute.
-  lia.
+  exact (ml_initial_ip_bounded fixed_limits).
 Qed.
 
 Lemma zero_below_r2_limit :
   0 < r2_limit.
 Proof.
-  unfold r2_limit, K_R2.
-  assert (Hpos : fib 65 >= 1) by (apply fib_pos; lia).
-  apply Nat.lt_le_trans with (m:=1).
-  - apply Nat.lt_0_succ.
-  - exact Hpos.
+  exact (ml_r2_limit_nonzero fixed_limits).
 Qed.
+
+(*
+│
+│          These two scalar bounds justify the canonical initial
+│          configurations. We start execution at `IP = 1`, load the
+│          input into `R1`, and keep `R2 = 0`; the corresponding
+│          well-formedness lemmas simply lift those scalar
+│          inequalities into the state predicate.
+│
+*)
+
+(*         input < r1_limit ⇒ state_well_formed(initial_state(input))         *)
+(* r1 < r1_limit ∧ r2 < r2_limit ⇒ state_well_formed(initial_state2(r1, r2)). *)
 
 Lemma initial_state_well_formed :
   forall input,
@@ -171,7 +207,7 @@ Lemma initial_state_well_formed :
 Proof.
   intros input Hinput.
   unfold initial_state.
-  apply state_well_formed_intro.
+  apply state_well_formed_build.
   - exact initial_ip_bounded.
   - exact Hinput.
   - exact zero_below_r2_limit.
@@ -185,7 +221,7 @@ Lemma initial_state2_well_formed :
 Proof.
   intros r1 r2 Hr1 Hr2.
   unfold initial_state2.
-  apply state_well_formed_intro.
+  apply state_well_formed_build.
   - exact initial_ip_bounded.
   - exact Hr1.
   - exact Hr2.
@@ -226,6 +262,21 @@ Qed.
 
 (*
 │
+│          The next four algebraic lemmas are the basic coherence laws
+│          of the state lenses. Reading after writing the same counter
+│          returns the fresh payload, reading the other counter is
+│          unaffected, `set_ip` does not touch registers, and register
+│          writes do not touch the instruction pointer.
+│
+*)
+
+(*                read_counter(c, write_counter(c, v, st)) = v                *)
+(*c₁ ≠ c₂ ⇒ read_counter(c₁, write_counter(c₂, v, st)) = read_counter(c₁, st) *)
+(*            read_counter(c, set_ip(j, st)) = read_counter(c, st)            *)
+(*             state_ip(write_counter(c, v, st)) = state_ip(st).              *)
+
+(*
+│
 │          The preservation lemmas for `write_counter` and `set_ip`
 │          isolate the two update modes used by the operational
 │          semantics: register writes preserve well-formedness when
@@ -233,6 +284,12 @@ Qed.
 │          register bounds automatically.
 │
 *)
+
+(*                   state_well_formed(st) ∧ v < r1_limit ⇒                   *)
+(*             state_well_formed(write_counter(Counter1, v, st))              *)
+(*                   state_well_formed(st) ∧ v < r2_limit ⇒                   *)
+(*             state_well_formed(write_counter(Counter2, v, st))              *)
+(* state_well_formed(st) ∧ ip < ip_limit ⇒ state_well_formed(set_ip(ip, st)). *)
 
 Lemma state_well_formed_write_counter :
   forall st c v,
@@ -245,8 +302,8 @@ Lemma state_well_formed_write_counter :
 Proof.
   intros [ip r1 r2] c v [Hip [Hr1 Hr2]] Hv.
   destruct c; simpl in *.
-  - apply state_well_formed_intro; assumption.
-  - apply state_well_formed_intro; assumption.
+  - apply state_well_formed_build; assumption.
+  - apply state_well_formed_build; assumption.
 Qed.
 
 Lemma state_well_formed_set_ip :
@@ -257,7 +314,7 @@ Lemma state_well_formed_set_ip :
 Proof.
   intros [q r1 r2] ip [_ [Hr1 Hr2]] Hip.
   simpl.
-  apply state_well_formed_intro; assumption.
+  apply state_well_formed_build; assumption.
 Qed.
 
 (*
@@ -283,14 +340,9 @@ Lemma state_well_formed_intro_of :
     ip < ip_limit_of L ->
     r1 < r1_limit_of L ->
     r2 < r2_limit_of L ->
-    state_well_formed_of L (Build_FMState ip r1 r2).
+    state_well_formed_of L (Build_IterantState ip r1 r2).
 Proof.
-  intros L ip r1 r2 Hip Hr1 Hr2.
-  split.
-  - exact Hip.
-  - split.
-    + exact Hr1.
-    + exact Hr2.
+  exact state_well_formed_build_of.
 Qed.
 
 Lemma initial_ip_bounded_of :
@@ -311,6 +363,17 @@ Proof.
   exact (ml_r2_limit_nonzero L).
 Qed.
 
+(*
+│
+│          Exactly the same initialization story persists in the
+│          abstract family. The only difference is that the relevant
+│          scalar bounds are now read from the chosen limit package
+│          `L` rather than from the fixed built-in geometry.
+│
+*)
+
+(*                  1 < ip_limit_of(L), 0 < r2_limit_of(L).                   *)
+
 Lemma initial_state_well_formed_of :
   forall L input,
     input < r1_limit_of L ->
@@ -318,10 +381,10 @@ Lemma initial_state_well_formed_of :
 Proof.
   intros L input Hinput.
   unfold initial_state.
-  apply state_well_formed_intro_of.
-  - exact (initial_ip_bounded_of L).
+  apply state_well_formed_build_of.
+  - exact (ml_initial_ip_bounded L).
   - exact Hinput.
-  - exact (zero_below_r2_limit_of L).
+  - exact (ml_r2_limit_nonzero L).
 Qed.
 
 Lemma initial_state2_well_formed_of :
@@ -332,11 +395,29 @@ Lemma initial_state2_well_formed_of :
 Proof.
   intros L r1 r2 Hr1 Hr2.
   unfold initial_state2.
-  apply state_well_formed_intro_of.
-  - exact (initial_ip_bounded_of L).
+  apply state_well_formed_build_of.
+  - exact (ml_initial_ip_bounded L).
   - exact Hr1.
   - exact Hr2.
 Qed.
+
+(*
+│
+│          After initialization, the abstract preservation lemmas are
+│          literal replicas of the fixed ones. A register update is
+│          admissible exactly when the new payload fits the
+│          corresponding limit extracted from `L`, and an IP update is
+│          admissible exactly when the new control location fits
+│          `ip_limit_of(L)`.
+│
+*)
+
+(* state_well_formed_of(L, st) ∧ v < r1_limit_of(L) ⇒ state_well_formed_of(L, *)
+(*                      write_counter(Counter1, v, st))                       *)
+(* state_well_formed_of(L, st) ∧ v < r2_limit_of(L) ⇒ state_well_formed_of(L, *)
+(*                      write_counter(Counter2, v, st))                       *)
+(*state_well_formed_of(L, st) ∧ ip < ip_limit_of(L) ⇒ state_well_formed_of(L, *)
+(*                              set_ip(ip, st)).                              *)
 
 Lemma state_well_formed_write_counter_of :
   forall L st c v,
@@ -349,8 +430,8 @@ Lemma state_well_formed_write_counter_of :
 Proof.
   intros L [ip r1 r2] c v [Hip [Hr1 Hr2]] Hv.
   destruct c; simpl in *.
-  - apply state_well_formed_intro_of; assumption.
-  - apply state_well_formed_intro_of; assumption.
+  - apply state_well_formed_build_of; assumption.
+  - apply state_well_formed_build_of; assumption.
 Qed.
 
 Lemma state_well_formed_set_ip_of :
@@ -361,5 +442,5 @@ Lemma state_well_formed_set_ip_of :
 Proof.
   intros L [q r1 r2] ip [_ [Hr1 Hr2]] Hip.
   simpl.
-  apply state_well_formed_intro_of; assumption.
+  apply state_well_formed_build_of; assumption.
 Qed.

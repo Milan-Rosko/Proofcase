@@ -14,10 +14,10 @@
 
   OVERVIEW
 
-  This file isolates the classical abstract universality layer of the
-  Fibonacci Machine. We no longer speaks about Zeckendorf bands directly: it
-  works over the abstract Minsky-style configurations and traces induced by
-  `D001_08`, while remaining self-contained inside the D001 development.
+  This file isolates the classical abstract universality layer of the Iterant
+  Machine. We no longer speak about Zeckendorf bands directly: it works over
+  the abstract Minsky-style configurations and traces induced by `D001_08`,
+  while remaining self-contained inside the D001 development.
 
 *)
 
@@ -43,11 +43,11 @@ Definition abstract_next (prog : program) (cfg : AbstractConfig) : AbstractConfi
 
 (*
 │
-│          `config_to_state_state_to_config` records the trivial
-│          retraction from structured FM states to abstract
-│          configurations and back. Making it explicit keeps the
-│          classical proofs honest: no dynamics are hidden inside the
-│          transport.
+│          `config_to_state_state_to_config` is the classical-layer
+│          compatibility name for the trivial retraction from
+│          structured Iterant states to abstract configurations and
+│          back. The canonical transport proof now lives in `D001_08`,
+│          where the transport maps are defined.
 │
 *)
 (*                 config_to_state(state_to_config(st)) = st.                 *)
@@ -56,8 +56,7 @@ Lemma config_to_state_state_to_config :
   forall st,
     config_to_state (state_to_config st) = st.
 Proof.
-  intros [ip r1 r2].
-  reflexivity.
+  exact D001_08__Universality.config_to_state_state_to_config.
 Qed.
 
 Fixpoint abstract_run_steps (prog : program) (fuel : nat) (cfg : AbstractConfig)
@@ -71,8 +70,9 @@ Fixpoint abstract_run_steps (prog : program) (fuel : nat) (cfg : AbstractConfig)
 │
 │          `abstract_next_state` is the one-step version of the later
 │          run bridge. It says that the classical successor map is not
-│          a new dynamics at all: it is exactly the FM `step_state`
-│          seen through the configuration-state transport.
+│          a new dynamics at all: it is exactly the Iterant
+│          `step_state` seen through the configuration-state
+│          transport.
 │
 *)
 (*        config_to_state(abstract_next(prog, cfg)) = step_state(prog,        *)
@@ -113,7 +113,7 @@ Qed.
 │
 │          `abstract_run_steps_state_bridge` is the core compatibility
 │          theorem for the classical layer: abstract runs and
-│          structured FM runs compute the same sequence of
+│          structured Iterant runs compute the same sequence of
 │          configurations after transport through `config_to_state`.
 │
 *)
@@ -157,8 +157,8 @@ Qed.
 │
 │          `ClassicSigma1CompletenessTarget` is the exact schema for
 │          the standalone classical universality theorem. It asks for
-│          one FM program per recursively enumerable language, but
-│          speaks only in the abstract halting vocabulary of this
+│          one Iterant program per recursively enumerable language,
+│          but speaks only in the abstract halting vocabulary of this
 │          file.
 │
 *)
@@ -321,7 +321,7 @@ Qed.
 │
 │          `subtraction_program_classic_accepts` is the final
 │          classical-layer witness that the abstract halting predicate
-│          is inhabited by a real FM program. It keeps the file
+│          is inhabited by a real Iterant program. It keeps the file
 │          grounded in an explicit execution example while the broader
 │          universality theorem remains a target schema.
 │

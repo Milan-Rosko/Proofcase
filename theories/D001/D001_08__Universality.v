@@ -17,9 +17,9 @@
   This file records the machine-level universality targets together with a
   concrete subtraction example.
 
-  At the instruction level, the FM already contains the target two-counter
-  Minsky kernel, so compilation into FM ROM is the identity; the real coding
-  work lies in the band-encoded state architecture.
+  At the instruction level, the Iterant already contains the target
+  two-counter Minsky kernel, so compilation into Iterant ROM is the identity;
+  the real coding work lies in the band-encoded state architecture.
 
 *)
 
@@ -28,8 +28,8 @@ From D001 Require Export D001_07__Step_Arithmetization.
 (*
 │
 │          `compile_program` is the identity translation because the
-│          FM instruction set is already the target two-counter Minsky
-│          kernel.
+│          Iterant instruction set is already the target two-counter
+│          Minsky kernel.
 │
 *)
 
@@ -46,7 +46,7 @@ Qed.
 (*
 │
 │          `AbstractConfig` and `abstract_step` define the
-│          stripped-down Minsky reference semantics for the FM
+│          stripped-down Minsky reference semantics for the Iterant
 │          instruction set. They forget the Zeckendorf coding and
 │          expose only the control-flow triple `(IP, R1, R2)`.
 │
@@ -57,15 +57,15 @@ Qed.
 
 Definition AbstractConfig : Type := (nat * nat * nat)%type.
 
-Definition config_to_state (cfg : AbstractConfig) : FMState :=
+Definition config_to_state (cfg : AbstractConfig) : IterantState :=
   match cfg with
-  | (ip, r1, r2) => Build_FMState ip r1 r2
+  | (ip, r1, r2) => Build_IterantState ip r1 r2
   end.
 
-Definition state_to_config (st : FMState) : AbstractConfig :=
+Definition state_to_config (st : IterantState) : AbstractConfig :=
   (state_ip st, state_r1 st, state_r2 st).
 
-Definition maps_to (cfg : AbstractConfig) (st : FMState) : Prop :=
+Definition maps_to (cfg : AbstractConfig) (st : IterantState) : Prop :=
   match cfg with
   | (ip, r1, r2) =>
       state_ip st = ip /\
@@ -147,13 +147,21 @@ Proof.
   reflexivity.
 Qed.
 
+Lemma config_to_state_state_to_config :
+  forall st,
+    config_to_state (state_to_config st) = st.
+Proof.
+  intros [ip r1 r2].
+  reflexivity.
+Qed.
+
 (*
 │
 │          `abstract_well_formed_of_config_to_state` is the
 │          bookkeeping bridge for limit invariants. Once a
 │          `MachineLimits` package has been fixed, the abstract `(IP,
-│          R1, R2)` view and the structured FM state carry exactly the
-│          same boundedness information.
+│          R1, R2)` view and the structured Iterant state carry
+│          exactly the same boundedness information.
 │
 *)
 (*     abstract_well_formed_of(L, (ip, r₁, r₂)) ⇔ state_well_formed_of(L,     *)
@@ -305,9 +313,9 @@ Qed.
 │
 │          `abstract_step_iff_step_state` packages the soundness and
 │          completeness bridge between the stripped abstract semantics
-│          and the structured FM transition function, while
-│          `FM_simulates_abstract` transports the same fact to any
-│          mapped state.
+│          and the structured Iterant transition function, while
+│          `Iterant_simulates_abstract` transports the same fact to
+│          any mapped state.
 │
 *)
 (*    abstract_step(prog, c, c') ⇔ step_state(prog, config_to_state(c)) =     *)
@@ -352,7 +360,7 @@ Proof.
   exact H2.
 Qed.
 
-Theorem FM_simulates_abstract :
+Theorem Iterant_simulates_abstract :
   forall prog cfg cfg' st,
     abstract_step prog cfg cfg' ->
     maps_to cfg st ->
@@ -371,7 +379,7 @@ Qed.
 │          The universality target is phrased as a Σ₁-completeness
 │          obligation: every recursively enumerable language in the
 │          chosen meta-framework should be realized by some compiled
-│          FM program.
+│          Iterant program.
 │
 *)
 (*      MachineComputes(prog, L) ≔ ∀ n, MachineAccepts(prog, n) ⇔ L(n).       *)
@@ -459,16 +467,6 @@ Proof.
     exact Hprog.
 Qed.
 
-Lemma CubicCompilerReady_compile_program :
-  forall prog,
-    CubicCompilerReady (compile_program prog).
-Proof.
-  intros prog s t.
-  unfold compile_program.
-  rewrite stepb_correct.
-  tauto.
-Qed.
-
 Theorem cubic_compiler_ready_of_stepb :
   forall prog,
     CubicCompilerReady prog.
@@ -476,6 +474,15 @@ Proof.
   intros prog s t.
   rewrite stepb_correct.
   tauto.
+Qed.
+
+Lemma CubicCompilerReady_compile_program :
+  forall prog,
+    CubicCompilerReady (compile_program prog).
+Proof.
+  intro prog.
+  unfold compile_program.
+  exact (cubic_compiler_ready_of_stepb prog).
 Qed.
 
 (*
@@ -489,7 +496,7 @@ Qed.
 (*                        run_steps(prog, 0, st) = st                         *)
 (*run_steps(prog, fuel + 1, st) = run_steps(prog, fuel, step_state(prog, st)).*)
 
-Fixpoint run_steps (prog : program) (fuel : nat) (st : FMState) : FMState :=
+Fixpoint run_steps (prog : program) (fuel : nat) (st : IterantState) : IterantState :=
   match fuel with
   | 0 => st
   | S fuel' => run_steps prog fuel' (step_state prog st)
@@ -549,7 +556,7 @@ Qed.
 (*                          run_steps(prog, k, st)).                          *)
 
 Definition run_respects_limits
-    (L : MachineLimits) (prog : program) (fuel : nat) (st : FMState) : Prop :=
+    (L : MachineLimits) (prog : program) (fuel : nat) (st : IterantState) : Prop :=
   forall k,
     k <= fuel ->
     state_well_formed_of L (run_steps prog k st).
@@ -689,10 +696,10 @@ Qed.
 (*
 │
 │          `FamilyMachineAccepts_has_raw_witness` is the first
-│          internal witness theorem for the asymptotic FM semantics.
-│          It converts an existential halting run with sufficiently
-│          large limits into one natural-number trace witness whose
-│          local successor relation is `NextState_of L`.
+│          internal witness theorem for the asymptotic Iterant
+│          semantics. It converts an existential halting run with
+│          sufficiently large limits into one natural-number trace
+│          witness whose local successor relation is `NextState_of L`.
 │
 *)
 (* FamilyMachineAccepts(prog, input) ⇒ ∃ L, w, FamilyRawTraceWitness(L, prog, *)
@@ -805,8 +812,8 @@ Definition subtraction_program : program :=
 
 Lemma subtraction_step_r2 :
   forall n m,
-    step_state subtraction_program (Build_FMState 1 n (S m)) =
-    Build_FMState 2 n m.
+    step_state subtraction_program (Build_IterantState 1 n (S m)) =
+    Build_IterantState 2 n m.
 Proof.
   intros n m.
   reflexivity.
@@ -814,8 +821,8 @@ Qed.
 
 Lemma subtraction_step_r1 :
   forall n m,
-    step_state subtraction_program (Build_FMState 2 (S n) m) =
-    Build_FMState 1 n m.
+    step_state subtraction_program (Build_IterantState 2 (S n) m) =
+    Build_IterantState 1 n m.
 Proof.
   intros n m.
   reflexivity.
@@ -823,8 +830,8 @@ Qed.
 
 Lemma subtraction_halt_step :
   forall n,
-    step_state subtraction_program (Build_FMState 1 n 0) =
-    Build_FMState 0 n 0.
+    step_state subtraction_program (Build_IterantState 1 n 0) =
+    Build_IterantState 0 n 0.
 Proof.
   intro n.
   reflexivity.
@@ -834,7 +841,7 @@ Lemma run_subtraction_loop :
   forall n m,
     m <= n ->
     run_steps subtraction_program (2 * m) (initial_state2 n m) =
-    Build_FMState 1 (n - m) 0.
+    Build_IterantState 1 (n - m) 0.
 Proof.
   intros n m.
   revert n.
@@ -866,7 +873,7 @@ Theorem subtraction_program_halts :
   forall n m,
     m <= n ->
     run_steps subtraction_program (S (2 * m)) (initial_state2 n m) =
-    Build_FMState 0 (n - m) 0.
+    Build_IterantState 0 (n - m) 0.
 Proof.
   intros n m Hle.
   replace (S (2 * m)) with (2 * m + 1) by lia.
@@ -878,9 +885,9 @@ Qed.
 (*
 │
 │          The subtraction example is the first concrete place where
-│          the abstract step semantics, the structured FM execution
-│          function, and the family-level acceptance viewpoint line up
-│          on an explicit program.
+│          the abstract step semantics, the structured Iterant
+│          execution function, and the family-level acceptance
+│          viewpoint line up on an explicit program.
 │
 *)
 

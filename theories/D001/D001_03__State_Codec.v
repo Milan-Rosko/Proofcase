@@ -14,21 +14,36 @@
 
   OVERVIEW
 
-  This file implements the carryless state codec of the Fibonacci Machine.
+  In this file we implement the carryless state codec of the Iterant Machine.
 
-  A machine state is a triple `(IP, R1, R2)`, and its code is obtained by
-  summing the Fibonacci supports carried by the three disjoint fixed bands.
+  We encode a machine state as a triple `(IP, R1, R2)`, place its three
+  payloads into the fixed disjoint bands constructed in `D001_02`, and then
+  read the resulting global support as one Zeckendorf numeral. We also show
+  that decoding recovers exactly the bounded states and normalizes arbitrary
+  raw codes into that image.
 
 *)
 
 From D001 Require Export D001_02__Carryless_Bands.
 
-Record FMState : Type := Build_FMState
+Record IterantState : Type := Build_IterantState
 {
   state_ip : nat;
   state_r1 : nat;
   state_r2 : nat
 }.
+
+(*
+│
+│          `IterantState` is the bare semantic payload of the machine
+│          before any encoding is applied. We keep it as a simple
+│          record of three naturals so that all representational
+│          discipline is carried by the later well-formedness
+│          predicate rather than baked into the datatype itself.
+│
+*)
+
+(*  st = (ip, r1, r2) ∈ ℕ³, state_well_formed(st) supplies the band bounds.   *)
 
 (*
 │
@@ -41,7 +56,7 @@ Record FMState : Type := Build_FMState
 (*    state_well_formed(ip, r1, r2) ≔ ip < ip_limit ∧ r1 < r1_limit ∧ r2 <    *)
 (*                                 r2_limit.                                  *)
 
-Definition state_well_formed (st : FMState) : Prop :=
+Definition state_well_formed (st : IterantState) : Prop :=
   state_ip st < ip_limit /\
   state_r1 st < r1_limit /\
   state_r2 st < r2_limit.
@@ -54,7 +69,7 @@ Definition state_well_formed (st : FMState) : Prop :=
 │
 *)
 
-Definition state_support (st : FMState) : list nat :=
+Definition state_support (st : IterantState) : list nat :=
   r2_support (state_r2 st) ++
   r1_support (state_r1 st) ++
   ip_support (state_ip st).
@@ -63,8 +78,21 @@ Definition state_support (st : FMState) : list nat :=
 (*      = sum_fib(r2_support(state_r2(st)) ⧺ r1_support(state_r1(st)) ⧺       *)
 (*                         ip_support(state_ip(st))).                         *)
 
-Definition encode_state (st : FMState) : nat :=
+Definition encode_state (st : IterantState) : nat :=
   sum_fib (state_support st).
+
+(*
+│
+│          The three auxiliary decoders first work at the level of
+│          supports. Each one filters a global support down to one
+│          machine band, subtracts the corresponding offset, and then
+│          reassembles the recovered local support by `sum_fib`.
+│
+*)
+
+(*  decode_ip_from_support(zn) = sum_fib(band_indices(IP_offset, K_IP, zn))   *)
+(*  decode_r1_from_support(zn) = sum_fib(band_indices(R1_offset, K_R1, zn))   *)
+(*  decode_r2_from_support(zn) = sum_fib(band_indices(R2_offset, K_R2, zn)).  *)
 
 Definition decode_ip_from_support (zn : list nat) : nat :=
   sum_fib (band_indices IP_offset K_IP zn).
@@ -104,13 +132,13 @@ Definition decode_r2 (s : nat) : nat :=
 │
 *)
 
-Definition decode_state_from_support (zn : list nat) : FMState :=
-  Build_FMState
+Definition decode_state_from_support (zn : list nat) : IterantState :=
+  Build_IterantState
     (decode_ip_from_support zn)
     (decode_r1_from_support zn)
     (decode_r2_from_support zn).
 
-Definition decode_state (s : nat) : FMState :=
+Definition decode_state (s : nat) : IterantState :=
   decode_state_from_support (Z0 s).
 
 (*          normalize_state_code(s) = encode_state(decode_state(s))           *)
@@ -138,7 +166,7 @@ Lemma state_well_formed_build :
     ip < ip_limit ->
     r1 < r1_limit ->
     r2 < r2_limit ->
-    state_well_formed (Build_FMState ip r1 r2).
+    state_well_formed (Build_IterantState ip r1 r2).
 Proof.
   intros ip r1 r2 Hip Hr1 Hr2.
   split.
@@ -147,6 +175,20 @@ Proof.
     + exact Hr1.
     + exact Hr2.
 Qed.
+
+(*
+│
+│          The next two recursive predicates are local bookkeeping
+│          devices for support arithmetic. `all_ge m xs` records that
+│          every index of `xs` lies at or above `m`, while `all_lt m
+│          xs` records that every index lies strictly below `m`.
+│          Together they let us express window containment in a form
+│          stable under filtering and offset subtraction.
+│
+*)
+
+(*                      all_ge(m, xs) ≡ ∀ x ∈ xs, m ≤ x                       *)
+(*                      all_lt(m, xs) ≡ ∀ x ∈ xs, x < m.                      *)
 
 Fixpoint all_ge (m : nat) (xs : list nat) : Prop :=
   match xs with
@@ -378,6 +420,20 @@ Proof.
   - apply IH; assumption.
 Qed.
 
+(*
+│
+│          At this point we have the abstract projection calculus for
+│          supports. Filtering by a band predicate preserves
+│          Zeckendorf validity, subtracting the offset restores local
+│          coordinates, and the resulting local support remains
+│          strictly below the band width `K`.
+│
+*)
+
+(*          zeck_valid(zn) ⇒ zeck_valid(band_indices(offset, K, zn))          *)
+(*                   all_lt(K, band_indices(offset, K, zn))                   *)
+(* band_indices = filter by the band window, then translate back by −offset.  *)
+
 Lemma band_indices_valid :
   forall offset K zn,
     zeck_valid zn ->
@@ -493,6 +549,19 @@ Proof.
   - exact (r2_support_gap_ip_support r2 ip x y Hr2 Hip Hx Hy).
 Qed.
 
+(*
+│
+│          We can now reassemble the three machine bands into one
+│          global Zeckendorf support. The crucial point is geometric:
+│          `R1` lies safely above `IP`, and `R2` lies safely above
+│          both, so concatenation preserves strict decrease and the
+│          non-adjacency gap.
+│
+*)
+
+(*state_well_formed(ip, r1, r2) ⇒ zeck_valid(r2_support(r2) ++ r1_support(r1) *)
+(*                            ++ ip_support(ip)).                             *)
+
 Theorem state_support_valid :
   forall st,
     state_well_formed st ->
@@ -576,7 +645,7 @@ Qed.
 
 Lemma filter_state_support :
   forall (p : nat -> bool) ip r1 r2,
-    filter p (state_support (Build_FMState ip r1 r2)) =
+    filter p (state_support (Build_IterantState ip r1 r2)) =
     ((filter p (r2_support r2) ++ filter p (r1_support r1)) ++
      filter p (ip_support ip)).
 Proof.
@@ -587,6 +656,20 @@ Proof.
   reflexivity.
 Qed.
 
+(*
+│
+│          We now read the global support back through the three band
+│          predicates. Because each predicate is true on its own band
+│          and false on the two foreign bands, filtering
+│          `Z0(encode_state(st))` by that predicate isolates exactly
+│          one component support and deletes the other two.
+│
+*)
+
+(*      filter(ip_pred, Z0(encode_state(st))) = ip_support(state_ip(st))      *)
+(*      filter(r1_pred, Z0(encode_state(st))) = r1_support(state_r1(st))      *)
+(*     filter(r2_pred, Z0(encode_state(st))) = r2_support(state_r2(st)).      *)
+
 Corollary ip_support_split :
   forall st,
     state_well_formed st ->
@@ -595,7 +678,7 @@ Proof.
   intros [ip r1 r2] [Hip [Hr1 Hr2]].
   rewrite encode_state_support by (repeat split; assumption).
   replace
-    (filter ip_pred (state_support (Build_FMState ip r1 r2)))
+    (filter ip_pred (state_support (Build_IterantState ip r1 r2)))
     with
     ((filter ip_pred (r2_support r2) ++ filter ip_pred (r1_support r1)) ++
      filter ip_pred (ip_support ip)).
@@ -630,7 +713,7 @@ Proof.
   intros [ip r1 r2] [Hip [Hr1 Hr2]].
   rewrite encode_state_support by (repeat split; assumption).
   replace
-    (filter r1_pred (state_support (Build_FMState ip r1 r2)))
+    (filter r1_pred (state_support (Build_IterantState ip r1 r2)))
     with
     ((filter r1_pred (r2_support r2) ++ filter r1_pred (r1_support r1)) ++
      filter r1_pred (ip_support ip)).
@@ -666,7 +749,7 @@ Proof.
   intros [ip r1 r2] [Hip [Hr1 Hr2]].
   rewrite encode_state_support by (repeat split; assumption).
   replace
-    (filter r2_pred (state_support (Build_FMState ip r1 r2)))
+    (filter r2_pred (state_support (Build_IterantState ip r1 r2)))
     with
     ((filter r2_pred (r2_support r2) ++ filter r2_pred (r1_support r1)) ++
      filter r2_pred (ip_support ip)).
@@ -693,6 +776,19 @@ Proof.
         repeat rewrite app_nil_r.
         reflexivity.
 Qed.
+
+(*
+│
+│          The three component roundtrip lemmas are now immediate:
+│          isolate the relevant support, subtract back the band
+│          offset, and appeal to `Z0_sound` to reconstruct the
+│          original payload.
+│
+*)
+
+(*     state_well_formed(st) ⇒ decode_ip(encode_state(st)) = state_ip(st)     *)
+(*     state_well_formed(st) ⇒ decode_r1(encode_state(st)) = state_r1(st)     *)
+(*    state_well_formed(st) ⇒ decode_r2(encode_state(st)) = state_r2(st).     *)
 
 Lemma decode_ip_encode_state :
   forall st,
@@ -747,14 +843,14 @@ Theorem decode_state_encode_state :
 Proof.
   intros [ip r1 r2] Hwf.
   change
-    (Build_FMState
-       (decode_ip (encode_state (Build_FMState ip r1 r2)))
-       (decode_r1 (encode_state (Build_FMState ip r1 r2)))
-       (decode_r2 (encode_state (Build_FMState ip r1 r2))) =
-     Build_FMState ip r1 r2).
-  rewrite (decode_ip_encode_state (Build_FMState ip r1 r2) Hwf).
-  rewrite (decode_r1_encode_state (Build_FMState ip r1 r2) Hwf).
-  rewrite (decode_r2_encode_state (Build_FMState ip r1 r2) Hwf).
+    (Build_IterantState
+       (decode_ip (encode_state (Build_IterantState ip r1 r2)))
+       (decode_r1 (encode_state (Build_IterantState ip r1 r2)))
+       (decode_r2 (encode_state (Build_IterantState ip r1 r2))) =
+     Build_IterantState ip r1 r2).
+  rewrite (decode_ip_encode_state (Build_IterantState ip r1 r2) Hwf).
+  rewrite (decode_r1_encode_state (Build_IterantState ip r1 r2) Hwf).
+  rewrite (decode_r2_encode_state (Build_IterantState ip r1 r2) Hwf).
   reflexivity.
 Qed.
 
@@ -805,6 +901,18 @@ Qed.
 │          produced by `encode_state`.
 │
 *)
+
+(*
+│
+│          The three preceding limit lemmas are the reason this total
+│          decoder lands back in the state space. Each projected local
+│          support is valid and remains strictly below its Fibonacci
+│          cutoff, so decoding cannot produce an out-of-range register
+│          value.
+│
+*)
+
+(* decode_ip(s) < ip_limit, decode_r1(s) < r1_limit, decode_r2(s) < r2_limit. *)
 
 Theorem decode_state_well_formed :
   forall s, state_well_formed (decode_state s).
@@ -868,6 +976,18 @@ Proof.
       exact Hfixed.
 Qed.
 
+(*
+│
+│          Injectivity is now conceptually simple. Two bounded states
+│          with the same code decode to the same normalized state, and
+│          the roundtrip theorem then identifies the original states
+│          componentwise.
+│
+*)
+
+(*   state_well_formed(st₁) ∧ state_well_formed(st₂) ∧ encode_state(st₁) =    *)
+(*                       encode_state(st₂) ⇒ st₁ = st₂.                       *)
+
 Theorem encode_state_injective :
   forall st1 st2,
     state_well_formed st1 ->
@@ -919,23 +1039,23 @@ Theorem r1_increment_preserves_ip :
     state_ip
       (decode_state
         (encode_state
-          (Build_FMState (state_ip st) (S (state_r1 st)) (state_r2 st)))) =
+          (Build_IterantState (state_ip st) (S (state_r1 st)) (state_r2 st)))) =
     state_ip st.
 Proof.
   intros [ip r1 r2] [Hip [Hr1 Hr2]] Hr1S.
   pose proof (state_well_formed_build ip (S r1) r2 Hip Hr1S Hr2) as Hwf'.
   simpl.
-  change (decode_ip (encode_state (Build_FMState ip (S r1) r2)) = ip).
-  rewrite (decode_ip_encode_state (Build_FMState ip (S r1) r2) Hwf').
+  change (decode_ip (encode_state (Build_IterantState ip (S r1) r2)) = ip).
+  rewrite (decode_ip_encode_state (Build_IterantState ip (S r1) r2) Hwf').
   reflexivity.
 Qed.
 
 (*
 │
 │          The `_of` state codec is the parameterized counterpart of
-│          the concrete one. It reuses the same `FMState` record, but
-│          interprets well-formedness, supports, and decoding relative
-│          to an arbitrary `MachineLimits` package.
+│          the concrete one. It reuses the same `IterantState` record,
+│          but interprets well-formedness, supports, and decoding
+│          relative to an arbitrary `MachineLimits` package.
 │
 *)
 
@@ -948,17 +1068,17 @@ Qed.
 (*    valid_state_code_of(L, s) ≔ ∃ st, state_well_formed_of(L, st) ∧ s =     *)
 (*                          encode_state_of(L, st).                           *)
 
-Definition state_well_formed_of (L : MachineLimits) (st : FMState) : Prop :=
+Definition state_well_formed_of (L : MachineLimits) (st : IterantState) : Prop :=
   state_ip st < ip_limit_of L /\
   state_r1 st < r1_limit_of L /\
   state_r2 st < r2_limit_of L.
 
-Definition state_support_of (L : MachineLimits) (st : FMState) : list nat :=
+Definition state_support_of (L : MachineLimits) (st : IterantState) : list nat :=
   r2_support_of L (state_r2 st) ++
   r1_support_of L (state_r1 st) ++
   ip_support_of L (state_ip st).
 
-Definition encode_state_of (L : MachineLimits) (st : FMState) : nat :=
+Definition encode_state_of (L : MachineLimits) (st : IterantState) : nat :=
   sum_fib (state_support_of L st).
 
 Definition decode_ip_from_support_of (L : MachineLimits) (zn : list nat) : nat :=
@@ -979,13 +1099,13 @@ Definition decode_r1_of (L : MachineLimits) (s : nat) : nat :=
 Definition decode_r2_of (L : MachineLimits) (s : nat) : nat :=
   decode_r2_from_support_of L (Z0 s).
 
-Definition decode_state_from_support_of (L : MachineLimits) (zn : list nat) : FMState :=
-  Build_FMState
+Definition decode_state_from_support_of (L : MachineLimits) (zn : list nat) : IterantState :=
+  Build_IterantState
     (decode_ip_from_support_of L zn)
     (decode_r1_from_support_of L zn)
     (decode_r2_from_support_of L zn).
 
-Definition decode_state_of (L : MachineLimits) (s : nat) : FMState :=
+Definition decode_state_of (L : MachineLimits) (s : nat) : IterantState :=
   decode_state_from_support_of L (Z0 s).
 
 Definition normalize_state_code_of (L : MachineLimits) (s : nat) : nat :=
@@ -996,12 +1116,24 @@ Definition valid_state_code_of (L : MachineLimits) (s : nat) : Prop :=
     state_well_formed_of L st /\
     s = encode_state_of L st.
 
+(*
+│
+│          From this point onward we replay the concrete codec
+│          argument uniformly over an arbitrary package `L :
+│          MachineLimits`. The proof shape is intentionally parallel
+│          to the fixed case: first we establish support validity,
+│          then exact splitting, then component roundtrips, then
+│          boundedness of total decoding, and finally fixed-point
+│          characterization and injectivity.
+│
+*)
+
 Lemma state_well_formed_build_of :
   forall L ip r1 r2,
     ip < ip_limit_of L ->
     r1 < r1_limit_of L ->
     r2 < r2_limit_of L ->
-    state_well_formed_of L (Build_FMState ip r1 r2).
+    state_well_formed_of L (Build_IterantState ip r1 r2).
 Proof.
   intros L ip r1 r2 Hip Hr1 Hr2.
   split.
@@ -1097,6 +1229,18 @@ Qed.
 
 (*
 │
+│          Just as in the fixed layout, the parametric support proof
+│          is governed entirely by the three separation inequalities
+│          carried by `L`. Once those inequalities are available, the
+│          concatenated support is again a valid global Zeckendorf
+│          support.
+│
+*)
+
+(*     state_well_formed_of(L, st) ⇒ zeck_valid(state_support_of(L, st)).     *)
+
+(*
+│
 │          `encode_state_support_of` and
 │          `encode_state_as_components_of` lift the concrete codec
 │          bridge to an arbitrary limit package. These are the key
@@ -1136,9 +1280,26 @@ Proof.
   reflexivity.
 Qed.
 
+(*
+│
+│          The parametric split lemmas say exactly the same thing as
+│          their fixed counterparts: each band predicate deletes the
+│          two foreign bands and preserves its own band verbatim.
+│          These are the operational decoding lemmas for arbitrary
+│          machine layouts.
+│
+*)
+
+(*    filter(ip_pred_of(L), Z0(encode_state_of(L, st))) = ip_support_of(L,    *)
+(*                               state_ip(st))                                *)
+(*    filter(r1_pred_of(L), Z0(encode_state_of(L, st))) = r1_support_of(L,    *)
+(*                               state_r1(st))                                *)
+(*    filter(r2_pred_of(L), Z0(encode_state_of(L, st))) = r2_support_of(L,    *)
+(*                               state_r2(st)).                               *)
+
 Lemma filter_state_support_of :
   forall L (p : nat -> bool) ip r1 r2,
-    filter p (state_support_of L (Build_FMState ip r1 r2)) =
+    filter p (state_support_of L (Build_IterantState ip r1 r2)) =
     ((filter p (r2_support_of L r2) ++ filter p (r1_support_of L r1)) ++
      filter p (ip_support_of L ip)).
 Proof.
@@ -1226,6 +1387,22 @@ Proof.
         reflexivity.
 Qed.
 
+(*
+│
+│          Accordingly, each parametric component decoder roundtrips
+│          on encoded well-formed states by exactly the same two-step
+│          argument: isolate the intended support and cancel the
+│          offset translation.
+│
+*)
+
+(*  state_well_formed_of(L, st) ⇒ decode_ip_of(L, encode_state_of(L, st)) =   *)
+(*                                state_ip(st)                                *)
+(*  state_well_formed_of(L, st) ⇒ decode_r1_of(L, encode_state_of(L, st)) =   *)
+(*                                state_r1(st)                                *)
+(*  state_well_formed_of(L, st) ⇒ decode_r2_of(L, encode_state_of(L, st)) =   *)
+(*                               state_r2(st).                                *)
+
 Lemma decode_ip_encode_state_of :
   forall L st,
     state_well_formed_of L st ->
@@ -1287,14 +1464,14 @@ Theorem decode_state_encode_state_of :
 Proof.
   intros L [ip r1 r2] Hwf.
   change
-    (Build_FMState
-       (decode_ip_of L (encode_state_of L (Build_FMState ip r1 r2)))
-       (decode_r1_of L (encode_state_of L (Build_FMState ip r1 r2)))
-       (decode_r2_of L (encode_state_of L (Build_FMState ip r1 r2))) =
-     Build_FMState ip r1 r2).
-  rewrite (decode_ip_encode_state_of L (Build_FMState ip r1 r2) Hwf).
-  rewrite (decode_r1_encode_state_of L (Build_FMState ip r1 r2) Hwf).
-  rewrite (decode_r2_encode_state_of L (Build_FMState ip r1 r2) Hwf).
+    (Build_IterantState
+       (decode_ip_of L (encode_state_of L (Build_IterantState ip r1 r2)))
+       (decode_r1_of L (encode_state_of L (Build_IterantState ip r1 r2)))
+       (decode_r2_of L (encode_state_of L (Build_IterantState ip r1 r2))) =
+     Build_IterantState ip r1 r2).
+  rewrite (decode_ip_encode_state_of L (Build_IterantState ip r1 r2) Hwf).
+  rewrite (decode_r1_encode_state_of L (Build_IterantState ip r1 r2) Hwf).
+  rewrite (decode_r2_encode_state_of L (Build_IterantState ip r1 r2) Hwf).
   reflexivity.
 Qed.
 
@@ -1358,6 +1535,21 @@ Proof.
     exact HKr2.
 Qed.
 
+(*
+│
+│          The parameterized decoder needs explicit hypotheses `2 <=
+│          ml_K_* L` because the abstract family does not hard-wire
+│          the concrete widths. Under those mild lower bounds, every
+│          decoded component lies strictly below its corresponding
+│          Fibonacci limit, so the total decoder again lands in the
+│          bounded state space.
+│
+*)
+
+(*            2 ≤ ml_K_IP(L) ⇒ decode_ip_of(L, s) < ip_limit_of(L)            *)
+(*            2 ≤ ml_K_R1(L) ⇒ decode_r1_of(L, s) < r1_limit_of(L)            *)
+(*           2 ≤ ml_K_R2(L) ⇒ decode_r2_of(L, s) < r2_limit_of(L).            *)
+
 Lemma valid_state_code_encode_of :
   forall L st,
     state_well_formed_of L st ->
@@ -1400,6 +1592,20 @@ Proof.
     + symmetry.
       exact Hfixed.
 Qed.
+
+(*
+│
+│          Finally, the fixed-point and injectivity story is unchanged
+│          in the abstract family. Valid codes are exactly the
+│          decoder-encoder fixed points, and equality of encoded
+│          well-formed states is reflected back to equality of states
+│          by parametric roundtrip.
+│
+*)
+
+(*       valid_state_code_of(L, s) ⇔ normalize_state_code_of(L, s) = s        *)
+(* encode_state_of(L, st₁) = encode_state_of(L, st₂) ⇒ st₁ = st₂ for bounded  *)
+(*                                 st₁, st₂.                                  *)
 
 Theorem encode_state_injective_of :
   forall L st1 st2,

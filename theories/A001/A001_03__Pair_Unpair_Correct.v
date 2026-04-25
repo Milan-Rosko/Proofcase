@@ -14,13 +14,14 @@
 
   OVERVIEW
 
-  The present construction unifies the forward and inverse directions of the
-  concrete “Carryless Pairing” device. It defines the specialized encoder and
-  decoder over the distinguished Fibonacci base and proves the core
-  correctness facts: roundtrip and injectivity.
+  The forward and inverse directions of the concrete carryless pairing. This
+  file defines `encode` and `decode` over the distinguished Fibonacci base
+  and proves the two correctness theorems: roundtrip (`decode_encode`) and
+  injectivity (`encode_injective`).
 
 *)
 
+From A001 Require Export A001_00_Premises.
 From A001 Require Export A001_02__Base_Fibonacci.
 
 (*                       boundary(x) = B(x) = 2·r0(x).                        *)
@@ -56,9 +57,8 @@ Qed.
 
 (*
 │
-│          We may therefore regard the concrete encoder simply as the
-│          abstract pairing construction specialized to the
-│          distinguished Fibonacci parameter package.
+│          `encode` is the abstract `pair` specialized to
+│          `base_params`.
 │
 *)
 
@@ -73,10 +73,9 @@ Qed.
 
 (*
 │
-│          We thus identify the canonical Zeckendorf support of an
-│          encoded pair exactly: the odd band carries the right
-│          component above the boundary, while the even band carries
-│          the left component below it.
+│          The canonical Zeckendorf support of an encoded pair: the
+│          odd band carries the right component above the boundary,
+│          the even band carries the left component below it.
 │
 *)
 
@@ -91,9 +90,8 @@ Qed.
 
 (*
 │
-│          We recover the left support directly by filtering the
-│          canonical support of the code for even indices; no further
-│          structural analysis is required.
+│          The left support is recovered by filtering the canonical
+│          support of the code for even indices.
 │
 *)
 
@@ -108,9 +106,9 @@ Qed.
 
 (*
 │
-│          We recover the right support by selecting exactly those odd
-│          indices that lie beyond the boundary determined by the left
-│          coordinate.
+│          The right support is recovered by selecting exactly those
+│          odd indices that lie beyond the boundary determined by the
+│          left coordinate.
 │
 *)
 
@@ -173,10 +171,8 @@ Qed.
 
 (*
 │
-│          We identify the normalization of the even band with the
-│          inverse of the doubling map, so the even support of the
-│          encoded left coordinate collapses back to its original
-│          Zeckendorf support.
+│          Halving the even band inverts the doubling map and recovers
+│          the original Zeckendorf support of the left coordinate.
 │
 *)
 
@@ -208,10 +204,9 @@ Qed.
 
 (*
 │
-│          We thus recover the original support of the right input
-│          indexwise: applying the odd-band decoder to each odd-band
-│          index exactly undoes the affine reindexing used by the
-│          encoder.
+│          Applying the odd-band decoder to each odd-band index undoes
+│          the affine reindexing of the encoder, recovering the
+│          original Zeckendorf support of the right input.
 │
 *)
 
@@ -268,9 +263,8 @@ Qed.
 
 (*
 │
-│          We have therefore proved the concrete roundtrip law: once a
-│          pair is encoded into the Fibonacci support, the decoder
-│          recovers both coordinates without loss or ambiguity.
+│          The concrete roundtrip law: `decode` recovers both
+│          coordinates of any pair encoded by `encode`.
 │
 *)
 
@@ -297,9 +291,9 @@ Qed.
 
 (*
 │
-│          We obtain injectivity immediately from the roundtrip
-│          theorem: equality of codes forces equality of their decoded
-│          coordinates, and hence of the original pairs.
+│          Injectivity follows from the roundtrip theorem: equality of
+│          codes forces equality of their decoded coordinates, and
+│          hence equality of the original pairs.
 │
 *)
 
@@ -317,8 +311,8 @@ Qed.
 
 (*
 │
-│          The first projection of the roundtrip law exposes the
-│          left-coordinate recovery as a standalone endpoint property.
+│          First projection of the roundtrip law: left-coordinate
+│          recovery as a standalone statement.
 │
 *)
 
@@ -332,8 +326,8 @@ Qed.
 
 (*
 │
-│          The second projection of the roundtrip law isolates the
-│          exact recovery guarantee for the right coordinate.
+│          Second projection of the roundtrip law: right-coordinate
+│          recovery as a standalone statement.
 │
 *)
 

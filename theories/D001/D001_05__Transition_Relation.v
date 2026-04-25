@@ -14,7 +14,7 @@
 
   OVERVIEW
 
-  This file defines the one-step execution kernel of the Fibonacci Machine.
+  This file defines the one-step execution kernel of the Iterant Machine.
   Externally, a machine state is represented by a single natural number `s`,
   and `NextState` is obtained by decoding `s`, executing one Minsky step, and
   re-encoding the result.
@@ -23,10 +23,10 @@
 
 From D001 Require Export D001_04__Machine_Definition.
 
-Definition fetch_instruction (prog : program) (st : FMState) : option instruction :=
+Definition fetch_instruction (prog : program) (st : IterantState) : option instruction :=
   nth_error prog (state_ip st).
 
-Definition halted_state (st : FMState) : Prop :=
+Definition halted_state (st : IterantState) : Prop :=
   state_ip st = 0.
 
 (*
@@ -37,7 +37,7 @@ Definition halted_state (st : FMState) : Prop :=
 │
 *)
 
-Definition step_state (prog : program) (st : FMState) : FMState :=
+Definition step_state (prog : program) (st : IterantState) : IterantState :=
   match state_ip st with
   | 0 => st
   | _ =>
@@ -55,7 +55,7 @@ Definition step_state (prog : program) (st : FMState) : FMState :=
 
 (*      step_state_relation(prog, st, st') ⇔ st' = step_state(prog, st).      *)
 
-Definition step_state_relation (prog : program) (st st' : FMState) : Prop :=
+Definition step_state_relation (prog : program) (st st' : IterantState) : Prop :=
   st' = step_state prog st.
 
 (*

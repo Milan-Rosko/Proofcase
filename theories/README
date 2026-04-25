@@ -1,0 +1,45 @@
+(* README *)
+
+1 - Overview
+    --------
+
+    This directory contains the formal theory packages of Proofcase Export.
+
+    Package prefixes indicate the role of a development:
+
+      A##  Algorithms and effective methods.
+      D##  Formalizations.
+      P##  Proof packages establishing named mathematical statements.
+
+
+2 - Index
+    -----
+
+    A001
+
+      CARRYLESS PAIRING
+
+      Certified pairing and unpairing of natural numbers using the Fibonacci
+      base.
+
+    D001
+
+      VECTOR ITERANT
+
+      A two-counter machine encoded into one natural number, with structured,
+      encoded, and classical execution views.
+
+    P001
+
+      PIGEONHOLE DIVISIBILITY
+
+      A formal proof that among any `n + 1` distinct positive integers chosen
+      from `1` through `2n`, two are related by divisibility.
+
+    P002
+
+      CUBIC-FAMILY Σ₁ COMPLETENESS
+
+      A Diophantine representation theorem for finite families of cubic
+      equations over the natural numbers, using the carryless arithmetization
+      supplied by A001 and D001.

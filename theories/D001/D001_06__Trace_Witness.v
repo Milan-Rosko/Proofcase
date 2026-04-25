@@ -95,10 +95,10 @@ Qed.
 │
 *)
 
-Definition trace_code_list (tr : list FMState) : list nat :=
+Definition trace_code_list (tr : list IterantState) : list nat :=
   map encode_state tr.
 
-Definition encode_trace (tr : list FMState) : nat :=
+Definition encode_trace (tr : list IterantState) : nat :=
   encode_nat_list (trace_code_list tr).
 
 Fixpoint code_run_last (next : nat -> nat) (fuel start : nat) : nat :=
@@ -143,7 +143,7 @@ Proof.
   reflexivity.
 Qed.
 
-Fixpoint valid_trace_states (prog : program) (tr : list FMState) : Prop :=
+Fixpoint valid_trace_states (prog : program) (tr : list IterantState) : Prop :=
   match tr with
   | [] => False
   | st1 :: rest =>
@@ -155,7 +155,7 @@ Fixpoint valid_trace_states (prog : program) (tr : list FMState) : Prop :=
       end
   end.
 
-Definition ValidTrace : program -> list FMState -> Prop :=
+Definition ValidTrace : program -> list IterantState -> Prop :=
   valid_trace_states.
 
 (*
@@ -184,7 +184,7 @@ Proof.
   reflexivity.
 Qed.
 
-Definition trace_starts_with (input : nat) (tr : list FMState) : Prop :=
+Definition trace_starts_with (input : nat) (tr : list IterantState) : Prop :=
   match tr with
   | [] => False
   | st0 :: _ => st0 = initial_state input

@@ -22,7 +22,7 @@
 
 *)
 
-From D001 Require Export D001_09__Classic_Universality.
+From D001 Require Export D001_98_API.
 
 (*
 │
@@ -62,15 +62,15 @@ Proof.
 Qed.
 
 Example subtraction_step_halt_3 :
-  step_state subtraction_program (Build_FMState 1 3 0) =
-  Build_FMState 0 3 0.
+  step_state subtraction_program (Build_IterantState 1 3 0) =
+  Build_IterantState 0 3 0.
 Proof.
   exact (subtraction_halt_step 3).
 Qed.
 
 Example subtraction_run_3_2 :
   run_steps subtraction_program 5 (initial_state2 3 2) =
-  Build_FMState 0 1 0.
+  Build_IterantState 0 1 0.
 Proof.
   replace 5 with (S (2 * 2)) by lia.
   apply subtraction_program_halts.

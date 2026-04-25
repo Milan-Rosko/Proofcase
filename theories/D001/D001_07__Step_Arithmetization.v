@@ -14,12 +14,13 @@
 
   OVERVIEW
 
-  This file isolates the boolean observation predicates and additive delta
-  formulas that describe a single encoded FM step.
+  In this file we isolate the boolean observation predicates and additive
+  delta formulas that describe a single encoded Iterant step.
 
-  Its main result is an additive step law: at the integer level, the
-  successor code is the source code plus the instruction-pointer contribution
-  and the combined register contribution.
+  We separate one machine step into two layers. First we define boolean
+  observations on decoded source and target states. Then we package the
+  change of the encoded natural number as an additive sum of one
+  instruction-pointer contribution and two register-band contributions.
 
 *)
 
@@ -33,19 +34,23 @@ From D001 Require Export D001_06__Trace_Witness.
 │
 *)
 
-Definition source_state (s : nat) : FMState := decode_state s.
+Definition source_state (s : nat) : IterantState := decode_state s.
 
-Definition target_state (t : nat) : FMState := decode_state t.
+Definition target_state (t : nat) : IterantState := decode_state t.
 
 (*
 │
 │          The boolean atoms in this file are observation predicates
 │          on decoded states. They separate control-flow tests from
 │          additive delta formulas, so later encodings can refer to
-│          one FM step without reopening the operational semantics
-│          each time.
+│          one Iterant step without reopening the operational
+│          semantics each time.
 │
 *)
+
+(*            ip_eqb(q, s) = true ⇔ state_ip(decode_state(s)) = q             *)
+(*     counter_zero_b(c, s) = true ⇔ read_counter(c, decode_state(s)) = 0     *)
+(*          target_ipb(q, t) = true ⇔ state_ip(decode_state(t)) = q.          *)
 
 Definition ip_eqb (q : nat) (s : nat) : bool :=
   Nat.eqb (state_ip (source_state s)) q.
@@ -98,12 +103,25 @@ Definition r1_delta (v v' : nat) : BinNums.Z :=
 Definition r2_delta (v v' : nat) : BinNums.Z :=
   (Z.of_nat (r2_code v') - Z.of_nat (r2_code v))%Z.
 
-Definition step_ip_delta (prog : program) (st : FMState) : BinNums.Z :=
+Definition step_ip_delta (prog : program) (st : IterantState) : BinNums.Z :=
   ip_delta (state_ip st) (state_ip (step_state prog st)).
 
-Definition step_register_delta (prog : program) (st : FMState) : BinNums.Z :=
+Definition step_register_delta (prog : program) (st : IterantState) : BinNums.Z :=
   (r1_delta (state_r1 st) (state_r1 (step_state prog st)) +
    r2_delta (state_r2 st) (state_r2 (step_state prog st)))%Z.
+
+(*
+│
+│          So `step_ip_delta` and `step_register_delta` are not new
+│          semantic operations; they are merely bookkeeping wrappers
+│          around the concrete predecessor state `st` and its
+│          successor `step_state prog st`.
+│
+*)
+
+(*    step_ip_delta(prog, st) = ip_delta(IP(st), IP(step_state(prog, st)))    *)
+(*step_register_delta(prog, st) = r1_delta(R1(st), R1(step_state(prog, st))) +*)
+(*                r2_delta(R2(st), R2(step_state(prog, st))).                 *)
 
 Lemma source_state_eq :
   forall s, source_state s = decode_state s.
@@ -136,6 +154,21 @@ Proof.
   intros prog st.
   split; reflexivity.
 Qed.
+
+(*
+│
+│          The next correctness lemmas convert each executable
+│          observation atom into the exact propositional statement
+│          that it is intended to encode. From that point onward,
+│          later arithmetic encodings can switch between boolean
+│          guards and logical equalities without ambiguity.
+│
+*)
+
+(*               counter_succ_b(c, s, t) = true ⇔ C_t = S(C_s)                *)
+(*               counter_pred_b(c, s, t) = true ⇔ C_s = S(C_t)                *)
+(*   frozen_other_counter_b(c, s, t) = true ⇔ the untouched counter agrees    *)
+(*                         between source and target.                         *)
 
 Lemma ip_eqb_correct :
   forall q s,
@@ -208,6 +241,20 @@ Proof.
   destruct c; unfold frozen_other_counter_b; cbn; rewrite Nat.eqb_eq; tauto.
 Qed.
 
+(*
+│
+│          At this point we leave the boolean layer and pass to pure
+│          arithmetic. The lemma `encode_state_additive` is completely
+│          semantic-free: it simply states that replacing the three
+│          band payloads of one state by those of another changes the
+│          encoded natural number by the sum of the three
+│          corresponding band deltas.
+│
+*)
+
+(*  Z(encode_state(st′)) − Z(encode_state(st)) = ip_delta(IP(st), IP(st′)) +  *)
+(*           r1_delta(R1(st), R1(st′)) + r2_delta(R2(st), R2(st′)).           *)
+
 Lemma encode_state_additive :
   forall st st',
     Z.of_nat (encode_state st') =
@@ -221,6 +268,15 @@ Proof.
   unfold ip_delta, r1_delta, r2_delta.
   lia.
 Qed.
+
+(*
+│
+│          This lemma is the algebraic hinge of the file. Once we know
+│          from `D001_06` that `NextState` agrees with `step_state` on
+│          encoded well-formed states, the additive theorem becomes a
+│          direct substitution instance of `encode_state_additive`.
+│
+*)
 
 (*
 │
@@ -249,6 +305,20 @@ Proof.
   rewrite encode_state_additive with (st:=st) (st':=step_state prog st).
   lia.
 Qed.
+
+(*
+│
+│          The halting specialization is the first concrete payoff of
+│          the additive law. On `HALT`, both register payloads are
+│          frozen, so the entire register contribution collapses to
+│          zero and only the instruction-pointer reset remains
+│          visible.
+│
+*)
+
+(*fetch_instruction(prog, st) = Some HALT ⇒ step_register_delta(prog, st) = 0 *)
+(*        Z(NextState(prog, encode_state(st))) = Z(encode_state(st)) +        *)
+(*                            ip_delta(IP(st), 0).                            *)
 
 (*
 │

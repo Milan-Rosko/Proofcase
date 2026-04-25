@@ -14,11 +14,13 @@
 
   OVERVIEW
 
-  This file fixes the concrete carryless band layout of the Vector Iterant.
+  In this file we fix the concrete carryless band layout of the Iterant
+  Machine.
 
-  Starting from the Zeckendorf substrate imported from `A001`, it places
+  Starting from the Zeckendorf substrate imported from `A001`, we place
   canonical supports into three disjoint windows for `IP`, `R1`, and `R2`,
-  and proves the basic separation facts needed by the machine layer.
+  and we prove the separation facts that the later state-codec and machine
+  layers reuse verbatim.
 
 *)
 
@@ -66,6 +68,9 @@ Record MachineLimits : Type := Build_MachineLimits
 
 Definition fixed_limits : MachineLimits.
 Proof.
+  (* Keep this transparent: downstream fixed-instance lemmas project fields
+     from `fixed_limits` directly. Sealing it would force extra transport
+     lemmas just to recover the concrete fixed parameters. *)
   refine
     (Build_MachineLimits
        K_IP K_R1 K_R2
@@ -87,6 +92,18 @@ Defined.
 
 (*
 │
+│          With `fixed_limits` we commit to one concrete three-band
+│          geometry. We keep the generic `MachineLimits` record
+│          because later files quantify over arbitrary packages, but
+│          here we still want one named package from which the fixed
+│          machine constants are specialized.
+│
+*)
+
+(*                IP = [2, 13), R1 = [14, 65), R2 = [66, 129).                *)
+
+(*
+│
 │          The three limits are the payload capacities of the fixed
 │          `IP`, `R1`, and `R2` windows. Each is expressed as a
 │          Fibonacci cutoff so that all later band arguments remain
@@ -100,10 +117,10 @@ Definition ip_limit : nat := fib K_IP.
 Definition r1_limit : nat := fib K_R1.
 Definition r2_limit : nat := fib K_R2.
 
-(* Keep the large Fibonacci engine abstract inside this file.
+(* Keep the large Fibonacci engine abstract inside this file only.
    Otherwise tactics such as lia may reify closed terms like fib 53/fib 65
    into enormous Peano numerals during preprocessing. *)
-Opaque fib r0 Z0.
+Local Opaque fib r0 Z0.
 
 (*
 │
@@ -135,6 +152,19 @@ Definition band_pred (offset K k : nat) : bool :=
 Definition band_indices (offset K : nat) (zn : list nat) : list nat :=
   map (fun k => k - offset) (filter (band_pred offset K) zn).
 
+(*
+│
+│          We now freeze the concrete specializations of the generic
+│          translation primitives. The names `ip_support`,
+│          `r1_support`, `r2_support` and their code/predicate
+│          companions are the fixed-layout interface that the later
+│          state codec reads.
+│
+*)
+
+(*        ip_support(x) = band_support(IP_offset, x), r1_support(x) =         *)
+(*  band_support(R1_offset, x), r2_support(x) = band_support(R2_offset, x).   *)
+
 Definition ip_support : nat -> list nat := band_support IP_offset.
 Definition r1_support : nat -> list nat := band_support R1_offset.
 Definition r2_support : nat -> list nat := band_support R2_offset.
@@ -146,6 +176,22 @@ Definition r2_code : nat -> nat := band_code R2_offset.
 Definition ip_pred (k : nat) : bool := band_pred IP_offset K_IP k.
 Definition r1_pred (k : nat) : bool := band_pred R1_offset K_R1 k.
 Definition r2_pred (k : nat) : bool := band_pred R2_offset K_R2 k.
+
+(*
+│
+│          Before we reason about concrete windows, we isolate the
+│          generic arithmetic facts that translation by a constant
+│          offset preserves. The lemma `r0_le_of_lt_fib` turns an
+│          external Fibonacci bound `x < fib(K)` into a bound on the
+│          support-width parameter `r0(x)`, while the three map lemmas
+│          show that offset translation preserves the Zeckendorf
+│          admissibility data componentwise.
+│
+*)
+
+(*                           x < fib(K) ⇒ r0(x) ≤ K                           *)
+(*   strictly_decreasing(xs) ⇒ strictly_decreasing(map(i ↦ offset + i, xs))   *)
+(*          no_adjacent(xs) ⇒ no_adjacent(map(i ↦ offset + i, xs)).           *)
 
 Lemma r0_le_of_lt_fib :
   forall x K,
@@ -219,6 +265,8 @@ Qed.
 │
 *)
 
+(*          zeck_valid(Z0(x)) ⇒ zeck_valid(band_support(offset, x)).          *)
+
 Lemma band_support_valid :
   forall offset x,
     zeck_valid (band_support offset x).
@@ -281,6 +329,19 @@ Proof.
   exact (proj1 (band_support_window offset K x i Hx Hin)).
 Qed.
 
+(*
+│
+│          We now split the two-sided window-containment statement
+│          into the one-sided projections that later proofs actually
+│          consume. Lower-bound arguments appeal only to
+│          `band_support_lower_bound`, upper-bound arguments only to
+│          `band_support_upper_bound`.
+│
+*)
+
+(*         x < fib(K) ∧ i ∈ band_support(offset, x) ⇒ offset + 2 ≤ i          *)
+(*         x < fib(K) ∧ i ∈ band_support(offset, x) ⇒ i < offset + K.         *)
+
 Lemma band_support_upper_bound :
   forall offset K x i,
     x < fib K ->
@@ -290,6 +351,17 @@ Proof.
   intros offset K x i Hx Hin.
   exact (proj2 (band_support_window offset K x i Hx Hin)).
 Qed.
+
+(*
+│
+│          With the geometric window bounds in hand, we can now pass
+│          from support membership to executable recognition. Any
+│          index that genuinely comes from the translated support must
+│          make the boolean band test succeed.
+│
+*)
+
+(*       i ∈ band_support(offset, x) ⇒ band_pred(offset, K, i) = true.        *)
 
 Lemma band_pred_true_on_support :
   forall offset K x i,
@@ -307,6 +379,15 @@ Proof.
   - apply Nat.ltb_lt.
     exact Hhigh.
 Qed.
+
+(*
+│
+│          Recognition is only half of the later decoding story. We
+│          also need the complementary fact that once an index falls
+│          outside the window, the same boolean test fails for the
+│          corresponding geometric reason.
+│
+*)
 
 Lemma band_pred_false_of_low :
   forall offset K k,
@@ -331,6 +412,20 @@ Proof.
   apply Nat.ltb_ge.
   exact Hge.
 Qed.
+
+(*
+│
+│          The next two exclusion lemmas isolate the two ways in which
+│          a band test can fail. Either an index sits strictly below
+│          the left edge of the window, or it sits at or beyond the
+│          right edge. The support-exclusion lemmas below simply
+│          combine these local failure modes with the window bounds
+│          already established for translated supports.
+│
+*)
+
+(*              k < offset + 2 ⇒ band_pred(offset, K, k) = false              *)
+(*             offset + K ≤ k ⇒ band_pred(offset, K, k) = false.              *)
 
 Lemma band_pred_false_on_support_above :
   forall offset K offset' K' x i,
@@ -382,6 +477,32 @@ Proof.
   lia.
 Qed.
 
+(*
+│
+│          So translation by a fixed offset is not merely injective on
+│          support indices; it is literally reversible by subtraction.
+│          We use this exact recovery fact later when we decode a
+│          global state code back into local `IP`, `R1`, and `R2`
+│          payloads.
+│
+*)
+
+(*           map(k ↦ k − offset, band_support(offset, x)) = Z0(x).            *)
+
+(*
+│
+│          We now specialize the generic window lemmas to the concrete
+│          `IP`, `R1`, and `R2` bands. First we show that each
+│          predicate recognizes its own support on valid payloads;
+│          then we show that the foreign predicates are automatically
+│          false on that same support.
+│
+*)
+
+(*           ip < ip_limit ∧ i ∈ ip_support(ip) ⇒ ip_pred(i) = true           *)
+(*           r1 < r1_limit ∧ i ∈ r1_support(r1) ⇒ r1_pred(i) = true           *)
+(*          r2 < r2_limit ∧ i ∈ r2_support(r2) ⇒ r2_pred(i) = true.           *)
+
 Lemma ip_pred_true_on_ip_support :
   forall ip i,
     ip < ip_limit ->
@@ -414,6 +535,19 @@ Proof.
   unfold r2_pred, r2_support, r2_limit in *.
   exact (band_pred_true_on_support R2_offset K_R2 r2 i Hr2 Hin).
 Qed.
+
+(*
+│
+│          We now switch from recognition to exclusion in the concrete
+│          layout. Because the three windows are disjoint and ordered,
+│          an index recognized by one band is automatically rejected
+│          by the other two predicates.
+│
+*)
+
+(*          i ∈ ip_support ⇒ r1_pred(i) = false ∧ r2_pred(i) = false          *)
+(*          i ∈ r1_support ⇒ ip_pred(i) = false ∧ r2_pred(i) = false          *)
+(*         i ∈ r2_support ⇒ ip_pred(i) = false ∧ r1_pred(i) = false.          *)
 
 Lemma ip_pred_false_on_r1_support :
   forall r1 i,
@@ -505,6 +639,18 @@ Proof.
     lia.
 Qed.
 
+(*
+│
+│          Once predicate-level exclusion is settled, we can return to
+│          the underlying occupied indices themselves. The next pair
+│          of lemmas forget booleans entirely and express the same
+│          separation directly as strict order and a two-step gap.
+│
+*)
+
+(*                      separated windows ⇒ i_hi > i_lo                       *)
+(*          separated windows with one-step slack ⇒ i_hi ≥ i_lo + 2.          *)
+
 Lemma band_support_gt_of_separated_windows :
   forall offset_hi K_hi x i_hi offset_lo K_lo y i_lo,
     x < fib K_hi ->
@@ -534,6 +680,32 @@ Proof.
   pose proof (band_support_upper_bound offset_lo K_lo y i_lo Hy Hlo) as Hhigh_lo.
   lia.
 Qed.
+
+(*
+│
+│          Once we have fixed the relative position of two bands
+│          arithmetically, we upgrade that information to pointwise
+│          index separation. The two generic separation lemmas above
+│          are the abstract geometric engine behind all later
+│          isolation theorems for the fixed and parametric layouts.
+│
+*)
+
+(*               offset_lo + K_lo ≤ offset_hi + 2 ⇒ i_hi > i_lo               *)
+(*            offset_lo + K_lo ≤ offset_hi + 1 ⇒ i_hi ≥ i_lo + 2.             *)
+
+(*
+│
+│          We now instantiate that abstract separation engine for the
+│          three concrete windows of the fixed machine. This is the
+│          direct geometric content of the layout: `R1` sits above
+│          `IP`, `R2` sits above `R1`, and `R2` also sits above `IP`.
+│
+*)
+
+(*          i₁ ∈ r1_support(r1) ∧ i₀ ∈ ip_support(ip) ⇒ i₁ ≥ i₀ + 2           *)
+(*          i₂ ∈ r2_support(r2) ∧ i₁ ∈ r1_support(r1) ⇒ i₂ ≥ i₁ + 2           *)
+(*          i₂ ∈ r2_support(r2) ∧ i₀ ∈ ip_support(ip) ⇒ i₂ ≥ i₀ + 2.          *)
 
 Lemma r1_support_gt_ip_support :
   forall r1 ip i1 i0,
@@ -669,11 +841,12 @@ Qed.
 
 (*
 │
-│          The `_of` family is the generic carryless-band API
-│          parameterized by a `MachineLimits` package. The concrete
-│          constants remain available, but these definitions provide
-│          the abstraction boundary used later by the
-│          `Classic_Universality` layer.
+│          We now replay the same carryless-band story parametrically
+│          over an abstract `MachineLimits` package. The concrete
+│          constants remain available, but the `_of` definitions
+│          provide the abstraction boundary used later by the
+│          universality layers, where the exact offsets and widths are
+│          no longer fixed once and for all.
 │
 *)
 
@@ -714,6 +887,32 @@ Definition r1_pred_of (L : MachineLimits) (k : nat) : bool :=
 Definition r2_pred_of (L : MachineLimits) (k : nat) : bool :=
   band_pred (ml_R2_offset L) (ml_K_R2 L) k.
 
+(*
+│
+│          So the parametric interface is deliberately literal: we
+│          keep the fixed vocabulary, but thread a limit package `L`
+│          through every support, code, and predicate. This lets later
+│          files reason abstractly without changing the shape of any
+│          statement.
+│
+*)
+
+(* ip_support, r1_support, r2_support ⇝ ip_support_of(L, ·), r1_support_of(L, *)
+(*                          ·), r2_support_of(L, ·).                          *)
+
+(*
+│
+│          We first rebuild the predicate-recognition and
+│          predicate-exclusion facts in the parametric setting. The
+│          proofs are intentionally parallel to the fixed ones: the
+│          only difference is that the separating arithmetic now comes
+│          from the record fields of `L`.
+│
+*)
+
+(*ip_pred_of(L, i) = true on ip_support_of(L, ip), ip_pred_of(L, i) = false on*)
+(*              the foreign supports, and similarly cyclically.               *)
+
 Lemma ip_pred_true_on_ip_support_of :
   forall L ip i,
     ip < ip_limit_of L ->
@@ -746,6 +945,27 @@ Proof.
   unfold r2_pred_of, r2_support_of, r2_limit_of in *.
   exact (band_pred_true_on_support (ml_R2_offset L) (ml_K_R2 L) r2 i Hr2 Hin).
 Qed.
+
+(*
+│
+│          This gives the positive half of the abstract decoder story:
+│          each `_of` predicate still recognizes precisely its own
+│          translated support.
+│
+*)
+
+(*
+│
+│          The same rhythm now repeats in the abstract family: first
+│          own-band recognition, then foreign-band exclusion. The only
+│          new ingredient is that the disjointness arithmetic is no
+│          longer hard-coded but supplied by the record fields of `L`.
+│
+*)
+
+(*             i ∈ ip_support_of(L, ·) ⇒ ip_pred_of(L, i) = true              *)
+(*             i ∈ r1_support_of(L, ·) ⇒ r1_pred_of(L, i) = true              *)
+(*             i ∈ r2_support_of(L, ·) ⇒ r2_pred_of(L, i) = true.             *)
 
 Lemma ip_pred_false_on_r1_support_of :
   forall L r1 i,
@@ -836,6 +1056,32 @@ Proof.
   - pose proof (ml_sep_r1_r2 L) as Hsep.
     lia.
 Qed.
+
+(*
+│
+│          At this point the three abstract predicates are separated
+│          exactly as in the fixed geometry. Any occupied index
+│          belongs to its own band view and is rejected by the two
+│          foreign views.
+│
+*)
+
+(*   own-band truth + foreign-band falsity = a three-way support partition    *)
+(*                               indexed by L.                                *)
+
+(*
+│
+│          We next specialize the abstract separation engine itself.
+│          The point is that a `MachineLimits` record does not merely
+│          store three capacities and three offsets; it also certifies
+│          the exact inequalities needed to infer strict order and a
+│          two-step gap between the corresponding supports.
+│
+*)
+
+(*    ml_sep_ip_r1(L) ⇒ r1_support_of(L, ·) lies above ip_support_of(L, ·)    *)
+(*    ml_sep_r1_r2(L) ⇒ r2_support_of(L, ·) lies above r1_support_of(L, ·)    *)
+(*   ml_sep_ip_r2(L) ⇒ r2_support_of(L, ·) lies above ip_support_of(L, ·).    *)
 
 Lemma r1_support_gt_ip_support_of :
   forall L r1 ip i1 i0,
@@ -947,6 +1193,39 @@ Proof.
   - exact H0.
   - exact (ml_sep_ip_r2 L).
 Qed.
+
+(*
+│
+│          We then lift the geometric separation lemmas themselves to
+│          the abstract family. At this stage the concrete offsets
+│          disappear completely; only the three record inequalities
+│          `ml_sep_ip_r1`, `ml_sep_r1_r2`, and `ml_sep_ip_r2` remain.
+│
+*)
+
+(*  ml_sep_ip_r1(L), ml_sep_r1_r2(L), ml_sep_ip_r2(L) ⇒ the same support-gap  *)
+(*                    conclusions as in the fixed layout.                     *)
+
+(*
+│
+│          We close the parametric block by exporting the same summary
+│          isolation theorem as before, now stated uniformly for
+│          arbitrary `MachineLimits`. This is usually the form that
+│          later files cite.
+│
+*)
+
+(*
+│
+│          `IP_R1_Isolation_of` is the generic form of the first fixed
+│          isolation theorem. We expose it separately because later
+│          family-level statements quantify over arbitrary
+│          `MachineLimits`, not just the built-in concrete package.
+│
+*)
+
+(*ip < ip_limit_of(L) ∧ r1 < r1_limit_of(L) ∧ i₁ ∈ r1_support_of(L, r1) ∧ i₀ ∈*)
+(*                    ip_support_of(L, ip) ⇒ i₁ ≥ i₀ + 2.                     *)
 
 Theorem IP_R1_Isolation_of :
   forall L ip r1 i1 i0,

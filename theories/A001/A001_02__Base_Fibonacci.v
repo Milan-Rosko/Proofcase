@@ -14,16 +14,22 @@
 
   OVERVIEW
 
-  The present construction constitutes full arithmetic base of A001. It
-  contains the Fibonacci arithmetic, the concrete Zeckendorf support engine,
-  and the structural lemmas later used by the pairing and unpairing layers.
+  The arithmetic base of A001: Fibonacci arithmetic on `nat`, the concrete
+  Zeckendorf support engine (`Z0`, `r0`), and the structural lemmas (band
+  validity, support uniqueness, pair/unpair compatibility) used by the
+  pairing and unpairing layers.
 
 *)
 
-From Stdlib Require Export Arith PeanoNat Bool Lia List Ring ZArith Extraction.
 From A001 Require Import A001_01__Binary_Engine.
-Export ListNotations.
-Global Open Scope list_scope.
+
+(*
+│
+│          `fib_pair` carries the pair `(F(n), F(n+1))`, so the
+│          successor case extends by one Fibonacci step instead of
+│          revisiting earlier values; `fib` is its first projection.
+│
+*)
 
 Fixpoint fib_pair (n : nat) : nat * nat :=
   match n with
@@ -51,6 +57,14 @@ Fixpoint sum_fib (xs : list nat) : nat :=
   | k :: xs' => fib k + sum_fib xs'
   end.
 
+(*
+│
+│          `two n = n + n` and `two_j_minus1 j = pred(2j)` are written
+│          additively so the odd-band reindexing `2j - 1` stays within
+│          `nat` for `j >= 1` without invoking saturating subtraction.
+│
+*)
+
 Definition two (n : nat) : nat := n + n.
 
 Definition two_j_minus1 (j : nat) : nat := Nat.pred (two j).
@@ -70,6 +84,15 @@ Fixpoint div2 (n : nat) : nat :=
   | 1 => 0
   | S (S k) => S (div2 k)
   end.
+
+(*
+│
+│          `Params` bundles a support extractor `Z` and a cutoff `r`.
+│          The pairing construction is parametric in these two
+│          operations; the concrete Zeckendorf instance uses `Z0` and
+│          `r0`.
+│
+*)
 
 Inductive Params : Type :=
 | Build_Params : (nat -> list nat) -> (nat -> nat) -> Params.
@@ -147,11 +170,10 @@ Definition y_indices (Bx : nat) (zn : list nat) : list nat :=
 
 (*
 │
-│          `unpair` is the abstract recovery map attached to a
-│          parameter package `P`. It reconstructs the left component
-│          from the even support and then reconstructs the right
-│          component from the odd support above the recovered
-│          boundary.
+│          `unpair` is the recovery map associated with parameters
+│          `P`. It reconstructs the left component from the even
+│          support and then reconstructs the right component from the
+│          odd support above the recovered boundary.
 │
 *)
 
@@ -161,6 +183,16 @@ Definition unpair (P : Params) (n : nat) : nat * nat :=
   let Bx := B P x in
   let y := sum_fib (y_indices Bx zn) in
   (x, y).
+
+(*
+│
+│          The three structural predicates `strictly_decreasing`,
+│          `no_adjacent`, and `all_ge_2` are the conjuncts of
+│          `zeck_valid` below; they encode descent, the gap-of-2
+│          spacing required by Zeckendorf, and the index lower bound
+│          that excludes `fib 0` and `fib 1`.
+│
+*)
 
 Fixpoint strictly_decreasing (xs : list nat) : Prop :=
   match xs with
@@ -202,6 +234,15 @@ Fixpoint all_ge_2 (xs : list nat) : Prop :=
 Definition zeck_valid (xs : list nat) : Prop :=
   strictly_decreasing xs /\ no_adjacent xs /\ all_ge_2 xs.
 
+(*
+│
+│          `find_r_aux` is the bounded upward search underlying `r0`:
+│          starting at index `k`, advance until `fib k` strictly
+│          exceeds `x`, with `fuel` capping the loop so the function
+│          is structurally recursive.
+│
+*)
+
 Fixpoint find_r_aux (x k fuel : nat) : nat :=
   match fuel with
   | 0 => k
@@ -222,6 +263,16 @@ Fixpoint find_r_aux (x k fuel : nat) : nat :=
 (*                      r0(x) = min{k ∈ ℕ ∣ x < fib(k)}                       *)
 
 Definition r0 (x : nat) : nat := find_r_aux x 0 (S (S x)).
+
+(*
+│
+│          `zeck_greedy_down` is the greedy Zeckendorf descent:
+│          starting at the cutoff `k`, take `fib k` whenever it fits
+│          in the remainder and the previous index was not taken (so
+│          adjacency is impossible), otherwise step down by one.
+│          Returns the support together with the residual remainder.
+│
+*)
 
 Fixpoint zeck_greedy_down (k rem : nat) (prev_taken : bool)
   : list nat * nat :=
@@ -245,8 +296,8 @@ Fixpoint zeck_greedy_down (k rem : nat) (prev_taken : bool)
 (*
 │
 │          `Z0` is the concrete greedy Zeckendorf support. It computes
-│          the canonical non-adjacent Fibonacci index set that later
-│          feeds the pairing and decoding layers.
+│          the canonical non-adjacent Fibonacci index set representing
+│          the input number.
 │
 *)
 
@@ -255,10 +306,9 @@ Definition Z0 (x : nat) : list nat :=
 
 (*
 │
-│          We now fix the distinguished parameter package by pairing
-│          the concrete greedy support extractor with its associated
-│          cutoff function; all subsequent concrete pairing statements
-│          specialize the abstract interface to this package.
+│          `base_params` instantiates the parametric pairing
+│          construction with the concrete support extractor `Z0` and
+│          cutoff `r0`.
 │
 *)
 
@@ -403,7 +453,7 @@ Qed.
 (*
 │
 │          `r0_upper` gives the upper half of the cutoff
-│          characterization: the search really stops above `n`.
+│          characterization: the search stops above `n`.
 │
 *)
 
@@ -431,16 +481,11 @@ Qed.
 
 (*
 │
-│          We obtain the lower half of the cutoff characterization as
-│          well: every Fibonacci index strictly below `r0(n)` still
-│          evaluates to a value at most `n`.
-│
-*)
-
-(*
-│
-│          r0(n) is the least Fibonacci index whose value lies
-│          strictly above n.
+│          The lower half of the cutoff characterization: every
+│          Fibonacci index strictly below `r0(n)` still evaluates to a
+│          value at most `n`. Together with `r0_upper`, this makes
+│          `r0(n)` the least Fibonacci index whose value lies strictly
+│          above `n`.
 │
 *)
 
@@ -492,11 +537,11 @@ Qed.
 
 (*
 │
-│          `greedy_inv` packages the greedy correctness invariant: xs
-│          encodes the extracted support, rem' is the leftover
-│          remainder, xs stays within the current bound, and the
-│          remainder remains below the next admissible Fibonacci
-│          threshold.
+│          `greedy_inv` states the greedy correctness invariant: `xs`
+│          plus the leftover `rem'` reconstructs `rem`, `xs` is a
+│          valid Zeckendorf support bounded by the current admissible
+│          index, the base case `k ≤ 1` forces `xs = []`, and the
+│          next-Fibonacci threshold is preserved across the step.
 │
 *)
 
@@ -524,9 +569,9 @@ Qed.
 (*
 │
 │          `zeck_greedy_down_correct_core` is the main recursive
-│          engine lemma. It shows that every branch of the greedy
+│          correctness lemma. It shows that every branch of the greedy
 │          descent produces a support/remainder pair satisfying the
-│          full invariant package `greedy_inv`.
+│          invariant `greedy_inv`.
 │
 *)
 
@@ -657,10 +702,9 @@ Qed.
 
 (*
 │
-│          `zeck_greedy_down_correct` is the public wrapper around the
-│          core recursion lemma. It exposes the invariant without
-│          committing downstream proofs to the internal case split on
-│          `k` and `prev`.
+│          `zeck_greedy_down_correct` presents the greedy descent
+│          correctness theorem in the direct form used to prove the
+│          Zeckendorf support results.
 │
 *)
 
@@ -709,8 +753,8 @@ Qed.
 (*
 │
 │          Whenever the greedy support begins with index `S(S(k))`,
-│          the realized Fibonacci sum of that prefix remains strictly
-│          below the next Fibonacci value.
+│          the Fibonacci sum of that prefix remains strictly below the
+│          next Fibonacci value.
 │
 *)
 
@@ -1046,9 +1090,9 @@ Qed.
 
 (*
 │
-│          We may therefore treat admissible Fibonacci supports as
-│          canonical objects: among valid supports, equality of the
-│          evaluated sums forces equality of the supports themselves.
+│          Admissible Fibonacci supports are canonical: among valid
+│          supports, equality of the evaluated sums forces equality of
+│          the supports.
 │
 *)
 

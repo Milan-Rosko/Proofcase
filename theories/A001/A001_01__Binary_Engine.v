@@ -7,36 +7,29 @@
 │                ││││╭╯                Licence. This file is distributed under │
 │                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
 │                                      visit https://www.mozilla.org/en-US/MPL │
-└──────────────────────────────────────────────────────────────────────────────┘
+└──────────────────────────────────────────────────────────────────────────────┘ 
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │                      Proofcase / A001_01__Binary_Engine                      │
 └──────────────────────────────────────────────────────────────────────────────┘
 
   OVERVIEW
 
-  The present construction introduces a computation-oriented binary engine
-  for the A001 carryless pairing substrate. It keeps the existing
-  proof-facing `nat` development untouched, but provides fast-doubling
-  Fibonacci arithmetic, a binary greedy Zeckendorf extractor, a clean
-  specification predicate, and `nat` bridge wrappers for future extraction
-  and migration work. At the zero boundary, we intentionally leave open how
-  the bridge should be identified with the `nat`-level cutoff / pairing
-  surface over `N+0`; the unary development remains the authoritative
-  proof-facing definition there.
+  A computation-oriented binary engine for the A001 carryless pairing
+  construction. It provides fast-doubling Fibonacci arithmetic, a binary
+  greedy Zeckendorf extractor, the `IsZeckendorf` specification predicate,
+  and `nat` wrappers for executable use. Agreement with the certified unary
+  encoder and decoder is established in `A001_04`.
 
 *)
 
-From Stdlib Require Export Arith PeanoNat Bool Lia List Ring ZArith Extraction.
-Export ListNotations.
-Global Open Scope list_scope.
+From A001 Require Export A001_00_Premises.
 Local Open Scope N_scope.
 
 (*
 │
 │          `fib_fast_pos` computes `(F(p), F(p+1))` by fast doubling
-│          over the binary shape of a positive index. The recursion
-│          depth is logarithmic in the index, unlike the original
-│          unary descent.
+│          over the binary shape of a positive index. Recursion depth
+│          is logarithmic in the index.
 │
 *)
 
@@ -100,10 +93,10 @@ Definition zeck_validN (xs : list N) : Prop :=
 
 (*
 │
-│          `IsZeckendorf` decouples the logical notion of a valid
-│          support from the concrete greedy extractor. Downstream
-│          proofs can reason by inversion on this predicate without
-│          unfolding the executable search engine.
+│          `IsZeckendorf` states the logical notion of a valid
+│          Zeckendorf support independently of the concrete greedy
+│          extractor. It records that the listed Fibonacci indices sum
+│          to the represented number.
 │
 *)
 
@@ -136,11 +129,9 @@ Qed.
 
 (*
 │
-│          `search_boundN` is a bit-length based computational bound
-│          for the binary search surface. It is deliberately small
-│          compared with the unary `x`-sized fuel used by the original
-│          engine, and can later be tightened by a proved upper-bound
-│          lemma without changing the executable interface.
+│          `search_boundN` is a bit-length-based fuel bound for the
+│          binary search loop used to locate a Fibonacci index below
+│          the input.
 │
 *)
 
@@ -211,12 +202,9 @@ Definition unpairN (n : N) : N * N :=
 
 (*
 │
-│          The following wrappers provide a `nat`-shaped computational
-│          bridge into the binary engine. They are intended for
-│          extraction and benchmarking, not as replacements for the
-│          existing proof-facing definitions; in particular, the
-│          identification of the bridge with the unary surface at the
-│          zero boundary is deliberately left open over `N+0`.
+│          The following wrappers expose the binary engine at the
+│          ordinary `nat` type. Agreement with the certified `encode`
+│          and `decode` functions is proved in `A001_04`.
 │
 *)
 

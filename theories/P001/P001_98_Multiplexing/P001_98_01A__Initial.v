@@ -1,4 +1,4 @@
-(*P001_00_Premises.v*)
+(*P001_98_01A__Initial.v*)
 
 (*
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -9,49 +9,27 @@
 │                                      visit https://www.mozilla.org/en-US/MPL │
 └──────────────────────────────────────────────────────────────────────────────┘
 ┌──────────────────────────────────────────────────────────────────────────────┐
-│                         Proofcase / P001_00_Premises                         │
+│                       Proofcase / P001_98_01A__Initial                       │
 └──────────────────────────────────────────────────────────────────────────────┘
 
   OVERVIEW
 
-  All downstream P001 files import this immutable file; the `Require Export`
-  block makes the standard library available transitively throughout the
-  package.
+  At the present “template” stage, we assume that we can prove our original
+  statement (`PROPOSITION`).
 
 *)
 
-From Stdlib Require Export Arith PeanoNat Bool Lia List.
-Export ListNotations.
-Global Open Scope list_scope.
+From P001 Require Export P001_00_Premises.
 
 (*
 │
-│          `PROPOSITIO` is our “quod esset” problem: “Show that among
-│          any `n + 1` distinct positive integers bounded by `2n`, two
-│          must be related by divisibility.” This anecdotal Erdős-Pósa
-│          is referenced by Aigner's “Proofs from THE BOOK”.
+│          We assume by conjecture: We can prove by
+│          `UNCONDITIONAL_PROOF` that “Among any collection of n+1
+│          pairwise distinct integers chosen from the integers 1
+│          through 2n, there must exist at least two distinct members
+│          of that collection such that one of them divides the other“
+│          follows from `WITNESS`.
 │
 *)
 
-(*                 ∀ n A. (∀ a ∈ A, 1 ≤ a ≤ 2n) → |A|= n + 1                  *)
-(*               → ∃ a b ∈ A such that a ≠ b ∧ (a | b ∨ b | a)                *)
-
-Definition PROPOSITIO : Prop :=
-  forall n A,
-    (forall a, In a A -> 1 <= a /\ a <= 2 * n) ->
-    NoDup A ->
-    length A = n + 1 ->
-    exists a b,
-      In a A /\
-      In b A /\
-      a <> b /\
-      (Nat.divide a b \/ Nat.divide b a).
-
-(*
-│
-│          There is of course “something” that witnesses the above.
-│
-*)
-
-
-Definition WITNESS : Prop := PROPOSITIO.
+Conjecture UNCONDITIONAL_PROOF : WITNESS.

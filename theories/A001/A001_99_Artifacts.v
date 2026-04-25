@@ -1,4 +1,4 @@
-(*P001_00_Premises.v*)
+(*A001_99_Artifacts.v*)
 
 (*
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -9,49 +9,32 @@
 │                                      visit https://www.mozilla.org/en-US/MPL │
 └──────────────────────────────────────────────────────────────────────────────┘
 ┌──────────────────────────────────────────────────────────────────────────────┐
-│                         Proofcase / P001_00_Premises                         │
+│                        Proofcase / A001_99_Artifacts                         │
 └──────────────────────────────────────────────────────────────────────────────┘
 
   OVERVIEW
 
-  All downstream P001 files import this immutable file; the `Require Export`
-  block makes the standard library available transitively throughout the
-  package.
+  Artifact layer for A001. It records `Print Assumptions` reports for the
+  citation theorems and extracts the certified pairing functions and
+  inspection interface to OCaml.
 
 *)
 
-From Stdlib Require Export Arith PeanoNat Bool Lia List.
-Export ListNotations.
-Global Open Scope list_scope.
+From A001 Require Import A001_98_IO.
+From Stdlib Require Import ExtrOcamlBasic ExtrOcamlNatBigInt.
 
-(*
-│
-│          `PROPOSITIO` is our “quod esset” problem: “Show that among
-│          any `n + 1` distinct positive integers bounded by `2n`, two
-│          must be related by divisibility.” This anecdotal Erdős-Pósa
-│          is referenced by Aigner's “Proofs from THE BOOK”.
-│
-*)
+Redirect "theories/A001/appendix/_assumptions/decode_encode"
+  Print Assumptions decode_encode.
 
-(*                 ∀ n A. (∀ a ∈ A, 1 ≤ a ≤ 2n) → |A|= n + 1                  *)
-(*               → ∃ a b ∈ A such that a ≠ b ∧ (a | b ∨ b | a)                *)
+Redirect "theories/A001/appendix/_assumptions/encode_injective"
+  Print Assumptions encode_injective.
 
-Definition PROPOSITIO : Prop :=
-  forall n A,
-    (forall a, In a A -> 1 <= a /\ a <= 2 * n) ->
-    NoDup A ->
-    length A = n + 1 ->
-    exists a b,
-      In a A /\
-      In b A /\
-      a <> b /\
-      (Nat.divide a b \/ Nat.divide b a).
+Extraction Inline base_params Z r B.
+Extraction Inline Paired_AB Unpaired_C.
+Extraction Language OCaml.
 
-(*
-│
-│          There is of course “something” that witnesses the above.
-│
-*)
+Extraction "A001_Encode_Decode" encode decode.
 
-
-Definition WITNESS : Prop := PROPOSITIO.
+Extraction "A001_Carryless_Pairing_IO"
+  A001_IO Pair_IO Unpair_IO
+  Check_Pairing In_Imageb Status_Of_Code.

@@ -15,28 +15,28 @@
   OVERVIEW
 
 (*
-      This file exposes the terminal certification artifact of P001.
+      This file exposes the terminal certification theorem of P001.
 
-      At Phase 0, certification closes by reusing the routed phase-zero witness
-      exported through the switch.
+      Certification closes by reusing the completed proof selected by the
+      constructive switch.
 *)
 
 (*
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                                                                         │
-│                              ROUTER IMPORT                              │
+│                              SWITCH IMPORT                              │
 │                                                                         │
 └─────────────────────────────────────────────────────────────────────────┘
 *)
 
 (*
 │
-│          The certification layer depends on the routed surface
-│          exported by the switch.
+│          The certification layer imports the proof selected by the
+│          switch.
 │
 *)
 
-From P001.P001_98_Currying Require Export P001_98_98_Multiplexer.
+From P001.P001_98_Multiplexing Require Export P001_98_98__Switch.
 
 (*
 ┌─────────────────────────────────────────────────────────────────────────┐
@@ -48,8 +48,8 @@ From P001.P001_98_Currying Require Export P001_98_98_Multiplexer.
 
 (*
 │
-│          The final theorem certifies the routed contract by direct
-│          reuse of the witness.
+│          The final theorem certifies the contract by direct reuse of
+│          the selected proof.
 │
 *)
 
@@ -68,4 +68,4 @@ Qed.
 └─────────────────────────────────────────────────────────────────────────┘
 *)
 
-Redirect "theories/P001/appendix/assumptions/pigeonhole_divisibility_qed" Print Assumptions pigeonhole_divisibility_qed.
+Redirect "theories/P001/appendix/_assumptions/pigeonhole_divisibility_qed" Print Assumptions pigeonhole_divisibility_qed.
