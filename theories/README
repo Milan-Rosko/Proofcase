@@ -35,11 +35,3 @@
 
       A formal proof that among any `n + 1` distinct positive integers chosen
       from `1` through `2n`, two are related by divisibility.
-
-    P002
-
-      CUBIC-FAMILY Σ₁ COMPLETENESS
-
-      A Diophantine representation theorem for finite families of cubic
-      equations over the natural numbers, using the carryless arithmetization
-      supplied by A001 and D001.
