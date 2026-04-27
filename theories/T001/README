@@ -1,0 +1,8 @@
+We relegate:
+
+  CARRYLESS PAIRING
+
+which considers the certified pairing and unpairing of natural numbers using the
+Fibonacci base, to:
+
+  https://github.com/Milan-Rosko/Proofcase/tree/main/theories/A001
