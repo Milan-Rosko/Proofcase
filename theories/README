@@ -11,8 +11,35 @@
       D##  Formalizations.
       P##  Proof packages establishing named mathematical statements.
 
+2 - Canonicals
+    ----------
 
-2 - Index
+    Each theory package is presented as a sequential formal development. The
+    early files introduce premises, definitions, and implementation lemmas; the
+    later files expose theorem interfaces, examples, and generated artifacts.
+
+    The following file roles are reserved for package-level boundaries:
+
+      00_Premises       Shared imports, vocabulary, and neutral definitions.
+      91_Multiplexing/  Obligations and exports controlled by a switch.
+      92_Constructor    Construction of payloads from theorem surface.
+      93_Construct/     Concrete export-facing payload.
+      94_IO             Effective Input/Output.
+      95_API            Stable import surface for other packages.
+      96_QED            Final theorem closure for the package.
+      97_Sanity         Local consistency and smoke checks.
+      97_Sanity/        Local consistency and smoke checks for a payload.
+      98_Examples       Examples and demonstrations.
+      99_Artifacts      Artifact, report, and extraction commands.
+
+    Not every package contains every boundary file.
+
+    File order follows proof dependency and computational cost. Expensive
+    artifact generation is isolated near the end of a package, after the
+    mathematical theorem surface it reports on.
+
+
+3 - Index
     -----
 
     A001
@@ -21,7 +48,6 @@
 
       Certified pairing and unpairing of natural numbers using the Fibonacci
       base.
-
 
     P001
 

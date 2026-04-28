@@ -10,9 +10,6 @@ set -euo pipefail
 # - JOBS=N   : parallel jobs for make (default: auto-detect CPU count)
 # - CERT_HASHES=1 : include per-file SHA-256 hashes in success.txt (default: 0 for speed)
 # -----------------------------------------------------------------------------
-CACHE=1
-
-
 HERE="$(cd "$(dirname "$0")" && pwd)"
 ROOT="$(cd "${HERE}/.." && pwd)"
 
@@ -126,11 +123,12 @@ if [[ -z "${JOBS}" ]]; then
   [[ -z "${JOBS}" ]] && JOBS="4"
 fi
 
-# One certificate, inside _Builder
+# One certificate, written under _tools/Dump
 CERT_FILE="${HERE}/Dump/success.txt"
 
 mkdir -p "${BUILD}" "${SHADOW}" "$(dirname "${CERT_FILE}")"
 : > "${BUILD_LOG}"
+rm -f "${CERT_FILE}"
 
 # -----------------------------------------------------------------------------
 # Prepare shadow sources
@@ -180,6 +178,14 @@ cp -f "${COQPROJECT_SRC}" "${COQPROJECT_SHADOW}"
 
 cd "${SHADOW}"
 
+# Coq's -output-directory mirrors compiled object paths, but extraction and
+# Redirect targets may also write into source-relative appendix folders. Mirror
+# source directories up front so artifact paths such as
+# output/theories/P002/appendix/_artifacts/... exist before coqc reaches them.
+while IFS= read -r d; do
+  mkdir -p "output/${d}"
+done < <(find theories -type d -print)
+
 # -----------------------------------------------------------------------------
 # Build
 # -----------------------------------------------------------------------------
@@ -200,9 +206,9 @@ fi
 # -----------------------------------------------------------------------------
 THEORIES_PATH="${SHADOW}/theories"
 if command -v rg >/dev/null 2>&1; then
-  ALL_AXIOM_FILES_RAW="$(rg -l --no-messages "^\s*Axioms?\b" "${THEORIES_PATH}" || true)"
+  ALL_AXIOM_FILES_RAW="$(rg -l --glob '*.v' --no-messages "^\s*Axioms?\b" "${THEORIES_PATH}" || true)"
 else
-  ALL_AXIOM_FILES_RAW="$(grep -R -l -E "^[[:space:]]*Axioms?\b" "${THEORIES_PATH}" 2>/dev/null || true)"
+  ALL_AXIOM_FILES_RAW="$(find "${THEORIES_PATH}" -name '*.v' -exec grep -l -E "^[[:space:]]*Axioms?\b" {} + 2>/dev/null || true)"
 fi
 ALL_AXIOM_FILES="$(echo "${ALL_AXIOM_FILES_RAW}" | sed "s|${SHADOW}/||g" | sort -u)"
 # -----------------------------------------------------------------------------
@@ -250,6 +256,8 @@ fi
   echo
   if [ -n "${COQC}" ]; then
   echo "                   Rocq version: $(${COQC} --version 2>/dev/null | head -n 1)"
+  echo "              _CoqProject source: ${ORIGIN}"
+  echo "                _CoqProject path: ${COQPROJ}"
   if [ "${CACHE}" = "1" ]; then
     echo "                   Method: isolated shadow, scratch folder (cached)"
   else

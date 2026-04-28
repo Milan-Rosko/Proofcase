@@ -1,4 +1,4 @@
-(*A001_99_Artifacts.v*)
+(*P001_00_Premises.v*)
 
 (*
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -9,39 +9,48 @@
 │                                      visit https://www.mozilla.org/en-US/MPL │
 └──────────────────────────────────────────────────────────────────────────────┘
 ┌──────────────────────────────────────────────────────────────────────────────┐
-│                        Proofcase / A001_99_Artifacts                         │
+│                         Proofcase / P001_00_Premises                         │
 └──────────────────────────────────────────────────────────────────────────────┘
 
   OVERVIEW
 
-  Artifact layer for A001. We record assumption reports for the citation
-  theorems and extract the certified pairing functions, together with the
-  inspection interface, to OCaml.
+  This premise layer states the finite divisibility contract and deliberately
+  exports the package-wide standard environment used by P001.
 
 *)
 
-From A001 Require Import A001_06__Bridge.
-From A001 Require Import A001_94_IO.
-From Stdlib Require Import ExtrOcamlBasic ExtrOcamlNatBigInt.
+From Stdlib Require Export Arith PeanoNat Bool Lia List.
+Export ListNotations.
+Global Open Scope list_scope.
 
-Redirect "theories/A001/_appendix/_assumptions/decode_encode"
-  Print Assumptions decode_encode.
+(*
+│
+│          `PROPOSITIO` is the target statement: among any `n + 1`
+│          distinct positive integers bounded by `2n`, two must be
+│          related by divisibility. This standard
+│          pigeonhole-divisibility result is referenced by Aigner's
+│          “Proofs from THE BOOK”.
+│
+*)
 
-Redirect "theories/A001/_appendix/_assumptions/encode_injective"
-  Print Assumptions encode_injective.
+(*                 ∀ n A. (∀ a ∈ A, 1 ≤ a ≤ 2n) → |A| = n + 1                 *)
+(*              → ∃ a b, a ∈ A ∧ b ∈ A ∧ a ≠ b ∧ (a ∣ b ∨ b ∣ a)              *)
 
-Redirect "theories/A001/_appendix/_assumptions/decode_encode_fast_nat"
-  Print Assumptions decode_encode_fast_nat.
+Definition PROPOSITIO : Prop :=
+  forall n A,
+    (forall a, In a A -> 1 <= a /\ a <= 2 * n) ->
+    NoDup A ->
+    length A = n + 1 ->
+    exists a b,
+      In a A /\
+      In b A /\
+      a <> b /\
+      (Nat.divide a b \/ Nat.divide b a).
 
-Redirect "theories/A001/_appendix/_assumptions/encode_fast_nat_injective"
-  Print Assumptions encode_fast_nat_injective.
+(*
+│
+│          `WITNESS` names the proposition certified by the package.
+│
+*)
 
-Extraction Inline base_params Z r B.
-Extraction Inline Paired_AB Unpaired_C.
-Extraction Language OCaml.
-
-Extraction "A001_Encode_Decode" encode decode.
-
-Extraction "A001_Carryless_Pairing_IO"
-  A001_IO Pair_IO Unpair_IO
-  Check_Pairing In_Imageb Status_Of_Code.
+Definition WITNESS : Prop := PROPOSITIO.

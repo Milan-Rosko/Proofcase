@@ -14,11 +14,10 @@
 
   OVERVIEW
 
-  The minimal public contract for CARRYLESS PAIRING (A001). Encoder and
-  decoder on `nat`, the roundtrip specification, the corresponding
-  injectivity specification, and the contract proposition certified by the
-  package. This file also re-exports the standard libraries used throughout
-  A001.
+  Premise layer for A001/CARRYLESS PAIRING. We fix the shared
+  standard-library environment and name the abstract encoder, decoder,
+  roundtrip law, injectivity law, and package contract that the later files
+  certify.
 
 *)
 
@@ -26,14 +25,28 @@ From Stdlib Require Export Arith PeanoNat Bool Lia List Ring ZArith Extraction.
 Export ListNotations.
 Global Open Scope list_scope.
 
+(*
+│
+│          The encoder type maps two natural numbers to one
+│          natural-number code.
+│
+*)
+
 Definition encode_t : Type := nat -> nat -> nat.
+
+(*
+│
+│          The decoder type maps one natural-number code back to a
+│          pair of natural numbers.
+│
+*)
 
 Definition decode_t : Type := nat -> nat * nat.
 
 (*
 │
-│          `decode_encode_spec` is the core contract: decoding the
-│          code produced from a pair recovers exactly that pair.
+│          `decode_encode_spec` is the roundtrip contract for a
+│          candidate encoder and decoder.
 │
 *)
 
@@ -42,9 +55,8 @@ Definition decode_encode_spec (encode : encode_t) (decode : decode_t) : Prop :=
 
 (*
 │
-│          Injectivity is exposed separately because it is one of the
-│          citation theorems of the package, even though it is
-│          derivable from the roundtrip law.
+│          `encode_injective_spec` records the corresponding
+│          one-code-one-pair property.
 │
 *)
 
@@ -55,9 +67,8 @@ Definition encode_injective_spec (encode : encode_t) : Prop :=
 
 (*
 │
-│          `pairing_contract` records the minimal correctness
-│          condition: decoding after encoding recovers the original
-│          pair.
+│          `pairing_contract` packages the roundtrip law as the
+│          minimal certified surface.
 │
 *)
 

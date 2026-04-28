@@ -1,4 +1,4 @@
-(*A001_99_Artifacts.v*)
+(*P001_98_99__Switch.v*)
 
 (*
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -9,39 +9,18 @@
 │                                      visit https://www.mozilla.org/en-US/MPL │
 └──────────────────────────────────────────────────────────────────────────────┘
 ┌──────────────────────────────────────────────────────────────────────────────┐
-│                        Proofcase / A001_99_Artifacts                         │
+│                        Proofcase / P001_98_99__Switch                        │
 └──────────────────────────────────────────────────────────────────────────────┘
 
   OVERVIEW
 
-  Artifact layer for A001. We record assumption reports for the citation
-  theorems and extract the certified pairing functions, together with the
-  inspection interface, to OCaml.
+  This file implements the constructive proof switch for P001. It exposes one
+  selected proof realization under the stable name `UNCONDITIONAL_PROOF`.
+
+  The switch makes the proof history explicit: the presentations are named
+  separately, while the terminal theorem imports only the selected completed
+  proof.
 
 *)
 
-From A001 Require Import A001_06__Bridge.
-From A001 Require Import A001_94_IO.
-From Stdlib Require Import ExtrOcamlBasic ExtrOcamlNatBigInt.
-
-Redirect "theories/A001/_appendix/_assumptions/decode_encode"
-  Print Assumptions decode_encode.
-
-Redirect "theories/A001/_appendix/_assumptions/encode_injective"
-  Print Assumptions encode_injective.
-
-Redirect "theories/A001/_appendix/_assumptions/decode_encode_fast_nat"
-  Print Assumptions decode_encode_fast_nat.
-
-Redirect "theories/A001/_appendix/_assumptions/encode_fast_nat_injective"
-  Print Assumptions encode_fast_nat_injective.
-
-Extraction Inline base_params Z r B.
-Extraction Inline Paired_AB Unpaired_C.
-Extraction Language OCaml.
-
-Extraction "A001_Encode_Decode" encode decode.
-
-Extraction "A001_Carryless_Pairing_IO"
-  A001_IO Pair_IO Unpair_IO
-  Check_Pairing In_Imageb Status_Of_Code.
+From P001.P001_92_Multiplexing Require Export P001_98_02C__Proof.

@@ -1,4 +1,4 @@
-(*A001_99_Artifacts.v*)
+(*P001_98_01A__Initial.v*)
 
 (*
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -9,39 +9,26 @@
 │                                      visit https://www.mozilla.org/en-US/MPL │
 └──────────────────────────────────────────────────────────────────────────────┘
 ┌──────────────────────────────────────────────────────────────────────────────┐
-│                        Proofcase / A001_99_Artifacts                         │
+│                       Proofcase / P001_98_01A__Initial                       │
 └──────────────────────────────────────────────────────────────────────────────┘
 
   OVERVIEW
 
-  Artifact layer for A001. We record assumption reports for the citation
-  theorems and extract the certified pairing functions, together with the
-  inspection interface, to OCaml.
+  This file records the conjectural initial presentation of the P001 contract
+  under the historical switch name `UNCONDITIONAL_PROOF`. It is part of the
+  explicit proof history, not the completed proof selected by the terminal
+  switch.
 
 *)
 
-From A001 Require Import A001_06__Bridge.
-From A001 Require Import A001_94_IO.
-From Stdlib Require Import ExtrOcamlBasic ExtrOcamlNatBigInt.
+From P001 Require Export P001_00_Premises.
 
-Redirect "theories/A001/_appendix/_assumptions/decode_encode"
-  Print Assumptions decode_encode.
+(*
+│
+│          `UNCONDITIONAL_PROOF` is the historical initial
+│          presentation of the proof obligation as a conjectural
+│          witness.
+│
+*)
 
-Redirect "theories/A001/_appendix/_assumptions/encode_injective"
-  Print Assumptions encode_injective.
-
-Redirect "theories/A001/_appendix/_assumptions/decode_encode_fast_nat"
-  Print Assumptions decode_encode_fast_nat.
-
-Redirect "theories/A001/_appendix/_assumptions/encode_fast_nat_injective"
-  Print Assumptions encode_fast_nat_injective.
-
-Extraction Inline base_params Z r B.
-Extraction Inline Paired_AB Unpaired_C.
-Extraction Language OCaml.
-
-Extraction "A001_Encode_Decode" encode decode.
-
-Extraction "A001_Carryless_Pairing_IO"
-  A001_IO Pair_IO Unpair_IO
-  Check_Pairing In_Imageb Status_Of_Code.
+Conjecture UNCONDITIONAL_PROOF : WITNESS.

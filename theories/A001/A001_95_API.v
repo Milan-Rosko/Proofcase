@@ -1,4 +1,4 @@
-(*A001_99_Artifacts.v*)
+(*A001_95_API.v*)
 
 (*
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -9,39 +9,16 @@
 │                                      visit https://www.mozilla.org/en-US/MPL │
 └──────────────────────────────────────────────────────────────────────────────┘
 ┌──────────────────────────────────────────────────────────────────────────────┐
-│                        Proofcase / A001_99_Artifacts                         │
+│                           Proofcase / A001_95_API                            │
 └──────────────────────────────────────────────────────────────────────────────┘
 
   OVERVIEW
 
-  Artifact layer for A001. We record assumption reports for the citation
-  theorems and extract the certified pairing functions, together with the
-  inspection interface, to OCaml.
+  Public API surface for A001. We expose the completed carryless pairing
+  theorem surface through the latest proof boundary, so that external
+  developments may depend on a single stable package interface.
 
 *)
 
-From A001 Require Import A001_06__Bridge.
-From A001 Require Import A001_94_IO.
-From Stdlib Require Import ExtrOcamlBasic ExtrOcamlNatBigInt.
-
-Redirect "theories/A001/_appendix/_assumptions/decode_encode"
-  Print Assumptions decode_encode.
-
-Redirect "theories/A001/_appendix/_assumptions/encode_injective"
-  Print Assumptions encode_injective.
-
-Redirect "theories/A001/_appendix/_assumptions/decode_encode_fast_nat"
-  Print Assumptions decode_encode_fast_nat.
-
-Redirect "theories/A001/_appendix/_assumptions/encode_fast_nat_injective"
-  Print Assumptions encode_fast_nat_injective.
-
-Extraction Inline base_params Z r B.
-Extraction Inline Paired_AB Unpaired_C.
-Extraction Language OCaml.
-
-Extraction "A001_Encode_Decode" encode decode.
-
-Extraction "A001_Carryless_Pairing_IO"
-  A001_IO Pair_IO Unpair_IO
-  Check_Pairing In_Imageb Status_Of_Code.
+From A001 Require Export A001_05__Pair_Unpair_Correct.
+From A001 Require Export A001_06__Bridge.

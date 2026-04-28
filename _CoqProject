@@ -8,44 +8,30 @@
 -arg -native-compiler
 -arg ondemand
 
-# Effective Function: “Carryless Pairing” (Pairing by Zeckendorf's Theorem)
+# Effective Function: CARRYLESS PAIRING
 
 -Q theories/A001 A001
 
+	theories/A001/A001_00_Premises.v
 	theories/A001/A001_01__Binary_Engine.v
 	theories/A001/A001_02__Base_Fibonacci.v
-	theories/A001/A001_03__Pair_Unpair_Correct.v
-	theories/A001/A001_98__Artifacts.v
-	theories/A001/A001_99_IO.v
+	theories/A001/A001_03__Zeckendorf_Correctness.v
+	theories/A001/A001_04__Carryless_Bands.v
+	theories/A001/A001_05__Pair_Unpair_Correct.v
+	theories/A001/A001_06__Bridge.v
+	theories/A001/A001_94_IO.v
+	theories/A001/A001_95_API.v
 
-# Dependency: “Vector Iterant” (Fibonacci Realized Minsky Machine)
-
--Q theories/D001 D001
-
-	theories/D001/D001_01__Arithmetic_Base.v
-	theories/D001/D001_02__Carryless_Bands.v
-	theories/D001/D001_03__State_Codec.v
-	theories/D001/D001_04__Machine_Definition.v
-	theories/D001/D001_05__Transition_Relation.v
-	theories/D001/D001_06__Trace_Witness.v
-	theories/D001/D001_07__Step_Arithmetization.v
-	theories/D001/D001_08__Universality.v
-	theories/D001/D001_09__Classic_Universality.v
-
-# Proof: “Pigeonhole Divisibility” (Multiplexing Project)
+# Effective Function: PIGEONHOLE DIVISIBILITY
 
 -Q theories/P001 P001
 
 	theories/P001/P001_00_Premises.v
-	theories/P001/P001_01_Reframing.v
-
-	theories/P001/P001_98_Currying/P001_98_01A_Initial.v
-	theories/P001/P001_98_Currying/P001_98_01B_Expansion.v
-	theories/P001/P001_98_Currying/P001_98_02A_Peeling.v
-	theories/P001/P001_98_Currying/P001_98_02B_Rewrite.v
-	theories/P001/P001_98_Currying/P001_98_02C_Proof.v
-
-	theories/P001/P001_98_Currying/P001_98_98_Multiplexer.v
-
-	theories/P001/P001_99_QED.v
-
+	theories/P001/P001_01__Reframing.v
+	theories/P001/P001_92_Multiplexing/P001_98_01A__Initial.v
+	theories/P001/P001_92_Multiplexing/P001_98_01B__Expansion.v
+	theories/P001/P001_92_Multiplexing/P001_98_02A__Peeling.v
+	theories/P001/P001_92_Multiplexing/P001_98_02B__Rewrite.v
+	theories/P001/P001_92_Multiplexing/P001_98_02C__Proof.v
+	theories/P001/P001_92_Multiplexing/P001_98_99__Switch.v
+	theories/P001/P001_98_QED.v
