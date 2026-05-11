@@ -24,11 +24,11 @@
 From A001 Require Export A001_03__Zeckendorf_Correctness.
 
 (*
-┌─────────────────────────────────────────────────────────────────────────┐
-│                                                                         │
-│                       EVEN AND ODD BAND SEPARATION                      │
-│                                                                         │
-└─────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                         EVEN AND ODD BAND SEPARATION                         │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
 *)
 
 Lemma two_S : forall n, two (S n) = S (S (two n)).
@@ -40,18 +40,16 @@ Proof.
   reflexivity.
 Qed.
 
-Lemma is_even_two : forall n, is_even (two n) = true.
+Lemma even_two : forall n, Nat.even (two n) = true.
 Proof.
-  induction n as [|n IH].
-  - reflexivity.
-  - rewrite two_S. simpl. exact IH.
+  induction n as [|n IH]; [reflexivity|].
+  rewrite two_S. rewrite Nat.even_succ_succ. exact IH.
 Qed.
 
-Lemma is_even_S_two_false : forall n, is_even (S (two n)) = false.
+Lemma odd_S_two : forall n, Nat.even (S (two n)) = false.
 Proof.
-  induction n as [|n IH].
-  - reflexivity.
-  - rewrite two_S. simpl. exact IH.
+  intro n. rewrite Nat.even_succ. rewrite <- Nat.negb_even.
+  rewrite even_two. reflexivity.
 Qed.
 
 Lemma two_j_minus1_formula :
@@ -88,32 +86,23 @@ Proof.
   lia.
 Qed.
 
-Lemma is_even_two_plus :
-  forall a n, is_even (two a + n) = is_even n.
+Lemma even_two_plus :
+  forall a n, Nat.even (two a + n) = Nat.even n.
 Proof.
   induction a as [|a IH]; intro n.
-  - simpl. reflexivity.
-  - rewrite two_S. simpl. apply IH.
+  - reflexivity.
+  - rewrite two_S. cbn [plus]. rewrite Nat.even_succ_succ. apply IH.
 Qed.
 
-Lemma is_even_double_plus :
-  forall a n, is_even (2 * a + n) = is_even n.
-Proof.
-  induction a as [|a IH]; intro n.
-  - simpl. reflexivity.
-  - replace (2 * S a + n) with (S (S (2 * a + n))) by lia.
-    simpl.
-    apply IH.
-Qed.
+Lemma even_double_plus :
+  forall a n, Nat.even (2 * a + n) = Nat.even n.
+Proof. intros. replace (2 * a) with (two a) by (unfold two; lia). apply even_two_plus. Qed.
 
-Lemma is_even_two_j_minus1_false :
-  forall j, 1 <= j -> is_even (two_j_minus1 j) = false.
+Lemma odd_two_j_minus1 :
+  forall j, 1 <= j -> Nat.even (two_j_minus1 j) = false.
 Proof.
-  intros j Hj.
-  destruct j as [|j']; [lia|].
-  unfold two_j_minus1.
-  rewrite two_S.
-  apply is_even_S_two_false.
+  intros j Hj. destruct j as [|j']; [lia|].
+  unfold two_j_minus1. rewrite two_S. apply odd_S_two.
 Qed.
 
 Lemma strictly_decreasing_map_two :
@@ -419,30 +408,30 @@ Proof.
 Qed.
 
 (*
-┌─────────────────────────────────────────────────────────────────────────┐
-│                                                                         │
-│                            SUPPORT SPLITTING                            │
-│                                                                         │
-└─────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                              SUPPORT SPLITTING                               │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
 *)
 
 Lemma even_band_even :
   forall x k,
     In k (even_band base_params x) ->
-    is_even k = true.
+    Nat.even k = true.
 Proof.
   intros x k Hin.
   unfold even_band, base_params in Hin.
   apply in_map_iff in Hin.
   destruct Hin as [e [He _]].
   subst k.
-  apply is_even_two.
+  apply even_two.
 Qed.
 
 Lemma odd_band_even_false :
   forall x y k,
     In k (odd_band base_params x y) ->
-    is_even k = false.
+    Nat.even k = false.
 Proof.
   intros x y k Hin.
   unfold odd_band, base_params in Hin.
@@ -454,9 +443,8 @@ Proof.
     destruct (Z0_valid y) as [_ [_ Hge]]; exact Hge.
   - assert (Hj1 : 1 <= j) by lia.
     unfold B.
-    rewrite is_even_double_plus.
-    apply is_even_two_j_minus1_false.
-    exact Hj1.
+    rewrite even_double_plus.
+    apply odd_two_j_minus1. exact Hj1.
 Qed.
 
 Lemma odd_band_odd_ge_B1_true :
@@ -465,12 +453,9 @@ Lemma odd_band_odd_ge_B1_true :
     odd_ge_B1 (B base_params x) k = true.
 Proof.
   intros x y k Hin.
-  unfold odd_ge_B1.
-  unfold is_odd.
-  rewrite (odd_band_even_false x y k Hin).
-  apply Nat.leb_le.
-  apply (odd_band_ge_B1 x y k).
-  exact Hin.
+  unfold odd_ge_B1. rewrite <- Nat.negb_even.
+  rewrite (odd_band_even_false x y k Hin). cbn [negb andb].
+  apply Nat.leb_le. apply (odd_band_ge_B1 x y k). exact Hin.
 Qed.
 
 Lemma even_band_odd_ge_B1_false :
@@ -479,10 +464,8 @@ Lemma even_band_odd_ge_B1_false :
     odd_ge_B1 (B base_params x) k = false.
 Proof.
   intros x k Hin.
-  unfold odd_ge_B1.
-  unfold is_odd.
-  rewrite (even_band_even x k Hin).
-  reflexivity.
+  unfold odd_ge_B1. rewrite <- Nat.negb_even.
+  rewrite (even_band_even x k Hin). reflexivity.
 Qed.
 
 Lemma filter_false_nil :
@@ -530,15 +513,15 @@ Qed.
 
 Corollary Z0_even_split :
   forall x y,
-    filter is_even (Z0 (pair base_params x y)) = even_band base_params x.
+    filter Nat.even (Z0 (pair base_params x y)) = even_band base_params x.
 Proof.
   intros x y.
   rewrite Z0_pair_is_concat.
   rewrite filter_app.
-  assert (Hodd_nil : filter is_even (odd_band base_params x y) = []).
+  assert (Hodd_nil : filter Nat.even (odd_band base_params x y) = []).
   - apply filter_false_nil. intros a Ha. apply (odd_band_even_false x y a); exact Ha.
   - assert (Heven_id :
-      filter is_even (even_band base_params x) = even_band base_params x).
+      filter Nat.even (even_band base_params x) = even_band base_params x).
     + apply filter_true_id. intros a Ha. apply (even_band_even x a); exact Ha.
     + rewrite Hodd_nil, Heven_id. reflexivity.
 Qed.

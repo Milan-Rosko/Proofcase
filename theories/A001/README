@@ -3,67 +3,42 @@
 1 - Summary
     -------
 
-    A001 formalizes CARRYLESS PAIRING: a concrete arithmetical pairing on the
-    naturals, built over the Fibonacci base. The package certifies two
-    theorems on the unary surface,
+    A001 formalizes CARRYLESS PAIRING: an injective `encode : nat -> nat -> nat`
+    whose inverse `decode` is recovered by reading the ZECKENDORF support of the
+    code along even and odd Fibonacci indices. Two certified theorems witness
+    the construction:
 
       - `decode_encode    : decode (encode a b) = (a, b)`
       - `encode_injective : encode a b = encode a' b' -> a = a' /\ b = b'`
 
-    and exposes two computational surfaces:
-
-      - a certified `nat` surface (authoritative; `encode`, `decode`);
-      - a binary `N` surface for fast evaluation and extraction
-        (`encode_fast_nat`, `decode_fast_nat`, via `pairN` / `unpairN`).
-
-    The bridge file `A001_06__Bridge.v` establishes that the fast wrappers
-    agree pointwise with the authoritative unary surface. We package the
-    remaining `N`↔`nat` normalization/search correspondence as two bridge
-    axioms, `Z0N_of_nat` and `max_fib_index_leN_of_nat`, and from these
-    derive
-
-      - `encode_fast_nat_correct : encode_fast_nat a b = encode a b`
-      - `decode_fast_nat_correct : decode_fast_nat c = decode c`
-      - `decode_encode_fast_nat`
-      - `encode_fast_nat_injective`
-
-    The minimal unary contract is declared in `A001_00_Premises.v`; its
-    concrete authoritative witness is proved in
-    `A001_05__Pair_Unpair_Correct.v`.
-
 
 2 - State
     -----
-                x
-   └─┴─┴─┴─┴─┴─┴─┴─┴─┴─┘ 7 / 10
 
-   Effective, documented, cited, not yet peer reviewed.
+                      ┌──────────────────────────────────┐
+                      │                  x               │
+                      │   └─┴─┴─┴─┴─┴─┴─┴─┴─┴─┘ 8 / 10   │
+                      └──────────────────────────────────┘
+
+   Effective, mechanized, documented, cited, not yet fully peer reviewed.
 
 
 3 - Intuition
     ---------
 
-    We pair 42 with 1337 constructively and injectively, using only addition
-    and subtraction:
-
+    We pair 42 with 1337 constructively and injectively, using only addition and
+    subtraction:
 
       ┌────┐    ┌──────┐    ┌───┐
-      │ 42 │ ─▶ │ 1337 │ ─▶ │ N │
+      │ 42 │ ─▶ │ 1337 │ ─▶ │ n │
       └────┘    └──────┘    └───┘
 
-
-    The construction runs in four stages. The `nat` surface is the one
-    certified through `A001_05`, and `encode 42 1337 = 21675313832` is the
-    worked value carried throughout.
+    The certified surface carries the worked value
+    `encode 42 1337 = 21675313832`.
 
     Every positive natural admits a unique representation as a sum of
-    non-consecutive Fibonacci numbers (`Zeckendorf_unique`, 02). We write the
-    support as the list of indices, largest first.
-
-    Non-consecutivity is the sole structural constraint, and the predicate
-    `IsZeckendorf` in `A001_01` captures it exactly. Decoding `N` will then
-    recover where `x`'s contribution ends and `y`'s begins, without need of a
-    separator symbol.
+    non-consecutive Fibonacci numbers (`Zeckendorf_unique`, 03). We write
+    the support as the list of indices, largest first.
 
       ┌────┐
       │ 42 │ ─▶ F[9] + F[6] = 34 + 8
@@ -72,10 +47,9 @@
       ┌──────┐
       │ 1337 │ ─▶ F[16] + F[13] + F[11] + F[8] + F[5] + F[3]
       └──────┘    = 987 + 233 + 89 + 21 + 5 + 2
-                  
 
-    We embed the two supports into disjoint arithmetic progressions of
-    Fibonacci indices, so that their sums cannot interfere:
+    We embed the two supports into disjoint arithmetic progressions of Fibonacci
+    indices, so that their sums cannot interfere:
 
       x-band (even):  i ├─▶ 2*i
       y-band (odd):   j ├─▶ B + 2*j - 1
@@ -83,65 +57,57 @@
       z_x = [9, 6]           ══▶ even = F[18, 12]
       z_y = [16,13,11,8,5,3] ══▶ odd = F[51,45,41,35,29,25]
 
-    Even indices carry `x`; odd indices above `B` carry `y`. No index appears
-    in both bands, and within each band the chosen indices are separated by at
-    least 2, so the union remains a valid Zeckendorf support.
+    Even indices carry `x`; odd indices above `B` carry `y`. No index appears in
+    both bands, and within each band the chosen indices are separated by at
+    least 2, so the union remains a valid ZECKENDORF support.
 
     This is the “Carryless” property. The corresponding proof obligations are
     discharged by `Z0_pair_is_concat`, `Z0_even_split`, and `Z0_odd_split`,
-    after which `N = encode x y` is recovered as the sum of Fibonacci numbers
+    after which `n = encode x y` is recovered as the sum of Fibonacci numbers
     drawn from the two bands:
 
-
-       N =   F[51] + F[45] + F[41] + F[35] + F[29] + F[25]              (from y)
-             + F[18] + F[12]                                            (from x)
+       n =   F[51] + F[45] + F[41] + F[35] + F[29] + F[25]      (from y)
+             + F[18] + F[12]                                    (from x)
 
          =   21675313832
 
-
-    Decoding reverses the procedure: we take the Zeckendorf support of `N`,
+    Decoding reverses the procedure: we take the Zeckendorf support of `n`,
     split the indices by parity (even ↦ x, odd above `B` ↦ y), invert the
     halving and shift, and re-sum.
-
 
       ┌────┐      ┌────┬────┐
       │ 42 │  ─▶  │ 18 │ 12 │ ─────┐
       └────┘      └────┴────┘      │   ╔═════════════╗
-                   “Even band”     ├─▶ ║ 21675313832 ║
+                   "Even band"     ├─▶ ║ 21675313832 ║
       ┌──────┐    ┌────┬───┬────┐  │   ╚═════════════╝
-      │ 1337 │ ─▶ │ 51 │ … │ 25 │ ─┘          N
+      │ 1337 │ ─▶ │ 51 │ … │ 25 │ ─┘          n
       └──────┘    └────┴───┴────┘
-                   “Odd band”
+                   "Odd band"
 
-
-    Since the bands are disjoint by construction, the split is unambiguous.
-    This is the content of `decode_encode`. Injectivity (`encode_injective`)
-    then follows from uniqueness of the Zeckendorf representation.
-
+    Since the bands are disjoint by construction, the split is unambiguous. This
+    is the content of `decode_encode`. Injectivity (`encode_injective`) then
+    follows from uniqueness of the Zeckendorf representation.
 
                                                                         ┌────┐
                                                                    ┌──▶ │ 42 │
       ╔═════════════╗                                              │    └────┘
       ║ 21675313832 ║ ─▶ [ 21675313832 - F[51] - … - F[12] = 0 ] ──┤
       ╚═════════════╝                                              │    ┌──────┐
-                         “Greedy Algorithm”                        └──▶ │ 1337 │
+                         "Greedy Algorithm"                        └──▶ │ 1337 │
                                                                         └──────┘
 
-
-    Codes outside the image of `encode` normalize in a single step. For
-    `N = 14`, the greedy split returns a valid pair, and re-encoding lands on
-    a fixed point of `encode ∘ decode`:
-
+    Codes outside the image of `encode` normalize in a single step. For `n = 14`
+    the greedy split returns a valid pair, and re-encoding lands on a fixed
+    point of `encode ∘ decode`:
 
       ╔════╗    ┌───┐┌───┐    ╔════╗    ┌───┐┌───┐    ╔════╗
       ║ 14 ║ ─▶ │ 1 ││ 1 │ ─▶ ║ 37 ║ ─▶ │ 1 ││ 1 │ ─▶ ║ 37 ║ ─▶  …
       ╚════╝    └───┘└───┘    ╚════╝    └───┘└───┘    ╚════╝
        canonicalize      decode    encode        decode    encode
 
-
     Here `Status_Of_Code` (94) flags `14` as non-canonical and `37` as
-    stable. Every `N` reaches its canonical representative after a single
-    application of `encode ∘ decode`.
+    stable. Every code reaches its canonical representative after a
+    single application of `encode ∘ decode`.
 
 
 4 - Tree
@@ -151,8 +117,6 @@
      ▼
     A001_00_Premises
      ▼
-    A001_01__Binary_Engine
-     ▼
     A001_02__Base_Fibonacci
      ▼
     A001_03__Zeckendorf_Correctness
@@ -161,13 +125,11 @@
      ▼
     A001_05__Pair_Unpair_Correct
      ▼
-    A001_06__Bridge
-     ▼
     A001_94_IO
      ▼
     A001_95_API
      ▼
-    A001_99_Artifacts
+    A001_97_Artifacts
 
 
 5 - Files
@@ -175,103 +137,67 @@
 
     A001_00_Premises.v
 
-      Minimal contract layer and Stdlib re-export hub. Defines the abstract
-      unary encoder/decoder surface (`encode_t`, `decode_t`), the roundtrip
-      specification `decode_encode_spec`, the citation-level injectivity
-      specification `encode_injective_spec`, and the minimal package contract
-      `pairing_contract`. Re-exports the standard prelude (`Arith PeanoNat
-      Bool Lia List Ring ZArith Extraction`, together with `ListNotations`)
-      so that every file in the package shares one common base.
-
-    A001_01__Binary_Engine.v
-
-      Fast-doubling Fibonacci over `N`, the greedy Zeckendorf extractor, and
-      the logical predicate `IsZeckendorf`. Exports `fibN`, `sum_fibN`,
-      `Z0N`, `r0N`, `pairN`, `unpairN`, and the `nat`-bridge wrappers
-      `fib_fast_nat`, `encode_fast_nat`, `decode_fast_nat`. Establishes
-      `IsZeckendorf_sound`.
+      Stdlib re-export hub and minimal contract layer. Defines the abstract
+      encoder/decoder types, the roundtrip and injectivity specifications, and
+      the package contract.
 
     A001_02__Base_Fibonacci.v
 
-      Fibonacci arithmetic and the parametric carryless shape. Defines `fib`,
-      `sum_fib`, the parity helpers, the `Params` record, `pair`, `unpair`,
-      the cutoff search `r0`, the greedy support extractor `Z0`, and
-      `base_params`. Establishes the Fibonacci recurrence and the cutoff
-      lemmas on which the later support proofs rely.
+      Fibonacci arithmetic and the carryless shape. Defines `fib`, `sum_fib`,
+      the greedy support extractor `Z0`, the cutoff search `r0`, and a
+      parametric `pair` / `unpair` taking a support engine as input. Establishes
+      the Fibonacci recurrence and cutoff lemmas.
 
     A001_03__Zeckendorf_Correctness.v
 
-      Greedy Zeckendorf correctness layer. Establishes that `Z0` returns a
-      valid support whose Fibonacci sum equals the original input
-      (`Z0_sound`, `Z0_valid`), proves canonicality of the support
-      (`Z0_of_sum_fib`, `Zeckendorf_unique`), and develops the
-      support-bound lemmas consumed by the band layer.
+      Correctness of the greedy extractor: `Z0` produces a valid support summing
+      to its input (`Z0_sound`, `Z0_valid`), and valid supports are canonical
+      (`Z0_of_sum_fib`, `Zeckendorf_unique`).
 
     A001_04__Carryless_Bands.v
 
-      Carryless band layer. Establishes that the even and odd support
-      embeddings are valid, separated, and recoverable from a canonical
-      paired support: `Z0_pair_is_concat`, `Z0_even_split`, `Z0_odd_split`.
+      The even and odd Fibonacci-index embeddings are gap-2 separated, so their
+      union is itself a valid Zeckendorf support and is recovered from the code
+      by parity (`Z0_pair_is_concat`, `Z0_even_split`, `Z0_odd_split`).
 
     A001_05__Pair_Unpair_Correct.v
 
-      Specializes the abstract pairing to `base_params` as `encode` /
-      `decode` and proves the two certified theorems `decode_encode` and
-      `encode_injective`, thereby witnessing the contract declared in
-      `A001_00_Premises`. The file also derives `decode_encode_fst`,
-      `decode_encode_snd`, `support_of_encode`, and the worked corollaries at
-      (1,1) and (3,5).
-
-    A001_06__Bridge.v
-
-      Establishes agreement between the fast binary engine and the
-      authoritative unary surface at the shipped `nat` wrappers. We package
-      the remaining cross-surface normalization/search transport as two
-      bridge axioms, `Z0N_of_nat` and `max_fib_index_leN_of_nat`, and from
-      these derive `encode_fast_nat_correct`, `decode_fast_nat_correct`,
-      `decode_encode_fast_nat`, and `encode_fast_nat_injective`. Together
-      these results justify treating the extracted executable path as a
-      drop-in implementation of the certified pairing semantics.
+      Defines `encode` and `decode` as the carryless construction over `Z0` and
+      `r0`, and proves the headline theorems `decode_encode` and
+      `encode_injective`. Derives `decode_encode_fst`, `decode_encode_snd`,
+      `support_of_encode`, and worked instances at (1,1) and (3,5).
 
     A001_94_IO.v
 
       Extraction-facing IO dispatcher. Defines `IO_Query`, `IO_Result`,
       `Code_Status`, and the endpoints `Paired_AB`, `Unpaired_C`,
-      `Check_Pairing`, `In_Imageb`, `Status_Of_Code`, and `A001_IO`. Also
-      provides the compact `*_Z` view (`Paired_AB_Z`, `Unpaired_C_Z`,
-      `A001_IO_Z`, …), so that `vm_compute` probes need not print large
-      Peano numerals.
+      `Check_Pairing`, `In_Imageb`, `Status_Of_Code`, and `A001_IO`. Provides a
+      compact `*_Z` view, so `vm_compute` need not print large Peano numerals.
 
     A001_95_API.v
 
-      Stable package API. Re-exports the completed theorem surface through
-      `A001_06__Bridge.v`, so that downstream developments may depend on a
-      single public boundary rather than on implementation-file names.
+      Stable package API. Re-exports the certified theorem surface.
 
-    A001_99_Artifacts.v
+    A001_97_Artifacts.v
 
-      Artifact layer. Redirects `Print Assumptions` for the unary endpoint
-      theorems and the fast-wrapper bridge theorems into
+      Redirects `Print Assumptions` for the two headline theorems into
       `_appendix/_assumptions/` and extracts `A001_Encode_Decode` and
-      `A001_Carryless_Pairing_IO`.
+      `A001_Carryless_Pairing_IO`. Both reports are closed.
 
     _appendix/_artifacts/
 
-      Extracted OCaml: `A001_Encode_Decode.{ml,mli}` (the encode/decode pair)
-      and `A001_Carryless_Pairing_IO.{ml,mli}` (the dispatcher with
-      inspection).
+      Extracted OCaml: `A001_Encode_Decode.{ml,mli}` and
+      `A001_Carryless_Pairing_IO.{ml,mli}`.
 
     _appendix/_assumptions/
 
-      Redirected `Print Assumptions` output for `decode_encode`,
-      `encode_injective`, `decode_encode_fast_nat`, and
-      `encode_fast_nat_injective`.
+      Redirected `Print Assumptions` output for `decode_encode` and
+      `encode_injective`.
 
     _appendix/python_companion/
 
-      Auxiliary Python workspace for empirical probes, plotting, and
-      lightweight regression tests against the extracted OCaml surface. Not
-      part of the certified development.
+      Auxiliary Python workspace for empirical probes against the extracted
+      OCaml surface. Not part of the certified development.
 
 
 6 - API
@@ -281,99 +207,37 @@
 
       `From A001 Require Import A001_95_API.`
 
-    More specialized, package-internal boundaries are available when a
-    development intentionally depends on a narrower layer:
-
-      - minimal unary contract:
-
-          `From A001 Require Import A001_00_Premises.`
-
-      - authoritative unary pairing surface:
-
-          `From A001 Require Import A001_05__Pair_Unpair_Correct.`
-
-      - fast `nat` wrappers together with their bridge theorems:
-
-          `From A001 Require Import A001_05__Pair_Unpair_Correct.`
-          `From A001 Require Import A001_06__Bridge.`
-
-      - executable dispatcher / inspection surface:
-
-          `From A001 Require Import A001_94_IO.`
-
-    `A001_95_API` is the stable external import. The narrower imports name
-    implementation stages, and should be used only when that layer boundary is
-    the intended dependency.
-
     Public surface by use case:
 
     Minimal contract vocabulary:
 
-      encode_t                : Type                             (00)
-      decode_t                : Type                             (00)
-      decode_encode_spec      : encode_t -> decode_t -> Prop     (00)
-      encode_injective_spec   : encode_t -> Prop                 (00)
-      pairing_contract        : encode_t -> decode_t -> Prop     (00)
+      encode_t                : Type                                        (00)
+      decode_t                : Type                                        (00)
+      decode_encode_spec      : encode_t -> decode_t -> Prop                (00)
+      encode_injective_spec   : encode_t -> Prop                            (00)
+      pairing_contract        : encode_t -> decode_t -> Prop                (00)
 
-    Forward / inverse (unary, authoritative and certified):
+    Certified `nat` surface:
 
-      encode           : nat -> nat -> nat                       (05)
-      decode           : nat -> nat * nat                        (05)
-
-    Forward / inverse (binary wrappers, for extraction):
-
-      encode_fast_nat  : nat -> nat -> nat           (01, cert. in 06)
-      decode_fast_nat  : nat -> nat * nat            (01, cert. in 06)
+      encode           : nat -> nat -> nat                                  (05)
+      decode           : nat -> nat * nat                                   (05)
 
     Dispatcher and inspection:
 
-      IO_Query         : Type                                    (94)
-      IO_Result        : Type                                    (94)
-      Code_Status      : Type                                    (94)
+      IO_Query, IO_Result, Code_Status                                      (94)
+      A001_IO          : IO_Query -> IO_Result                              (94)
+      A001_IO_Z        : IO_Query -> IO_Result_Z                            (94)
+      Check_Pairing    : nat -> nat                                         (94)
+      In_Imageb        : nat -> bool                                        (94)
+      Status_Of_Code   : nat -> Code_Status                                 (94)
 
-      A001_IO          : IO_Query -> IO_Result                   (94)
-      A001_IO_Z        : IO_Query -> IO_Result_Z                 (94)
-      Check_Pairing    : nat -> nat                              (94)
-      In_Imageb        : nat -> bool                             (94)
-      Status_Of_Code   : nat -> Code_Status                      (94)
-
-    Typical workflow:
-
-    1. For the abstract contract names, import `A001_00_Premises`.
-
-    2. For the authoritative certified surface, import
-       `A001_05__Pair_Unpair_Correct` and use `encode` / `decode`.
-
-    3. For the fast executable wrappers, compute with `encode_fast_nat` and
-       `decode_fast_nat`, and use `encode_fast_nat_correct` and
-       `decode_fast_nat_correct` to rewrite back to the unary semantics when
-       proving facts.
-
-    4. For a compact executable inspection interface, import `A001_94_IO`
-       and use `A001_IO`, `A001_IO_Z`, `Status_Of_Code`, and
-       `Check_Pairing`.
-
-    Certified unary theorems:
+    Certified theorems:
 
       decode_encode : forall a b,
         decode (encode a b) = (a, b)
 
       encode_injective : forall a b a' b',
         encode a b = encode a' b' -> a = a' /\ b = b'
-                            
-    Certified bridge theorems:
-
-      encode_fast_nat_correct : forall a b,
-        encode_fast_nat a b = encode a b
-
-      decode_fast_nat_correct : forall c,
-        decode_fast_nat c = decode c
-
-      decode_encode_fast_nat : forall a b,
-        decode_fast_nat (encode_fast_nat a b) = (a, b)
-
-      encode_fast_nat_injective : forall a b a' b',
-        encode_fast_nat a b = encode_fast_nat a' b' -> a = a' /\ b = b'
 
 
 7 - Notes

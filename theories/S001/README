@@ -1,0 +1,21 @@
+(* README *)
+
+1 - Overview
+    --------
+
+    S001 is a general logic formulary.
+
+    The package begins as a tutorial-style sequence of small Rocq proofs,
+    starting with elementary propositional logic. Later files can extend this
+    into negation, disjunction, quantifiers, equivalence, classical principles,
+    proof patterns, and reusable logical lemmas.
+
+
+2 - Files
+    -----
+
+    S001_00_Premises
+
+      Entry point and first tutorial layer. Introduces basic propositional
+      proof terms and scripts for identity, conjunction, and implication
+      composition.

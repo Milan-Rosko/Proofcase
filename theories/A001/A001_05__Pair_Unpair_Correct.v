@@ -109,7 +109,7 @@ Qed.
 
 Corollary even_support_of_encode :
   forall a b,
-    filter is_even (Z0 (encode a b)) = even_band_of a.
+    filter Nat.even (Z0 (encode a b)) = even_band_of a.
 Proof.
   intros a b.
   rewrite encode_eq_pair.
@@ -165,21 +165,14 @@ Definition decode (c : nat) : nat * nat :=
   let y := sum_fib (odd_support_indices x zn) in
   (x, y).
 
-Lemma div2_two :
-  forall n, div2 (two n) = n.
+Lemma div2_two : forall n, Nat.div2 (two n) = n.
 Proof.
-  induction n as [|n IH].
-  - simpl. reflexivity.
-  - rewrite two_S. simpl. rewrite IH. reflexivity.
+  intro n. unfold two. replace (n + n) with (2 * n) by lia.
+  apply Nat.div2_double.
 Qed.
 
-Lemma add_sub_cancel_l :
-  forall a b, a + b - a = b.
-Proof.
-  induction a as [|a IH]; intro b; simpl.
-  - lia.
-  - apply IH.
-Qed.
+Lemma add_sub_cancel_l : forall a b, a + b - a = b.
+Proof. intros. lia. Qed.
 
 (*
 │
@@ -189,7 +182,7 @@ Qed.
 *)
 
 Lemma map_div2_even_band :
-  forall x, map div2 (even_band_of x) = Z0 x.
+  forall x, map Nat.div2 (even_band_of x) = Z0 x.
 Proof.
   intro x.
   unfold even_band_of, even_band.
@@ -209,9 +202,9 @@ Proof.
   intros x j.
   unfold decode_odd_index, boundary, two_j_minus1.
   rewrite (add_sub_cancel_l (B base_params x) (Nat.pred (two j))).
-  destruct j as [|j'].
-  - simpl. reflexivity.
-  - rewrite two_S. simpl. rewrite div2_two. reflexivity.
+  destruct j as [|j']; [reflexivity|].
+  unfold two. replace (S (Nat.pred (S j' + S j'))) with (2 * S j') by lia.
+  apply Nat.div2_double.
 Qed.
 
 (*

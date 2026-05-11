@@ -1,4 +1,4 @@
-(*A001_95_API.v*)
+(*S002_91_01A__Initial.v*)
 
 (*
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -9,15 +9,26 @@
 │                                      visit https://www.mozilla.org/en-US/MPL │
 └──────────────────────────────────────────────────────────────────────────────┘
 ┌──────────────────────────────────────────────────────────────────────────────┐
-│                           Proofcase / A001_95_API                            │
+│                       Proofcase / S002_91_01A__Initial                       │
 └──────────────────────────────────────────────────────────────────────────────┘
 
   OVERVIEW
 
-  Public API surface for A001. We expose the certified carryless pairing
-  surface, so that external developments may depend on a single stable
-  package interface.
+  This file records the conjectural initial presentation of the S002 contract
+  under the historical switch name `UNCONDITIONAL_PROOF`. It is part of the
+  explicit proof history, not the completed proof selected by the terminal
+  switch.
 
 *)
 
-From A001 Require Export A001_05__Pair_Unpair_Correct.
+From S002 Require Export S002_00_Premises.
+
+(*
+│
+│          `UNCONDITIONAL_PROOF` is the historical initial
+│          presentation of the proof obligation as a conjectural
+│          witness.
+│
+*)
+
+Conjecture UNCONDITIONAL_PROOF : WITNESS.

@@ -24,11 +24,11 @@
 From A001 Require Export A001_00_Premises.
 
 (*
-┌─────────────────────────────────────────────────────────────────────────┐
-│                                                                         │
-│                           FIBONACCI ARITHMETIC                          │
-│                                                                         │
-└─────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                             FIBONACCI ARITHMETIC                             │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
 *)
 
 (*
@@ -79,28 +79,12 @@ Definition two (n : nat) : nat := n + n.
 
 Definition two_j_minus1 (j : nat) : nat := Nat.pred (two j).
 
-Fixpoint is_even (n : nat) : bool :=
-  match n with
-  | 0 => true
-  | 1 => false
-  | S (S k) => is_even k
-  end.
-
-Definition is_odd (n : nat) : bool := negb (is_even n).
-
-Fixpoint div2 (n : nat) : nat :=
-  match n with
-  | 0 => 0
-  | 1 => 0
-  | S (S k) => S (div2 k)
-  end.
-
 (*
-┌─────────────────────────────────────────────────────────────────────────┐
-│                                                                         │
-│                        PARAMETRIC CARRYLESS SHAPE                       │
-│                                                                         │
-└─────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                          PARAMETRIC CARRYLESS SHAPE                          │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
 *)
 
 (*
@@ -159,20 +143,17 @@ Definition pair (P : Params) (x y : nat) : nat :=
 *)
 
 Definition half_even_indices (zn : list nat) : list nat :=
-  map div2 (filter is_even zn).
+  map Nat.div2 (filter Nat.even zn).
 
 (*                 odd_ge_B1(B, k) = true ⇔ 2 ∤ k ∧ B + 1 ≤ k                 *)
 
 Definition odd_ge_B1 (Bx k : nat) : bool :=
-  match is_odd k with
-  | false => false
-  | true => Nat.leb (S Bx) k
-  end.
+  Nat.odd k && Nat.leb (S Bx) k.
 
 (*                 decode_odd_index(B, k) ≔ ⌊(k − B + 1) / 2⌋                 *)
 
 Definition decode_odd_index (Bx k : nat) : nat :=
-  div2 (S (k - Bx)).
+  Nat.div2 (S (k - Bx)).
 
 (*
 │
@@ -254,11 +235,11 @@ Definition zeck_valid (xs : list nat) : Prop :=
   strictly_decreasing xs /\ no_adjacent xs /\ all_ge_2 xs.
 
 (*
-┌─────────────────────────────────────────────────────────────────────────┐
-│                                                                         │
-│                              CUTOFF SEARCH                              │
-│                                                                         │
-└─────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                                CUTOFF SEARCH                                 │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
 *)
 
 (*
@@ -343,11 +324,11 @@ Definition base_params : Params :=
   Build_Params Z0 r0.
 
 (*
-┌─────────────────────────────────────────────────────────────────────────┐
-│                                                                         │
-│                          FIBONACCI RECURRENCES                          │
-│                                                                         │
-└─────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                            FIBONACCI RECURRENCES                             │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
 *)
 
 Lemma fib_pair_S : forall n a b,

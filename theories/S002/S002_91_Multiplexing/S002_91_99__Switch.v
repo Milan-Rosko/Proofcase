@@ -1,4 +1,4 @@
-(*A001_95_API.v*)
+(*S002_91_99__Switch.v*)
 
 (*
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -9,15 +9,18 @@
 │                                      visit https://www.mozilla.org/en-US/MPL │
 └──────────────────────────────────────────────────────────────────────────────┘
 ┌──────────────────────────────────────────────────────────────────────────────┐
-│                           Proofcase / A001_95_API                            │
+│                        Proofcase / S002_91_99__Switch                        │
 └──────────────────────────────────────────────────────────────────────────────┘
 
   OVERVIEW
 
-  Public API surface for A001. We expose the certified carryless pairing
-  surface, so that external developments may depend on a single stable
-  package interface.
+  This file implements the constructive proof switch for S002. It exposes one
+  selected proof realization under the stable name `UNCONDITIONAL_PROOF`.
+
+  The switch makes the proof history explicit: the presentations are named
+  separately, while the terminal theorem imports only the selected completed
+  proof.
 
 *)
 
-From A001 Require Export A001_05__Pair_Unpair_Correct.
+From S002.S002_91_Multiplexing Require Export S002_91_02C__Proof.

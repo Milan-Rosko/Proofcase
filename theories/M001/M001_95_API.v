@@ -1,0 +1,49 @@
+(*M001_95_API.v*)
+
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                      Author and Copyright remark. Author(s): │
+│                ╭╮╮╮─╮                Milan Rosko  https://www.milanrosko.com │
+│                ││││╭╯                Licence. This file is distributed under │
+│                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
+│                                      visit https://www.mozilla.org/en-US/MPL │
+└──────────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                           Proofcase / M001_95_API                            │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+  OVERVIEW
+
+  Public operational API surface for M001. Importing this file exports the
+  active regulator-theory stack: primitive syntax, Boolean checking,
+  deduction and reductio transforms, checked and inductive derivability, MP
+  composition, negative precomposition, symbolic regulators,
+  checker/regulator interface lemmas, and evaluation-closure bridges.
+
+  The API remains syntactic and operational. It exposes
+  `regulator_theory_check_bool`, `regulator_theory_checked_derivable`,
+  `regulator_theory_closure`, `SymbolicRegulator`, and
+  `RegulatorEvaluationFrame`; it does not add semantic validity, external
+  model theory, modal provability, arithmetic coding, diagonal obstruction,
+  IO, or self-recognition.
+
+*)
+
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                                PUBLIC EXPORT                                 │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
+
+  The public API is the cumulative export of the completed M001 stack through
+  `M001_10__Evaluation_Closure`. Importers should depend on this file when
+  they need the operational regulator-theory surface rather than an
+  individual construction layer.
+
+(*    M001_API ≔ Premises ⊕ Kernel ⊕ Deduction ⊕ Falsity ⊕ Certificates ⊕     *)
+(*      Application ⊕ Adequacy ⊕ NegativeTransport ⊕ SymbolicRegulator ⊕      *)
+(*                   RegulatorAdequacy ⊕ EvaluationClosure                    *)
+
+From M001 Require Export M001_10__Evaluation_Closure.

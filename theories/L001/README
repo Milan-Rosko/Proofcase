@@ -1,0 +1,331 @@
+(* README *)
+
+1 - Summary
+    -------
+
+    L001 formalizes the Aporetic Lemma as a constructive fixed-point,
+    collapse, and obstruction layer over the M001 regulator substrate.
+
+    The theorem does not assert classical excluded middle, does not refute
+    excluded middle in Rocq, and does not introduce semantic truth,
+    arithmetic provability, or modal machinery. Its mathematical core is a
+    closure predicate on M001 formulas:
+
+      C : Formula -> Prop
+
+    The primitive closure equivalence is implication-induced:
+
+      ClosureEquiv C A B =
+        C (Imp A B) /\ C (Imp B A)
+
+    The excluded-middle status used by L001 is internal to the closure:
+
+      ClosureExcludedMiddle C =
+        forall A, C A \/ C (formula_negation A)
+
+    Full evaluation closure is stronger than the fixed-point argument needs.
+    For a goal `G`, L001 isolates the goal-specific fragment:
+
+      ClosureEvaluationFrameForGoal C Code ev G =
+        exists c, forall x,
+          ClosureEquiv C (ev c x) (Imp (ev x x) G)
+
+    At `G := Bot`, this is the minimal self-referential power that produces a
+    negation fixed point:
+
+      exists B, NegationFixedPointFor C B
+
+    where
+
+      NegationFixedPointFor C B =
+        ClosureEquiv C B (formula_negation B)
+
+    If the same closure is closed under object-level modus ponens and supplies
+    excluded-middle status at the diagonal formula, L001 derives `C Bot`.
+    If the closure is also externally consistent, this becomes an obstruction
+    to the decision principle. In its explicit undecidability form:
+
+      closure_acceptance_undecidable_theorem
+
+    states that no total Boolean classifier can decide the acceptance set of
+    such a closure.
+
+    The stable public import is:
+
+      From L001 Require Import L001_95_API.
+
+
+2 - Boundary
+    --------
+
+    M001 supplies syntax, axiom sets, regulator theories, checked derivability,
+    symbolic regulators, and evaluation frames. L001 does not modify those
+    layers. It reads an M001 regulator instance through:
+
+      RegulatorClosure profile T Gamma A =
+        regulator_theory_closure
+          (regulator_theory_with_axiom_set profile T)
+          Gamma A
+
+    and
+
+      RegulatorClosureEvaluationFrame profile T Gamma Code =
+        RegulatorEvaluationFrame
+          (regulator_theory_with_axiom_set profile T)
+          Gamma Code
+
+    Thus the M001 instance is explicitly generated from a
+    `RegulatorLogicProfile`, an `AxiomSet`, and a `Context`.
+
+    L001 depends on the public M001 API, not on M001 implementation internals.
+    It uses M001's evaluation-closure interface as a fixed-point engine and
+    then adds the closure-level excluded-middle and consistency hypotheses
+    that turn the fixed point into an obstruction.
+
+    The abstract layer also exposes a decomposition of the goal frame:
+
+      ClosureDiagonalRep
+      ClosureGoalImpRep
+      ClosureImplicationCongruence
+
+    together yield `ClosureEvaluationFrameForGoal`, provided the closure has
+    `ClosureModusPonens`. The congruence condition is explicit because modus
+    ponens alone does not make closure equivalence transitive.
+
+
+3 - Proof Shape
+    -----------
+
+    Evaluation completeness names every unary behavior over codes up to
+    closure equivalence. The weaker goal-frame form names only the one
+    behavior needed for a chosen goal:
+
+      x ↦ ev x x → G
+
+    L001 obtains a code whose self-application yields a formula `B` satisfying:
+
+      B ≃_C (B → G)
+
+    With `G := Bot`, this becomes:
+
+      B ≃_C formula_negation B
+
+    The collapse is branch-based. If `C B`, then the implication
+    `B → formula_negation B` yields `C (formula_negation B)`, and since
+    `formula_negation B` is definitionally `Imp B Bot`, modus ponens yields
+    `C Bot`.
+
+    If `C (formula_negation B)`, then the converse implication
+    `formula_negation B → B` yields `C B`, and the same final modus ponens
+    yields `C Bot`.
+
+    Consistency is not part of the fixed-point construction. It appears only
+    at the obstruction boundary, where a hypothesis
+
+      ClosureConsistent C = C Bot -> False
+
+    converts the derived bottom formula into a contradiction.
+
+
+4 - Obstruction Boundary
+    --------------------
+
+    L001_03__Aporetic_Obstruction.v separates collapse from obstruction.
+    The collapse theorems in `L001_02__Aporetic_Lemma.v` derive an accepted
+    bottom formula:
+
+      C Bot
+
+    The obstruction layer adds consistency:
+
+      ClosureConsistent C = C Bot -> False
+
+    and therefore obtains impossibility statements.
+
+    At the generic closure level:
+
+      ClosureConsistent C
+      ClosureModusPonens C
+      ClosureEvaluationFrame C Code
+      ClosureExcludedMiddle C
+        ==> False
+
+    At the regulator instance:
+
+      RegulatorClosureConsistent profile T Gamma
+      RegulatorClosureEvaluationFrame profile T Gamma Code
+      RegulatorClosureExcludedMiddle profile T Gamma
+        ==> False
+
+    A total regulator decision is stronger than regulator-level excluded
+    middle, so it is obstructed under the same hypotheses.
+
+    Equivalently, the acceptance set of `C` is undecidable:
+
+      not exists d : Formula -> bool,
+        (forall A, d A = true  -> C A) /\
+        (forall A, d A = false -> C (formula_negation A))
+
+    The yes-status branch is obstructed only when accepting the status formula
+    provides a total regulator decision:
+
+      RegulatorClosure profile T Gamma excluded_middle_status ->
+      RegulatorDecision profile T Gamma
+
+    The no branch is deliberately weaker. A refutation-only classifier does
+    not collapse by itself. It becomes obstructive only in the presence of an
+    explicit `RegulatorDoubleNegationBridge`, which converts accepted double
+    negations into accepted formulas.
+
+
+5 - Files
+    -----
+
+    L001_00__Premises.v
+
+      Defines the generic closure vocabulary, closure decisions, evaluation
+      frames, goal-frame decomposition, generic fixed-point lemmas, M001
+      regulator-closure adapters, regulator decisions, status-branch
+      readings, refutations, and the optional double-negation bridge.
+
+    L001_02__Aporetic_Lemma.v
+
+      Proves the Curry-style fixed-point factorization, the branch-collapse
+      lemmas, the generic excluded-middle and decision collapses, and the
+      M001 regulator specialization `aporetic_lemma`.
+
+    L001_03__Aporetic_Obstruction.v
+
+      Adds consistency as the obstruction boundary. It proves generic and
+      regulator-specific impossibility theorems for excluded middle and total
+      decisions, isolates the yes-status obstruction, records the optional
+      double-negation bridge facts for the no branch, and exhibits the
+      always-false refutation classifier as the refutation-only non-collapse
+      witness.
+
+    L001_95_API.v
+
+      Exports the public closure aliases, named contract propositions, and
+      contradiction-shaped API endpoints.
+
+    L001_97_Artifacts.v
+
+      Packages the certified contract endpoints and writes the assumption
+      reports for `certified_aporetic_lemma_contract` and `aporetic_lemma_qed`;
+      the compile wrapper guards both reports as constructive endpoints.
+
+
+6 - Active Tree
+    -----------
+
+    M001_95_API
+      -> L001_00__Premises
+      -> L001_02__Aporetic_Lemma
+      -> L001_03__Aporetic_Obstruction
+      -> L001_95_API
+      -> L001_97_Artifacts
+
+
+7 - Public Vocabulary
+    -----------------
+
+    Closure layer:
+
+      ClosureTheory
+      ClosureEquiv
+      ClosureExcludedMiddle
+      ClosureModusPonens
+      ClosureConsistent
+      ClosureDecision
+      ClosureDecider
+      ClosureDeciderExists
+      ClosureEvaluationFrame
+      ClosureEvaluationFrameForGoal
+      ClosureImplicationCongruence
+      ClosureDiagonalRep
+      ClosureGoalImpRep
+      NegationFixedPointFor
+      ClosureNegationFixedPoint
+      CurryFixedPointFor
+
+    Regulator instance:
+
+      RegulatorClosure
+      RegulatorClosureEvaluationFrame
+      RegulatorClosureExcludedMiddle
+      RegulatorClosureConsistent
+      RegulatorDecision
+      RegulatorRefutation
+      RegulatorDoubleNegationBridge
+      RegulatorNegationFixedPoint
+      YesBranchDecides
+
+    Key lemmas:
+
+      generic_fixp_existence
+      closure_evaluation_frame_implies_goal_frame_lemma
+      closure_diagonal_plus_imp_rep_yields_goal_frame_lemma
+      closure_equiv_sym_lemma
+      closure_equiv_trans_lemma
+      decision_to_lem
+      negfixp_existence
+      curry_fixp_existence
+      closure_evaluation_full_frame_curry_fixed_point_lemma
+      negfixp_eq_curry_bot
+      closure_goal_frame_negation_fixed_point_lemma
+      negfixp_decision_collapse
+      negfixp_lem_collapse
+      closure_goal_frame_excluded_middle_collapses_lemma
+      lem_collapse
+      closure_goal_frame_decision_collapses_lemma
+      decision_collapse
+      regulator_negfixp_existence
+      regulator_lem_iff_closure_lem
+      regulator_decision_to_lem
+      regulator_lem_collapse
+      regulator_decision_collapse
+      aporetic_obstruction
+      closure_acceptance_undecidable_theorem
+      regulator_aporetic_obstruction
+      regulator_decision_obstruction
+      aporetic_status_yes_obstructed_lemma
+      aporetic_status_no_blocked_by_double_negation_lemma
+      aporetic_status_no_excludes_double_negation_lemma
+      refutation_not_obstructed
+      aporetic_lemma
+
+    Public contracts:
+
+      APORETIC_FIXED_POINT_CONTRACT
+      APORETIC_EXCLUDED_MIDDLE_COLLAPSE_CONTRACT
+      APORETIC_EXCLUDED_MIDDLE_OBSTRUCTION_CONTRACT
+      APORETIC_DECISION_COLLAPSE_CONTRACT
+      APORETIC_DECISION_OBSTRUCTION_CONTRACT
+      APORETIC_EQUIVALENCE_AD_ABSURDUM_IMPOSSIBILITY_CONTRACT
+      APORETIC_DECIDER_IMPOSSIBILITY_CONTRACT
+      APORETIC_LEMMA_CONTRACT
+      WITNESS
+
+
+8 - Certified Endpoints
+    -------------------
+
+    The artifact boundary exports:
+
+      certified_aporetic_fixed_point_contract
+      certified_aporetic_excluded_middle_collapse_contract
+      certified_aporetic_excluded_middle_obstruction_contract
+      certified_aporetic_decision_collapse_contract
+      certified_aporetic_decision_obstruction_contract
+      certified_aporetic_equivalence_ad_absurdum_impossibility_contract
+      certified_aporetic_decider_impossibility_contract
+      certified_aporetic_lemma_contract
+      aporetic_lemma_qed
+
+    The terminal public witness is:
+
+      aporetic_lemma_qed : WITNESS
+
+    L001 deliberately has no OCaml extraction surface. Its executable
+    substrate remains M001; L001 contributes certified obstruction endpoints
+    and assumption reports.

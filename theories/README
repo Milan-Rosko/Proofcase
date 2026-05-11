@@ -5,11 +5,20 @@
 
     This directory contains the formal theory packages of Proofcase Export.
 
-    Package prefixes indicate the role of a development:
+    A##  Algorithmic contributions: algorithms and effective methods.
 
-      A##  Algorithms and effective methods.
-      D##  Formalizations.
-      P##  Proof packages establishing named mathematical statements.
+    L##  Lemmatic contributions: lemmas, theorems, reductions, metatheorems, 
+         separations, and reusable formal gadgets.
+
+    M##  Model contributions: full formal models, logics, proof theories,
+         metatheories, and self-contained formal systems.
+
+    P##  Problem-solving contributions: achieved proofs of named open problems,
+         conjectures, challenges, or externally specified mathematical targets.
+
+    S##  Semantic support packages: semantics, interpretations, realizability
+         translations, models of problem meaning, and interfaces explaining how
+         an external statement is represented inside a formal development.
 
 2 - Canonicals
     ----------
@@ -26,13 +35,13 @@
       93_Construct/     Concrete export-facing payload.
       94_IO             Effective Input/Output.
       95_API            Stable import surface for other packages.
-      96_QED            Final theorem closure for the package.
-      97_Sanity         Local consistency and smoke checks.
-      97_Sanity/        Local consistency and smoke checks for a payload.
-      98_Examples       Examples and demonstrations.
-      99_Artifacts      Artifact, report, and extraction commands.
+      96_QED            Final theorem closure for the package and reports.
+      97_Artifacts      Ocaml artifact extraction commands.
+      98_Sanity         Local consistency and smoke checks.
+      98_Sanity/        Local consistency and smoke checks for a payload.
+      99_Exposition     Examples and demonstrations.
 
-    Not every package contains every boundary file.
+    Note that not every package contains every boundary file.
 
     File order follows proof dependency and computational cost. Expensive
     artifact generation is isolated near the end of a package, after the
@@ -49,9 +58,33 @@
       Certified pairing and unpairing of natural numbers using the Fibonacci
       base.
 
-    P001
+    M001
 
-      PIGEONHOLE DIVISIBILITY
+      REGULATOR THEORY
 
-      A formal proof that among any `n + 1` distinct positive integers chosen
-      from `1` through `2n`, two are related by divisibility.
+      A constructive framework for finite, syntactic, Boolean-checkable
+      derivability between objects.
+
+    S001
+
+      GENERAL LOGIC FORMULARY
+
+      A tutorial-style formulary of small logical proofs, starting with
+      elementary propositional reasoning.
+
+    S002
+
+      PIGEONHOLE DIVISIBILITY ERDŐS-PÓLYA ANECDOTE
+
+      A formal proof of the Erdős-Pólya anecdote that among any `n + 1`
+      distinct positive integers chosen from `1` through `2n`, two are related
+      by divisibility.
+
+    S003
+
+      RULE 30 CENTER-COLUMN REDUCTION CONTRACT
+
+      A self-contained Rule 30 base semantics and a closed proof of the
+      center-column periodicity reduction contract. The package does not prove
+      the unconditional center-column nonperiodicity claim; it exposes the
+      center-tail-to-window lift obligation as the remaining dependency.

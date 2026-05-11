@@ -1,0 +1,393 @@
+(* README *)
+
+1 - Summary
+    -------
+
+    M001 formalizes constructive regulator theory as a syntactic,
+    checker-first proof system for closed implication/falsity formulas.
+
+    The object language is deliberately small:
+
+      A, B ::= Bot | Imp A B
+
+    There are no object-level atoms, no object-level substitution operation,
+    and no semantic truth predicate. M001 is a regulator-theory substrate: it
+    defines formulas, contexts, axiom sets, proof scripts, Boolean checking,
+    checked derivability, inductive derivability, symbolic regulators, and
+    evaluation-closure interfaces.
+
+    The stable public import is:
+
+      From M001 Require Import M001_95_API.
+
+    The package is constructive. It provides deduction, constructive
+    negation introduction, modus-ponens composition, syntactic adequacy,
+    negative precomposition, and symbolic-regulator adequacy. It does not
+    provide arithmetic provability predicates, modal provability machinery,
+    semantic validity, external model theory, or diagonal self-recognition.
+    L001 is the first downstream fixed-point and obstruction layer over this
+    substrate.
+
+
+2 - Core Objects
+    -------------
+
+    M001_00_Premises.v registers the base syntactic and regulator objects.
+    These are the conceptual primitives for the whole package:
+
+      Formula
+      Context
+      AxiomSet
+      FiniteAxiomSet
+      RegulatorLogicProfile
+      RegulatorTheory
+      BooleanEnvironment
+      Justification
+      ProofLine
+      Proof
+
+    `AxiomSet` is the abstract axiom predicate boundary:
+
+      axiom_set_contains_bool : Formula -> bool
+
+    `FiniteAxiomSet` is the finite data boundary:
+
+      finite_axiom_set_formulas : list Formula
+
+    `RegulatorTheory` is the minimal wrapper around a logic profile and an
+    axiom set:
+
+      regulator_theory_profile   : RegulatorLogicProfile
+      regulator_theory_axiom_set : AxiomSet
+
+    `BooleanEnvironment` is a small bookkeeping environment for data that is
+    explicitly represented by Boolean predicates. In M001 it is used to
+    register regulator theories as Boolean-operational objects, not to add
+    model-theoretic semantics.
+
+
+3 - Checker
+    -------
+
+    Proof scripts are finite lists of proof lines. A line is justified as an
+    assumption, an available axiom, or modus ponens from earlier lines:
+
+      J_Assumption
+      J_Axiom
+      J_MP i j
+
+    The Boolean checker validates a proof script against a regulator theory,
+    context, and requested conclusion:
+
+      regulator_theory_check_bool R Gamma p A = true
+
+    The checker is total and syntactic. It rejects empty scripts, checks that
+    modus-ponens references point into the already-checked prefix, and accepts
+    both modus-ponens orientations at the certificate level. The unordered
+    modus-ponens convention is only a certificate convenience; the closure
+    principle remains ordinary modus ponens.
+
+    Finite axiom sets are connected to regulator theories by:
+
+      finite_axiom_set_to_axiom_set
+      finite_axiom_set_to_regulator_theory
+      finite_axiom_set_check_bool
+
+
+4 - Constructive Proof Operations
+    -----------------------------
+
+    M001_02__Abstraction.v proves the checked deduction theorem by an
+    executable proof transformer:
+
+      regulator_theory_deduction_transform A p
+
+    The theorem is:
+
+      regulator_theory_deduction_checked :
+        regulator_theory_check_bool R (ctx_extend A Gamma) p B = true ->
+        regulator_theory_check_bool R Gamma
+          (regulator_theory_deduction_transform A p)
+          (Imp A B) = true
+
+    M001_03__Falsity.v defines object-language negation as an abbreviation:
+
+      formula_negation A = Imp A Bot
+
+    Constructive reductio is deduction at bottom:
+
+      regulator_theory_reductio_transform A p =
+        regulator_theory_deduction_transform A p
+
+    The constructive theorem is:
+
+      regulator_theory_reductio_checked :
+        regulator_theory_check_bool R (ctx_extend A Gamma) p Bot = true ->
+        regulator_theory_check_bool R Gamma
+          (regulator_theory_reductio_transform A p)
+          (formula_negation A) = true
+
+    This is not classical reductio and not double-negation elimination.
+    The same file also exposes computed, paired, checked, and raw finite
+    reductio certificate shapes.
+
+    M001_05__Application.v proves checked proof-script composition for modus
+    ponens:
+
+      regulator_theory_mp_compose_checked_lemma :
+        regulator_theory_check_bool R Gamma p_imp (Imp A B) = true ->
+        regulator_theory_check_bool R Gamma p_arg A = true ->
+        regulator_theory_check_bool R Gamma
+          (regulator_theory_mp_compose B p_imp p_arg)
+          B = true
+
+    At the existential level this becomes:
+
+      regulator_theory_checked_derivable_mp_lemma
+
+    The same file also provides one-line checked-derivability witnesses for
+    assumptions and available axioms.
+
+
+5 - Derivability and Adequacy
+    -------------------------
+
+    M001_04__Certificates.v introduces the checked derivability vocabulary:
+
+      regulator_theory_proof_certificate
+      regulator_theory_checked_derivable
+      regulator_theory_not_checked_derivable
+      finite_axiom_set_checked_derivable
+      finite_axiom_set_not_checked_derivable
+
+    M001_06__Syntactic_Adequacy.v defines the inductive closure:
+
+      regulator_theory_inductive_derivable
+
+    The notation `⊢ᵢ` in comments denotes this inductive closure only. The
+    file then proves the central adequacy theorem:
+
+      regulator_theory_checked_derivable_iff_inductive_derivable_lemma
+
+    Thus Boolean proof checking and the inductive closure generated by
+    assumptions, axioms, and modus ponens coincide.
+
+    The exported induction principle is:
+
+      regulator_theory_checked_derivable_induction
+
+
+6 - Negative Transport and Monotonicity
+    -----------------------------------
+
+    M001_07__Obstruction.v proves negative precomposition:
+
+      regulator_theory_not_checked_derivable_precompose_lemma :
+        regulator_theory_checked_derivable R Gamma (Imp A B) ->
+        regulator_theory_not_checked_derivable R Gamma B ->
+        regulator_theory_not_checked_derivable R Gamma A
+
+    This theorem transports a supplied non-derivability claim backward
+    through a closed implication. It does not prove non-derivability of any
+    particular formula by itself.
+
+    The same file provides context and theory monotonicity:
+
+      context_included
+      axiom_set_included
+      regulator_theory_included
+      finite_axiom_set_included
+
+    together with checked-derivability monotonicity and non-derivability
+    antitonicity lemmas.
+
+
+7 - Symbolic Regulator
+    ------------------
+
+    M001_08__Symbolic_Regulator.v presents the native symbolic regulator.
+    Instructions are first-class syntactic objects:
+
+      RegulatorInstruction
+      RegulatorInstructionTag
+
+    Instruction validity is both inductive and Boolean:
+
+      regulator_instruction_valid
+      regulator_instruction_valid_bool
+
+    Components and regulated proof scripts are then built from valid
+    instructions:
+
+      RegulatorTheoryComponent
+      CheckedRegulatorTheoryComponent
+      regulator_theory_component_family
+      regulator_theory_regulated_suffix
+      regulator_theory_regulated_proof
+
+    The key characterization is:
+
+      regulator_theory_regulated_proof R Gamma p
+        iff
+      proof_script_check_from_bool R Gamma nil p = true
+
+    The package then exposes the abstract symbolic regulator interface:
+
+      SymbolicRegulator
+      S_λ
+      SymbolicRegulatorWorld
+
+    Here `S_λ` is only a constructive alias for `SymbolicRegulator`. It does
+    not import arithmetic coding, arithmetic provability predicates, modal
+    axioms, or model theory. Its role is to package a Boolean regulator with
+    its derivability predicate and the proof that Boolean acceptance is
+    equivalent to derivability.
+
+
+8 - Regulator Adequacy and Evaluation Closure
+    -----------------------------------------
+
+    M001_09__Regulator_Adequacy.v connects the symbolic regulator, machine,
+    and closure views:
+
+      regulator_theory_machine
+      finite_axiom_set_machine
+      regulator_theory_closure
+      finite_axiom_set_closure
+      regulator_theory_equivalent
+
+    The central bridge lemmas say that closure, checked derivability, and
+    symbolic-regulator derivability agree:
+
+      regulator_theory_closure_iff_checked_derivable_lemma
+      regulator_theory_closure_iff_symbolic_derivable_lemma
+      finite_axiom_set_closure_as_regulator_theory_closure_lemma
+
+    The closure layer also exports modus ponens, deduction, reductio,
+    negative precomposition, and monotonicity in closure form.
+
+    M001_10__Evaluation_Closure.v defines generic evaluation frames and their
+    regulator-theory version:
+
+      EvaluationFrame
+      RegulatorEvaluationFrame
+
+    Evaluation completeness yields a fixed point:
+
+      evaluation_frame_fixed_point_lemma
+      regulator_evaluation_frame_fixed_point_lemma
+
+    Fixed-point-free transformers rule out complete frames:
+
+      fixed_point_free_obstructs_frame
+      regulator_equiv_fixed_point_free
+      regulator_fixed_point_free_obstructs_frame
+
+    This is only an evaluation-closure bridge. L001 interprets it as a
+    fixed-point/collapse theorem; M001 itself does not add the obstruction
+    principle.
+
+
+9 - Active Tree
+    -----------
+
+    M001_00_Premises
+      -> M001_01__Kernel
+      -> M001_02__Abstraction
+      -> M001_03__Falsity
+      -> M001_04__Certificates
+      -> M001_05__Application
+      -> M001_06__Syntactic_Adequacy
+      -> M001_07__Obstruction
+      -> M001_08__Symbolic_Regulator
+      -> M001_09__Regulator_Adequacy
+      -> M001_10__Evaluation_Closure
+      -> M001_95_API
+      -> M001_97_Artifacts
+      -> M001_98_Sanity
+
+
+10 - Files
+     -----
+
+    M001_00_Premises.v
+
+      Canonical definitions for formulas, contexts, axiom sets, regulator
+      profiles, regulator theories, Boolean environments, justifications,
+      proof lines, and proof scripts.
+
+    M001_01__Kernel.v
+
+      Formula equality, context membership, finite axiom-set membership, K/S
+      and optional EFQ recognition, proof-line validation, proof-script
+      checking, and finite axiom-set checking.
+
+    M001_02__Abstraction.v
+
+      Executable deduction transformer and checked deduction theorem.
+
+    M001_03__Falsity.v
+
+      Object-language negation, constructive reductio, and reductio
+      certificate surfaces.
+
+    M001_04__Certificates.v
+
+      Checked proof certificates and checked derivability vocabulary.
+
+    M001_05__Application.v
+
+      Proof-script shifting, checked modus-ponens composition, and checked
+      closure lemmas for assumptions and axioms.
+
+    M001_06__Syntactic_Adequacy.v
+
+      Inductive derivability and checked/inductive adequacy.
+
+    M001_07__Obstruction.v
+
+      Negative transport through checked implications, context monotonicity,
+      regulator-theory monotonicity, finite axiom-set monotonicity, and
+      antitone non-derivability transport.
+
+    M001_08__Symbolic_Regulator.v
+
+      Regulator instructions, regulator components, regulated proof scripts,
+      symbolic regulator records, `S_λ`, finite and abstract regulator
+      instances, and checker/regulator equivalence.
+
+    M001_09__Regulator_Adequacy.v
+
+      Machine views, closure views, equivalence inside closure, and closure
+      principles for the regulator theory.
+
+    M001_10__Evaluation_Closure.v
+
+      Generic and regulator evaluation frames, fixed-point lemmas, and
+      fixed-point-free frame obstruction forms.
+
+    M001_95_API.v
+
+      Public import boundary for the completed M001 stack.
+
+    M001_97_Artifacts.v
+
+      Assumption reports and extraction/artifact boundary. The extracted
+      source artifact is `regulator_theory_checker.ml/.mli`.
+
+    M001_98_Sanity.v
+
+      Smoke tests for syntax, checking, proof transformers, certificates,
+      adequacy, negative transport, symbolic regulators, closure, and
+      evaluation.
+
+
+11 - Public Import
+     -------------
+
+    Downstream developments should normally import:
+
+      From M001 Require Import M001_95_API.
+
+    L001 does exactly this and then builds the Aporetic fixed-point theorem
+    over `RegulatorClosure` and `RegulatorClosureEvaluationFrame`.

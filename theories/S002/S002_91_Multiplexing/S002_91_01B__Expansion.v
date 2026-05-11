@@ -1,4 +1,4 @@
-(*A001_95_API.v*)
+(*S002_91_01B__Expansion.v*)
 
 (*
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -9,15 +9,39 @@
 │                                      visit https://www.mozilla.org/en-US/MPL │
 └──────────────────────────────────────────────────────────────────────────────┘
 ┌──────────────────────────────────────────────────────────────────────────────┐
-│                           Proofcase / A001_95_API                            │
+│                      Proofcase / S002_91_01B__Expansion                      │
 └──────────────────────────────────────────────────────────────────────────────┘
 
   OVERVIEW
 
-  Public API surface for A001. We expose the certified carryless pairing
-  surface, so that external developments may depend on a single stable
-  package interface.
+  This conjectural multiplexing presentation imports the reframed expansion
+  from `S002_01` and records that proving that expansion would already yield
+  the witness. It is part of the proof history, not the completed proof
+  selected by the terminal switch.
 
 *)
 
-From A001 Require Export A001_05__Pair_Unpair_Correct.
+From S002 Require Export S002_01__Reframing.
+
+(*
+│
+│          The historical expansion presentation keeps only the open
+│          expanded obligation, reusing the canonical
+│          `first_expansion` shape from the reframing layer.
+│
+*)
+
+Conjecture first_expansion_holds : first_expansion.
+
+(*
+│
+│          The expanded obligation supplies a proof of `WITNESS`
+│          through the reframing theorem.
+│
+*)
+
+Theorem UNCONDITIONAL_PROOF : WITNESS.
+Proof.
+  apply first_expansion_implies_WITNESS.
+  exact first_expansion_holds.
+Qed.
