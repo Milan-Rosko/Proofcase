@@ -33,9 +33,8 @@
 	theories/M001/M001_05__Application.v
 	theories/M001/M001_06__Syntactic_Adequacy.v
 	theories/M001/M001_07__Obstruction.v
-	theories/M001/M001_08__Symbolic_Regulator.v
-	theories/M001/M001_09__Regulator_Adequacy.v
-	theories/M001/M001_10__Evaluation_Closure.v
+	theories/M001/M001_08__Regulation.v
+	theories/M001/M001_09__Evaluation_Closure.v
 	theories/M001/M001_95_API.v
 	theories/M001/M001_97_Artifacts.v
 	theories/M001/M001_98_Sanity.v

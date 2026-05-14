@@ -17,14 +17,13 @@
   Computational artifacts for M001. This file emits assumption reports for
   the main constructive theorems and extracts the executable checker,
   proof-script transformers, certificate checkers, regulator-instruction
-  checker, symbolic-regulator acceptance functions, and machine aliases. The
-  artifacts are operational code, not an additional API layer and not a
-  semantic validator.
+  checker, and symbolic-regulator acceptance functions. The artifacts are
+  operational code, not an additional API layer and not a semantic validator.
 
   The extraction surface is intentionally narrow: Boolean predicates,
   proof-script accessors, proof checkers, deduction and reductio transforms,
-  finite certificate checkers, instruction reification, symbolic-regulator
-  acceptance functions, and machine views. No IO protocol, no semantic
+  finite certificate checkers, instruction reification, and
+  symbolic-regulator acceptance functions. No IO protocol, no semantic
   interpretation record, no classical target machinery, no proof field, no
   modal provability predicate, no arithmetic coding, and no self-recognition
   principle is extracted.
@@ -76,11 +75,11 @@ Redirect "theories/M001/_appendix/_assumptions/regulator_theory_syntactic_adequa
   The extracted artifact is the executable checker package. Its roots are the
   formula/context decidable structure, axiom recognizers, proof-script
   checker, deduction and reductio transforms, finite reductio certificate
-  checkers, instruction reification, symbolic-regulator acceptance functions,
-  and machine aliases.
+  checkers, instruction reification, and symbolic-regulator acceptance
+  functions.
 
 (*       extract(M001) : checker ∪ transforms ∪ certificate_checkers ∪        *)
-(*            instruction_checker ∪ symbolic_acceptance ∪ machines            *)
+(*                 instruction_checker ∪ symbolic_acceptance                  *)
 (* target(M001) = theories/M001/_appendix/_artifacts/regulator_theory_checker *)
 
 Extraction Language OCaml.
@@ -121,6 +120,4 @@ Extraction "theories/M001/_appendix/_artifacts/regulator_theory_checker"
   proof_line_to_regulator_instruction
   regulator_instruction_valid_bool
   regulator_theory_regulates_bool
-  finite_axiom_set_regulates_bool
-  regulator_theory_machine
-  finite_axiom_set_machine.
+  finite_axiom_set_regulates_bool.

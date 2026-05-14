@@ -645,16 +645,3 @@ let regulator_theory_regulates_bool =
 
 let finite_axiom_set_regulates_bool =
   finite_axiom_set_check_bool
-
-(** val regulator_theory_machine :
-    regulatorTheory -> context -> proof -> formula -> bool **)
-
-let regulator_theory_machine =
-  regulator_theory_check_bool
-
-(** val finite_axiom_set_machine :
-    regulatorLogicProfile -> finiteAxiomSet -> context -> proof -> formula ->
-    bool **)
-
-let finite_axiom_set_machine =
-  finite_axiom_set_check_bool

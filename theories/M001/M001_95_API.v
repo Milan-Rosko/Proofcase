@@ -17,8 +17,8 @@
   Public operational API surface for M001. Importing this file exports the
   active regulator-theory stack: primitive syntax, Boolean checking,
   deduction and reductio transforms, checked and inductive derivability, MP
-  composition, negative precomposition, symbolic regulators,
-  checker/regulator interface lemmas, and evaluation-closure bridges.
+  composition, negative precomposition, symbolic regulators, the
+  closure/equivalence interface, and evaluation-closure bridges.
 
   The API remains syntactic and operational. It exposes
   `regulator_theory_check_bool`, `regulator_theory_checked_derivable`,
@@ -38,12 +38,11 @@
 *)
 
   The public API is the cumulative export of the completed M001 stack through
-  `M001_10__Evaluation_Closure`. Importers should depend on this file when
+  `M001_09__Evaluation_Closure`. Importers should depend on this file when
   they need the operational regulator-theory surface rather than an
   individual construction layer.
 
 (*    M001_API ≔ Premises ⊕ Kernel ⊕ Deduction ⊕ Falsity ⊕ Certificates ⊕     *)
-(*      Application ⊕ Adequacy ⊕ NegativeTransport ⊕ SymbolicRegulator ⊕      *)
-(*                   RegulatorAdequacy ⊕ EvaluationClosure                    *)
+(*Application ⊕ Adequacy ⊕ NegativeTransport ⊕ Regulation ⊕ EvaluationClosure *)
 
-From M001 Require Export M001_10__Evaluation_Closure.
+From M001 Require Export M001_09__Evaluation_Closure.

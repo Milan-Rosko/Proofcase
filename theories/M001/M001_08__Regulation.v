@@ -1,4 +1,4 @@
-(*M001_08__Symbolic_Regulator.v*)
+(*M001_08__Regulation.v*)
 
 (*
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -9,25 +9,28 @@
 │                                      visit https://www.mozilla.org/en-US/MPL │
 └──────────────────────────────────────────────────────────────────────────────┘
 ┌──────────────────────────────────────────────────────────────────────────────┐
-│                   Proofcase / M001_08__Symbolic_Regulator                    │
+│                       Proofcase / M001_08__Regulation                        │
 └──────────────────────────────────────────────────────────────────────────────┘
 
   OVERVIEW
 
-  Symbolic regulator presentation for regulator-theory checking. The earlier
-  layers define proof lines, finite scripts, a Boolean checker, checked
+  Regulation interface for regulator-theory checking. The earlier layers
+  define proof lines, finite scripts, a Boolean checker, checked
   derivability, syntactic adequacy, and monotonicity. This layer reifies one
   proof line as a first-class regulator instruction, proves that
   instruction-level regulation is exactly the line checker, lifts that
-  equivalence to regulated proof scripts, and packages the checker as an
-  abstract `SymbolicRegulator`.
+  equivalence to regulated proof scripts, packages the checker as an abstract
+  `SymbolicRegulator`, and exposes the minimal closure/equivalence vocabulary
+  needed by evaluation and L001.
 
-  The symbolic regulator remains operational. Its acceptance predicate is a
-  Boolean function on instructions and outputs, and the regulator-theory
-  instance is definitionally the existing `regulator_theory_check_bool`. The
-  paper-facing symbol `S_λ` is used here only for this constructive
-  interface: a carrier of instructions, a carrier of outputs, and a Boolean
-  acceptance relation. No semantic interpretation, model carrier, truth
+  The regulator remains operational. Its acceptance predicate is a Boolean
+  function on instructions and outputs, and the regulator-theory instance is
+  definitionally the existing `regulator_theory_check_bool`. The paper-facing
+  symbol `S_λ` is used here only for this constructive interface: a carrier
+  of instructions, a carrier of outputs, and a Boolean acceptance relation.
+  The closure view is checked derivability, equivalence is implication in
+  both directions inside that closure, and the one exported closure principle
+  is modus ponens. No semantic interpretation, model carrier, truth
   predicate, modal provability operator, arithmetic coding, diagonal
   obstruction, self-token, or self-recognition principle is introduced here.
 
@@ -896,4 +899,64 @@ Proof.
   - apply Hnot.
     apply finite_axiom_set_symbolic_derivable_iff_checked_derivable_lemma.
     exact Hpos.
+Qed.
+
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                           REGULATOR-THEORY CLOSURE                           │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
+
+  `regulator_theory_closure R Γ` is the output-side predicate induced by the
+  checker: a formula belongs to the closure exactly when it is
+  checked-derivable from `Γ` under regulator theory `R`.
+
+(*                       closure_R,Γ(A) ≔ R; Γ ⊢check A                       *)
+
+Definition regulator_theory_closure
+    (R : RegulatorTheory)
+    (Gamma : Context)
+    : Formula -> Prop :=
+  fun A => regulator_theory_checked_derivable R Gamma A.
+
+  `regulator_theory_equivalent R Γ A B` is closure equivalence: each
+  implication direction is accepted by the regulator-theory closure. This is
+  the equivalence relation used by regulated evaluation frames in `M001_09`.
+
+(*           A ≃_{R,Γ} B ≔ closure_R,Γ(A → B) ∧ closure_R,Γ(B → A)            *)
+
+Definition regulator_theory_equivalent
+    (R : RegulatorTheory)
+    (Gamma : Context)
+    (A B : Formula) : Prop :=
+  regulator_theory_closure R Gamma (Imp A B) /\
+  regulator_theory_closure R Gamma (Imp B A).
+
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                              CLOSURE PRINCIPLES                              │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
+
+  The sole closure principle exported here is modus ponens. It is the checked
+  MP composition theorem restated under the closure predicate, and it is the
+  regulator instance consumed by L001's collapse argument.
+
+(*             closure_R,Γ(A→B) ∧ closure_R,Γ(A) ⇒ closure_R,Γ(B)             *)
+
+Lemma regulator_theory_closure_closed_under_mp_lemma :
+  forall R Gamma A B,
+    regulator_theory_closure R Gamma (Imp A B) ->
+    regulator_theory_closure R Gamma A ->
+    regulator_theory_closure R Gamma B.
+Proof.
+  intros R Gamma A B Himp Harg.
+  unfold regulator_theory_closure in *.
+  apply regulator_theory_checked_derivable_mp_lemma
+    with (A := A);
+    assumption.
 Qed.

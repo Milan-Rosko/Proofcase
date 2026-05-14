@@ -232,10 +232,3 @@ val regulator_theory_regulates_bool :
 val finite_axiom_set_regulates_bool :
   regulatorLogicProfile -> finiteAxiomSet -> context -> proof -> formula ->
   bool
-
-val regulator_theory_machine :
-  regulatorTheory -> context -> proof -> formula -> bool
-
-val finite_axiom_set_machine :
-  regulatorLogicProfile -> finiteAxiomSet -> context -> proof -> formula ->
-  bool

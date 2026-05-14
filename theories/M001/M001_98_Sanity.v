@@ -18,8 +18,9 @@
   formula equality, context membership, axiom recognition, assumption and MP
   checking, finite axiom sets, deduction, reductio, certificate checking,
   checked and inductive derivability, negative precomposition,
-  symbolic-regulator identities, machine aliases, and evaluation closure.
-  They are small compile-time witnesses, not a separate theorem layer.
+  symbolic-regulator identities, the closure/equivalence interface, and
+  evaluation closure. They are small compile-time witnesses, not a separate
+  theorem layer.
 
   This file deliberately imports only `M001_95_API`: it checks the public
   operational surface as downstream users would see it. The probes do not
@@ -406,22 +407,19 @@ Qed.
 (*
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │                                                                              │
-│                     SYMBOLIC REGULATOR AND MACHINE VIEW                      │
+│                     SYMBOLIC REGULATOR AND CLOSURE VIEW                      │
 │                                                                              │
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  The symbolic-regulator and machine views are transparent wrappers around
-  the checker. These probes fix the definitional bridge from accepted proof
-  scripts to symbolic-regulator derivability and to the closure predicate.
+  The symbolic-regulator view is a transparent wrapper around the checker.
+  These probes fix the definitional bridge from accepted proof scripts to
+  symbolic-regulator derivability and keep the minimal closure interface
+  visible from the public API.
 
 (* symbolic_regulator_derivable(regulator_theory_symbolic_regulator(R,Γ),A) ⇔ *)
 (*                               R; Γ ⊢check A                                *)
-(*  regulator_theory_machine(R,Γ,p,A) = regulator_theory_check_bool(R,Γ,p,A)  *)
-(*                  regulator_theory_machine(R,Γ,p,A)=true ⇔                  *)
-(*symbolic_regulator_accepts_bool(regulator_theory_symbolic_regulator(R,Γ),p,A)=true*)
-(*                     regulator_theory_closure(R,Γ,A) ⇔                      *)
-(*  symbolic_regulator_derivable(regulator_theory_symbolic_regulator(R,Γ),A)  *)
+(*             closure_R,Γ(A→B) ∧ closure_R,Γ(A) ⇒ closure_R,Γ(B)             *)
 
 Example sanity_symbolic_derivable_iff_checked :
   forall R Gamma A,
@@ -434,42 +432,20 @@ Proof.
   exact regulator_theory_symbolic_derivable_iff_checked_derivable_lemma.
 Qed.
 
-Example sanity_machine_runs_checker :
-  forall R Gamma p A,
-    regulator_theory_machine R Gamma p A =
-    regulator_theory_check_bool R Gamma p A.
+Example sanity_closure_closed_under_mp_shape :
+  forall R Gamma A B,
+    regulator_theory_closure R Gamma (Imp A B) ->
+    regulator_theory_closure R Gamma A ->
+    regulator_theory_closure R Gamma B.
 Proof.
-  exact regulator_theory_machine_runs_checker_lemma.
+  exact regulator_theory_closure_closed_under_mp_lemma.
 Qed.
 
-Example sanity_machine_acceptance_iff_symbolic :
-  forall R Gamma p A,
-    regulator_theory_machine R Gamma p A = true
-    <->
-    symbolic_regulator_accepts_bool
-      (regulator_theory_symbolic_regulator R Gamma)
-      p A = true.
-Proof.
-  exact regulator_theory_machine_acceptance_iff_symbolic_regulator_lemma.
-Qed.
-
-Example sanity_closure_iff_symbolic_derivable :
-  forall R Gamma A,
-    regulator_theory_closure R Gamma A
-    <->
-    symbolic_regulator_derivable
-      (regulator_theory_symbolic_regulator R Gamma)
-      A.
-Proof.
-  exact regulator_theory_closure_iff_symbolic_derivable_lemma.
-Qed.
-
-Example sanity_machine_accepts_K_axiom :
-  regulator_theory_machine
-    regulator_theory_empty_minimal
-    ctx_empty
-    sanity_K_proof
-    sanity_K_formula = true.
+Example sanity_regulator_equivalent_unfold :
+  forall R Gamma A B,
+    regulator_theory_equivalent R Gamma A B <->
+    regulator_theory_closure R Gamma (Imp A B) /\
+    regulator_theory_closure R Gamma (Imp B A).
 Proof.
   reflexivity.
 Qed.
