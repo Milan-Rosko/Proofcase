@@ -111,8 +111,8 @@ Qed.
 │          `deduction_identity_block_from` is the five-line K/S proof
 │          of `A → A` used for the discharged hypothesis itself; it
 │          consults neither `Γ` nor the external axiom set, and its
-│          reverse-orientation MP lines are accepted by `M001_01`'s
-│          unordered `mp_valid_bool`.
+│          reverse-orientation MP lines are accepted by
+│          `mp_valid_bool`.
 │
 *)
 
@@ -167,9 +167,9 @@ Definition deduction_axiom_lift_block_from
 │          `deduction_mp_lift_block_from` is the heart of the
 │          transformer: a source MP from `φ_i` and `φ_j` becomes an
 │          output MP of `A → φ_i` and `A → φ_j` mediated by S. The two
-│          indices `idx_imp` and `idx_arg` point into the output proof
-│          — they are the entries the index map has already recorded
-│          for the implication and its antecedent.
+│          indices `idx_imp` and `idx_arg` point into the output
+│          proof; they are the entries the index map has already
+│          recorded for the implication and its antecedent.
 │
 *)
 
@@ -230,8 +230,8 @@ Definition deduction_state_next_index (st : DeductionState) : nat :=
 │
 │          `deduction_state_append_block` appends a generated block to
 │          the output proof and records the absolute index of its
-│          final line — the one whose formula is `A → φ` for the
-│          source line just transformed — into the index map. The four
+│          final line; the one whose formula is `A → φ` for the source
+│          line just transformed; into the index map. The four
 │          `deduction_state_append_*` wrappers below specialize this
 │          to the four block shapes, each passing the offset within
 │          the block at which the final line sits.
@@ -281,8 +281,8 @@ Definition deduction_state_append_mp_lift
 │          `deduction_mp_lift_block_from` block in whichever of the
 │          two MP orientations succeeds. The two orientations
 │          correspond exactly to `mp_orientation_left_bool` and
-│          `mp_orientation_right_bool` of `M001_01`'s `mp_valid_bool`
-│          — that is the unordered-MP certificate convention. On any
+│          `mp_orientation_right_bool` of `M001_01`'s `mp_valid_bool`;
+│          that is the unordered-MP certificate convention. On any
 │          input that already passed `mp_valid_bool` for the source
 │          line at least one orientation succeeds, by
 │          `mp_valid_bool_components_lemma` /
@@ -349,9 +349,7 @@ Definition deduction_transform_line
 │          `deduction_transform_lines` walks the source script left to
 │          right, threading the `DeductionState` through
 │          `deduction_transform_line` while extending the source
-│          prefix at every step. Concatenation is on the right so that
-│          source MP references — which point backward into the prefix
-│          already consumed — read naturally from the index map.
+│          prefix at every step. Concatenation is on the right.
 │
 *)
 
@@ -415,14 +413,14 @@ Ltac regulator_theory_deduction_cbn :=
 
 (*
 │
-│          The four `*_block_check` lemmas — one per template —
-│          discharge the block's `proof_script_check_from_bool`
-│          obligation against any prefix of the right length. They are
-│          the only proofs in this file that have to inspect MP
-│          orientation: they call `mp_valid_bool_reverse_lemma` for
-│          the K/S-built blocks and `mp_valid_bool_direct_lemma` for
-│          the simpler lift blocks. Once these four are established,
-│          the block-checking API becomes orientation-agnostic.
+│          The four `*_block_check` lemmas discharge the block's
+│          `proof_script_check_from_bool` obligation against any
+│          prefix of the right length. They are the only proofs in
+│          this file that have to inspect MP orientation: they call
+│          `mp_valid_bool_reverse_lemma` for the K/S-built blocks and
+│          `mp_valid_bool_direct_lemma` for the simpler lift blocks.
+│          Once these four are established, the block-checking API
+│          becomes orientation-agnostic.
 │
 *)
 
@@ -788,8 +786,8 @@ Qed.
 │          map already recorded. For each source line at position `i`,
 │          the map's `i`-th entry must be an output index `k` such
 │          that the output's `k`-th line carries formula `A → φ_i`.
-│          The inductive shape — co-traversal of `source` and
-│          `index_map` — is what makes the four
+│          The inductive shape co-traversal of `source` and
+│          `index_map` is what makes the four
 │          `deduction_state_append_*_verified` proofs go through with
 │          a single extension step each.
 │
@@ -865,7 +863,7 @@ Record deduction_state_verified
 (*
 │
 │          `deduction_index_map_verified_app_output_lemma` says
-│          appending lines to the output preserves the invariant — the
+│          appending lines to the output preserves the invariant; the
 │          entries already recorded still point at the same formulas.
 │          `deduction_index_map_verified_extend_lemma` adds a fresh
 │          source line together with a fresh map entry.
@@ -1353,7 +1351,7 @@ Qed.
 │          `regulator_theory_deduction_minimal_checked` is the
 │          EFQ-free specialisation of
 │          `regulator_theory_deduction_checked`. The transformer is
-│          regulator-profile uniform — the K/S blocks contain no EFQ —
+│          regulator-profile uniform; the K/S blocks contain no EFQ;
 │          so the specialisation is immediate through
 │          `regulator_theory_check_minimal_bool`. We expose it as a
 │          named theorem because later layers often state EFQ-free

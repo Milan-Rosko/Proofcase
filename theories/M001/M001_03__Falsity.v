@@ -101,6 +101,7 @@ Qed.
 *)
 
 (*     reductio_transform(A,p) ≔ regulator_theory_reductio_transform(A,p)     *)
+
 (*    regulator_theory_reductio_transform(A,p) = deduction_transform(A,p)     *)
 
 Definition regulator_theory_reductio_transform

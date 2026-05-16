@@ -14,31 +14,24 @@
 
   OVERVIEW
 
-  Evaluator kernel for M001. We compute over the closed implicational/falsity
-  object-language syntax, finite-list contexts, axiom-set interfaces
-  (`AxiomSet` functional and `FiniteAxiomSet` finite-data), logical profiles,
-  regulator theories, Boolean environments, and finite proof-script grammar
-  declared in `M001_00_Premises`. This file adds the Boolean equality,
-  membership, axiom-schema recognition, MP validation, and total proof
-  checker that certify those primitive objects. Everything in this layer is
-  syntactic and certificate-first: formulas are finite trees, contexts are
-  finite lists, proofs are finite scripts, and checking is Boolean
-  computation that terminates on every input. The checker performs no proof
-  search, no semantic validation, no unification, and no normalization beyond
-  the explicit Boolean checks defined here.
+  We compute over the closed implicational-falsity object syntax, finite-list
+  contexts, axiom-set interfaces (`AxiomSet` functional and `FiniteAxiomSet`
+  finite-data), logical profiles, regulator theories, Boolean environments,
+  and finite proof-script grammar declared before . This adds the Boolean
+  equality, membership, axiom-schema recognition, MP validation, and total
+  proof checker that certify those primitive objects. Everything in this
+  layer is syntactic and certificate-first: formulas are finite trees,
+  contexts are finite lists, proofs are finite scripts, and checking is
+  Boolean computation that terminates on every input. The checker performs no
+  proof search, no semantic validation, no unification, and no normalization
+  beyond the explicit Boolean checks defined here.
 
-  This is the first user-facing layer above the trusted base
-  (`M001_00_Premises`): every later component — the deduction transformer in
-  `M001_02`, constructive negation introduction in `M001_03`, checked
-  derivability in `M001_04`, checked MP composition in `M001_05`, the
-  inductive-derivability adequacy in `M001_06`, negative precomposition in
-  `M001_07`, the native symbolic regulator in `M001_08`, and the
-  checker/regulator unfolding theorems in `M001_09` — is stated as a property
-  of `regulator_theory_check_bool` over the `Formula`, `Context`,
-  `RegulatorTheory`, and `Proof` declared in the premise layer. The full list
-  of exported names is in the package README; this file does not introduce
-  semantic validity, external model theory, modal provability, arithmetic
-  coding, diagonal obstruction, or self-recognition.
+  Every later component is stated as a property of
+  `regulator_theory_check_bool` over the `Formula`, `Context`,
+  `RegulatorTheory`, and `Proof` in the premise layer. The full list of
+  exported names is in README file. This file does not introduce semantic
+  validity, external model theory, modal provability, arithmetic coding,
+  diagonal obstruction, or self-recognition.
 
 *)
 
@@ -63,7 +56,7 @@ From M001 Require Export M001_00_Premises.
 │
 *)
 
-(*                     formula_eq_bool(A,B)=true ⇔ A = B                      *)
+(*                    formula_eq_bool(A,B) = true ⇔ A = B                     *)
 
 Fixpoint formula_eq_bool (A B : Formula) : bool :=
   match A, B with
@@ -185,7 +178,7 @@ Qed.
 │
 *)
 
-(*                       ctx_mem_bool(A,Γ)=true ⇔ A ∈ Γ                       *)
+(*                      ctx_mem_bool(A,Γ) = true ⇔ A ∈ Γ                      *)
 
 Fixpoint ctx_mem_bool (A : Formula) (Gamma : Context) : bool :=
   match Gamma with
@@ -319,7 +312,7 @@ Qed.
 │
 *)
 
-(*              finite_axiom_set_contains_bool(FT,A)=true ⇔ A ∈               *)
+(*             finite_axiom_set_contains_bool(FT,A) = true ⇔ A ∈              *)
 (*                       finite_axiom_set_formulas(FT)                        *)
 
 Definition finite_axiom_set_contains_bool
@@ -361,12 +354,10 @@ Qed.
 (*
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │                                                                              │
-│                       BOOLEAN AXIOM-SCHEMA RECOGNITION                       │
+│                              SCHEMA RECOGNITION                              │
 │                                                                              │
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
-
-(*                              K ≔ A → (B → A)                               *)
 
 (*
 │
@@ -379,6 +370,8 @@ Qed.
 │          shape returns `false` cleanly for later disjunctive checks.
 │
 *)
+
+(*                              K ≔ A → (B → A)                               *)
 
 Definition k_axiom_bool (phi : Formula) : bool :=
   match phi with
@@ -395,7 +388,7 @@ Definition k_axiom_bool (phi : Formula) : bool :=
 │          directions are exposed because the inductive-derivability
 │          layer in `M001_06` needs soundness to unfold a `J_Axiom`
 │          line back to its K shape, while the deduction transformer
-│          in `M001_02` only needs completeness.
+│          only needs completeness.
 │
 *)
 
@@ -433,8 +426,8 @@ Qed.
 │          destructure the full nested shape and confirm the four
 │          shared sub-positions through `formula_eq_bool`. The pattern
 │          is intentionally rigid — any S-equivalent rewriting is
-│          rejected — because the deduction transformer in `M001_02`
-│          is what generates the precise shape we accept here.
+│          rejected as the deduction transformer `is what generates
+│          the precise shape we accept here.
 │
 *)
 
@@ -571,8 +564,7 @@ Definition logical_axiom_bool
     (profile : RegulatorLogicProfile)
     (phi : Formula) : bool :=
   match profile with
-  | regulator_profile_minimal =>
-      k_axiom_bool phi || s_axiom_bool phi
+  | regulator_profile_minimal => k_axiom_bool phi || s_axiom_bool phi
   | regulator_profile_with_efq =>
       k_axiom_bool phi || s_axiom_bool phi || efq_axiom_bool phi
   end.
@@ -668,9 +660,9 @@ Qed.
 │          `nth_formula` reads the formula at a referenced line, the
 │          `pl_*` constructors build raw lines, and `last_formula`
 │          exposes the claimed conclusion. We isolate these helpers
-│          because every transformer in `M001_02`–`M001_04` builds
-│          proof scripts by direct list construction and reads them
-│          back through these same accessors.
+│          because every transformer builds proof scripts by direct
+│          list construction and reads them back through these same
+│          accessors.
 │
 *)
 
@@ -705,10 +697,7 @@ Fixpoint last_formula (p : Proof) : option Formula :=
 │
 │          The three Boolean destructors below let later checker
 │          proofs unpack a successful conjunction or disjunction
-│          without invoking propositional decidability lemmas. We keep
-│          them in this layer so that the checker correctness
-│          arguments in `M001_02` onward remain a sequence of
-│          structural rewrites.
+│          without invoking propositional decidability lemmas.
 │
 *)
 
@@ -736,9 +725,6 @@ Proof.
   destruct a, b; simpl; intros H; try discriminate; auto.
 Qed.
 
-(*    prefix[i] = C ∧ prefix[j] = C → B ⇒ mp_valid_bool(prefix,i,j,B)=true    *)
-(*    prefix[i] = C → B ∧ prefix[j] = C ⇒ mp_valid_bool(prefix,i,j,B)=true    *)
-
 (*
 │
 │          MP checking accepts either reference order. A line for `B`
@@ -748,9 +734,8 @@ Qed.
 │          beyond ordinary modus ponens, but makes the two reference
 │          positions orientation-insensitive. We expose the two
 │          orientations as distinct Boolean predicates so that
-│          constructive reductio in `M001_03` can pick whichever
-│          orientation its generated block emits, without an internal
-│          case split.
+│          constructive reductio can pick whichever orientation its
+│          generated block emits, without an internal case split.
 │
 *)
 
@@ -831,10 +816,9 @@ Qed.
 │          the unordered-MP convention: in a two-line prefix carrying
 │          `A` and `A → B` in either order, `mp_valid_bool` accepts
 │          the MP line for `B` regardless of which line is referenced
-│          first. They are the smallest nontrivial
-│          regulator_theory_check_bool exercising both orientations
-│          and serve as a reference point for the sanity-test file in
-│          `M001_98_Sanity`.
+│          first. They are the smallest nontrivial checks exercising
+│          both orientations and serve as a reference point for later
+│          sanity-test.
 │
 *)
 
@@ -905,15 +889,15 @@ Qed.
 
 (*
 │
-│          `mp_valid_bool_sound_unordered_lemma` is the public-surface
+│          `mp_valid_bool_sound_unordered_lemma` is the public surface
 │          name for `mp_valid_bool_components_lemma`: it states the
 │          unordered-MP soundness fact directly, that a successful
 │          `mp_valid_bool` hit at indices `i, j` produces an
 │          antecedent `A` and an implication `A → B` somewhere in the
 │          prefix, in *some* orientation. The inductive-derivability
-│          layer in `M001_06` and the symbolic regulator in `M001_08`
-│          both consume this lemma when they need to recover the two
-│          MP premises from a checked line.
+│          layer in and the regulator in both consume this lemma when
+│          they need to recover the two MP premises from a checked
+│          line.
 │
 *)
 
@@ -956,10 +940,6 @@ Qed.
 │
 *)
 
-(*regulator_theory_check_bool : RegulatorTheory → Context → Proof → Formula → *)
-(*                                    bool                                    *)
-(*        R; Γ ⊢check[p] A ≔ regulator_theory_check_bool(R,Γ,p,A)=true        *)
-
 Definition proof_line_valid_bool
     (R : RegulatorTheory)
     (Gamma : Context)
@@ -994,6 +974,9 @@ Definition proof_line_valid_bool
 │
 *)
 
+(*regulator_theory_check_bool : RegulatorTheory → Context → Proof → Formula → *)
+(*                                    bool                                    *)
+
 Definition proof_line_check_bool
     (R : RegulatorTheory)
     (Gamma : Context)
@@ -1027,14 +1010,7 @@ Definition regulator_theory_check_bool
 (*
 │
 │          `regulator_theory_check_empty_false_lemma` records that the
-│          empty proof script is rejected on every input. The fact is
-│          `reflexivity` against the definition (no last formula →
-│          second conjunct of `regulator_theory_check_bool` is
-│          `false`), but we expose it as a named theorem because
-│          downstream layers — and external readers consuming the
-│          README's "Checker facts" surface — read better with one
-│          explicit empty-script-rejection theorem than with an
-│          unfold-and-simpl chain.
+│          empty proof script is rejected on every input.
 │
 *)
 
@@ -1047,22 +1023,15 @@ Qed.
 
 (*
 │
-│          `finite_axiom_set_check_bool` is the checker over the
-│          finite-data axiom-set interface: it bridges a
-│          `FiniteAxiomSet` value across
+│          The checker over the finite-data axiom-set interface
+│          bridges a `FiniteAxiomSet` value across
 │          `finite_axiom_set_to_axiom_set` and runs the underlying
-│          `regulator_theory_check_bool`. The wrapper exists so that
-│          certificate, extraction, finite-derivability, and
-│          symbolic-regulator paths stay in `FiniteAxiomSet` form
-│          without manually crossing the bridge at every call site.
-│          `finite_axiom_set_check_unfold_lemma` rewrites the wrapper
-│          back to the underlying `regulator_theory_check_bool` when
-│          downstream proofs need to apply an `AxiomSet`-side lemma.
+│          `regulator_theory_check_bool`.
 │
 *)
 
-(*                        profile, FT; Γ ⊢check[p] A ≔                        *)
-(*             finite_axiom_set_check_bool(profile,FT,Γ,p,A)=true             *)
+(*profile, FT; Γ ⊢check[p] A ≔ finite_axiom_set_check_bool(profile,FT,Γ,p,A) =*)
+(*                                    true                                    *)
 
 Definition finite_axiom_set_to_regulator_theory
     (profile : RegulatorLogicProfile)
@@ -1100,7 +1069,7 @@ Qed.
 │
 *)
 
-(*  T; Γ ⊢check_min[p] A ≔ regulator_theory_check_minimal_bool(T,Γ,p,A)=true  *)
+(* T; Γ ⊢check_min[p] A ≔ regulator_theory_check_minimal_bool(T,Γ,p,A) = true *)
 
 Definition regulator_theory_check_minimal_bool
     (T : AxiomSet)
@@ -1156,10 +1125,7 @@ Qed.
 │          expose the witness behind a successful
 │          regulator_theory_check_bool: a checked script for `A`
 │          actually contains a proof line whose claimed formula is `A`
-│          (its last line). The `In`-form witness is what `M001_06`'s
-│          `checked_derivable_implies_inductive` consumes when it
-│          converts a checked existential into the inductive closure
-│          relation.
+│          (its last line).
 │
 *)
 
@@ -1273,11 +1239,6 @@ Qed.
 │          left-projection of `proof_script_check_from_app_lemma`: a
 │          successful `proof_script_check_from_bool` on `p ++ q`
 │          against any prefix forces a successful check on `p` alone.
-│          We expose it under its own name because the
-│          regulator-suffix translation in `M001_08` reads better when
-│          the script-prefix preservation is a single named lemma
-│          rather than an inlined `bool_and_true_left_lemma` after
-│          `proof_script_check_from_app_lemma`.
 │
 *)
 

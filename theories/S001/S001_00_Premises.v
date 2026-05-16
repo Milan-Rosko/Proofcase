@@ -103,6 +103,35 @@ Check Prop.
 
 (*
 │
+│          We can see that rocq follows a functional paradigm.
+│
+*)
+
+Inductive german_day : Type :=
+  | Montag
+  | Dienstag
+  | Mittwoch
+  | Donnerstag
+  | Freitag
+  | Samstag
+  | Sonntag.
+  
+Definition next_german_day (d:german_day) : german_day :=
+  match d with
+  | Montag => Dienstag
+  | Dienstag => Mittwoch
+  | Mittwoch => Donnerstag
+  | Donnerstag => Freitag
+  | Freitag => Samstag
+  | Samstag => Sonntag
+  | Sonntag => Montag
+  end.
+
+Compute (next_german_day Freitag).
+
+
+(*
+│
 │          Applying a function means substituting an argument into its
 │          body. Rocq can compute such reductions automatically.
 │
@@ -139,7 +168,7 @@ Check forall n : nat, nat.
 (*
 │
 │          Suppose we have three propositions: “it is raining”, “the
-│          street is wet”, and “people carry umbrellas”
+│          street is wet”, and “people carry umbrellas”.
 │
 *)
 

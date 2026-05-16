@@ -99,12 +99,6 @@ Export ListNotations.
 │
 *)
 
-(*
-│
-│          A, B ::= Bot | Imp A B
-│
-*)
-
 Inductive Formula : Type :=
 | Bot : Formula
 | Imp : Formula -> Formula -> Formula.
@@ -118,12 +112,7 @@ Inductive Formula : Type :=
 │
 *)
 
-(*
-│
-│          Gamma ::= [] | A :: Gamma and ctx_extend(A,Gamma) := A ::
-│          Gamma
-│
-*)
+(*      Gamma ::= [] | A :: Gamma and ctx_extend(A,Gamma) := A :: Gamma       *)
 
 Definition Context := list Formula.
 
@@ -140,20 +129,6 @@ Definition ctx_extend (A : Formula) (Gamma : Context) : Context :=
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-(*
-│
-│          An `AxiomSet` is the function-valued source of additional
-│          non-logical axioms. It answers whether a formula is
-│          available as an axiom.
-│
-*)
-
-(*
-│
-│          T : AxiomSet := Formula -> bool
-│
-*)
-
 Record AxiomSet : Type := {
   axiom_set_contains_bool : Formula -> bool
 }.
@@ -168,12 +143,6 @@ Definition axiom_set_empty : AxiomSet :=
 │          Boolean membership test and bridge into `AxiomSet` are
 │          computational kernel material and are defined in
 │          `M001_01__Kernel`.
-│
-*)
-
-(*
-│
-│          FT : FiniteAxiomSet := finite list A0 through An
 │
 *)
 
@@ -201,12 +170,6 @@ Definition finite_axiom_set_empty : FiniteAxiomSet :=
 │
 *)
 
-(*
-│
-│          profile in {minimal, with_efq}
-│
-*)
-
 Inductive RegulatorLogicProfile : Type :=
 | regulator_profile_minimal
 | regulator_profile_with_efq.
@@ -227,12 +190,6 @@ Inductive RegulatorLogicProfile : Type :=
 │          still syntax, not model theory; it merely packages the two
 │          finite-checker inputs that determine which `J_Axiom` lines
 │          are available.
-│
-*)
-
-(*
-│
-│          R : RegulatorTheory := (profile_R, axiom_set_R)
 │
 *)
 
@@ -272,12 +229,6 @@ Definition regulator_theory_empty_with_efq : RegulatorTheory :=
 │
 *)
 
-(*
-│
-│          E : BooleanEnvironment := finite list R0 through Rn
-│
-*)
-
 Record BooleanEnvironment : Type := {
   boolean_environment_regulator_theories : list RegulatorTheory
 }.
@@ -305,17 +256,6 @@ Definition boolean_environment_extend_regulator_theory
 │          justification tag. The tag is syntactic data only:
 │          `J_Assumption`, `J_Axiom`, and `J_MP i j` acquire their
 │          checker meaning in `M001_01__Kernel`.
-│
-*)
-
-(*
-│
-│          j ::= assumption | axiom | mp(i,j)
-│
-*)
-(*
-│
-│          line := (A,j) and proof ::= [] | line :: proof
 │
 *)
 
