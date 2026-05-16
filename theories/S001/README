@@ -19,3 +19,16 @@
       Entry point and first tutorial layer. Introduces basic propositional
       proof terms and scripts for identity, conjunction, and implication
       composition.
+
+    S001_01__Syllogism
+
+      Propositional proof patterns for implication, conjunction, disjunction,
+      negation, contradiction, contraposition, biconditionals, and simple
+      syllogistic composition.
+
+    S001_02__Quantifiers
+
+      Predicate-logic layer. Introduces universal and existential
+      quantification, specialization, witnesses, existential destruction,
+      predicates over natural numbers, and the first equality lemmas leading
+      toward rewriting.

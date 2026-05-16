@@ -38,8 +38,13 @@ From L001 Require Export L001_03__Aporetic_Obstruction.
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  A closure theory is a formula-indexed predicate. This alias is only a
-  stable public spelling for the existing primitive shape.
+(*
+│
+│          A closure theory is a formula-indexed predicate. This alias
+│          is only a stable public spelling for the existing primitive
+│          shape.
+│
+*)
 
 Definition ClosureTheory : Type := Formula -> Prop.
 
@@ -90,8 +95,12 @@ Definition ClosureDeciderExists
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  Evaluation closure supplies a formula equivalent, inside the closure
-  predicate, to its own object-level negation.
+(*
+│
+│          Evaluation closure supplies a formula equivalent, inside
+│          the closure predicate, to its own object-level negation.
+│
+*)
 
 Definition APORETIC_FIXED_POINT_CONTRACT : Prop :=
   forall (C : ClosureTheory) Code
@@ -226,10 +235,16 @@ Definition WITNESS : Prop :=
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  Stable contradiction-shaped surface for the L001 reductio endpoints. Each
-  lemma is a one-line `exact` referring to the underlying obstruction theorem
-  in `L001_03__Aporetic_Obstruction`; no new mathematics is introduced. Names
-  follow the pattern `*_contradiction_from_*`.
+(*
+│
+│          Stable contradiction-shaped surface for the L001 reductio
+│          endpoints. Each lemma is a one-line `exact` referring to
+│          the underlying obstruction theorem in
+│          `L001_03__Aporetic_Obstruction`; no new mathematics is
+│          introduced. Names follow the pattern
+│          `*_contradiction_from_*`.
+│
+*)
 
 Theorem aporetic_contradiction_from_excluded_middle :
   forall (C : ClosureTheory) Code

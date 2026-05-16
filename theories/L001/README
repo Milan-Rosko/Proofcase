@@ -87,6 +87,20 @@
 
       B ≃_C formula_negation B
 
+    Informally, the nesting is the LEM-shaped self-test. The question
+
+      Does LEM hold for every formula?
+
+    is naturally answered:
+
+      Either it holds, or it does not.
+
+    But that answer already has the shape of LEM. The principle is being used
+    to classify its own availability. The formal fixed point internalizes this
+    move: evaluation closure supplies the reflected formula `B`, and
+    excluded-middle completeness then asks the closure to classify that very
+    reflection.
+
     The collapse is branch-based. If `C B`, then `B → formula_negation B`
     yields `C (formula_negation B)`, and since `formula_negation B` is
     definitionally `Imp B Bot`, modus ponens yields `C Bot`.

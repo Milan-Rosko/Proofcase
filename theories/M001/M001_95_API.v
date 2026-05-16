@@ -37,10 +37,15 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  The public API is the cumulative export of the completed M001 stack through
-  `M001_09__Evaluation_Closure`. Importers should depend on this file when
-  they need the operational regulator-theory surface rather than an
-  individual construction layer.
+(*
+│
+│          The public API is the cumulative export of the completed
+│          M001 stack through `M001_09__Evaluation_Closure`. Importers
+│          should depend on this file when they need the operational
+│          regulator-theory surface rather than an individual
+│          construction layer.
+│
+*)
 
 (*    M001_API ≔ Premises ⊕ Kernel ⊕ Deduction ⊕ Falsity ⊕ Certificates ⊕     *)
 (*Application ⊕ Adequacy ⊕ NegativeTransport ⊕ Regulation ⊕ EvaluationClosure *)

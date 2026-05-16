@@ -52,10 +52,16 @@ From M001 Require Export M001_00_Premises.
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  `formula_eq_bool` is structural Boolean equality over the formula tree. We
-  keep equality computational rather than appealing to a decidable-equality
-  typeclass: every later checker step uses it under `simpl` / `vm_compute`,
-  and a Boolean form lets the certificate verifier remain a closed term.
+(*
+│
+│          `formula_eq_bool` is structural Boolean equality over the
+│          formula tree. We keep equality computational rather than
+│          appealing to a decidable-equality typeclass: every later
+│          checker step uses it under `simpl` / `vm_compute`, and a
+│          Boolean form lets the certificate verifier remain a closed
+│          term.
+│
+*)
 
 (*                     formula_eq_bool(A,B)=true ⇔ A = B                      *)
 
@@ -131,10 +137,15 @@ Proof.
   - apply formula_eq_bool_complete_lemma.
 Qed.
 
-  `formula_size` is a positive syntactic tree size. We expose it here because
-  downstream layers use it as a structural recursion measure and as a
-  certificate-reporting field; it is deliberately not a semantic complexity
-  measure, and no later result depends on its precise constants.
+(*
+│
+│          `formula_size` is a positive syntactic tree size. We expose
+│          it here because downstream layers use it as a structural
+│          recursion measure and as a certificate-reporting field; it
+│          is deliberately not a semantic complexity measure, and no
+│          later result depends on its precise constants.
+│
+*)
 
 (*                            formula_size(A) ≥ 1                             *)
 
@@ -164,10 +175,15 @@ Proof.
       exact IH.
 Qed.
 
-  `ctx_mem_bool` is the Boolean structural search the checker uses to
-  recognize a line as an assumption. We pair it below with `In`-form
-  soundness and completeness so that downstream proofs can move freely
-  between the computational and propositional readings of context membership.
+(*
+│
+│          `ctx_mem_bool` is the Boolean structural search the checker
+│          uses to recognize a line as an assumption. We pair it below
+│          with `In`-form soundness and completeness so that
+│          downstream proofs can move freely between the computational
+│          and propositional readings of context membership.
+│
+*)
 
 (*                       ctx_mem_bool(A,Γ)=true ⇔ A ∈ Γ                       *)
 
@@ -288,13 +304,20 @@ Qed.
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  `finite_axiom_set_formulas` is the projection accessor, and
-  `finite_axiom_set_contains_bool` is the Boolean membership test on that
-  list. We also expose paired soundness/completeness lemmas bridging Boolean
-  membership and `In`-form list membership, plus
-  `finite_axiom_set_to_axiom_set_unfold_lemma` so downstream proofs can step
-  from the `axiom_set_contains_bool`-of-the-bridged-axiom-set form directly
-  to `finite_axiom_set_contains_bool` without manually unfolding two records.
+(*
+│
+│          `finite_axiom_set_formulas` is the projection accessor, and
+│          `finite_axiom_set_contains_bool` is the Boolean membership
+│          test on that list. We also expose paired
+│          soundness/completeness lemmas bridging Boolean membership
+│          and `In`-form list membership, plus
+│          `finite_axiom_set_to_axiom_set_unfold_lemma` so downstream
+│          proofs can step from the
+│          `axiom_set_contains_bool`-of-the-bridged-axiom-set form
+│          directly to `finite_axiom_set_contains_bool` without
+│          manually unfolding two records.
+│
+*)
 
 (*              finite_axiom_set_contains_bool(FT,A)=true ⇔ A ∈               *)
 (*                       finite_axiom_set_formulas(FT)                        *)
@@ -345,12 +368,17 @@ Qed.
 
 (*                              K ≔ A → (B → A)                               *)
 
-  The Hilbert axiom recognizers inspect concrete closed formula trees; they
-  do not perform object-level substitution, unification, proof search, or
-  semantic checking. K is recognized syntactically: the head implication's
-  antecedent must coincide with the inner consequent, using `formula_eq_bool`
-  so that every non-K shape returns `false` cleanly for later disjunctive
-  checks.
+(*
+│
+│          The Hilbert axiom recognizers inspect concrete closed
+│          formula trees; they do not perform object-level
+│          substitution, unification, proof search, or semantic
+│          checking. K is recognized syntactically: the head
+│          implication's antecedent must coincide with the inner
+│          consequent, using `formula_eq_bool` so that every non-K
+│          shape returns `false` cleanly for later disjunctive checks.
+│
+*)
 
 Definition k_axiom_bool (phi : Formula) : bool :=
   match phi with
@@ -399,11 +427,16 @@ Qed.
 
 (*                  S ≔ (A → (B → C)) → ((A → B) → (A → C))                   *)
 
-  S is recognized by the same purely syntactic pattern: we destructure the
-  full nested shape and confirm the four shared sub-positions through
-  `formula_eq_bool`. The pattern is intentionally rigid — any S-equivalent
-  rewriting is rejected — because the deduction transformer in `M001_02` is
-  what generates the precise shape we accept here.
+(*
+│
+│          S is recognized by the same purely syntactic pattern: we
+│          destructure the full nested shape and confirm the four
+│          shared sub-positions through `formula_eq_bool`. The pattern
+│          is intentionally rigid — any S-equivalent rewriting is
+│          rejected — because the deduction transformer in `M001_02`
+│          is what generates the precise shape we accept here.
+│
+*)
 
 Definition s_axiom_bool (phi : Formula) : bool :=
   match phi with
@@ -489,13 +522,19 @@ Qed.
 
 (*                                EFQ ≔ ⊥ → A                                 *)
 
-  EFQ is recognized by the head shape `Bot → _` alone. We isolate it from K
-  and S so that admitting it becomes a single explicit profile choice; the
-  unconditional core never accepts an EFQ instance. No
-  `efq_axiom_bool_sound_lemma` is needed — the recognizer fires exactly when
-  the formula already has the head shape `Imp Bot _`, so the existential
-  witness is the conclusion subterm read off by direct pattern matching, and
-  no downstream layer needs an existential extraction lemma.
+(*
+│
+│          EFQ is recognized by the head shape `Bot → _` alone. We
+│          isolate it from K and S so that admitting it becomes a
+│          single explicit profile choice; the unconditional core
+│          never accepts an EFQ instance. No
+│          `efq_axiom_bool_sound_lemma` is needed — the recognizer
+│          fires exactly when the formula already has the head shape
+│          `Imp Bot _`, so the existential witness is the conclusion
+│          subterm read off by direct pattern matching, and no
+│          downstream layer needs an existential extraction lemma.
+│
+*)
 
 Definition efq_axiom_bool (phi : Formula) : bool :=
   match phi with
@@ -514,13 +553,19 @@ Qed.
 (*      available_axiom_bool(R, φ) ≔ logical_axiom_bool(profile_R, φ) ∨       *)
 (*                               axiom_set_R(φ)                               *)
 
-  Logical axioms are selected by the regulator theory's profile and then
-  joined with its axiom set's extra axioms. A line marked `J_Axiom` may
-  therefore appeal to K, S, optionally EFQ, or any formula the regulator
-  theory's axiom set accepts. We mark `available_axiom_bool` as `simpl never`
-  so that later proofs must rewrite through `logical_axiom_bool_*` and
-  axiom-set-side lemmas explicitly, rather than letting `simpl` unfold the
-  disjunction silently.
+(*
+│
+│          Logical axioms are selected by the regulator theory's
+│          profile and then joined with its axiom set's extra axioms.
+│          A line marked `J_Axiom` may therefore appeal to K, S,
+│          optionally EFQ, or any formula the regulator theory's axiom
+│          set accepts. We mark `available_axiom_bool` as `simpl
+│          never` so that later proofs must rewrite through
+│          `logical_axiom_bool_*` and axiom-set-side lemmas
+│          explicitly, rather than letting `simpl` unfold the
+│          disjunction silently.
+│
+*)
 
 Definition logical_axiom_bool
     (profile : RegulatorLogicProfile)
@@ -618,11 +663,16 @@ Qed.
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  `nth_formula` reads the formula at a referenced line, the `pl_*`
-  constructors build raw lines, and `last_formula` exposes the claimed
-  conclusion. We isolate these helpers because every transformer in
-  `M001_02`–`M001_04` builds proof scripts by direct list construction and
-  reads them back through these same accessors.
+(*
+│
+│          `nth_formula` reads the formula at a referenced line, the
+│          `pl_*` constructors build raw lines, and `last_formula`
+│          exposes the claimed conclusion. We isolate these helpers
+│          because every transformer in `M001_02`–`M001_04` builds
+│          proof scripts by direct list construction and reads them
+│          back through these same accessors.
+│
+*)
 
 Definition nth_formula
     (prefix : list ProofLine)
@@ -689,14 +739,20 @@ Qed.
 (*    prefix[i] = C ∧ prefix[j] = C → B ⇒ mp_valid_bool(prefix,i,j,B)=true    *)
 (*    prefix[i] = C → B ∧ prefix[j] = C ⇒ mp_valid_bool(prefix,i,j,B)=true    *)
 
-  MP checking accepts either reference order. A line for `B` is valid when
-  the accepted prefix contains both `C` and `C → B`, regardless of which
-  index is listed first. This is a certificate-format convention only: it
-  adds no logical rule beyond ordinary modus ponens, but makes the two
-  reference positions orientation-insensitive. We expose the two orientations
-  as distinct Boolean predicates so that constructive reductio in `M001_03`
-  can pick whichever orientation its generated block emits, without an
-  internal case split.
+(*
+│
+│          MP checking accepts either reference order. A line for `B`
+│          is valid when the accepted prefix contains both `C` and `C
+│          → B`, regardless of which index is listed first. This is a
+│          certificate-format convention only: it adds no logical rule
+│          beyond ordinary modus ponens, but makes the two reference
+│          positions orientation-insensitive. We expose the two
+│          orientations as distinct Boolean predicates so that
+│          constructive reductio in `M001_03` can pick whichever
+│          orientation its generated block emits, without an internal
+│          case split.
+│
+*)
 
 Definition mp_orientation_left_bool
     (Fi Fj target : Formula) : bool :=
@@ -875,21 +931,30 @@ Proof.
   exact Hvalid.
 Qed.
 
-  The checker accepts a line only as a context assumption, an available
-  axiom, or MP from earlier accepted lines, and additionally requires the
-  script to end with the claimed conclusion. `proof_line_valid_bool R Gamma
-  prefix line = true` means `line` is syntactically valid relative to the
-  already accepted prefix and regulator theory `R`; `proof_line_check_bool`
-  is the same line-level predicate under the checker-facing name.
-  `proof_script_check_from_bool R Gamma prefix p = true` means every line of
-  `p` is valid relative to the accumulated accepted prefix, in proof order.
-  `regulator_theory_check_bool R Gamma p A = true` means `p` is a valid
-  finite proof script in regulator theory `R` and the last formula of `p` is
-  syntactically equal to `A`; empty scripts are rejected because they have no
-  last formula. The whole judgement is therefore a Boolean function of finite
-  data: `regulator_theory_check_bool` is total, decidable by computation, and
-  serves as the trusted certificate predicate that every later layer is
-  stated against.
+(*
+│
+│          The checker accepts a line only as a context assumption, an
+│          available axiom, or MP from earlier accepted lines, and
+│          additionally requires the script to end with the claimed
+│          conclusion. `proof_line_valid_bool R Gamma prefix line =
+│          true` means `line` is syntactically valid relative to the
+│          already accepted prefix and regulator theory `R`;
+│          `proof_line_check_bool` is the same line-level predicate
+│          under the checker-facing name.
+│          `proof_script_check_from_bool R Gamma prefix p = true`
+│          means every line of `p` is valid relative to the
+│          accumulated accepted prefix, in proof order.
+│          `regulator_theory_check_bool R Gamma p A = true` means `p`
+│          is a valid finite proof script in regulator theory `R` and
+│          the last formula of `p` is syntactically equal to `A`;
+│          empty scripts are rejected because they have no last
+│          formula. The whole judgement is therefore a Boolean
+│          function of finite data: `regulator_theory_check_bool` is
+│          total, decidable by computation, and serves as the trusted
+│          certificate predicate that every later layer is stated
+│          against.
+│
+*)
 
 (*regulator_theory_check_bool : RegulatorTheory → Context → Proof → Formula → *)
 (*                                    bool                                    *)
@@ -980,15 +1045,21 @@ Proof.
   reflexivity.
 Qed.
 
-  `finite_axiom_set_check_bool` is the checker over the finite-data axiom-set
-  interface: it bridges a `FiniteAxiomSet` value across
-  `finite_axiom_set_to_axiom_set` and runs the underlying
-  `regulator_theory_check_bool`. The wrapper exists so that certificate,
-  extraction, finite-derivability, and symbolic-regulator paths stay in
-  `FiniteAxiomSet` form without manually crossing the bridge at every call
-  site. `finite_axiom_set_check_unfold_lemma` rewrites the wrapper back to
-  the underlying `regulator_theory_check_bool` when downstream proofs need to
-  apply an `AxiomSet`-side lemma.
+(*
+│
+│          `finite_axiom_set_check_bool` is the checker over the
+│          finite-data axiom-set interface: it bridges a
+│          `FiniteAxiomSet` value across
+│          `finite_axiom_set_to_axiom_set` and runs the underlying
+│          `regulator_theory_check_bool`. The wrapper exists so that
+│          certificate, extraction, finite-derivability, and
+│          symbolic-regulator paths stay in `FiniteAxiomSet` form
+│          without manually crossing the bridge at every call site.
+│          `finite_axiom_set_check_unfold_lemma` rewrites the wrapper
+│          back to the underlying `regulator_theory_check_bool` when
+│          downstream proofs need to apply an `AxiomSet`-side lemma.
+│
+*)
 
 (*                        profile, FT; Γ ⊢check[p] A ≔                        *)
 (*             finite_axiom_set_check_bool(profile,FT,Γ,p,A)=true             *)
@@ -1018,11 +1089,16 @@ Proof.
   reflexivity.
 Qed.
 
-  `regulator_theory_check_minimal_bool` is the EFQ-free specialisation. We
-  expose it as a separate name because several downstream theorem statements
-  (including the `*_minimal` series above this evaluator) are stated directly
-  against it, and naming the specialisation keeps those statements free of an
-  explicit profile parameter.
+(*
+│
+│          `regulator_theory_check_minimal_bool` is the EFQ-free
+│          specialisation. We expose it as a separate name because
+│          several downstream theorem statements (including the
+│          `*_minimal` series above this evaluator) are stated
+│          directly against it, and naming the specialisation keeps
+│          those statements free of an explicit profile parameter.
+│
+*)
 
 (*  T; Γ ⊢check_min[p] A ≔ regulator_theory_check_minimal_bool(T,Γ,p,A)=true  *)
 

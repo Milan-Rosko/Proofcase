@@ -1,4 +1,4 @@
-(*S003_01_Center_Normalization.v*)
+(*S003_01__Center_Normalization.v*)
 
 (*
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -9,7 +9,7 @@
 │                                      visit https://www.mozilla.org/en-US/MPL │
 └──────────────────────────────────────────────────────────────────────────────┘
 ┌──────────────────────────────────────────────────────────────────────────────┐
-│                   Proofcase / S003_01_Center_Normalization                   │
+│                  Proofcase / S003_01__Center_Normalization                   │
 └──────────────────────────────────────────────────────────────────────────────┘
 
   OVERVIEW
@@ -26,7 +26,6 @@
 
 *)
 
-From Stdlib Require Import Arith PeanoNat Bool Lia.
 From S003 Require Export S003_00_Premises.
 
 (*
@@ -669,6 +668,12 @@ Proof.
   exact (Hperiod t).
 Qed.
 
-  The converse from negated eventual periodicity to productive nonperiodicity
-  is intentionally absent. Constructively, `~ exists T, defect_free_from P T`
-  does not by itself produce, for every cutoff `N`, a concrete later defect.
+(*
+│
+│          The converse from negated eventual periodicity to
+│          productive nonperiodicity is intentionally absent.
+│          Constructively, `~ exists T, defect_free_from P T` does not
+│          by itself produce, for every cutoff `N`, a concrete later
+│          defect.
+│
+*)

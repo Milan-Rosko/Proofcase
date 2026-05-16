@@ -24,7 +24,7 @@
 
 *)
 
-From S003 Require Export S003_01_Center_Normalization.
+From S003 Require Export S003_01__Center_Normalization.
 
 (*
 ┌──────────────────────────────────────────────────────────────────────────────┐

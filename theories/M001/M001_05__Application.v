@@ -40,11 +40,17 @@ From M001 Require Export M001_04__Certificates.
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  Concatenating two checked proof scripts changes the absolute positions of
-  every MP reference inside the second script. `proof_script_shift_index`
-  adds the offset; `proof_script_shift_justification` rewrites only `J_MP`
-  indices; `proof_script_shift_line` lifts the operation to one proof line;
-  and `proof_script_shift` maps it across a whole script.
+(*
+│
+│          Concatenating two checked proof scripts changes the
+│          absolute positions of every MP reference inside the second
+│          script. `proof_script_shift_index` adds the offset;
+│          `proof_script_shift_justification` rewrites only `J_MP`
+│          indices; `proof_script_shift_line` lifts the operation to
+│          one proof line; and `proof_script_shift` maps it across a
+│          whole script.
+│
+*)
 
 (*                   proof_script_shift_index(k,i) ≔ k + i                    *)
 (*         proof_script_shift_justification(k, MP(i,j)) ≔ MP(k+i,k+j)         *)
@@ -181,12 +187,19 @@ Qed.
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  The shifted-checking lemmas show that a checked suffix remains checked
-  after all of its backward MP references are moved past a checked base
-  proof. `proof_line_valid_bool_shift_after_base_lemma` is the one-line
-  statement; `proof_script_check_from_shift_after_base_lemma` iterates it
-  over a script; and `proof_script_check_from_shift_after_prefix_lemma` is
-  the form used by MP composition.
+(*
+│
+│          The shifted-checking lemmas show that a checked suffix
+│          remains checked after all of its backward MP references are
+│          moved past a checked base proof.
+│          `proof_line_valid_bool_shift_after_base_lemma` is the
+│          one-line statement;
+│          `proof_script_check_from_shift_after_base_lemma` iterates
+│          it over a script; and
+│          `proof_script_check_from_shift_after_prefix_lemma` is the
+│          form used by MP composition.
+│
+*)
 
 (*          proof_script_check_from_bool(R,Γ,source_prefix,p)=true ⇒          *)
 (*                  proof_script_check_from_bool(R,Γ,base ⧺                   *)
@@ -304,10 +317,14 @@ Qed.
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  `proof_script_last_index p` is the position of the final line of `p`.
-  `regulator_theory_mp_compose B p_imp p_arg` concatenates the checked proof
-  of `A → B`, the shifted checked proof of `A`, and one final MP line proving
-  `B`.
+(*
+│
+│          `proof_script_last_index p` is the position of the final
+│          line of `p`. `regulator_theory_mp_compose B p_imp p_arg`
+│          concatenates the checked proof of `A → B`, the shifted
+│          checked proof of `A`, and one final MP line proving `B`.
+│
+*)
 
 (*                          last_index(p) ≔ |p| - 1                           *)
 (*            regulator_theory_mp_compose(B,p_imp,p_arg) ≔ p_imp ⧺            *)
@@ -394,11 +411,16 @@ Qed.
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  `regulator_theory_mp_compose_checked_lemma` is the central theorem of this
-  file: composing checked scripts for `A → B` and `A` produces a checked
-  script for `B`. The proof shifts the argument script after the implication
-  script, verifies the concatenated prefix, reads both final formulas back by
-  index, and checks the final MP line.
+(*
+│
+│          `regulator_theory_mp_compose_checked_lemma` is the central
+│          theorem of this file: composing checked scripts for `A → B`
+│          and `A` produces a checked script for `B`. The proof shifts
+│          the argument script after the implication script, verifies
+│          the concatenated prefix, reads both final formulas back by
+│          index, and checks the final MP line.
+│
+*)
 
 (*           R; Γ ⊢check[p_imp] A → B ∧ R; Γ ⊢check[p_arg] A ⇒ R; Γ           *)
 (*            ⊢check[regulator_theory_mp_compose(B,p_imp,p_arg)] B            *)
@@ -528,11 +550,16 @@ Qed.
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  The derivability-level MP lemma forgets the two source scripts after
-  composing them. This is the existential closure form consumed by the later
-  inductive-adequacy and regulator-closure layers: checked derivability is
-  closed under object-level modus ponens because the scripts themselves can
-  be concatenated and re-indexed.
+(*
+│
+│          The derivability-level MP lemma forgets the two source
+│          scripts after composing them. This is the existential
+│          closure form consumed by the later inductive-adequacy and
+│          regulator-closure layers: checked derivability is closed
+│          under object-level modus ponens because the scripts
+│          themselves can be concatenated and re-indexed.
+│
+*)
 
 (*             R; Γ ⊢check A → B ∧ R; Γ ⊢check A ⇒ R; Γ ⊢check B              *)
 
@@ -572,9 +599,14 @@ Proof.
     assumption.
 Qed.
 
-  One-line assumption and axiom scripts witness the base cases for checked
-  derivability. They are deliberately small: a context member is checked by
-  `J_Assumption`, and an available axiom is checked by `J_Axiom`.
+(*
+│
+│          One-line assumption and axiom scripts witness the base
+│          cases for checked derivability. They are deliberately
+│          small: a context member is checked by `J_Assumption`, and
+│          an available axiom is checked by `J_Axiom`.
+│
+*)
 
 (*                           A ∈ Γ ⇒ R; Γ ⊢check A                            *)
 

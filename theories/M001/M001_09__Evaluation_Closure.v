@@ -41,9 +41,14 @@ From M001 Require Export M001_08__Regulation.
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  An `EvaluationFrame Code Output` packages an evaluator together with a
-  naming-completeness principle. `evaluation_apply E c x` is the result of
-  evaluating the behavior named by code `c` at input/name `x`.
+(*
+│
+│          An `EvaluationFrame Code Output` packages an evaluator
+│          together with a naming-completeness principle.
+│          `evaluation_apply E c x` is the result of evaluating the
+│          behavior named by code `c` at input/name `x`.
+│
+*)
 
 (*            evaluation_complete(E) ≔ ∀f : Code → Output. ∃c. ∀x.            *)
 (*                        evaluation_apply(E,c,x)=f(x)                        *)
@@ -75,9 +80,13 @@ Definition evaluation_fixed_point_free
 
 (*                evaluation_fixed_point_free(g) ≔ ∀b. g(b)≠b                 *)
 
-  Completeness forces a fixed point for every transformer `g`. Name the
-  behavior `fun x => g (evaluation_apply E x x)`, then evaluate its name at
-  itself.
+(*
+│
+│          Completeness forces a fixed point for every transformer
+│          `g`. Name the behavior `fun x => g (evaluation_apply E x
+│          x)`, then evaluate its name at itself.
+│
+*)
 
 (*         evaluation_complete(E) ⇒ ∀g. evaluation_has_fixed_point(g)         *)
 
@@ -97,10 +106,14 @@ Proof.
   apply Hc.
 Qed.
 
-  `fixed_point_free_obstructs_frame` is the generic incompatibility
-  principle: a complete evaluation frame forces a fixed point for every
-  transformer, so a supplied fixed-point-free transformer rules out that
-  frame.
+(*
+│
+│          `fixed_point_free_obstructs_frame` is the generic
+│          incompatibility principle: a complete evaluation frame
+│          forces a fixed point for every transformer, so a supplied
+│          fixed-point-free transformer rules out that frame.
+│
+*)
 
 (*   evaluation_fixed_point_free(g) ∧ EvaluationFrame(Code,Output) ⇒ False    *)
 
@@ -168,9 +181,14 @@ Qed.
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  The formula endpoint is purely structural: no finite formula tree is equal
-  to the implication whose antecedent is that same tree. Therefore
-  `formula_negation A = A → ⊥` has no strict syntactic fixed point.
+(*
+│
+│          The formula endpoint is purely structural: no finite
+│          formula tree is equal to the implication whose antecedent
+│          is that same tree. Therefore `formula_negation A = A → ⊥`
+│          has no strict syntactic fixed point.
+│
+*)
 
 (*                              ∀A C. A ≠ A → C                               *)
 (*               evaluation_fixed_point_free(formula_negation)                *)
@@ -214,9 +232,14 @@ Qed.
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  A `RegulatorEvaluationFrame` is the checked-regulator version of an
-  evaluation frame. Completeness now names every behavior only up to
-  `regulator_theory_equivalent`, not by syntactic equality of formulas.
+(*
+│
+│          A `RegulatorEvaluationFrame` is the checked-regulator
+│          version of an evaluation frame. Completeness now names
+│          every behavior only up to `regulator_theory_equivalent`,
+│          not by syntactic equality of formulas.
+│
+*)
 
 (*             B ≃_{R,Γ} C ≔ regulator_theory_equivalent(R,Γ,B,C)             *)
 (*               regulator_evaluation_complete(E) ≔ ∀f. ∃c. ∀x.               *)
@@ -240,10 +263,14 @@ Record RegulatorEvaluationFrame
 Arguments regulator_evaluation_apply {R Gamma Code} _ _ _.
 Arguments regulator_evaluation_complete {R Gamma Code} _ _.
 
-  The regulated fixed-point bridge names `fun x => g
-  (regulator_evaluation_apply E x x)`. Evaluating the resulting code at
-  itself gives a formula equivalent, under the regulator-theory closure, to
-  its `g`-image.
+(*
+│
+│          The regulated fixed-point bridge names `fun x => g
+│          (regulator_evaluation_apply E x x)`. Evaluating the
+│          resulting code at itself gives a formula equivalent, under
+│          the regulator-theory closure, to its `g`-image.
+│
+*)
 
 (*         regulator_evaluation_complete(E) ⇒ ∀g. ∃B. B ≃_{R,Γ} g(B)          *)
 
@@ -281,11 +308,16 @@ Definition regulator_equiv_fixed_point_free
 
 (*         equiv_fixed_point_free(R,Γ,g) ≔ ∀B. B ≃_{R,Γ} g(B) ⇒ False         *)
 
-  `regulator_fixed_point_free_obstructs_frame` is the regulated
-  incompatibility principle. A `RegulatorEvaluationFrame` always yields an
-  equivalence fixed point for every formula transformer; therefore an
-  explicit regulator-equivalence fixed-point-free transformer rules out such
-  a frame.
+(*
+│
+│          `regulator_fixed_point_free_obstructs_frame` is the
+│          regulated incompatibility principle. A
+│          `RegulatorEvaluationFrame` always yields an equivalence
+│          fixed point for every formula transformer; therefore an
+│          explicit regulator-equivalence fixed-point-free transformer
+│          rules out such a frame.
+│
+*)
 
 (*regulator_equiv_fixed_point_free(R,Γ,g) ∧ RegulatorEvaluationFrame(R,Γ,Code)*)
 (*                                  ⇒ False                                   *)

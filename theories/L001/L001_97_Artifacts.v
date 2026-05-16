@@ -179,10 +179,15 @@ Qed.
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  Terminal endpoints only. The lemma contract is the conjunction of all
-  subordinate contract endpoints; the named witness is the public entry
-  point. Intermediate `certified_aporetic_*_contract` reports inherit their
-  assumption profile from the conjunction.
+(*
+│
+│          Terminal endpoints only. The lemma contract is the
+│          conjunction of all subordinate contract endpoints; the
+│          named witness is the public entry point. Intermediate
+│          `certified_aporetic_*_contract` reports inherit their
+│          assumption profile from the conjunction.
+│
+*)
 
 Redirect "theories/L001/_appendix/_assumptions_constructive/certified_aporetic_lemma_contract"
   Print Assumptions certified_aporetic_lemma_contract.

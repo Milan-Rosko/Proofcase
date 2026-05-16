@@ -78,7 +78,7 @@
      ▼
     S003_00_Premises
      ▼
-    S003_01_Center_Normalization
+    S003_01__Center_Normalization
      ▼
     S003_96_QED
 
@@ -101,7 +101,7 @@
       the hint databases `rule30_reduction` and `rule30_lift`, with a guard
       showing that `rule30_reduction` does not synthesize the lift obligation.
 
-    S003_01_Center_Normalization.v
+    S003_01__Center_Normalization.v
 
       Period-defect normalization interface for the center column. Defines
       pure periods, period defects, defect-free tails, a relational normalizer

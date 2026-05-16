@@ -46,10 +46,15 @@ From M001 Require Export M001_07__Obstruction.
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  A `RegulatorInstruction` is the native instruction syntax corresponding to
-  one proof line. Assumption and axiom instructions carry their produced
-  formula; MP instructions carry two prefix references together with the
-  claimed output formula.
+(*
+│
+│          A `RegulatorInstruction` is the native instruction syntax
+│          corresponding to one proof line. Assumption and axiom
+│          instructions carry their produced formula; MP instructions
+│          carry two prefix references together with the claimed
+│          output formula.
+│
+*)
 
 (*                 instr ::= assume(A) ∣ axiom(A) ∣ mp(i,j,B)                 *)
 
@@ -86,9 +91,14 @@ Definition regulator_instruction_tag
       regulator_instruction_tag_mp
   end.
 
-  The instruction/proof-line translations are mechanical. They do not check
-  an instruction; they only move between the native regulator vocabulary and
-  the proof-line grammar consumed by the kernel checker.
+(*
+│
+│          The instruction/proof-line translations are mechanical.
+│          They do not check an instruction; they only move between
+│          the native regulator vocabulary and the proof-line grammar
+│          consumed by the kernel checker.
+│
+*)
 
 (*        regulator_instruction_to_line(assume(A)) = pl_assumption(A)         *)
 (*           regulator_instruction_to_line(axiom(A)) = pl_axiom(A)            *)
@@ -148,11 +158,17 @@ Definition regulator_instruction_matches_line
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  `regulator_instruction_valid R Γ prefix instr B` is the Prop-level one-step
-  regulator relation. It validates a native instruction against an already
-  accepted prefix and an advertised output. MP keeps the certificate
-  convention from the checker: either reference order is accepted as long as
-  the prefix contains an antecedent and a matching implication.
+(*
+│
+│          `regulator_instruction_valid R Γ prefix instr B` is the
+│          Prop-level one-step regulator relation. It validates a
+│          native instruction against an already accepted prefix and
+│          an advertised output. MP keeps the certificate convention
+│          from the checker: either reference order is accepted as
+│          long as the prefix contains an antecedent and a matching
+│          implication.
+│
+*)
 
 (*              regulator_instruction_valid(R,Γ,prefix,instr,B)               *)
 
@@ -231,10 +247,16 @@ Definition regulator_instruction_valid_bool
       mp_valid_bool prefix i j A
   end.
 
-  The Boolean one-step checker is equivalent to the Prop-level instruction
-  relation. Soundness decodes successful Boolean checks into assumption,
-  axiom, or one of the two unordered MP orientations; completeness rebuilds
-  exactly the Boolean checks required by the executable regulator.
+(*
+│
+│          The Boolean one-step checker is equivalent to the
+│          Prop-level instruction relation. Soundness decodes
+│          successful Boolean checks into assumption, axiom, or one of
+│          the two unordered MP orientations; completeness rebuilds
+│          exactly the Boolean checks required by the executable
+│          regulator.
+│
+*)
 
 (*        regulator_instruction_valid_bool(R,Γ,prefix,instr,B)=true ⇔         *)
 (*              regulator_instruction_valid(R,Γ,prefix,instr,B)               *)
@@ -380,11 +402,16 @@ Qed.
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  A component packages one accepted instruction/output pair at a fixed
-  regulator theory, context, and prefix. A regulated suffix is the
-  trace-level lift: each head line is reified as its native instruction,
-  validated against the current prefix, and then appended before the
-  remaining suffix is checked.
+(*
+│
+│          A component packages one accepted instruction/output pair
+│          at a fixed regulator theory, context, and prefix. A
+│          regulated suffix is the trace-level lift: each head line is
+│          reified as its native instruction, validated against the
+│          current prefix, and then appended before the remaining
+│          suffix is checked.
+│
+*)
 
 (*            RegulatorTheoryComponent(R,Γ,prefix) ≔ { (instr,B) ∣            *)
 (*             regulator_instruction_valid(R,Γ,prefix,instr,B) }              *)
@@ -456,11 +483,16 @@ Definition regulator_theory_regulated_proof
     (p : Proof) : Prop :=
   regulator_theory_regulated_suffix R Gamma nil p.
 
-  Regulated suffixes are exactly successful runs of
-  `proof_script_check_from_bool`. The proof is a structural reification
-  argument: the forward direction turns each native line validation into the
-  Boolean line checker, and the reverse direction turns each accepted checker
-  line back into its native instruction.
+(*
+│
+│          Regulated suffixes are exactly successful runs of
+│          `proof_script_check_from_bool`. The proof is a structural
+│          reification argument: the forward direction turns each
+│          native line validation into the Boolean line checker, and
+│          the reverse direction turns each accepted checker line back
+│          into its native instruction.
+│
+*)
 
 (*                      RegulatedSuffix(R,Γ,prefix,p) ⇔                       *)
 (*              proof_script_check_from_bool(R,Γ,prefix,p)=true               *)
@@ -508,10 +540,15 @@ Qed.
 
 (*    RegulatedProof(R,Γ,p) ⇔ proof_script_check_from_bool(R,Γ,[],p)=true     *)
 
-  The regulated-proof view and checked-derivability view are the same
-  proof-script evidence packaged in two different ways. A checked derivation
-  gives a regulated proof with the same last formula; a regulated proof with
-  last formula `A` rebuilds the Boolean checker certificate for `A`.
+(*
+│
+│          The regulated-proof view and checked-derivability view are
+│          the same proof-script evidence packaged in two different
+│          ways. A checked derivation gives a regulated proof with the
+│          same last formula; a regulated proof with last formula `A`
+│          rebuilds the Boolean checker certificate for `A`.
+│
+*)
 
 (*       R; Γ ⊢check A ⇔ ∃p. RegulatedProof(R,Γ,p) ∧ last_formula(p)=A        *)
 
@@ -560,10 +597,15 @@ Definition regulator_theory_component_sound_property
 (*       proof_script_check_from_bool(R,Γ,[],prefix)=true ⇒ R; Γ ⊢check       *)
 (*                  regulator_component_output(R,Γ,prefix,c)                  *)
 
-  Component soundness is still a finite script construction. Given a checked
-  prefix and one valid native component after that prefix, append the
-  component's proof line and use the kernel append lemma to obtain a checked
-  derivation of the component output.
+(*
+│
+│          Component soundness is still a finite script construction.
+│          Given a checked prefix and one valid native component after
+│          that prefix, append the component's proof line and use the
+│          kernel append lemma to obtain a checked derivation of the
+│          component output.
+│
+*)
 
 (*             proof_script_check_from_bool(R,Γ,[],prefix)=true ∧             *)
 (*      regulator_instruction_valid(R,Γ,prefix,instr,B) ⇒ R; Γ ⊢check B       *)
@@ -630,10 +672,15 @@ Qed.
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  A `SymbolicRegulator` records exactly the operational interface needed
-  later: an output type, an instruction type, and a Boolean acceptance
-  relation from instructions to outputs. It has no semantic fields and no
-  hidden proof-search procedure.
+(*
+│
+│          A `SymbolicRegulator` records exactly the operational
+│          interface needed later: an output type, an instruction
+│          type, and a Boolean acceptance relation from instructions
+│          to outputs. It has no semantic fields and no hidden
+│          proof-search procedure.
+│
+*)
 
 (*   SymbolicRegulator ≔ (Output, Instruction, accepts_bool : Instruction →   *)
 (*                               Output → bool)                               *)
@@ -702,11 +749,16 @@ Definition symbolic_regulator_world_not_derivable
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  The regulator-theory symbolic regulator is the checker itself viewed
-  through the abstract interface: instructions are finite proof scripts,
-  outputs are formulas, and acceptance is exactly
-  `regulator_theory_check_bool`. The finite axiom-set instance is the same
-  interface with `finite_axiom_set_check_bool` as the acceptance function.
+(*
+│
+│          The regulator-theory symbolic regulator is the checker
+│          itself viewed through the abstract interface: instructions
+│          are finite proof scripts, outputs are formulas, and
+│          acceptance is exactly `regulator_theory_check_bool`. The
+│          finite axiom-set instance is the same interface with
+│          `finite_axiom_set_check_bool` as the acceptance function.
+│
+*)
 
 (*                 regulator_theory_regulates_bool(R,Γ,p,A) =                 *)
 (*                    regulator_theory_check_bool(R,Γ,p,A)                    *)
@@ -774,10 +826,16 @@ Definition finite_axiom_set_symbolic_world
       finite_axiom_set_symbolic_regulator profile T Gamma
   |}.
 
-  The symbolic-regulator derivability identities are definitional:
-  existential acceptance by the packaged regulator is the same existential
-  proof script already named by checked derivability. The negative identities
-  are the corresponding contraposition over those positive identities.
+(*
+│
+│          The symbolic-regulator derivability identities are
+│          definitional: existential acceptance by the packaged
+│          regulator is the same existential proof script already
+│          named by checked derivability. The negative identities are
+│          the corresponding contraposition over those positive
+│          identities.
+│
+*)
 
 (* symbolic_regulator_derivable(regulator_theory_symbolic_regulator(R,Γ),A) ⇔ *)
 (*                               R; Γ ⊢check A                                *)
@@ -909,9 +967,14 @@ Qed.
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  `regulator_theory_closure R Γ` is the output-side predicate induced by the
-  checker: a formula belongs to the closure exactly when it is
-  checked-derivable from `Γ` under regulator theory `R`.
+(*
+│
+│          `regulator_theory_closure R Γ` is the output-side predicate
+│          induced by the checker: a formula belongs to the closure
+│          exactly when it is checked-derivable from `Γ` under
+│          regulator theory `R`.
+│
+*)
 
 (*                       closure_R,Γ(A) ≔ R; Γ ⊢check A                       *)
 
@@ -921,9 +984,14 @@ Definition regulator_theory_closure
     : Formula -> Prop :=
   fun A => regulator_theory_checked_derivable R Gamma A.
 
-  `regulator_theory_equivalent R Γ A B` is closure equivalence: each
-  implication direction is accepted by the regulator-theory closure. This is
-  the equivalence relation used by regulated evaluation frames in `M001_09`.
+(*
+│
+│          `regulator_theory_equivalent R Γ A B` is closure
+│          equivalence: each implication direction is accepted by the
+│          regulator-theory closure. This is the equivalence relation
+│          used by regulated evaluation frames in `M001_09`.
+│
+*)
 
 (*           A ≃_{R,Γ} B ≔ closure_R,Γ(A → B) ∧ closure_R,Γ(B → A)            *)
 
@@ -942,9 +1010,14 @@ Definition regulator_theory_equivalent
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  The sole closure principle exported here is modus ponens. It is the checked
-  MP composition theorem restated under the closure predicate, and it is the
-  regulator instance consumed by L001's collapse argument.
+(*
+│
+│          The sole closure principle exported here is modus ponens.
+│          It is the checked MP composition theorem restated under the
+│          closure predicate, and it is the regulator instance
+│          consumed by L001's collapse argument.
+│
+*)
 
 (*             closure_R,Γ(A→B) ∧ closure_R,Γ(A) ⇒ closure_R,Γ(B)             *)
 

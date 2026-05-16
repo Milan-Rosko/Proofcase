@@ -36,13 +36,17 @@
   classical logic libraries, real numbers, set-theoretic libraries,
   extraction or IO protocol modules, semantic truth, model theory,
   arithmetized syntax, object-level substitution, self-tokens, and internal
-  self-interpretation principles — every one of those would either widen the
+  self-interpretation principles; every one of those would either widen the
   trust boundary or commit the package to an interpretation it does not have.
 
 *)
 
-  `Bool.Bool` supplies the Boolean checker codomain and the `if` `andb` `orb`
-  algebra used throughout.
+(*
+│
+│          `Bool.Bool` supplies the Boolean checker codomain and the
+│          `if` `andb` `orb` algebra used throughout.
+│
+*)
 
 From Stdlib Require Export Bool.Bool.
 
@@ -85,22 +89,41 @@ Export ListNotations.
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  The primitive object language of M001 is the closed implicational/falsity
-  fragment. There are no atomic propositions, no propositional variables, and
-  no object-level substitution operation in this premise layer: every formula
-  is a finite tree built from `Bot` and `Imp`.
+(*
+│
+│          The primitive object language of M001 is the closed
+│          implicational/falsity fragment. There are no atomic
+│          propositions, no propositional variables, and no
+│          object-level substitution operation in this premise layer:
+│          every formula is a finite tree built from `Bot` and `Imp`.
+│
+*)
 
-(*                             A, B ::= ⊥ ∣ A → B                             *)
+(*
+│
+│          A, B ::= Bot | Imp A B
+│
+*)
 
 Inductive Formula : Type :=
 | Bot : Formula
 | Imp : Formula -> Formula -> Formula.
 
-  A context is a finite list of formulas. We do not quotient by permutation,
-  contraction, or extensional set equality: later checker layers operate over
-  this literal list structure.
+(*
+│
+│          A context is a finite list of formulas. We do not quotient
+│          by permutation, contraction, or extensional set equality:
+│          later checker layers operate over this literal list
+│          structure.
+│
+*)
 
-(*               Γ ::= [] ∣ A :: Γ and ctx_extend(A,Γ) ≔ A :: Γ               *)
+(*
+│
+│          Gamma ::= [] | A :: Gamma and ctx_extend(A,Gamma) := A ::
+│          Gamma
+│
+*)
 
 Definition Context := list Formula.
 
@@ -117,10 +140,19 @@ Definition ctx_extend (A : Formula) (Gamma : Context) : Context :=
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  An `AxiomSet` is the function-valued source of additional non-logical
-  axioms. It answers whether a formula is available as an axiom.
+(*
+│
+│          An `AxiomSet` is the function-valued source of additional
+│          non-logical axioms. It answers whether a formula is
+│          available as an axiom.
+│
+*)
 
-(*                       T : AxiomSet ≔ Formula → bool                        *)
+(*
+│
+│          T : AxiomSet := Formula -> bool
+│
+*)
 
 Record AxiomSet : Type := {
   axiom_set_contains_bool : Formula -> bool
@@ -129,12 +161,21 @@ Record AxiomSet : Type := {
 Definition axiom_set_empty : AxiomSet :=
   {| axiom_set_contains_bool := fun _ => false |}.
 
-  A `FiniteAxiomSet` is the certificate-facing counterpart of `AxiomSet`: it
-  stores a finite list of formulas. The Boolean membership test and bridge
-  into `AxiomSet` are computational kernel material and are defined in
-  `M001_01__Kernel`.
+(*
+│
+│          A `FiniteAxiomSet` is the certificate-facing counterpart of
+│          `AxiomSet`: it stores a finite list of formulas. The
+│          Boolean membership test and bridge into `AxiomSet` are
+│          computational kernel material and are defined in
+│          `M001_01__Kernel`.
+│
+*)
 
-(*                     FT : FiniteAxiomSet ≔ {A₀; …; Aₙ}                      *)
+(*
+│
+│          FT : FiniteAxiomSet := finite list A0 through An
+│
+*)
 
 Record FiniteAxiomSet : Type := {
   finite_axiom_set_formulas : list Formula
@@ -151,11 +192,20 @@ Definition finite_axiom_set_empty : FiniteAxiomSet :=
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  A regulator logic profile chooses which built-in logical axiom schemas are
-  available. The minimal profile exposes only K/S; the EFQ profile adds the
-  explicit `⊥ → A` schema.
+(*
+│
+│          A regulator logic profile chooses which built-in logical
+│          axiom schemas are available. The minimal profile exposes
+│          only K/S; the EFQ profile adds the explicit `Imp Bot A`
+│          schema.
+│
+*)
 
-(*                       profile ∈ {minimal, with_efq}                        *)
+(*
+│
+│          profile in {minimal, with_efq}
+│
+*)
 
 Inductive RegulatorLogicProfile : Type :=
 | regulator_profile_minimal
@@ -169,12 +219,22 @@ Inductive RegulatorLogicProfile : Type :=
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  A `RegulatorTheory` is the object-level regulator specification used by the
-  checker: a logical profile together with an external axiom source. This
-  record is still syntax, not model theory; it merely packages the two
-  finite-checker inputs that determine which `J_Axiom` lines are available.
+(*
+│
+│          A `RegulatorTheory` is the object-level regulator
+│          specification used by the checker: a logical profile
+│          together with an external axiom source. This record is
+│          still syntax, not model theory; it merely packages the two
+│          finite-checker inputs that determine which `J_Axiom` lines
+│          are available.
+│
+*)
 
-(*               R : RegulatorTheory ≔ (profile_R, axiom_set_R)               *)
+(*
+│
+│          R : RegulatorTheory := (profile_R, axiom_set_R)
+│
+*)
 
 Record RegulatorTheory : Type := {
   regulator_theory_profile : RegulatorLogicProfile;
@@ -197,16 +257,26 @@ Definition regulator_theory_empty_with_efq : RegulatorTheory :=
     regulator_profile_with_efq
     axiom_set_empty.
 
-  A `BooleanEnvironment` is the minimal ambient wrapper for regulator
-  theories whose visible interface is Boolean. The name is deliberately light
-  storytelling rather than model theory: inside this wrapper, regulator
-  theories are presented through Boolean checkers and Boolean axiom
-  availability. It is still not a context and not an axiom set; contexts hold
-  temporary assumptions, axiom sets answer formula-availability queries, and
-  Boolean environments only collect the regulator theories that a later
-  ambient layer may expose.
+(*
+│
+│          A `BooleanEnvironment` is the minimal ambient wrapper for
+│          regulator theories whose visible interface is Boolean. The
+│          name is deliberately light storytelling rather than model
+│          theory: inside this wrapper, regulator theories are
+│          presented through Boolean checkers and Boolean axiom
+│          availability. It is still not a context and not an axiom
+│          set; contexts hold temporary assumptions, axiom sets answer
+│          formula-availability queries, and Boolean environments only
+│          collect the regulator theories that a later ambient layer
+│          may expose.
+│
+*)
 
-(*                    E : BooleanEnvironment ≔ {R₀; …; Rₙ}                    *)
+(*
+│
+│          E : BooleanEnvironment := finite list R0 through Rn
+│
+*)
 
 Record BooleanEnvironment : Type := {
   boolean_environment_regulator_theories : list RegulatorTheory
@@ -229,12 +299,25 @@ Definition boolean_environment_extend_regulator_theory
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  A proof line carries a claimed formula and a first-order justification tag.
-  The tag is syntactic data only: `J_Assumption`, `J_Axiom`, and `J_MP i j`
-  acquire their checker meaning in `M001_01__Kernel`.
+(*
+│
+│          A proof line carries a claimed formula and a first-order
+│          justification tag. The tag is syntactic data only:
+│          `J_Assumption`, `J_Axiom`, and `J_MP i j` acquire their
+│          checker meaning in `M001_01__Kernel`.
+│
+*)
 
-(*                     j ::= assumption ∣ axiom ∣ mp(i,j)                     *)
-(*               line ≔ (A,j) and proof ::= [] ∣ line :: proof                *)
+(*
+│
+│          j ::= assumption | axiom | mp(i,j)
+│
+*)
+(*
+│
+│          line := (A,j) and proof ::= [] | line :: proof
+│
+*)
 
 Inductive Justification : Type :=
 | J_Assumption

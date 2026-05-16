@@ -43,7 +43,7 @@
 
 -Q theories/L001 L001
 
-	theories/L001/L001_00__Premises.v
+	theories/L001/L001_00_Premises.v
 	theories/L001/L001_02__Aporetic_Lemma.v
 	theories/L001/L001_03__Aporetic_Obstruction.v
 	theories/L001/L001_95_API.v
@@ -54,6 +54,8 @@
 -Q theories/S001 S001
 
 	theories/S001/S001_00_Premises.v
+	theories/S001/S001_01__Syllogism.v
+	theories/S001/S001_02__Quantifiers.v
 
 # Semantics: ERDŐS-PÓLYA PIGEONHOLE ANECDOTE
 
@@ -74,5 +76,5 @@
 -Q theories/S003 S003
 
 	theories/S003/S003_00_Premises.v
-	theories/S003/S003_01_Center_Normalization.v
+	theories/S003/S003_01__Center_Normalization.v
 	theories/S003/S003_96_QED.v

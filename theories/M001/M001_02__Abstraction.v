@@ -56,12 +56,18 @@ From M001 Require Export M001_01__Kernel.
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  `k_axiom_formula` and `s_axiom_formula` package the canonical K and S
-  instances as functions on the relevant formula parameters. We name them so
-  that the Hilbert blocks below read as small algebraic expressions in K and
-  S rather than as nested `Imp` trees, and so that the recognizer-level
-  lemmas `available_axiom_bool_k_formula_lemma` / `_S_formula` give one-step
-  rewrites every block-checking proof can rely on.
+(*
+│
+│          `k_axiom_formula` and `s_axiom_formula` package the
+│          canonical K and S instances as functions on the relevant
+│          formula parameters. We name them so that the Hilbert blocks
+│          below read as small algebraic expressions in K and S rather
+│          than as nested `Imp` trees, and so that the
+│          recognizer-level lemmas
+│          `available_axiom_bool_k_formula_lemma` / `_S_formula` give
+│          one-step rewrites every block-checking proof can rely on.
+│
+*)
 
 (*                    k_axiom_formula(A, B) ≔ A → (B → A)                     *)
 (*       s_axiom_formula(A, B, C) ≔ (A → (B → C)) → ((A → B) → (A → C))       *)
@@ -94,14 +100,21 @@ Proof.
   apply available_axiom_bool_s_lemma.
 Qed.
 
-  The four deduction block constructors are finite Hilbert templates emitted
-  by `regulator_theory_deduction_transform`; each checked fragment ends with
-  the formula needed at that source position, and its `base` parameter
-  records the absolute output index where the block starts.
-  `deduction_identity_block_from` is the five-line K/S proof of `A → A` used
-  for the discharged hypothesis itself; it consults neither `Γ` nor the
-  external axiom set, and its reverse-orientation MP lines are accepted by
-  `M001_01`'s unordered `mp_valid_bool`.
+(*
+│
+│          The four deduction block constructors are finite Hilbert
+│          templates emitted by
+│          `regulator_theory_deduction_transform`; each checked
+│          fragment ends with the formula needed at that source
+│          position, and its `base` parameter records the absolute
+│          output index where the block starts.
+│          `deduction_identity_block_from` is the five-line K/S proof
+│          of `A → A` used for the discharged hypothesis itself; it
+│          consults neither `Γ` nor the external axiom set, and its
+│          reverse-orientation MP lines are accepted by `M001_01`'s
+│          unordered `mp_valid_bool`.
+│
+*)
 
 (*                    K(A,A), K(A,A→A), S(A,A→A,A) ⇒ A → A                    *)
 
@@ -119,11 +132,17 @@ Definition deduction_identity_block_from (base : nat) (A : Formula) : Proof :=
           (base + 0))
   nil)))).
 
-  `deduction_assumption_lift_block_from` and
-  `deduction_axiom_lift_block_from` lift a context assumption (resp. an
-  available axiom) `C` to `A → C` by following K with one MP. The two blocks
-  differ only in the justification of their first line; isolating them as two
-  constructors keeps the case split explicit at the transformer call site.
+(*
+│
+│          `deduction_assumption_lift_block_from` and
+│          `deduction_axiom_lift_block_from` lift a context assumption
+│          (resp. an available axiom) `C` to `A → C` by following K
+│          with one MP. The two blocks differ only in the
+│          justification of their first line; isolating them as two
+│          constructors keeps the case split explicit at the
+│          transformer call site.
+│
+*)
 
 (*                             C, K(C,A) ⇒ A → C                              *)
 
@@ -143,11 +162,16 @@ Definition deduction_axiom_lift_block_from
   (cons (pl_mp (Imp A C) (base + 0) (base + 1))
   nil)).
 
-  `deduction_mp_lift_block_from` is the heart of the transformer: a source MP
-  from `φ_i` and `φ_j` becomes an output MP of `A → φ_i` and `A → φ_j`
-  mediated by S. The two indices `idx_imp` and `idx_arg` point into the
-  output proof — they are the entries the index map has already recorded for
-  the implication and its antecedent.
+(*
+│
+│          `deduction_mp_lift_block_from` is the heart of the
+│          transformer: a source MP from `φ_i` and `φ_j` becomes an
+│          output MP of `A → φ_i` and `A → φ_j` mediated by S. The two
+│          indices `idx_imp` and `idx_arg` point into the output proof
+│          — they are the entries the index map has already recorded
+│          for the implication and its antecedent.
+│
+*)
 
 (*                    S(A,C,B), A → (C → B), A → C ⇒ A → B                    *)
 
@@ -166,12 +190,17 @@ Definition deduction_mp_lift_block_from
           idx_arg)
   nil)).
 
-  `DeductionState` carries the transformer's working state: the output proof
-  built so far, and the index map that, for each already-processed source
-  line at position `i`, records the output index of the line whose formula is
-  `A → φ_i`. Pairing the two means each new source line can be transformed by
-  reading at most two map entries, regardless of how far back the source MP
-  references reach.
+(*
+│
+│          `DeductionState` carries the transformer's working state:
+│          the output proof built so far, and the index map that, for
+│          each already-processed source line at position `i`, records
+│          the output index of the line whose formula is `A → φ_i`.
+│          Pairing the two means each new source line can be
+│          transformed by reading at most two map entries, regardless
+│          of how far back the source MP references reach.
+│
+*)
 
 (*                  idx[i]=k ∧ source[i]=φ ⇒ output[k]=A → φ                  *)
 
@@ -338,10 +367,15 @@ Fixpoint deduction_transform_lines
       deduction_transform_lines A (source_prefix ++ cons line nil) rest st'
   end.
 
-  `regulator_theory_deduction_transform A p` runs the transformer from the
-  empty state and returns only the produced output proof. The index map is
-  internal to the construction; downstream layers see only this function and
-  the deduction theorem below.
+(*
+│
+│          `regulator_theory_deduction_transform A p` runs the
+│          transformer from the empty state and returns only the
+│          produced output proof. The index map is internal to the
+│          construction; downstream layers see only this function and
+│          the deduction theorem below.
+│
+*)
 
 (*    deduction_transform(A,p) ≔ regulator_theory_deduction_transform(A,p)    *)
 
@@ -356,13 +390,19 @@ Definition regulator_theory_deduction_transform (A : Formula) (p : Proof) : Proo
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  The block-checking lemmas provide the local certificate arithmetic behind
-  the transformer: each generated template checks when appended after an
-  already accepted prefix. `regulator_theory_deduction_cbn` is the
-  corresponding reduction tactic; its unfolding list is explicit so that
-  proofs reduce the checker stack, line constructors, K/S formula
-  constructors, block templates, and proof-script accessors without unfolding
-  the index-map machinery or the dispatcher.
+(*
+│
+│          The block-checking lemmas provide the local certificate
+│          arithmetic behind the transformer: each generated template
+│          checks when appended after an already accepted prefix.
+│          `regulator_theory_deduction_cbn` is the corresponding
+│          reduction tactic; its unfolding list is explicit so that
+│          proofs reduce the checker stack, line constructors, K/S
+│          formula constructors, block templates, and proof-script
+│          accessors without unfolding the index-map machinery or the
+│          dispatcher.
+│
+*)
 
 Ltac regulator_theory_deduction_cbn :=
   cbn [
@@ -373,13 +413,18 @@ Ltac regulator_theory_deduction_cbn :=
     deduction_mp_lift_block_from last_formula nth_formula
   ].
 
-  The four `*_block_check` lemmas — one per template — discharge the block's
-  `proof_script_check_from_bool` obligation against any prefix of the right
-  length. They are the only proofs in this file that have to inspect MP
-  orientation: they call `mp_valid_bool_reverse_lemma` for the K/S-built
-  blocks and `mp_valid_bool_direct_lemma` for the simpler lift blocks. Once
-  these four are established, the block-checking API becomes
-  orientation-agnostic.
+(*
+│
+│          The four `*_block_check` lemmas — one per template —
+│          discharge the block's `proof_script_check_from_bool`
+│          obligation against any prefix of the right length. They are
+│          the only proofs in this file that have to inspect MP
+│          orientation: they call `mp_valid_bool_reverse_lemma` for
+│          the K/S-built blocks and `mp_valid_bool_direct_lemma` for
+│          the simpler lift blocks. Once these four are established,
+│          the block-checking API becomes orientation-agnostic.
+│
+*)
 
 (*           checked_from([],output) ∧ checked_from(output,block) ⇒           *)
 (*                      checked_from([],output ⧺ block)                       *)
@@ -736,13 +781,19 @@ Qed.
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  `deduction_index_map_verified` is the structural invariant relating the
-  source prefix already consumed to the index map already recorded. For each
-  source line at position `i`, the map's `i`-th entry must be an output index
-  `k` such that the output's `k`-th line carries formula `A → φ_i`. The
-  inductive shape — co-traversal of `source` and `index_map` — is what makes
-  the four `deduction_state_append_*_verified` proofs go through with a
-  single extension step each.
+(*
+│
+│          `deduction_index_map_verified` is the structural invariant
+│          relating the source prefix already consumed to the index
+│          map already recorded. For each source line at position `i`,
+│          the map's `i`-th entry must be an output index `k` such
+│          that the output's `k`-th line carries formula `A → φ_i`.
+│          The inductive shape — co-traversal of `source` and
+│          `index_map` — is what makes the four
+│          `deduction_state_append_*_verified` proofs go through with
+│          a single extension step each.
+│
+*)
 
 (* deduction_index_map_verified(A, source, output, idx) ⇔ ∀ i, source_i = φ ⇒ *)
 (*                           output_idx_i = (A → φ)                           *)
@@ -781,12 +832,18 @@ Definition deduction_last_formula_verified
   | None => last_formula output = None
   end.
 
-  `deduction_state_verified` is the conjunction the transformer maintains
-  across every `deduction_transform_line` step: the output is checked, the
-  index map is consistent with the source consumed so far, and the last lines
-  correspond. Bundling the three as a record lets the four
-  `deduction_state_append_*_verified` lemmas below state preservation as a
-  single hypothesis-and-conclusion shape.
+(*
+│
+│          `deduction_state_verified` is the conjunction the
+│          transformer maintains across every
+│          `deduction_transform_line` step: the output is checked, the
+│          index map is consistent with the source consumed so far,
+│          and the last lines correspond. Bundling the three as a
+│          record lets the four `deduction_state_append_*_verified`
+│          lemmas below state preservation as a single
+│          hypothesis-and-conclusion shape.
+│
+*)
 
 (*verified(st) ≔ checked(output(st)) ∧ idx-correct(st) ∧ last(output(st)) = A *)
 (*                               → last(source)                               *)
@@ -1035,13 +1092,17 @@ Qed.
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  `mp_orientation_left_formula_lemma` and
-  `mp_orientation_right_formula_lemma` invert the two MP-orientation
-  predicates of `M001_01`. They convert a successful Boolean orientation
-  check into the equality the MP case of
-  `deduction_transform_line_verified_lemma` needs to substitute for the
-  source formulas before applying
-  `deduction_state_append_mp_lift_verified_lemma`.
+(*
+│
+│          `mp_orientation_left_formula_lemma` and
+│          `mp_orientation_right_formula_lemma` invert the two
+│          MP-orientation predicates of `M001_01`. They convert a
+│          successful Boolean orientation check into the equality the
+│          MP case of `deduction_transform_line_verified_lemma` needs
+│          to substitute for the source formulas before applying
+│          `deduction_state_append_mp_lift_verified_lemma`.
+│
+*)
 
 Lemma mp_orientation_left_formula_lemma :
   forall Fi Fj target,
@@ -1075,16 +1136,23 @@ Proof.
   reflexivity.
 Qed.
 
-  `deduction_transform_line_verified_lemma` is the one-step preservation
-  lemma for the transformer: a `deduction_state_verified` for the prefix
-  already consumed, together with a `proof_line_valid_bool` for the next
-  source line, yields a `deduction_state_verified` for the prefix extended by
-  that line. The proof follows the three source justifications, with the
-  assumption case splitting into discharged and inherited assumptions. The MP
-  case is the only one that consumes the index-map lookup:
-  `deduction_index_map_verified_nth_formula_lemma` recovers the output
-  positions of the implication and antecedent from the source MP indices,
-  after which the orientation lemmas align the formulas.
+(*
+│
+│          `deduction_transform_line_verified_lemma` is the one-step
+│          preservation lemma for the transformer: a
+│          `deduction_state_verified` for the prefix already consumed,
+│          together with a `proof_line_valid_bool` for the next source
+│          line, yields a `deduction_state_verified` for the prefix
+│          extended by that line. The proof follows the three source
+│          justifications, with the assumption case splitting into
+│          discharged and inherited assumptions. The MP case is the
+│          only one that consumes the index-map lookup:
+│          `deduction_index_map_verified_nth_formula_lemma` recovers
+│          the output positions of the implication and antecedent from
+│          the source MP indices, after which the orientation lemmas
+│          align the formulas.
+│
+*)
 
 (*  verified(st,source) ∧ valid(line) ⇒ verified(transform_line(A,line,st),   *)
 (*                              source ⧺ [line])                              *)
@@ -1229,14 +1297,21 @@ Qed.
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  `regulator_theory_deduction_checked` is the checker-level deduction theorem
-  and the primary user-facing export of this file: from a checked script for
-  `B` under `A :: Γ`, the transformer computes a checked script for `A → B`
-  under `Γ`. The proof packages `deduction_transform_lines_verified_lemma`
-  against the empty initial state and rewrites the
-  `deduction_last_formula_verified` invariant against the source's claimed
-  conclusion, which `M001_01`'s `regulator_theory_check_true_last_lemma`
-  recovers from the input regulator_theory_check_bool.
+(*
+│
+│          `regulator_theory_deduction_checked` is the checker-level
+│          deduction theorem and the primary user-facing export of
+│          this file: from a checked script for `B` under `A :: Γ`,
+│          the transformer computes a checked script for `A → B` under
+│          `Γ`. The proof packages
+│          `deduction_transform_lines_verified_lemma` against the
+│          empty initial state and rewrites the
+│          `deduction_last_formula_verified` invariant against the
+│          source's claimed conclusion, which `M001_01`'s
+│          `regulator_theory_check_true_last_lemma` recovers from the
+│          input regulator_theory_check_bool.
+│
+*)
 
 (*     R; A::Γ ⊢check[p] B ⇒ R; Γ ⊢check[deduction_transform(A,p)] A → B      *)
 
@@ -1273,13 +1348,20 @@ Proof.
   reflexivity.
 Qed.
 
-  `regulator_theory_deduction_minimal_checked` is the EFQ-free specialisation
-  of `regulator_theory_deduction_checked`. The transformer is
-  regulator-profile uniform — the K/S blocks contain no EFQ — so the
-  specialisation is immediate through `regulator_theory_check_minimal_bool`.
-  We expose it as a named theorem because later layers often state EFQ-free
-  facts directly against the minimal checker; those layers should chain
-  through this checked minimal form rather than restating the proof.
+(*
+│
+│          `regulator_theory_deduction_minimal_checked` is the
+│          EFQ-free specialisation of
+│          `regulator_theory_deduction_checked`. The transformer is
+│          regulator-profile uniform — the K/S blocks contain no EFQ —
+│          so the specialisation is immediate through
+│          `regulator_theory_check_minimal_bool`. We expose it as a
+│          named theorem because later layers often state EFQ-free
+│          facts directly against the minimal checker; those layers
+│          should chain through this checked minimal form rather than
+│          restating the proof.
+│
+*)
 
 (* T; A::Γ ⊢check_min[p] B ⇒ T; Γ ⊢check_min[deduction_transform(A,p)] A → B  *)
 

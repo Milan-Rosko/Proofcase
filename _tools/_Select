@@ -1,1 +1,15 @@
-	theories/A001/A001_00_Premises.v
+	theories/M001/M001_00_Premises.v
+	theories/M001/M001_01__Kernel.v
+	theories/M001/M001_02__Abstraction.v
+	theories/M001/M001_03__Falsity.v
+	theories/M001/M001_04__Certificates.v
+	theories/M001/M001_05__Application.v
+	theories/M001/M001_06__Syntactic_Adequacy.v
+	theories/M001/M001_07__Obstruction.v
+	theories/M001/M001_08__Symbolic_Regulator.v
+	theories/M001/M001_09__Regulator_Adequacy.v
+	theories/M001/M001_10__Evaluation_Closure.v
+	theories/M001/M001_95_API.v
+	theories/L001/L001_00__Premises.v
+	theories/L001/L001_02__Aporetic_Lemma.v
+	theories/L001/L001_03__Aporetic_Obstruction.v

@@ -39,10 +39,15 @@ From M001 Require Import M001_95_API.
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  The first probes fix the smallest computable facts used by the later
-  examples: formula equality is structural, context membership is Boolean
-  list membership, and a single assumption line checks when its formula is
-  present in the context.
+(*
+│
+│          The first probes fix the smallest computable facts used by
+│          the later examples: formula equality is structural, context
+│          membership is Boolean list membership, and a single
+│          assumption line checks when its formula is present in the
+│          context.
+│
+*)
 
 (*                         formula_eq_bool(A,A)=true                          *)
 (*                        ctx_mem_bool(A, A :: Γ)=true                        *)
@@ -106,9 +111,14 @@ Qed.
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  K is available as a logical axiom in the minimal profile. A finite axiom
-  set can also contribute a non-logical formula directly; the finite checker
-  bridges that finite list into the same regulator-theory checker.
+(*
+│
+│          K is available as a logical axiom in the minimal profile. A
+│          finite axiom set can also contribute a non-logical formula
+│          directly; the finite checker bridges that finite list into
+│          the same regulator-theory checker.
+│
+*)
 
 (*                            K(A,B) ≔ A → (B → A)                            *)
 (*                     regulator_profile_minimal ⊢ K(A,B)                     *)
@@ -205,9 +215,14 @@ Qed.
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  The MP checker accepts both reference orientations. We also probe the
-  certified deduction and reductio transforms by applying their public
-  checker theorems to concrete proof scripts.
+(*
+│
+│          The MP checker accepts both reference orientations. We also
+│          probe the certified deduction and reductio transforms by
+│          applying their public checker theorems to concrete proof
+│          scripts.
+│
+*)
 
 (*       prefix[0]=A ∧ prefix[1]=A→B ⇒ mp_valid_bool(prefix,0,1,B)=true       *)
 (*       prefix[0]=A ∧ prefix[1]=A→B ⇒ mp_valid_bool(prefix,1,0,B)=true       *)
@@ -334,9 +349,14 @@ Qed.
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  The checked, inductive, and closure views coincide through the public
-  adequacy lemmas. These examples are shape probes: they keep the exported
-  theorem statements aligned with the current naming discipline.
+(*
+│
+│          The checked, inductive, and closure views coincide through
+│          the public adequacy lemmas. These examples are shape
+│          probes: they keep the exported theorem statements aligned
+│          with the current naming discipline.
+│
+*)
 
 (*                           A ∈ Γ ⇒ R; Γ ⊢check A                            *)
 (*                         R; Γ ⊢check A ⇔ R; Γ ⊢ᵢ A                          *)
@@ -412,10 +432,15 @@ Qed.
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  The symbolic-regulator view is a transparent wrapper around the checker.
-  These probes fix the definitional bridge from accepted proof scripts to
-  symbolic-regulator derivability and keep the minimal closure interface
-  visible from the public API.
+(*
+│
+│          The symbolic-regulator view is a transparent wrapper around
+│          the checker. These probes fix the definitional bridge from
+│          accepted proof scripts to symbolic-regulator derivability
+│          and keep the minimal closure interface visible from the
+│          public API.
+│
+*)
 
 (* symbolic_regulator_derivable(regulator_theory_symbolic_regulator(R,Γ),A) ⇔ *)
 (*                               R; Γ ⊢check A                                *)
@@ -458,9 +483,14 @@ Qed.
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  The evaluation-closure probes keep the generic and regulator-facing
-  fixed-point engines visible from the public API. They do not instantiate a
-  semantic evaluator; they only assert the exported theorem shapes.
+(*
+│
+│          The evaluation-closure probes keep the generic and
+│          regulator-facing fixed-point engines visible from the
+│          public API. They do not instantiate a semantic evaluator;
+│          they only assert the exported theorem shapes.
+│
+*)
 
 (*           evaluation_complete(E) ⇒ evaluation_has_fixed_point(g)           *)
 (*               evaluation_fixed_point_free(formula_negation)                *)

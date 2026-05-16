@@ -1,6 +1,27 @@
 (*L001_02__Aporetic_Lemma.v*)
 
-From L001 Require Export L001_00__Premises.
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                      Author and Copyright remark. Author(s): │
+│                ╭╮╮╮─╮                Milan Rosko  https://www.milanrosko.com │
+│                ││││╭╯                Licence. This file is distributed under │
+│                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
+│                                      visit https://www.mozilla.org/en-US/MPL │
+└──────────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                     Proofcase / L001_02__Aporetic_Lemma                      │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+  OVERVIEW
+
+  Curry fixed-point and collapse layer for L001. We factor the aporetic
+  diagonal through goal-specific evaluation frames, derive negation fixed
+  points at bottom, and prove the generic and regulator-specific branch
+  collapses used by the obstruction layer.
+
+*)
+
+From L001 Require Export L001_00_Premises.
 
 (*
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -10,10 +31,15 @@ From L001 Require Export L001_00__Premises.
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  `CurryFixedPointFor C G B` says that `B` is a Curry-style fixed point of
-  the goal formula `G` inside the closure: `B` and `B → G` imply each other
-  under `C`. The negation fixed point is the special case `G := Bot`, since
-  `formula_negation B = Imp B Bot`.
+(*
+│
+│          `CurryFixedPointFor C G B` says that `B` is a Curry-style
+│          fixed point of the goal formula `G` inside the closure: `B`
+│          and `B → G` imply each other under `C`. The negation fixed
+│          point is the special case `G := Bot`, since
+│          `formula_negation B = Imp B Bot`.
+│
+*)
 
 (*                 CurryFixedPointFor(C,G,B) ≔ B ≃_C (B → G).                 *)
 
@@ -22,10 +48,15 @@ Definition CurryFixedPointFor
     (G B : Formula) : Prop :=
   ClosureEquiv C B (Imp B G).
 
-  Existence of the Curry fixed point at any goal `G` requires only the
-  goal-specific evaluation frame `EvC_G`. The frame names the single behavior
-  `x ↦ ev(x,x) → G`; running that name on itself produces a `B` equivalent,
-  under `C`, to `B → G`.
+(*
+│
+│          Existence of the Curry fixed point at any goal `G` requires
+│          only the goal-specific evaluation frame `EvC_G`. The frame
+│          names the single behavior `x ↦ ev(x,x) → G`; running that
+│          name on itself produces a `B` equivalent, under `C`, to `B
+│          → G`.
+│
+*)
 
 (*                     EvC_G(C,ev,G) ⇒ ∃B. B ≃_C (B → G).                     *)
 
@@ -42,9 +73,14 @@ Proof.
   exact (Hc c).
 Qed.
 
-  The full-frame corollary recovers the earlier universal form: a
-  `ClosureEvaluationFrame` implies `EvC_G` for each goal, and therefore
-  yields the Curry fixed point at that goal.
+(*
+│
+│          The full-frame corollary recovers the earlier universal
+│          form: a `ClosureEvaluationFrame` implies `EvC_G` for each
+│          goal, and therefore yields the Curry fixed point at that
+│          goal.
+│
+*)
 
 (*                EvalComplete(C,ev) ⇒ ∀G. ∃B. B ≃_C (B → G).                 *)
 
@@ -63,10 +99,15 @@ Proof.
           C Code E G)).
 Qed.
 
-  The negation fixed point is the Curry fixed point at `G := Bot`, since
-  `formula_negation B = Imp B Bot`. This factoring shows that the diagonal
-  step is goal parametric; the choice `G := Bot` only matters at the collapse
-  step, not at the fixed point step.
+(*
+│
+│          The negation fixed point is the Curry fixed point at `G :=
+│          Bot`, since `formula_negation B = Imp B Bot`. This
+│          factoring shows that the diagonal step is goal parametric;
+│          the choice `G := Bot` only matters at the collapse step,
+│          not at the fixed point step.
+│
+*)
 
 (*          NegationFixedPointFor(C,B) = CurryFixedPointFor(C,⊥,B).           *)
 
@@ -79,9 +120,14 @@ Proof.
   reflexivity.
 Qed.
 
-  The goal-frame version of the negation fixed point is the Curry theorem at
-  `G := Bot`. Thus a code for the single behavior `x ↦ ev(x,x) → ⊥` is
-  already enough to produce `B ≃_C ¬B`.
+(*
+│
+│          The goal-frame version of the negation fixed point is the
+│          Curry theorem at `G := Bot`. Thus a code for the single
+│          behavior `x ↦ ev(x,x) → ⊥` is already enough to produce `B
+│          ≃_C ¬B`.
+│
+*)
 
 (*                        EvC_⊥(C,ev) ⇒ ∃B. B ≃_C ¬B.                         *)
 
@@ -111,9 +157,14 @@ Qed.
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  Curry collapse — left branch. If the fixed point itself is accepted, then
-  `B → (B → G)` gives `B → G`, and a second modus ponens on the same `B`
-  gives `G`. The conclusion is `C G`, not closure inconsistency.
+(*
+│
+│          Curry collapse — left branch. If the fixed point itself is
+│          accepted, then `B → (B → G)` gives `B → G`, and a second
+│          modus ponens on the same `B` gives `G`. The conclusion is
+│          `C G`, not closure inconsistency.
+│
+*)
 
 (*              ModusPonens(C) ∧ (B ≃_C (B → G)) ∧ C(B) ⇒ C(G).               *)
 
@@ -129,9 +180,13 @@ Proof.
   exact (Hmp B G HBG HB).
 Qed.
 
-  Curry collapse — right branch. If `C (B → G)` is accepted, then the
-  converse implication `(B → G) → B` gives `C B`, and modus ponens `B → G`
-  with `B` gives `G`.
+(*
+│
+│          Curry collapse — right branch. If `C (B → G)` is accepted,
+│          then the converse implication `(B → G) → B` gives `C B`,
+│          and modus ponens `B → G` with `B` gives `G`.
+│
+*)
 
 (*            ModusPonens(C) ∧ (B ≃_C (B → G)) ∧ C(B → G) ⇒ C(G).             *)
 
@@ -147,9 +202,13 @@ Proof.
   exact (Hmp B G HBG HB).
 Qed.
 
-  Combined Curry collapse. From a branch disjunction `C B ∨ C(B→G)`, either
-  side derives `C G`. Generalizes `negfixp_decision_collapse` to arbitrary
-  goal `G`.
+(*
+│
+│          Combined Curry collapse. From a branch disjunction `C B ∨
+│          C(B→G)`, either side derives `C G`. Generalizes
+│          `negfixp_decision_collapse` to arbitrary goal `G`.
+│
+*)
 
 (*        ModusPonens(C) ∧ (B ≃_C (B → G)) ∧ (C(B) ∨ C(B → G)) ⇒ C(G).        *)
 
@@ -174,9 +233,14 @@ Qed.
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  The left branch says that if the fixed point itself is accepted, then the
-  implication `B → ¬B` yields `¬B`, and applying `¬B = B → ⊥` to `B` yields
-  `⊥`. The conclusion is `C Bot`, not a semantic inconsistency claim.
+(*
+│
+│          The left branch says that if the fixed point itself is
+│          accepted, then the implication `B → ¬B` yields `¬B`, and
+│          applying `¬B = B → ⊥` to `B` yields `⊥`. The conclusion is
+│          `C Bot`, not a semantic inconsistency claim.
+│
+*)
 
 (*                          B ≃_C ¬B ∧ C(B) ⇒ C(⊥).                           *)
 
@@ -193,10 +257,15 @@ Proof.
   exact (Hmp B Bot HNB HB).
 Qed.
 
-  The right branch says that if the negation of the fixed point is accepted,
-  then the implication `¬B → B` yields `B`, and the already accepted `¬B`
-  then yields `⊥`. The conclusion is again `C Bot`, not a semantic
-  inconsistency claim.
+(*
+│
+│          The right branch says that if the negation of the fixed
+│          point is accepted, then the implication `¬B → B` yields
+│          `B`, and the already accepted `¬B` then yields `⊥`. The
+│          conclusion is again `C Bot`, not a semantic inconsistency
+│          claim.
+│
+*)
 
 (*                          B ≃_C ¬B ∧ C(¬B) ⇒ C(⊥).                          *)
 
@@ -213,10 +282,14 @@ Proof.
   exact (Hmp B Bot HNB HB).
 Qed.
 
-  `negfixp_decision_collapse` combines the two modus ponens branch lemmas for
-  a supplied branch disjunction. It consumes a concrete `C B \/ C (¬B)`
-  choice and derives `C Bot`; no consistency hypothesis enters this collapse
-  step.
+(*
+│
+│          `negfixp_decision_collapse` combines the two modus ponens
+│          branch lemmas for a supplied branch disjunction. It
+│          consumes a concrete `C B \/ C (¬B)` choice and derives `C
+│          Bot`; no consistency hypothesis enters this collapse step.
+│
+*)
 
 (*            ModusPonens(C) ∧ (B ≃_C ¬B) ∧ (C(B) ∨ C(¬B)) ⇒ C(⊥).            *)
 
@@ -237,10 +310,14 @@ Proof.
          C B Hmp Hfix HNB).
 Qed.
 
-  `negfixp_lem_collapse` obtains the branch disjunction from
-  `ClosureExcludedMiddle C` and then routes through the explicit
-  branch-collapse adapter. This is closure-level excluded middle only, not
-  Rocq-level excluded middle.
+(*
+│
+│          `negfixp_lem_collapse` obtains the branch disjunction from
+│          `ClosureExcludedMiddle C` and then routes through the
+│          explicit branch-collapse adapter. This is closure-level
+│          excluded middle only, not Rocq-level excluded middle.
+│
+*)
 
 (*       ModusPonens(C) ∧ (B ≃_C ¬B) ∧ ClosureExcludedMiddle(C) ⇒ C(⊥).       *)
 
@@ -266,9 +343,14 @@ Qed.
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  Goal-frame collapse is the positive consequence at bottom: the minimal
-  frame `EvC_⊥`, closure-level excluded middle, and modus ponens derive `⊥`
-  inside the same closure predicate. No consistency hypothesis is used.
+(*
+│
+│          Goal-frame collapse is the positive consequence at bottom:
+│          the minimal frame `EvC_⊥`, closure-level excluded middle,
+│          and modus ponens derive `⊥` inside the same closure
+│          predicate. No consistency hypothesis is used.
+│
+*)
 
 (*          ModusPonens(C) ∧ EvC_⊥(C,ev) ∧ ExcludedMiddle(C) ⇒ C(⊥).          *)
 
@@ -299,8 +381,13 @@ Proof.
            C B Hmp Hfix Hdec).
 Qed.
 
-  The full-frame excluded-middle collapse is the corollary obtained by
-  extracting the bottom goal frame from a universal `ClosureEvaluationFrame`.
+(*
+│
+│          The full-frame excluded-middle collapse is the corollary
+│          obtained by extracting the bottom goal frame from a
+│          universal `ClosureEvaluationFrame`.
+│
+*)
 
 (*        ModusPonens(C) ∧ EvalComplete(C) ∧ ExcludedMiddle(C) ⇒ C(⊥).        *)
 
@@ -323,9 +410,13 @@ Proof.
        Hmp Hlem).
 Qed.
 
-  The goal-frame decision collapse first converts a Boolean classifier to
-  closure-level excluded middle, then applies the minimal bottom-frame
-  collapse theorem.
+(*
+│
+│          The goal-frame decision collapse first converts a Boolean
+│          classifier to closure-level excluded middle, then applies
+│          the minimal bottom-frame collapse theorem.
+│
+*)
 
 (*         ModusPonens(C) ∧ EvC_⊥(C,ev) ∧ ClosureDecision(C) ⇒ C(⊥).          *)
 
@@ -347,8 +438,12 @@ Proof.
        (decision_to_lem C D)).
 Qed.
 
-  The full-frame decision collapse is the universal-frame corollary of the
-  goal-frame decision theorem.
+(*
+│
+│          The full-frame decision collapse is the universal-frame
+│          corollary of the goal-frame decision theorem.
+│
+*)
 
 (*       ModusPonens(C) ∧ EvalComplete(C) ∧ ClosureDecision(C) ⇒ C(⊥).        *)
 
@@ -379,10 +474,15 @@ Qed.
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  `RegulatorNegationFixedPoint` is the M001 specialization of the generic
-  negation fixed-point predicate. It abbreviates `NegationFixedPointFor` at
-  the closure predicate `RegulatorClosure profile T Gamma`; it adds no new
-  semantic principle.
+(*
+│
+│          `RegulatorNegationFixedPoint` is the M001 specialization of
+│          the generic negation fixed-point predicate. It abbreviates
+│          `NegationFixedPointFor` at the closure predicate
+│          `RegulatorClosure profile T Gamma`; it adds no new semantic
+│          principle.
+│
+*)
 
 (*               RegulatorNegationFixedPoint(profile,T,Γ,B) ≔ B               *)
 (*                   ≃_{RegulatorClosure(profile,T,Γ)} ¬B.                    *)
@@ -394,10 +494,15 @@ Definition RegulatorNegationFixedPoint
     (B : Formula) : Prop :=
   NegationFixedPointFor (RegulatorClosure profile T Gamma) B.
 
-  `regulator_negfixp_existence` is the M001 instance of the generic diagonal
-  step. A regulated evaluation frame is first read as a closure evaluation
-  frame, and the result is only the existence of a formula equivalent to its
-  object-level negation.
+(*
+│
+│          `regulator_negfixp_existence` is the M001 instance of the
+│          generic diagonal step. A regulated evaluation frame is
+│          first read as a closure evaluation frame, and the result is
+│          only the existence of a formula equivalent to its
+│          object-level negation.
+│
+*)
 
 (*             RegulatorEvaluationComplete(profile,T,Γ) ⇒ ∃ B, B              *)
 (*                   ≃_{RegulatorClosure(profile,T,Γ)} ¬B.                    *)
@@ -417,10 +522,15 @@ Proof.
           profile T Gamma Code E)).
 Qed.
 
-  The regulator left branch specializes the generic left modus ponens path:
-  from `RegulatorClosure B` and the fixed-point implication `B → ¬B`, M001
-  modus ponens derives `RegulatorClosure (¬B)`, and a second modus ponens
-  step derives `RegulatorClosure Bot`.
+(*
+│
+│          The regulator left branch specializes the generic left
+│          modus ponens path: from `RegulatorClosure B` and the
+│          fixed-point implication `B → ¬B`, M001 modus ponens derives
+│          `RegulatorClosure (¬B)`, and a second modus ponens step
+│          derives `RegulatorClosure Bot`.
+│
+*)
 
 (*RegulatorNegationFixedPoint(profile,T,Γ,B) ∧ RegulatorClosure(profile,T,Γ,B)*)
 (*                     ⇒ RegulatorClosure(profile,T,Γ,⊥).                     *)
@@ -441,10 +551,15 @@ Proof.
        HB).
 Qed.
 
-  The regulator right branch specializes the generic right modus ponens path:
-  from `RegulatorClosure (¬B)` and the fixed-point implication `¬B → B`, M001
-  modus ponens derives `RegulatorClosure B`; the already accepted negation
-  then yields `RegulatorClosure Bot`.
+(*
+│
+│          The regulator right branch specializes the generic right
+│          modus ponens path: from `RegulatorClosure (¬B)` and the
+│          fixed-point implication `¬B → B`, M001 modus ponens derives
+│          `RegulatorClosure B`; the already accepted negation then
+│          yields `RegulatorClosure Bot`.
+│
+*)
 
 (*                RegulatorNegationFixedPoint(profile,T,Γ,B) ∧                *)
 (*    RegulatorClosure(profile,T,Γ,¬B) ⇒ RegulatorClosure(profile,T,Γ,⊥).     *)

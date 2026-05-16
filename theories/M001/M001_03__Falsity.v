@@ -46,12 +46,17 @@ From M001 Require Export M001_02__Abstraction.
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  We use `formula_negation A` as notation inside the object language: it is
-  exactly the implication from `A` to the primitive falsity formula `Bot`.
-  Thus `formula_negation A` and `Imp A Bot` are definitionally the same
-  formula. This introduces no Rocq-level negation principle and no semantic
-  reading of falsity; it only names the syntactic shape used by the reductio
-  transformer.
+(*
+│
+│          We use `formula_negation A` as notation inside the object
+│          language: it is exactly the implication from `A` to the
+│          primitive falsity formula `Bot`. Thus `formula_negation A`
+│          and `Imp A Bot` are definitionally the same formula. This
+│          introduces no Rocq-level negation principle and no semantic
+│          reading of falsity; it only names the syntactic shape used
+│          by the reductio transformer.
+│
+*)
 
 (*                                 ¬A ≔ A → ⊥                                 *)
 
@@ -83,11 +88,17 @@ Qed.
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  `regulator_theory_reductio_transform` is the checked-deduction transform
-  viewed at conclusion `Bot`. The function is definitionally the `M001_02`
-  deduction transformer; the separate name records the logical register of
-  the call site: turning a checked contradiction under a temporary hypothesis
-  into a checked proof of that hypothesis's object-language negation.
+(*
+│
+│          `regulator_theory_reductio_transform` is the
+│          checked-deduction transform viewed at conclusion `Bot`. The
+│          function is definitionally the `M001_02` deduction
+│          transformer; the separate name records the logical register
+│          of the call site: turning a checked contradiction under a
+│          temporary hypothesis into a checked proof of that
+│          hypothesis's object-language negation.
+│
+*)
 
 (*     reductio_transform(A,p) ≔ regulator_theory_reductio_transform(A,p)     *)
 (*    regulator_theory_reductio_transform(A,p) = deduction_transform(A,p)     *)
@@ -97,11 +108,16 @@ Definition regulator_theory_reductio_transform
     (p : Proof) : Proof :=
   regulator_theory_deduction_transform A p.
 
-  `regulator_theory_constructive_reductio_checked` is the direct
-  specialisation of checked deduction at conclusion `Bot`.
-  `regulator_theory_reductio_checked` then rewrites the target formula
-  through `formula_negation`, and `regulator_theory_reductio_minimal_checked`
-  packages the same result for the minimal profile wrapper.
+(*
+│
+│          `regulator_theory_constructive_reductio_checked` is the
+│          direct specialisation of checked deduction at conclusion
+│          `Bot`. `regulator_theory_reductio_checked` then rewrites
+│          the target formula through `formula_negation`, and
+│          `regulator_theory_reductio_minimal_checked` packages the
+│          same result for the minimal profile wrapper.
+│
+*)
 
 (*      R; A::Γ ⊢check[p] ⊥ ⇒ R; Γ ⊢check[reductio_transform(A,p)] A → ⊥      *)
 
@@ -159,12 +175,18 @@ Qed.
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  A `ComputedReductioCertificate` stores only the source contradiction proof;
-  the target proof of `A → ⊥` is materialised by running
-  `regulator_theory_reductio_transform`. A `PairedReductioCertificate` stores
-  both source and target scripts independently; the paired verifier accepts
-  when both scripts check, without requiring the target to be syntactically
-  equal to the transformer's output.
+(*
+│
+│          A `ComputedReductioCertificate` stores only the source
+│          contradiction proof; the target proof of `A → ⊥` is
+│          materialised by running
+│          `regulator_theory_reductio_transform`. A
+│          `PairedReductioCertificate` stores both source and target
+│          scripts independently; the paired verifier accepts when
+│          both scripts check, without requiring the target to be
+│          syntactically equal to the transformer's output.
+│
+*)
 
 (*          ComputedReductio(A,p) ↦ (A, p, reductio_transform(A,p))           *)
 (*                   PairedReductio(A,p₀,p₁) ↦ (A, p₀, p₁)                    *)
@@ -211,11 +233,17 @@ Definition computed_to_paired_reductio_certificate
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  `computed_reductio_certificate_check_bool` checks the source contradiction
-  proof and then checks the target proof obtained by actually running the
-  reductio transform. The second check is guaranteed by
-  `regulator_theory_reductio_checked`, but keeping it in the Boolean checker
-  makes the executable artifact boundary explicit.
+(*
+│
+│          `computed_reductio_certificate_check_bool` checks the
+│          source contradiction proof and then checks the target proof
+│          obtained by actually running the reductio transform. The
+│          second check is guaranteed by
+│          `regulator_theory_reductio_checked`, but keeping it in the
+│          Boolean checker makes the executable artifact boundary
+│          explicit.
+│
+*)
 
 (*    computed_reductio_certificate_check_bool(R,Γ,(A,p)) = true ⇔ R; A::Γ    *)
 (*           ⊢check[p] ⊥ ∧ R; Γ ⊢check[reductio_transform(A,p)] ¬A            *)
@@ -234,11 +262,17 @@ Definition computed_reductio_certificate_check_bool
     (computed_reductio_certificate_proof c)
     (formula_negation A).
 
-  `paired_reductio_certificate_check_bool` accepts a paired certificate iff
-  both supplied scripts check independently: the source as a contradiction
-  proof under `A :: Γ`, and the target as a proof of `A → ⊥` under `Γ`. There
-  is no syntactic equality check against the computed transform output; use
-  the computed certificate checker when that stronger relation is required.
+(*
+│
+│          `paired_reductio_certificate_check_bool` accepts a paired
+│          certificate iff both supplied scripts check independently:
+│          the source as a contradiction proof under `A :: Γ`, and the
+│          target as a proof of `A → ⊥` under `Γ`. There is no
+│          syntactic equality check against the computed transform
+│          output; use the computed certificate checker when that
+│          stronger relation is required.
+│
+*)
 
 (*   paired_reductio_certificate_check_bool(R,Γ,(A,p₀,p₁)) = true ⇔ R; A::Γ   *)
 (*                     ⊢check[p₀] ⊥ ∧ R; Γ ⊢check[p₁] ¬A                      *)
@@ -286,11 +320,17 @@ Qed.
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  `CheckedReductioCertificate` is the Rocq-side paired certificate with proof
-  fields. It stores a `RegulatorTheory`, a context, the discharged
-  assumption, both proof scripts, and the two checker equations. It is useful
-  for internal Rocq reasoning about already-checked certificates. The finite
-  external format below is the extraction-facing certificate shape.
+(*
+│
+│          `CheckedReductioCertificate` is the Rocq-side paired
+│          certificate with proof fields. It stores a
+│          `RegulatorTheory`, a context, the discharged assumption,
+│          both proof scripts, and the two checker equations. It is
+│          useful for internal Rocq reasoning about already-checked
+│          certificates. The finite external format below is the
+│          extraction-facing certificate shape.
+│
+*)
 
 (*CheckedReductio(R,Γ,A,p₀,p₁) ≔ (R; A::Γ ⊢check[p₀] ⊥) ∧ (R; Γ ⊢check[p₁] ¬A)*)
 
@@ -324,12 +364,18 @@ Record CheckedReductioCertificate : Type := {
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  `RawReductioCertificate` is the finite-data certificate shape. Its axiom
-  source is a `FiniteAxiomSet`, not an arbitrary function-valued `AxiomSet`,
-  so the whole record can be serialised, transmitted, and re-checked by the
-  Boolean verifier. It is paired rather than computed: the verifier checks
-  both scripts independently and does not assert syntactic equality with
-  `regulator_theory_reductio_transform A p`.
+(*
+│
+│          `RawReductioCertificate` is the finite-data certificate
+│          shape. Its axiom source is a `FiniteAxiomSet`, not an
+│          arbitrary function-valued `AxiomSet`, so the whole record
+│          can be serialised, transmitted, and re-checked by the
+│          Boolean verifier. It is paired rather than computed: the
+│          verifier checks both scripts independently and does not
+│          assert syntactic equality with
+│          `regulator_theory_reductio_transform A p`.
+│
+*)
 
 (*  raw_R(c) ≔ finite_axiom_set_to_regulator_theory(raw_reductio_profile(c),  *)
 (*                         raw_reductio_axiom_set(c))                         *)
@@ -413,10 +459,15 @@ Qed.
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  The diagnostic helpers below report finite certificate shape only: proof
-  lengths and the advertised reductio conclusion. They are not part of the
-  trusted checking path and downstream proof layers should not depend on them
-  as stable logical interfaces.
+(*
+│
+│          The diagnostic helpers below report finite certificate
+│          shape only: proof lengths and the advertised reductio
+│          conclusion. They are not part of the trusted checking path
+│          and downstream proof layers should not depend on them as
+│          stable logical interfaces.
+│
+*)
 
 Definition proof_script_length (p : Proof) : nat :=
   length p.

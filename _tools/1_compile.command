@@ -186,6 +186,17 @@ while IFS= read -r d; do
   mkdir -p "output/${d}"
 done < <(find theories -type d -print)
 
+# Report redirects are generated into output/. Clear old reports so removed
+# redirect commands cannot leave stale acceptance artifacts behind.
+rm -rf \
+  "output/theories/M001/_appendix/_assumptions" \
+  "output/theories/M001/_appendix/_assumptions_classical" \
+  "output/theories/M001/_appendix/_assumptions_constructive" \
+  "output/theories/L001/_appendix/_artifacts" \
+  "output/theories/L001/_appendix/_assumptions" \
+  "output/theories/L001/_appendix/_assumptions_classical" \
+  "output/theories/L001/_appendix/_assumptions_constructive"
+
 # -----------------------------------------------------------------------------
 # Build
 # -----------------------------------------------------------------------------
@@ -200,6 +211,171 @@ if [ "${CLEAN}" = "1" ]; then
 fi
 
 "${MAKE_BIN}" -f Makefile.coq -j "${JOBS}" all | tee -a "${BUILD_LOG}"
+
+# -----------------------------------------------------------------------------
+# Source-tree build-artifact guard
+# -----------------------------------------------------------------------------
+if [[ "${GUARD}" = "1" ]]; then
+  SOURCE_TREE_ARTIFACTS="$(mktemp "${BUILD}/source-tree-artifacts.XXXXXX")"
+  find "${ROOT}/theories" -type f \( \
+    -name '*.vo' -o \
+    -name '*.vos' -o \
+    -name '*.vok' -o \
+    -name '*.vio' -o \
+    -name '*.glob' -o \
+    -name '*.aux' -o \
+    -name '.*.aux' \
+  \) -print | sort > "${SOURCE_TREE_ARTIFACTS}"
+
+  if [[ -s "${SOURCE_TREE_ARTIFACTS}" ]]; then
+    echo "Build artifacts found under source theories/ while GUARD=1:" | tee -a "${BUILD_LOG}"
+    sed "s|${ROOT}/||" "${SOURCE_TREE_ARTIFACTS}" | tee -a "${BUILD_LOG}"
+    rm -f "${SOURCE_TREE_ARTIFACTS}"
+    exit 1
+  fi
+
+  rm -f "${SOURCE_TREE_ARTIFACTS}"
+fi
+
+# -----------------------------------------------------------------------------
+# Constructive M001 assumption-report guard
+# -----------------------------------------------------------------------------
+M001_CONSTRUCTIVE_ASSUMPTIONS="output/theories/M001/_appendix/_assumptions"
+M001_ARTIFACT_SOURCE="${SHADOW}/theories/M001/M001_97_Artifacts.v"
+M001_REQUIRED_CONSTRUCTIVE_REPORTS=(
+  "regulator_theory_deduction_checked"
+  "regulator_theory_reductio_checked"
+  "regulator_theory_not_checked_derivable_precompose_lemma"
+  "regulator_theory_syntactic_adequacy_lemma"
+)
+M001_ASSUMPTION_GUARD_ENABLED=0
+if grep -Eq '(^|[[:space:]])theories/M001/M001_97_Artifacts\.v([[:space:]]|$)' "${COQPROJECT_SHADOW}"; then
+  M001_ASSUMPTION_GUARD_ENABLED=1
+fi
+
+regulator_theory_assumption_reports_present() {
+  for report in "${M001_REQUIRED_CONSTRUCTIVE_REPORTS[@]}"; do
+    if [[ ! -s "${M001_CONSTRUCTIVE_ASSUMPTIONS}/${report}.out" ]]; then
+      return 1
+    fi
+  done
+  return 0
+}
+
+if [[ "${M001_ASSUMPTION_GUARD_ENABLED}" = "1" ]]; then
+  if ! regulator_theory_assumption_reports_present; then
+    # Stale-cache recovery: when the assumption-report directory was wiped before
+    # the build but `M001_97_Artifacts.vo` was a cache hit, the `Redirect`
+    # outputs are not regenerated. Force a single re-emission and retry.
+    if [[ -f "${M001_ARTIFACT_SOURCE}" ]]; then
+      touch "${M001_ARTIFACT_SOURCE}"
+      "${MAKE_BIN}" -f Makefile.coq -j "${JOBS}" \
+        "theories/M001/M001_97_Artifacts.vo" | tee -a "${BUILD_LOG}"
+    fi
+  fi
+
+  for report in "${M001_REQUIRED_CONSTRUCTIVE_REPORTS[@]}"; do
+    if [[ ! -s "${M001_CONSTRUCTIVE_ASSUMPTIONS}/${report}.out" ]]; then
+      echo "Missing or empty constructive M001 assumption report: ${M001_CONSTRUCTIVE_ASSUMPTIONS}/${report}.out" | tee -a "${BUILD_LOG}"
+      exit 1
+    fi
+  done
+
+  if grep -R \
+    -e "^Axioms:" \
+    -e "ClassicalEpsilon" \
+    -e "constructive_indefinite_description" \
+    -e "excluded_middle" \
+    -e "classic" \
+    "${M001_CONSTRUCTIVE_ASSUMPTIONS}" | tee -a "${BUILD_LOG}"; then
+    echo "Constructive M001 assumption reports contain forbidden classical or axiom dependencies." | tee -a "${BUILD_LOG}"
+    exit 1
+  fi
+fi
+
+# -----------------------------------------------------------------------------
+# Constructive L001 assumption-report guard
+# -----------------------------------------------------------------------------
+L001_CONSTRUCTIVE_ASSUMPTIONS="output/theories/L001/_appendix/_assumptions_constructive"
+L001_ARTIFACT_SOURCE="${SHADOW}/theories/L001/L001_97_Artifacts.v"
+L001_REQUIRED_CONSTRUCTIVE_REPORTS=(
+  "certified_aporetic_lemma_contract"
+  "aporetic_lemma_qed"
+)
+L001_ASSUMPTION_GUARD_ENABLED=0
+if grep -Eq '(^|[[:space:]])theories/L001/L001_97_Artifacts\.v([[:space:]]|$)' "${COQPROJECT_SHADOW}"; then
+  L001_ASSUMPTION_GUARD_ENABLED=1
+fi
+
+aporetic_assumption_reports_present() {
+  for report in "${L001_REQUIRED_CONSTRUCTIVE_REPORTS[@]}"; do
+    if [[ ! -s "${L001_CONSTRUCTIVE_ASSUMPTIONS}/${report}.out" ]]; then
+      return 1
+    fi
+  done
+  return 0
+}
+
+if [[ "${L001_ASSUMPTION_GUARD_ENABLED}" = "1" ]]; then
+  if ! aporetic_assumption_reports_present; then
+    # Stale-cache recovery mirrors the M001 guard: when the report directory was
+    # wiped but the artifact file was a cache hit, force one re-emission pass.
+    if [[ -f "${L001_ARTIFACT_SOURCE}" ]]; then
+      touch "${L001_ARTIFACT_SOURCE}"
+      "${MAKE_BIN}" -f Makefile.coq -j "${JOBS}" \
+        "theories/L001/L001_97_Artifacts.vo" | tee -a "${BUILD_LOG}"
+    fi
+  fi
+
+  for report in "${L001_REQUIRED_CONSTRUCTIVE_REPORTS[@]}"; do
+    if [[ ! -s "${L001_CONSTRUCTIVE_ASSUMPTIONS}/${report}.out" ]]; then
+      echo "Missing or empty constructive L001 assumption report: ${L001_CONSTRUCTIVE_ASSUMPTIONS}/${report}.out" | tee -a "${BUILD_LOG}"
+      exit 1
+    fi
+  done
+
+  if grep -R \
+    -e "^Axioms:" \
+    -e "ClassicalEpsilon" \
+    -e "constructive_indefinite_description" \
+    -e "excluded_middle" \
+    -e "classic" \
+    "${L001_CONSTRUCTIVE_ASSUMPTIONS}" | tee -a "${BUILD_LOG}"; then
+    echo "Constructive L001 assumption reports contain forbidden classical or axiom dependencies." | tee -a "${BUILD_LOG}"
+    exit 1
+  fi
+fi
+
+# -----------------------------------------------------------------------------
+# M001 extracted-artifact freshness guard
+# -----------------------------------------------------------------------------
+M001_ARTIFACT_GUARD_ENABLED=0
+if grep -Eq '(^|[[:space:]])theories/M001/M001_97_Artifacts\.v([[:space:]]|$)' "${COQPROJECT_SHADOW}"; then
+  M001_ARTIFACT_GUARD_ENABLED=1
+fi
+
+if [[ "${M001_ARTIFACT_GUARD_ENABLED}" = "1" ]]; then
+  for artifact in regulator_theory_checker.ml regulator_theory_checker.mli; do
+    generated="output/theories/M001/_appendix/_artifacts/${artifact}"
+    checked_in="${ROOT}/theories/M001/_appendix/_artifacts/${artifact}"
+
+    if [[ ! -s "${generated}" ]]; then
+      echo "Missing or empty generated M001 extracted artifact: ${generated}" | tee -a "${BUILD_LOG}"
+      exit 1
+    fi
+
+    if [[ ! -s "${checked_in}" ]]; then
+      echo "Missing or empty source M001 extracted artifact: ${checked_in}" | tee -a "${BUILD_LOG}"
+      exit 1
+    fi
+
+    if ! cmp -s "${generated}" "${checked_in}"; then
+      echo "Stale source M001 extracted artifact: ${checked_in}" | tee -a "${BUILD_LOG}"
+      echo "Generated artifact differs from: ${generated}" | tee -a "${BUILD_LOG}"
+      exit 1
+    fi
+  done
+fi
 
 # -----------------------------------------------------------------------------
 # Axiom Listing

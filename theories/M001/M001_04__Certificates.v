@@ -45,11 +45,17 @@ From M001 Require Export M001_03__Falsity.
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  A `regulator_theory_proof_certificate R Γ A` is a finite proof script
-  paired with the fact that `regulator_theory_check_bool` accepts it as a
-  proof of `A` from context `Γ` under regulator theory `R`. The script
-  remains extractable and inspectable; this is not a Rocq proof term of `A`,
-  and no semantic reading is attached to it.
+(*
+│
+│          A `regulator_theory_proof_certificate R Γ A` is a finite
+│          proof script paired with the fact that
+│          `regulator_theory_check_bool` accepts it as a proof of `A`
+│          from context `Γ` under regulator theory `R`. The script
+│          remains extractable and inspectable; this is not a Rocq
+│          proof term of `A`, and no semantic reading is attached to
+│          it.
+│
+*)
 
 (*RegProof(R, Γ, A) ≔ { p : Proof ∣ regulator_theory_check_bool(R, Γ, p, A) = *)
 (*                                   true }                                   *)
@@ -98,10 +104,16 @@ Definition regulator_theory_proof_certificate_from_checked
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  `regulator_theory_checked_derivable` forgets the proof script into an
-  existential. It says exactly that some finite script is accepted by the
-  Boolean checker; it is not semantic entailment. The negative form is the
-  negation of that existential and likewise has no model-theoretic content.
+(*
+│
+│          `regulator_theory_checked_derivable` forgets the proof
+│          script into an existential. It says exactly that some
+│          finite script is accepted by the Boolean checker; it is not
+│          semantic entailment. The negative form is the negation of
+│          that existential and likewise has no model-theoretic
+│          content.
+│
+*)
 
 (*                    R; Γ ⊢check A ≔ ∃p, R; Γ ⊢check[p] A                    *)
 (*                  R; Γ ⊬check A ≔ (R; Γ ⊢check A) → False                   *)
@@ -119,10 +131,15 @@ Definition regulator_theory_not_checked_derivable
     (A : Formula) : Prop :=
   regulator_theory_checked_derivable R Gamma A -> False.
 
-  The minimal and finite-axiom-set variants are checker-facing conveniences.
-  The minimal variant fixes the profile through
-  `regulator_theory_check_minimal_bool`; the finite variant keeps the finite
-  axiom list visible and checks through `finite_axiom_set_check_bool`.
+(*
+│
+│          The minimal and finite-axiom-set variants are
+│          checker-facing conveniences. The minimal variant fixes the
+│          profile through `regulator_theory_check_minimal_bool`; the
+│          finite variant keeps the finite axiom list visible and
+│          checks through `finite_axiom_set_check_bool`.
+│
+*)
 
 (*                T; Γ ⊢check_min A ≔ ∃p, T; Γ ⊢check_min[p] A                *)
 (*                       profile, FT; Γ ⊢check A ≔ ∃p,                        *)
@@ -224,10 +241,15 @@ Qed.
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  The deduction lift is the existential form of
-  `regulator_theory_deduction_checked`: destruct a checked derivability
-  witness under `A :: Γ`, run the deduction transform on its script, and use
-  the checked deduction theorem to check the transformed script under `Γ`.
+(*
+│
+│          The deduction lift is the existential form of
+│          `regulator_theory_deduction_checked`: destruct a checked
+│          derivability witness under `A :: Γ`, run the deduction
+│          transform on its script, and use the checked deduction
+│          theorem to check the transformed script under `Γ`.
+│
+*)
 
 (*                    R; A::Γ ⊢check B ⇒ R; Γ ⊢check A → B                    *)
 
@@ -255,10 +277,14 @@ Proof.
   exact Hp.
 Qed.
 
-  The reductio lift is the existential form of
-  `regulator_theory_reductio_checked`: a checked derivability witness for
-  `Bot` under `A :: Γ` yields a checked derivability witness for
-  `formula_negation A` under `Γ`.
+(*
+│
+│          The reductio lift is the existential form of
+│          `regulator_theory_reductio_checked`: a checked derivability
+│          witness for `Bot` under `A :: Γ` yields a checked
+│          derivability witness for `formula_negation A` under `Γ`.
+│
+*)
 
 (*                     R; A::Γ ⊢check ⊥ ⇒ R; Γ ⊢check ¬A                      *)
 

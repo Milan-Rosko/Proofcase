@@ -39,13 +39,18 @@ From M001 Require Export M001_05__Application.
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  `regulator_theory_inductive_derivable R Γ A` is the closure relation
-  corresponding to the checker input `R; Γ`. Assumptions are read from the
-  context, axiom lines are read through `available_axiom_bool R`, and MP is
-  the ordinary ordered rule: from `A` and `A → B`, derive `B`. In the
-  displayed judgement `⊢ᵢ`, the subscript `i` means inductive derivability
-  only: it is not a semantic interpretation and not an additional
-  object-language connective.
+(*
+│
+│          `regulator_theory_inductive_derivable R Γ A` is the closure
+│          relation corresponding to the checker input `R; Γ`.
+│          Assumptions are read from the context, axiom lines are read
+│          through `available_axiom_bool R`, and MP is the ordinary
+│          ordered rule: from `A` and `A → B`, derive `B`. In the
+│          displayed judgement `⊢ᵢ`, the subscript `i` means inductive
+│          derivability only: it is not a semantic interpretation and
+│          not an additional object-language connective.
+│
+*)
 
 (*                             A ∈ Γ ⇒ R; Γ ⊢ᵢ A                              *)
 (*                 available_axiom_bool(R,A)=true ⇒ R; Γ ⊢ᵢ A                 *)
@@ -85,11 +90,16 @@ Definition regulator_theory_not_inductive_derivable
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  The prefix lemmas are the bridge between indexed proof scripts and the
-  inductive closure. `nth_formula` reads formulas by script index; once the
-  accepted prefix is known to contain only inductively derivable lines, any
-  successfully resolved index can be transported to an inductive derivation
-  of the formula it names.
+(*
+│
+│          The prefix lemmas are the bridge between indexed proof
+│          scripts and the inductive closure. `nth_formula` reads
+│          formulas by script index; once the accepted prefix is known
+│          to contain only inductively derivable lines, any
+│          successfully resolved index can be transported to an
+│          inductive derivation of the formula it names.
+│
+*)
 
 (*    prefix[i]=A ∧ (∀line∈prefix. R; Γ ⊢ᵢ line_formula(line)) ⇒ R; Γ ⊢ᵢ A    *)
 
@@ -133,11 +143,16 @@ Proof.
   exact Hline.
 Qed.
 
-  A checked line is inductively sound relative to an inductively sound
-  prefix. Assumption and axiom lines use the corresponding closure
-  constructor directly. MP lines decode the unordered script reference
-  through `mp_valid_bool_sound_unordered_lemma`, then use the ordered
-  inductive MP constructor.
+(*
+│
+│          A checked line is inductively sound relative to an
+│          inductively sound prefix. Assumption and axiom lines use
+│          the corresponding closure constructor directly. MP lines
+│          decode the unordered script reference through
+│          `mp_valid_bool_sound_unordered_lemma`, then use the ordered
+│          inductive MP constructor.
+│
+*)
 
 (*   proof_line_valid_bool(R,Γ,prefix,line)=true ∧ (∀prior∈prefix. R; Γ ⊢ᵢ    *)
 (*             line_formula(prior)) ⇒ R; Γ ⊢ᵢ line_formula(line)              *)
@@ -244,11 +259,16 @@ Qed.
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  The checked-to-inductive direction forgets the concrete script after
-  extracting two facts from the Boolean checker: every line in the script
-  checked successfully, and the script has a last line whose formula is the
-  claimed conclusion. Prefix soundness supplies the inductive derivation of
-  that last line.
+(*
+│
+│          The checked-to-inductive direction forgets the concrete
+│          script after extracting two facts from the Boolean checker:
+│          every line in the script checked successfully, and the
+│          script has a last line whose formula is the claimed
+│          conclusion. Prefix soundness supplies the inductive
+│          derivation of that last line.
+│
+*)
 
 (*                         R; Γ ⊢check A ⇒ R; Γ ⊢ᵢ A                          *)
 
@@ -285,10 +305,15 @@ Proof.
   exact Hall.
 Qed.
 
-  The inductive-to-checked direction rebuilds checked witnesses constructor
-  by constructor. Assumptions and available axioms use the one-line
-  certificate constructors from `M001_05__Application`; MP delegates to the
-  checked script-composition theorem from the same layer.
+(*
+│
+│          The inductive-to-checked direction rebuilds checked
+│          witnesses constructor by constructor. Assumptions and
+│          available axioms use the one-line certificate constructors
+│          from `M001_05__Application`; MP delegates to the checked
+│          script-composition theorem from the same layer.
+│
+*)
 
 (*                         R; Γ ⊢ᵢ A ⇒ R; Γ ⊢check A                          *)
 
@@ -453,10 +478,16 @@ Qed.
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  Checked derivability inherits the induction principle of the inductive
-  closure. A caller supplies handlers for assumptions, available axioms, and
-  MP; the proof first transports the checked witness through syntactic
-  adequacy and then performs ordinary induction on the inductive derivation.
+(*
+│
+│          Checked derivability inherits the induction principle of
+│          the inductive closure. A caller supplies handlers for
+│          assumptions, available axioms, and MP; the proof first
+│          transports the checked witness through syntactic adequacy
+│          and then performs ordinary induction on the inductive
+│          derivation.
+│
+*)
 
 (*  ((∀A. A∈Γ ⇒ P(A)) ∧ (∀A. available_axiom_bool(R,A)=true ⇒ P(A)) ∧ (∀A B.  *)
 (*                P(A)∧P(A→B)⇒P(B))) ⇒ (R; Γ ⊢check C ⇒ P(C))                 *)

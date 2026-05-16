@@ -42,10 +42,14 @@ From M001 Require Export M001_95_API.
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  The assumption reports pin the main constructive chain: deduction,
-  reductio, negative precomposition, and syntactic adequacy. They are
-  generated as build artifacts and checked by the compile wrapper when this
-  file is active.
+(*
+│
+│          The assumption reports pin the main constructive chain:
+│          deduction, reductio, negative precomposition, and syntactic
+│          adequacy. They are generated as build artifacts and checked
+│          by the compile wrapper when this file is active.
+│
+*)
 
 (*           reports(M001) ≔ {deduction_checked, reductio_checked,            *)
 (*                negative_precomposition, syntactic_adequacy}                *)
@@ -72,11 +76,16 @@ Redirect "theories/M001/_appendix/_assumptions/regulator_theory_syntactic_adequa
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  The extracted artifact is the executable checker package. Its roots are the
-  formula/context decidable structure, axiom recognizers, proof-script
-  checker, deduction and reductio transforms, finite reductio certificate
-  checkers, instruction reification, and symbolic-regulator acceptance
-  functions.
+(*
+│
+│          The extracted artifact is the executable checker package.
+│          Its roots are the formula/context decidable structure,
+│          axiom recognizers, proof-script checker, deduction and
+│          reductio transforms, finite reductio certificate checkers,
+│          instruction reification, and symbolic-regulator acceptance
+│          functions.
+│
+*)
 
 (*       extract(M001) : checker ∪ transforms ∪ certificate_checkers ∪        *)
 (*                 instruction_checker ∪ symbolic_acceptance                  *)

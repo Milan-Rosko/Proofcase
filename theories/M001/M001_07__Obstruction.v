@@ -38,11 +38,17 @@ From M001 Require Export M001_06__Syntactic_Adequacy.
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  Negative precomposition is the contrapositive shape of checked MP. Given a
-  checked implication and a meta-level proof that the consequent has no
-  checked derivation, any checked derivation of the antecedent would compose
-  with the implication by `regulator_theory_checked_derivable_mp_lemma`,
-  contradicting the consequent non-derivability claim.
+(*
+│
+│          Negative precomposition is the contrapositive shape of
+│          checked MP. Given a checked implication and a meta-level
+│          proof that the consequent has no checked derivation, any
+│          checked derivation of the antecedent would compose with the
+│          implication by
+│          `regulator_theory_checked_derivable_mp_lemma`,
+│          contradicting the consequent non-derivability claim.
+│
+*)
 
 (*             R; Γ ⊢check A → B ∧ R; Γ ⊬check B ⇒ R; Γ ⊬check A              *)
 
@@ -97,11 +103,16 @@ Qed.
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  `context_included Γ Δ` is syntactic Boolean inclusion of assumptions: every
-  formula recognized by `ctx_mem_bool` in `Γ` is also recognized in `Δ`. The
-  checker needs exactly this form because assumption lines are validated by
-  the Boolean membership test, not by a quotient or setoid relation on
-  contexts.
+(*
+│
+│          `context_included Γ Δ` is syntactic Boolean inclusion of
+│          assumptions: every formula recognized by `ctx_mem_bool` in
+│          `Γ` is also recognized in `Δ`. The checker needs exactly
+│          this form because assumption lines are validated by the
+│          Boolean membership test, not by a quotient or setoid
+│          relation on contexts.
+│
+*)
 
 (*       Γ ≤ctx Δ ≔ ∀A. ctx_mem_bool(A,Γ)=true ⇒ ctx_mem_bool(A,Δ)=true       *)
 
@@ -164,9 +175,14 @@ Proof.
     exact Hrest.
 Qed.
 
-  Full checker monotonicity preserves the same finite proof script. Only the
-  line-checking conjunct is transported from `Γ` to `Δ`; the final-formula
-  comparison is independent of the context.
+(*
+│
+│          Full checker monotonicity preserves the same finite proof
+│          script. Only the line-checking conjunct is transported from
+│          `Γ` to `Δ`; the final-formula comparison is independent of
+│          the context.
+│
+*)
 
 (*               Γ ≤ctx Δ ∧ R; Γ ⊢check[p] A ⇒ R; Δ ⊢check[p] A               *)
 
@@ -228,11 +244,16 @@ Qed.
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  `axiom_set_included T U` is pointwise Boolean inclusion for additional
-  axiom sources. `regulator_theory_included R S` is the corresponding
-  inclusion after logical profile and axiom source have been combined by
-  `available_axiom_bool`. The regulator-theory form is the most general
-  monotonicity hypothesis for checked scripts.
+(*
+│
+│          `axiom_set_included T U` is pointwise Boolean inclusion for
+│          additional axiom sources. `regulator_theory_included R S`
+│          is the corresponding inclusion after logical profile and
+│          axiom source have been combined by `available_axiom_bool`.
+│          The regulator-theory form is the most general monotonicity
+│          hypothesis for checked scripts.
+│
+*)
 
 (*             T ≤ax U ≔ ∀A. axiom_set_contains_bool(T,A)=true ⇒              *)
 (*                     axiom_set_contains_bool(U,A)=true                      *)
@@ -273,9 +294,14 @@ Qed.
 (*          T ≤ax U ⇒ regulator_theory_with_axiom_set(profile,T) ≤rt          *)
 (*                 regulator_theory_with_axiom_set(profile,U)                 *)
 
-  Regulator-theory monotonicity changes only axiom lines. Assumption and MP
-  validation are independent of the regulator-theory axiom source once the
-  context and prefix are fixed.
+(*
+│
+│          Regulator-theory monotonicity changes only axiom lines.
+│          Assumption and MP validation are independent of the
+│          regulator-theory axiom source once the context and prefix
+│          are fixed.
+│
+*)
 
 Lemma proof_line_valid_bool_regulator_theory_monotone_lemma :
   forall R S Gamma prefix line,
@@ -399,11 +425,15 @@ Qed.
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  Finite axiom-set inclusion is the list-level counterpart of
-  `axiom_set_included`: every formula occurring in the source list also
-  occurs in the target list. The bridge lemma converts it to Boolean
-  axiom-set inclusion, after which the general regulator-theory monotonicity
-  theorem applies.
+(*
+│
+│          Finite axiom-set inclusion is the list-level counterpart of
+│          `axiom_set_included`: every formula occurring in the source
+│          list also occurs in the target list. The bridge lemma
+│          converts it to Boolean axiom-set inclusion, after which the
+│          general regulator-theory monotonicity theorem applies.
+│
+*)
 
 (*          FT ≤fin FU ≔ ∀A. A ∈ finite_axiom_set_formulas(FT) ⇒ A ∈          *)
 (*                       finite_axiom_set_formulas(FU)                        *)
