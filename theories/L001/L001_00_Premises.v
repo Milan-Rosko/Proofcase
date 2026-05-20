@@ -778,7 +778,7 @@ Definition YesBranchDecides
 │          negation by `RegulatorClosure`. No false-branch
 │          completeness is asserted, so this is genuinely weaker than
 │          `RegulatorDecision`; the refutation-non-collapse witness in
-│          `L001_03` exhibits the constructive separation.
+│          `L001_02` exhibits the constructive separation.
 │
 *)
 
@@ -806,7 +806,7 @@ Arguments rrefute_true_sound {profile T Gamma} _ _ _.
 │          regulator-context principle that converts accepted double
 │          negations into accepted formulas. L001 does not assume this
 │          bridge globally; the no-branch obstruction theorems in
-│          `L001_03` take it as an explicit hypothesis.
+│          `L001_02` take it as an explicit hypothesis.
 │
 *)
 

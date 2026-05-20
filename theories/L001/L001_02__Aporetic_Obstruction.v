@@ -1,4 +1,4 @@
-(*L001_03__Aporetic_Obstruction.v*)
+(*L001_02__Aporetic_Obstruction.v*)
 
 (*
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -9,12 +9,12 @@
 │                                      visit https://www.mozilla.org/en-US/MPL │
 └──────────────────────────────────────────────────────────────────────────────┘
 ┌──────────────────────────────────────────────────────────────────────────────┐
-│                  Proofcase / L001_03__Aporetic_Obstruction                   │
+│                  Proofcase / L001_02__Aporetic_Obstruction                   │
 └──────────────────────────────────────────────────────────────────────────────┘
 
   OVERVIEW
 
-  L001_03 is the obstruction boundary of the Aporetic fixed-point theorem.
+  L001_02 is the obstruction boundary of the Aporetic fixed-point theorem.
   The previous file proves collapse statements of the form `C Bot`; this file
   adds explicit consistency hypotheses and converts those collapses into
   impossibility statements. No new fixed point is constructed here.
@@ -27,7 +27,7 @@
 
 *)
 
-From L001 Require Export L001_02__Aporetic_Lemma.
+From L001 Require Export L001_01__Aporetic_Lemma.
 
 (*
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -93,7 +93,7 @@ Qed.
 (*
 │
 │          Evaluation closure blocks closure-level excluded middle
-│          under consistency. We first use `L001_02` to build a
+│          under consistency. We first use `L001_01` to build a
 │          diagonal formula and derive `C Bot`; no consistency is used
 │          until the final line.
 │

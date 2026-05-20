@@ -1,34 +1,79 @@
 (* README *)
 
-1 - Overview
-    --------
+1 - Summary
+    -------
 
-    S001 is a general logic formulary.
+    S001 is the ROCQ TUTORIAL package: a small first-contact development for
+    typed terms, computation, proof terms, and lambda-calculus intuition.
 
-    The package begins as a tutorial-style sequence of small Rocq proofs,
-    starting with elementary propositional logic. Later files can extend this
-    into negation, disjunction, quantifiers, equivalence, classical principles,
-    proof patterns, and reusable logical lemmas.
+    The package is intentionally lightweight. It does not formalize untyped
+    lambda syntax as an object language; it uses Rocq's dependent type theory as
+    the host language and explains the corresponding shapes with everyday
+    examples.
 
 
-2 - Files
+2 - State
     -----
 
+                      ┌──────────────────────────────────┐
+                      │                                  │
+                      │   └─┴─┴─┴─┴─┴─┴─┴─┴─┴─┘ 0 / 10   │
+                      └──────────────────────────────────┘
+
+    State: N/A
+
+    Evaluation: Pedagogical.
+
+
+3 - Intuition
+    ---------
+
+    The package starts from ordinary Rocq terms:
+
+      ingredient ─▶ recipe ─▶ cooked ingredient
+
+    It then reads lambda-calculus ideas through typed examples:
+
+      syntax          variable, application, abstraction
+      computation     beta and eta by definitional equality
+      names           alpha-conversion and free-variable intuition
+      substitution    everyday replacement scenes
+      metatheory      small typed analogues of confluence and normalization
+
+
+4 - Tree
+    ----
+
+    Stdlib
+     ▼
     S001_00_Premises
+     ▼
+    S001_01__Lambda_Calculus
 
-      Entry point and first tutorial layer. Introduces basic propositional
-      proof terms and scripts for identity, conjunction, and implication
-      composition.
 
-    S001_01__Syllogism
+5 - Files
+    -----
 
-      Propositional proof patterns for implication, conjunction, disjunction,
-      negation, contradiction, contraposition, biconditionals, and simple
-      syllogistic composition.
+    S001_00_Premises.v
 
-    S001_02__Quantifiers
+      First tutorial layer. Introduces terms, basic types, functions, a small
+      weekday datatype, computation, proof terms, and implication as function
+      construction.
 
-      Predicate-logic layer. Introduces universal and existential
-      quantification, specialization, witnesses, existential destruction,
-      predicates over natural numbers, and the first equality lemmas leading
-      toward rewriting.
+    S001_01__Lambda_Calculus.v
+
+      Lambda-calculus tutorial layer. Presents the standard laws in
+      `unicodemath` comments and illustrates them through typed everyday
+      examples.
+
+
+6 - API
+    ---
+
+    N/A
+
+
+7 - Notes
+    -----
+
+    

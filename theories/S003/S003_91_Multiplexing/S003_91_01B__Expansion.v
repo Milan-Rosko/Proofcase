@@ -1,4 +1,4 @@
-(*S002_91_01A__Initial.v*)
+(*S003_91_01B__Expansion.v*)
 
 (*
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -9,26 +9,39 @@
 │                                      visit https://www.mozilla.org/en-US/MPL │
 └──────────────────────────────────────────────────────────────────────────────┘
 ┌──────────────────────────────────────────────────────────────────────────────┐
-│                       Proofcase / S002_91_01A__Initial                       │
+│                      Proofcase / S003_91_01B__Expansion                      │
 └──────────────────────────────────────────────────────────────────────────────┘
 
   OVERVIEW
 
-  This file records the conjectural initial presentation of the S002 contract
-  under the historical switch name `UNCONDITIONAL_PROOF`. It is part of the
-  explicit proof history, not the completed proof selected by the terminal
-  switch.
+  This conjectural multiplexing presentation imports the reframed expansion
+  from `S003_01` and records that proving that expansion would already yield
+  the witness. It is part of the proof history, not the completed proof
+  selected by the terminal switch.
 
 *)
 
-From S002 Require Export S002_00_Premises.
+From S003 Require Export S003_01__Reframing.
 
 (*
 │
-│          `UNCONDITIONAL_PROOF` is the historical initial
-│          presentation of the proof obligation as a conjectural
-│          witness.
+│          The historical expansion presentation keeps only the open
+│          expanded obligation, reusing the canonical
+│          `first_expansion` shape from the reframing layer.
 │
 *)
 
-Conjecture UNCONDITIONAL_PROOF : WITNESS.
+Conjecture first_expansion_holds : first_expansion.
+
+(*
+│
+│          The expanded obligation supplies a proof of `WITNESS`
+│          through the reframing theorem.
+│
+*)
+
+Theorem UNCONDITIONAL_PROOF : WITNESS.
+Proof.
+  apply first_expansion_implies_WITNESS.
+  exact first_expansion_holds.
+Qed.

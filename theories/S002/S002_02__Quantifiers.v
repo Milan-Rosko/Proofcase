@@ -1,4 +1,4 @@
-(*S001_02__Quantifiers.v*)
+(*S002_02__Quantifiers.v*)
 
 (*
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -9,7 +9,7 @@
 │                                      visit https://www.mozilla.org/en-US/MPL │
 └──────────────────────────────────────────────────────────────────────────────┘
 ┌──────────────────────────────────────────────────────────────────────────────┐
-│                       Proofcase / S001_02__Quantifiers                       │
+│                       Proofcase / S002_02__Quantifiers                       │
 └──────────────────────────────────────────────────────────────────────────────┘
 
   OVERVIEW
@@ -22,7 +22,7 @@
 
 *)
 
-From S001 Require Export S001_01__Syllogism.
+From S002 Require Export S002_01__Syllogisms.
 
 (*
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -266,6 +266,63 @@ Proof.
 Qed.
 
 End Predicate_Examples.
+
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                            BASIC EVERYDAY EXAMPLE                            │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
+
+Section Basic_Everyday_Example.
+
+Variables Person Badge : Type.
+
+Variable badge_of : Person -> Badge.
+Variable HasBadge : Person -> Prop.
+Variable BadgePrinted : Badge -> Prop.
+
+(*
+│
+│          A universal rule can be used like a workplace policy: if
+│          every person with a badge has a printed badge, then a
+│          particular employee with a badge has a printed badge.
+│
+*)
+
+Theorem employee_badge_policy_applies_to_employee :
+  forall employee : Person,
+    (forall person : Person,
+       HasBadge person ->
+       BadgePrinted (badge_of person)) ->
+    HasBadge employee ->
+    BadgePrinted (badge_of employee).
+Proof.
+  intros employee badge_policy employee_has_badge.
+  apply badge_policy.
+  exact employee_has_badge.
+Qed.
+
+(*
+│
+│          An existential proof carries a concrete witness. If someone
+│          has a badge, then there exists a person with a badge.
+│
+*)
+
+Theorem employee_with_badge_is_some_badged_person :
+  forall employee : Person,
+    HasBadge employee ->
+    exists person : Person,
+      HasBadge person.
+Proof.
+  intros employee employee_has_badge.
+  exists employee.
+  exact employee_has_badge.
+Qed.
+
+End Basic_Everyday_Example.
 
 (*
 │

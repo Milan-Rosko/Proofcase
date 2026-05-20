@@ -14,10 +14,10 @@
 
   OVERVIEW
 
-  Arithmetic base of A001. We develop Fibonacci arithmetic on `nat`, the
-  concrete Zeckendorf support engine (`Z0`, `r0`), and the structural lemmas
-  — band validity, support uniqueness, and pair/unpair compatibility — on
-  which the pairing and unpairing layers depend.
+  We develop Fibonacci arithmetic on `nat`, the concrete Zeckendorf support
+  engine (`Z0`, `r0`), and the structural lemmas — band validity, support
+  uniqueness, and pair/unpair compatibility — on which the pairing and
+  unpairing layers depend.
 
 *)
 

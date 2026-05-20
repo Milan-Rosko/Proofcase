@@ -14,17 +14,30 @@
 
   OVERVIEW
 
-  This file exposes the terminal certification theorem of S003. The theorem
-  certifies the public reduction contract fixed in `S003_00_Premises`: the
-  center-tail-to-all-windows lift obligation implies nonperiodicity of the
-  canonical Rule 30 center column.
+  This file exposes the terminal certification theorem of S003 and records
+  its assumption report.
 
-  The endpoint certifies exactly the proposition named by `WITNESS`; the lift
-  premise is part of that public contract.
+  Certification closes by reusing the completed proof selected by the
+  constructive switch.
 
 *)
 
-From S003 Require Export S003_01__Center_Normalization.
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                                SWITCH IMPORT                                 │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
+
+(*
+│
+│          The certification layer imports the proof selected by the
+│          switch.
+│
+*)
+
+From S003.S003_91_Multiplexing Require Export S003_91_99__Switch.
 
 (*
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -36,79 +49,22 @@ From S003 Require Export S003_01__Center_Normalization.
 
 (*
 │
-│          The certified reduction contract is the machine-checkable
-│          dependency report: the lift obligation is the only premise
-│          needed to close the challenge.
+│          The final theorem certifies the contract by direct reuse of
+│          the selected proof.
 │
 *)
 
-Theorem certified_reduction_contract :
-  RULE30_REDUCTION_CONTRACT.
+Theorem pigeonhole_divisibility_qed : WITNESS.
 Proof.
-  exact challenge_from_lift.
+  exact UNCONDITIONAL_PROOF.
 Qed.
 
 (*
 │
-│          The terminal theorem certifies the named S003 witness. Its
-│          name records that this is a reduction contract, not the
-│          bare challenge claim.
+│          The terminal assumption report records the dependencies of
+│          the certified endpoint.
 │
 *)
 
-Theorem rule30_periodicity_reduction_contract_qed : WITNESS.
-Proof.
-  exact certified_reduction_contract.
-Qed.
-
-(*
-│
-│          Specializing the certified contract to a lift witness
-│          yields the challenge claim.
-│
-*)
-
-Theorem certified_challenge_under_lift
-  (Hlift : CENTER_TAIL_TO_WINDOWS_LIFT_OBLIGATION) :
-  RULE30_PERIODICITY_CHALLENGE.
-Proof.
-  exact (certified_reduction_contract Hlift).
-Qed.
-
-(*
-│
-│          The same specialization is exposed in the common `t > i`
-│          formulation.
-│
-*)
-
-Theorem certified_wolfram_form_under_lift
-  (Hlift : CENTER_TAIL_TO_WINDOWS_LIFT_OBLIGATION) :
-  wolfram_no_eventual_center_period.
-Proof.
-  exact
-    (center_nonperiodic_implies_wolfram_form
-       (certified_challenge_under_lift Hlift)).
-Qed.
-
-(*
-│
-│          The terminal assumption reports record the dependencies of
-│          the certified endpoints.
-│
-*)
-
-Redirect "theories/S003/_appendix/_assumptions/certified_reduction_contract"
-  Print Assumptions certified_reduction_contract.
-
-Redirect "theories/S003/_appendix/_assumptions/rule30_periodicity_reduction_contract_qed"
-  Print Assumptions rule30_periodicity_reduction_contract_qed.
-
-Redirect "theories/S003/_appendix/_assumptions/certified_challenge_under_lift"
-  Print Assumptions certified_challenge_under_lift.
-
-Redirect "theories/S003/_appendix/_assumptions/certified_wolfram_form_under_lift"
-  Print Assumptions certified_wolfram_form_under_lift.
-
-Redirect "theories/S003/_appendix/_assumptions/certified_center_normalization_interface"
-  Print Assumptions certified_center_normalization_interface.
+Redirect "theories/S003/_appendix/_assumptions/pigeonhole_divisibility_qed"
+  Print Assumptions pigeonhole_divisibility_qed.

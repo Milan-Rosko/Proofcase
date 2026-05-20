@@ -14,43 +14,17 @@
 
   OVERVIEW
 
-  This premise layer states the finite divisibility contract and deliberately
-  exports the package-wide standard environment used by S002.
+  This premise layer gives the formulary package its neutral logical
+  foundation. Tutorial examples live in S001; S002 starts from this shared
+  environment and then lists reusable proof patterns.
 
 *)
-
-From Stdlib Require Export Arith PeanoNat Bool Lia List.
-Export ListNotations.
-Global Open Scope list_scope.
 
 (*
 │
-│          `PROPOSITIO` is the target statement: among any `n + 1`
-│          distinct positive integers bounded by `2n`, two must be
-│          related by divisibility. This standard
-│          pigeonhole-divisibility result is referenced by Aigner's
-│          “Proofs from THE BOOK”.
+│          The formulary works over the basic logical foundations from
+│          the standard library.
 │
 *)
 
-(*                 ∀ n A. (∀ a ∈ A, 1 ≤ a ≤ 2n) → |A| = n + 1                 *)
-(*              → ∃ a b, a ∈ A ∧ b ∈ A ∧ a ≠ b ∧ (a ∣ b ∨ b ∣ a)              *)
-
-Definition PROPOSITIO : Prop :=
-  forall n A,
-    (forall a, In a A -> 1 <= a /\ a <= 2 * n) ->
-    NoDup A ->
-    length A = n + 1 ->
-    exists a b,
-      In a A /\
-      In b A /\
-      a <> b /\
-      (Nat.divide a b \/ Nat.divide b a).
-
-(*
-│
-│          `WITNESS` names the proposition certified by the package.
-│
-*)
-
-Definition WITNESS : Prop := PROPOSITIO.
+From Stdlib Require Export Init.Logic.

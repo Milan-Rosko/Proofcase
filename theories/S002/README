@@ -3,46 +3,48 @@
 1 - Summary
     -------
 
-    S002 formalizes the following finite divisibility statement:
-    among any `n + 1` pairwise distinct positive integers chosen from
-    `1` through `2n`, there exist two distinct selected integers such
-    that one divides the other.
+    S002 formalizes GENERAL LOGIC FORMULARY: a compact reference package of
+    reusable proof patterns for propositional logic, quantifiers, predicates,
+    and equality transport. The tutorial layer lives in S001; S002 is the
+    formulary surface.
 
-    The mathematical proof is the standard pigeonhole argument. The package
-    also demonstrates constructive multiplexing: several proof presentations
-    are named explicitly, while one completed realization is selected by a
-    small switch and exported to the terminal theorem.
+    Representative certified lemmas include:
 
-    Terminal artifact:
+      - `modus_ponens                 : P -> (P -> Q) -> Q`
+      - `hypothetical_syllogism       : (P -> Q) -> (Q -> R) -> P -> R`
+      - `equality_transport_predicate : x = y -> P x -> P y`
 
-      `pigeonhole_divisibility_qed : WITNESS`
 
 2 - State
     -----
 
-    Closed formalization of a standard pigeonhole divisibility theorem.
+                      ┌──────────────────────────────────┐
+                      │              x                   │
+                      │   └─┴─┴─┴─┴─┴─┴─┴─┴─┴─┘ 5 / 10   │
+                      └──────────────────────────────────┘
+
+    State: 5, Formulary draft.
+
+    Evaluation: Mechanized and documented. Useful as a small reference layer.
+    Not yet broad enough to be a stable general-purpose logic API.
 
 
 3 - Intuition
     ---------
 
-    The proof uses the usual pigeonhole-divisibility idea. Each selected
-    integer is written as a power of two times an odd part. There are only `n`
-    possible odd parts in the interval `1` through `2n`, so choosing `n + 1`
-    distinct integers forces two of them to share the same odd part. The one
-    with the smaller power of two then divides the one with the larger power.
+    S002 keeps the proofs small and direct. Each theorem is a named pattern:
 
-    The constructive multiplexing layout presents this standard proof in five
-    layers:
+      assumption ─▶ implication ─▶ conclusion
 
-      - Contract: the theorem statement.
-      - Reframing: a semantic packaging of the problem.
-      - Multiplexed presentations: explicit named proof presentations.
-      - Switch: the selected completed realization.
-      - QED: the terminal certification theorem.
+    The first layer covers propositional reasoning:
 
-    The method makes the proof history visible without changing the final
-    statement being certified.
+      implication, conjunction, disjunction, negation, contradiction,
+      contraposition, biconditionals, and commutativity.
+
+    The second layer adds predicate reasoning:
+
+      universal specialization, existential witnesses, existential
+      elimination, predicate transport, and equality as the bridge to rewriting.
 
 
 4 - Tree
@@ -52,13 +54,9 @@
      ▼
     S002_00_Premises
      ▼
-    S002_01__Reframing
+    S002_01__Syllogisms
      ▼
-    S002_91_Multiplexing/*
-     ▼
-    S002_91_99__Switch
-     ▼
-    S002_96_QED
+    S002_02__Quantifiers
 
 
 5 - Files
@@ -66,90 +64,54 @@
 
     S002_00_Premises.v
 
-      Contract layer. Defines `PROPOSITIO` and `WITNESS`.
+      Neutral logical foundation for the formulary. Re-exports the basic
+      standard-library logic environment used by the later files.
 
-    S002_01__Reframing.v
+    S002_01__Syllogisms.v
 
-      Semantic expansion layer. Packages the target into smaller
-      components and proves that the reframed statement implies
-      `WITNESS`.
+      Propositional proof patterns for identity, implication introduction and
+      elimination, hypothetical syllogism, conjunction, disjunction, negation,
+      contradiction, contraposition, biconditionals, and commutativity.
 
-    S002_91_Multiplexing/S002_91_01A__Initial.v
+    S002_02__Quantifiers.v
 
-      Conjectural historical initial presentation of the target proof
-      obligation. It is recorded as part of the multiplexing history, but it is
-      not the terminal proof selected by the switch.
-
-    S002_91_Multiplexing/S002_91_01B__Expansion.v
-
-      Conjectural historical expansion presentation. It reuses the canonical
-      `first_expansion` shape from `S002_01__Reframing` and records that a proof
-      of that expansion would imply `WITNESS`; it is not the terminal proof
-      selected by the switch.
-
-    S002_91_Multiplexing/S002_91_02A__Peeling.v
-
-      Names the four mathematical obligations used by the proof. This is the
-      shared peeled-obligation shape reused by the completed proof layer.
-
-    S002_91_Multiplexing/S002_91_02B__Rewrite.v
-
-      Conjectural historical rewrite presentation. It assembles four named
-      obligations into the proof witness, but the terminal switch does not
-      select this layer.
-
-    S002_91_Multiplexing/S002_91_02C__Proof.v
-
-      Completed proof. Proves the peeled obligations and exports
-      `UNCONDITIONAL_PROOF : WITNESS`.
-
-    S002_91_Multiplexing/S002_91_99__Switch.v
-
-      Constructive switch. Selects the completed proof realization exported to
-      the terminal theorem.
-
-    S002_96_QED.v
-
-      Terminal certification layer. Proves
-      `pigeonhole_divisibility_qed : WITNESS`
-      from the selected proof witness.
-
-    _appendix/_assumptions/
-
-      `Print Assumptions` output for the terminal theorem.
+      Predicate-logic layer. Covers universal and existential quantification,
+      specialization, witnesses, existential destruction, predicate examples,
+      an everyday badge-policy example, self-equality, symmetry, and equality
+      transport.
 
 
 6 - API
     ---
 
-    Recommended imports:
+    The current formulary surface can be loaded with
 
-      Contract only:
-        `From S002 Require Import S002_00_Premises.`
+      `From S002 Require Import S002_02__Quantifiers.`
 
-      Certified endpoint:
-        `From S002 Require Import S002_96_QED.`
+    Public surface by layer:
 
-    Public contract:
+    Propositional patterns:
 
-      PROPOSITIO   : Prop
-      WITNESS      : Prop
+      identity, modus_ponens, implication_intro, hypothetical_syllogism
+      and_intro, and_left, and_right
+      or_intro_left, or_intro_right, or_elim, or_comm
+      negation_intro, explosion, double_negation, contrapositive, iff_intro
 
-    Certified endpoint:
+    Quantifier and equality patterns:
 
-      pigeonhole_divisibility_qed : WITNESS
-
-    Selected proof witness:
-
-      UNCONDITIONAL_PROOF : WITNESS
+      forall_identity, forall_predicate_identity
+      forall_predicate_identity_term, forall_use, forall_specialize
+      exists_example, exists_with_context_value, exists_use, exists_map
+      predicate_step_use, predicate_step_twice
+      employee_badge_policy_applies_to_employee
+      employee_with_badge_is_some_badged_person
+      SelfEqual, all_self_equal
+      equality_refl, equality_sym, equality_transport_predicate
 
 
 7 - Notes
     -----
 
-    The switch selects:
-
-      `S002_91_Multiplexing/S002_91_02C__Proof.v`
-
-    and the terminal theorem is closed under the global context in the
-    recorded `Print Assumptions` output.
+    Keep S002 compact. It should be a formulary, not a tutorial and not a large
+    logic library. New lemmas should either clarify a recurring proof pattern or
+    prepare a stable reference surface for later packages.

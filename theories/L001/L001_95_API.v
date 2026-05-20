@@ -28,7 +28,7 @@
 
 *)
 
-From L001 Require Export L001_03__Aporetic_Obstruction.
+From L001 Require Export L001_02__Aporetic_Obstruction.
 
 (*
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -240,7 +240,7 @@ Definition WITNESS : Prop :=
 │          Stable contradiction-shaped surface for the L001 reductio
 │          endpoints. Each lemma is a one-line `exact` referring to
 │          the underlying obstruction theorem in
-│          `L001_03__Aporetic_Obstruction`; no new mathematics is
+│          `L001_02__Aporetic_Obstruction`; no new mathematics is
 │          introduced. Names follow the pattern
 │          `*_contradiction_from_*`.
 │

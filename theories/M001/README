@@ -15,10 +15,6 @@
     sets, proof scripts, Boolean checking, checked derivability, inductive
     derivability, symbolic regulators, and evaluation-closure interfaces.
 
-    The stable public import is:
-
-      From M001 Require Import M001_95_API.
-
     The package is constructive. It provides deduction, constructive negation
     introduction, modus-ponens composition, syntactic adequacy, negative
     precomposition, symbolic-regulator adequacy, and evaluation-frame bridges.
@@ -31,11 +27,14 @@
     -----
 
                       ┌──────────────────────────────────┐
-                      │                  x               │
-                      │   └─┴─┴─┴─┴─┴─┴─┴─┴─┴─┘ 8 / 10   │
+                      │                x                 │
+                      │   └─┴─┴─┴─┴─┴─┴─┴─┴─┴─┘ 7 / 10   │
                       └──────────────────────────────────┘
 
-    Dependency, mechanized, documented, extracted, not yet fully peer reviewed.
+    State: 7, Serviceable.
+
+    Evaluation: Effective, mechanized, documented. Proof tactics and prose are 
+    not optimal. Not peer reviewed.
 
 
 3 - Intuition
@@ -218,39 +217,39 @@
 
     Primitive syntax and theories:
 
-      Formula, Bot, Imp                                                   (00)
-      Context, ctx_empty, ctx_extend                                      (00)
-      AxiomSet, FiniteAxiomSet                                            (00)
-      RegulatorLogicProfile, RegulatorTheory                              (00)
-      Justification, ProofLine, Proof                                     (00)
+      Formula, Bot, Imp                                                     (00)
+      Context, ctx_empty, ctx_extend                                        (00)
+      AxiomSet, FiniteAxiomSet                                              (00)
+      RegulatorLogicProfile, RegulatorTheory                                (00)
+      Justification, ProofLine, Proof                                       (00)
 
     Boolean checking:
 
-      formula_eq_bool                                                     (01)
-      ctx_mem_bool                                                        (01)
-      available_axiom_bool                                                (01)
-      proof_line_valid_bool                                               (01)
-      proof_script_check_from_bool                                        (01)
-      regulator_theory_check_bool                                         (01)
-      finite_axiom_set_check_bool                                         (01)
+      formula_eq_bool                                                       (01)
+      ctx_mem_bool                                                          (01)
+      available_axiom_bool                                                  (01)
+      proof_line_valid_bool                                                 (01)
+      proof_script_check_from_bool                                          (01)
+      regulator_theory_check_bool                                           (01)
+      finite_axiom_set_check_bool                                           (01)
 
     Proof transformers and certificates:
 
-      regulator_theory_deduction_transform                                (02)
-      regulator_theory_reductio_transform                                 (03)
-      regulator_theory_mp_compose                                         (05)
-      regulator_theory_checked_derivable                                  (04)
-      regulator_theory_not_checked_derivable                              (04)
+      regulator_theory_deduction_transform                                  (02)
+      regulator_theory_reductio_transform                                   (03)
+      regulator_theory_mp_compose                                           (05)
+      regulator_theory_checked_derivable                                    (04)
+      regulator_theory_not_checked_derivable                                (04)
 
     Closure, symbolic regulator, and evaluation:
 
-      regulator_theory_inductive_derivable                                (06)
-      regulator_theory_closure                                            (08)
-      regulator_theory_equivalent                                         (08)
-      SymbolicRegulator                                                   (08)
-      SymbolicRegulatorWorld                                              (08)
-      EvaluationFrame                                                     (09)
-      RegulatorEvaluationFrame                                            (09)
+      regulator_theory_inductive_derivable                                  (06)
+      regulator_theory_closure                                              (08)
+      regulator_theory_equivalent                                           (08)
+      SymbolicRegulator                                                     (08)
+      SymbolicRegulatorWorld                                                (08)
+      EvaluationFrame                                                       (09)
+      RegulatorEvaluationFrame                                              (09)
 
     Certified theorems:
 

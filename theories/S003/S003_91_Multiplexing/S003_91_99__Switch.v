@@ -1,4 +1,4 @@
-(*S002_91_99__Switch.v*)
+(*S003_91_99__Switch.v*)
 
 (*
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -9,12 +9,12 @@
 │                                      visit https://www.mozilla.org/en-US/MPL │
 └──────────────────────────────────────────────────────────────────────────────┘
 ┌──────────────────────────────────────────────────────────────────────────────┐
-│                        Proofcase / S002_91_99__Switch                        │
+│                        Proofcase / S003_91_99__Switch                        │
 └──────────────────────────────────────────────────────────────────────────────┘
 
   OVERVIEW
 
-  This file implements the constructive proof switch for S002. It exposes one
+  This file implements the constructive proof switch for S003. It exposes one
   selected proof realization under the stable name `UNCONDITIONAL_PROOF`.
 
   The switch makes the proof history explicit: the presentations are named
@@ -23,4 +23,4 @@
 
 *)
 
-From S002.S002_91_Multiplexing Require Export S002_91_02C__Proof.
+From S003.S003_91_Multiplexing Require Export S003_91_02C__Proof.

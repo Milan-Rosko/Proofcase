@@ -6,6 +6,28 @@
     L001 formalizes the APORETIC LEMMA: a constructive fixed-point, collapse,
     and obstruction layer over the M001 regulator substrate.
 
+    The theorem does not assert classical excluded middle, does not refute
+    excluded middle in Rocq, and does not introduce semantic truth, arithmetic
+    provability, modal machinery, or a new checker.
+
+
+2 - State
+    -----
+
+                      ┌──────────────────────────────────┐
+                      │                x                 │
+                      │   └─┴─┴─┴─┴─┴─┴─┴─┴─┴─┘ 7 / 10   │
+                      └──────────────────────────────────┘
+
+    State: 7, Serviceable.
+
+    Evaluation: Effective, mechanized, documented, cited. Proof tactics and
+    prose are not optimal. Not peer reviewed.
+
+
+3 - Intuition
+    ---------
+
     The mathematical core is a closure predicate on M001 formulas:
 
       C : Formula -> Prop
@@ -34,25 +56,6 @@
 
       From L001 Require Import L001_95_API.
 
-    The theorem does not assert classical excluded middle, does not refute
-    excluded middle in Rocq, and does not introduce semantic truth, arithmetic
-    provability, modal machinery, or a new M001 checker.
-
-
-2 - State
-    -----
-
-                      ┌──────────────────────────────────┐
-                      │              x                   │
-                      │   └─┴─┴─┴─┴─┴─┴─┴─┴─┴─┘ 6 / 10   │
-                      └──────────────────────────────────┘
-
-    Theorem, mechanized, documented, assumption-reported, not yet fully peer
-    reviewed.
-
-
-3 - Intuition
-    ---------
 
     M001 supplies the syntax and regulator closure. L001 reads an M001
     regulator instance through:
@@ -133,9 +136,9 @@
      ▼
     L001_00__Premises
      ▼
-    L001_02__Aporetic_Lemma
+    L001_01__Aporetic_Lemma
      ▼
-    L001_03__Aporetic_Obstruction
+    L001_02__Aporetic_Obstruction
      ▼
     L001_95_API
      ▼
@@ -152,13 +155,13 @@
       regulator-closure adapters, regulator decisions, status-branch readings,
       refutations, and the optional double-negation bridge.
 
-    L001_02__Aporetic_Lemma.v
+    L001_01__Aporetic_Lemma.v
 
       Proves the Curry-style fixed-point factorization, the branch-collapse
       lemmas, the generic excluded-middle and decision collapses, and the M001
       regulator specialization `aporetic_lemma`.
 
-    L001_03__Aporetic_Obstruction.v
+    L001_02__Aporetic_Obstruction.v
 
       Adds consistency as the obstruction boundary. It proves generic and
       regulator-specific impossibility theorems for excluded middle and total
@@ -193,67 +196,67 @@
 
     Closure vocabulary:
 
-      ClosureTheory                                                      (95)
-      ClosureEquiv                                                       (00)
-      ClosureExcludedMiddle                                              (00)
-      ClosureModusPonens                                                 (00)
-      ClosureConsistent                                                  (00)
-      ClosureDecision                                                    (00)
-      ClosureDecider, ClosureDeciderExists                               (95)
-      ClosureEvaluationFrame                                             (00)
-      ClosureEvaluationFrameForGoal                                      (00)
-      ClosureImplicationCongruence                                       (00)
-      ClosureDiagonalRep, ClosureGoalImpRep                              (00)
+      ClosureTheory                                                         (95)
+      ClosureEquiv                                                          (00)
+      ClosureExcludedMiddle                                                 (00)
+      ClosureModusPonens                                                    (00)
+      ClosureConsistent                                                     (00)
+      ClosureDecision                                                       (00)
+      ClosureDecider, ClosureDeciderExists                                  (95)
+      ClosureEvaluationFrame                                                (00)
+      ClosureEvaluationFrameForGoal                                         (00)
+      ClosureImplicationCongruence                                          (00)
+      ClosureDiagonalRep, ClosureGoalImpRep                                 (00)
 
     Fixed points and collapse:
 
-      NegationFixedPointFor                                              (00)
-      ClosureNegationFixedPoint                                          (95)
-      CurryFixedPointFor                                                 (02)
-      generic_fixp_existence                                             (00)
-      negfixp_existence                                                  (00)
-      curry_fixp_existence                                               (02)
-      lem_collapse                                                       (02)
-      decision_collapse                                                  (02)
+      NegationFixedPointFor                                                 (00)
+      ClosureNegationFixedPoint                                             (95)
+      CurryFixedPointFor                                                    (02)
+      generic_fixp_existence                                                (00)
+      negfixp_existence                                                     (00)
+      curry_fixp_existence                                                  (02)
+      lem_collapse                                                          (02)
+      decision_collapse                                                     (02)
 
     Regulator instance:
 
-      RegulatorClosure                                                   (00)
-      RegulatorClosureEvaluationFrame                                    (00)
-      RegulatorClosureExcludedMiddle                                     (00)
-      RegulatorClosureConsistent                                         (03)
-      RegulatorDecision                                                  (00)
-      RegulatorRefutation                                                (00)
-      RegulatorDoubleNegationBridge                                      (00)
-      RegulatorNegationFixedPoint                                        (02)
-      YesBranchDecides                                                   (00)
+      RegulatorClosure                                                      (00)
+      RegulatorClosureEvaluationFrame                                       (00)
+      RegulatorClosureExcludedMiddle                                        (00)
+      RegulatorClosureConsistent                                            (03)
+      RegulatorDecision                                                     (00)
+      RegulatorRefutation                                                   (00)
+      RegulatorDoubleNegationBridge                                         (00)
+      RegulatorNegationFixedPoint                                           (02)
+      YesBranchDecides                                                      (00)
 
     Obstruction endpoints:
 
-      aporetic_obstruction                                               (03)
-      closure_acceptance_undecidable_theorem                             (03)
-      regulator_aporetic_obstruction                                     (03)
-      regulator_decision_obstruction                                     (03)
-      aporetic_status_yes_obstructed_lemma                               (03)
-      aporetic_status_no_blocked_by_double_negation_lemma                 (03)
-      refutation_not_obstructed                                          (03)
+      aporetic_obstruction                                                  (03)
+      closure_acceptance_undecidable_theorem                                (03)
+      regulator_aporetic_obstruction                                        (03)
+      regulator_decision_obstruction                                        (03)
+      aporetic_status_yes_obstructed_lemma                                  (03)
+      aporetic_status_no_blocked_by_double_negation_lemma                   (03)
+      refutation_not_obstructed                                             (03)
 
     Public contracts:
 
-      APORETIC_FIXED_POINT_CONTRACT                                      (95)
-      APORETIC_EXCLUDED_MIDDLE_COLLAPSE_CONTRACT                         (95)
-      APORETIC_EXCLUDED_MIDDLE_OBSTRUCTION_CONTRACT                      (95)
-      APORETIC_DECISION_COLLAPSE_CONTRACT                                (95)
-      APORETIC_DECISION_OBSTRUCTION_CONTRACT                             (95)
-      APORETIC_EQUIVALENCE_AD_ABSURDUM_IMPOSSIBILITY_CONTRACT            (95)
-      APORETIC_DECIDER_IMPOSSIBILITY_CONTRACT                            (95)
-      APORETIC_LEMMA_CONTRACT                                            (95)
-      WITNESS                                                            (95)
+      APORETIC_FIXED_POINT_CONTRACT                                         (95)
+      APORETIC_EXCLUDED_MIDDLE_COLLAPSE_CONTRACT                            (95)
+      APORETIC_EXCLUDED_MIDDLE_OBSTRUCTION_CONTRACT                         (95)
+      APORETIC_DECISION_COLLAPSE_CONTRACT                                   (95)
+      APORETIC_DECISION_OBSTRUCTION_CONTRACT                                (95)
+      APORETIC_EQUIVALENCE_AD_ABSURDUM_IMPOSSIBILITY_CONTRACT               (95)
+      APORETIC_DECIDER_IMPOSSIBILITY_CONTRACT                               (95)
+      APORETIC_LEMMA_CONTRACT                                               (95)
+      WITNESS                                                               (95)
 
     Certified endpoints:
 
-      certified_aporetic_lemma_contract                                  (97)
-      aporetic_lemma_qed                                                 (97)
+      certified_aporetic_lemma_contract                                     (97)
+      aporetic_lemma_qed                                                    (97)
 
 
 7 - Notes

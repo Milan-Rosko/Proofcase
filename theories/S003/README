@@ -3,72 +3,53 @@
 1 - Summary
     -------
 
-    S003 formalizes a self-contained Rule 30 base semantics and a public
-    reduction contract for the center column. It does not prove the
-    unconditional center-column nonperiodicity claim; it exposes the
-    center-tail-to-window lift obligation as the remaining dependency.
+    S003 formalizes the following finite divisibility statement: among any
+    `n + 1` pairwise distinct positive integers chosen from `1` through `2n`,
+    there exist two distinct selected integers such that one divides the other. 
+    The mathematical proof provided by the standard pigeonhole argument. 
 
-    The semantics are bi-infinite. A row is a function `Z -> bool`, the local
-    Rule 30 law is
+    The package also demonstrates a multiplexing technique: several proof states
+    are choronologically presented, while the degree of completion is selected
+    by a switch.
 
-      Rule30 left center right = xorb left (orb center right),
+    Terminal artifact:
 
-    the canonical initial row has a single live cell at site `0`, and
-    `center_column t` reads site `0` after `t` synchronous steps.
-
-    The certified endpoint is a reduction contract:
-
-      rule30_periodicity_reduction_contract_qed : WITNESS
-
-    where
-
-      WITNESS =
-        RULE30_REDUCTION_CONTRACT.
-
-    and
-
-      RULE30_REDUCTION_CONTRACT =
-        CENTER_TAIL_TO_WINDOWS_LIFT_OBLIGATION ->
-        RULE30_PERIODICITY_CHALLENGE.
-
-    The challenge claim is named separately:
-
-      RULE30_PERIODICITY_CHALLENGE = CENTER_COLUMN_NONPERIODIC.
-
-    The remaining obligation is also named separately:
-
-      CENTER_TAIL_TO_WINDOWS_LIFT_OBLIGATION =
-        center_tail_lifts_to_windows.
-
-    Thus S003 proves that the lift obligation is sufficient. The remaining
-    public task is to inhabit `center_tail_lifts_to_windows`.
-
+      `pigeonhole_divisibility_qed : WITNESS`
 
 2 - State
     -----
 
-    Closed formal proof of the reduction contract. The terminal assumption
-    reports are closed under the global context.
+                      ┌──────────────────────────────────┐
+                      │                  x               │
+                      │   └─┴─┴─┴─┴─┴─┴─┴─┴─┴─┘ 7 / 10   │
+                      └──────────────────────────────────┘
+
+    State: 7, Serviceable.
+
+    Evaluation: Effective, mechanized, documented. Proof tactics and prose are 
+    not optimal. Not peer reviewed.
 
 
 3 - Intuition
     ---------
 
-    The closed part of the proof is row-level. The seeded Rule 30 row at time
-    `t` is supported inside `[-t, t]`, and its left edge at site `-t` is always
-    live. Therefore rows separated by any positive time lag cannot be identical:
-    at time `T + P`, the new left edge is live, while the earlier row at time
-    `T` is quiescent there.
+    The proof uses the usual pigeonhole-divisibility idea. Each selected
+    integer is written as a power of two times an odd part. There are only `n`
+    possible odd parts in the interval `1` through `2n`, so choosing `n + 1`
+    distinct integers forces two of them to share the same odd part. The one
+    with the smaller power of two then divides the one with the larger power.
 
-    A uniform centered-window tail would force full-row periodicity, since any
-    fixed site lies inside some sufficiently large centered window. This
-    contradicts the left-edge nonrepetition theorem.
+    The constructive multiplexing layout presents this standard proof in five
+    layers:
 
-    The remaining premise says that a center-column tail period is not merely
-    a radius-zero coincidence: it lifts to all centered windows with the same
-    cutoff and period. This lift is deliberately uniform; the same `T` and
-    same `P` must work at every radius. Under that premise, any eventual
-    center-column period becomes a forbidden uniform centered-window tail.
+      - Contract: the theorem statement.
+      - Reframing: a semantic packaging of the problem.
+      - Multiplexed presentations: explicit named proof presentations.
+      - Switch: the selected completed realization.
+      - QED: the terminal certification theorem.
+
+    The method makes the proof history visible without changing the final
+    statement being certified.
 
 
 4 - Tree
@@ -78,7 +59,11 @@
      ▼
     S003_00_Premises
      ▼
-    S003_01__Center_Normalization
+    S003_01__Reframing
+     ▼
+    S003_91_Multiplexing/*
+     ▼
+    S003_91_99__Switch
      ▼
     S003_96_QED
 
@@ -88,35 +73,57 @@
 
     S003_00_Premises.v
 
-      Base semantics, public contract, and closed proof layer. Defines `bit`,
-      `row`, `Rule30`, `step_of`, `iterate_step`, `seed_row`, `rule30_row`,
-      `center_column`, centered windows, center/window tail periodicity,
-      `RULE30_PERIODICITY_CHALLENGE`,
-      `CENTER_TAIL_TO_WINDOWS_LIFT_OBLIGATION`,
-      `RULE30_REDUCTION_CONTRACT`, and `WITNESS`. It also proves light-cone
-      support, live left edge, row nonrepetition at positive lag,
-      centered-window-to-row transfer, the Wolfram-form equivalence, the
-      certified reduction contract, and the compact lift interface
-      `RULE30_LIFT_INTERFACE` / `Rule30ChallengeClosed`. The file also exposes
-      the hint databases `rule30_reduction` and `rule30_lift`, with a guard
-      showing that `rule30_reduction` does not synthesize the lift obligation.
+      Contract layer. Defines `PROPOSITIO` and `WITNESS`.
 
-    S003_01__Center_Normalization.v
+    S003_01__Reframing.v
 
-      Period-defect normalization interface for the center column. Defines
-      pure periods, period defects, defect-free tails, a relational normalizer
-      with terminal state `Omega`, finite reachability, period normalization,
-      and productive nonperiodicity. Proves that eventual periodicity is
-      equivalent to the existence of a positive period whose normalizer reaches
-      `Omega`, while keeping productive nonperiodicity separate from negated
-      eventual periodicity.
+      Semantic expansion layer. Packages the target into smaller
+      components and proves that the reframed statement implies
+      `WITNESS`.
+
+    S003_91_Multiplexing/S003_91_01A__Initial.v
+
+      Conjectural historical initial presentation of the target proof
+      obligation. It is recorded as part of the multiplexing history, but it is
+      not the terminal proof selected by the switch.
+
+    S003_91_Multiplexing/S003_91_01B__Expansion.v
+
+      Conjectural historical expansion presentation. It reuses the canonical
+      `first_expansion` shape from `S003_01__Reframing` and records that a proof
+      of that expansion would imply `WITNESS`; it is not the terminal proof
+      selected by the switch.
+
+    S003_91_Multiplexing/S003_91_02A__Peeling.v
+
+      Names the four mathematical obligations used by the proof. This is the
+      shared peeled-obligation shape reused by the completed proof layer.
+
+    S003_91_Multiplexing/S003_91_02B__Rewrite.v
+
+      Conjectural historical rewrite presentation. It assembles four named
+      obligations into the proof witness, but the terminal switch does not
+      select this layer.
+
+    S003_91_Multiplexing/S003_91_02C__Proof.v
+
+      Completed proof. Proves the peeled obligations and exports
+      `UNCONDITIONAL_PROOF : WITNESS`.
+
+    S003_91_Multiplexing/S003_91_99__Switch.v
+
+      Constructive switch. Selects the completed proof realization exported to
+      the terminal theorem.
 
     S003_96_QED.v
 
-      Terminal certification layer. Exposes
-      `rule30_periodicity_reduction_contract_qed : WITNESS`,
-      `certified_reduction_contract`, and challenge-specialized endpoint
-      forms under a supplied lift witness. Records assumption reports.
+      Terminal certification layer. Proves
+      `pigeonhole_divisibility_qed : WITNESS`
+      from the selected proof witness.
+
+    _appendix/_assumptions/
+
+      `Print Assumptions` output for the terminal theorem.
 
 
 6 - API
@@ -124,147 +131,32 @@
 
     Recommended imports:
 
-      Contract and base semantics:
+      Contract only:
         `From S003 Require Import S003_00_Premises.`
 
       Certified endpoint:
         `From S003 Require Import S003_96_QED.`
 
-    Public base semantics:
-
-      bit             : Type
-      row             : Type
-      Rule30          : cellular_rule
-      step_of         : cellular_rule -> row -> row
-      iterate_step    : cellular_rule -> nat -> row -> row
-      seed_row        : row
-      rule30_row      : nat -> row
-      center_column   : nat -> bit
-      centered_line   : nat -> nat -> list bit
-
     Public contract:
 
-      center_tail_lifts_to_windows            : Prop
-      CENTER_TAIL_TO_WINDOWS_LIFT_OBLIGATION  : Prop
-      CENTER_COLUMN_NONPERIODIC               : Prop
-      RULE30_PERIODICITY_CHALLENGE            : Prop
-      UNCONDITIONAL_CHALLENGE_CLAIM           : Prop
-      CENTER_COLUMN_NOT_PURELY_PERIODIC       : Prop
-      RULE30_REDUCTION_CONTRACT               : Prop
-      WITNESS                                 : Prop
-
-    Center normalization:
-
-      period_defect
-      is_period_defect
-      defect_free_from
-      has_defect_from
-      center_pure_period
-      period_normalizer_step
-      normalizer_reaches
-      period_normalizes
-      period_productive
-      CENTER_COLUMN_PRODUCTIVELY_NONPERIODIC
-      CENTER_NORMALIZATION_INTERFACE
-
-    Audit facts:
-
-      proved_unconditionally_no_uniform_centered_window_tail :
-        forall T P,
-          (0 < P)%nat ->
-          ~ (forall R t,
-              (T <= t)%nat ->
-              centered_line R (t + P)%nat = centered_line R t)
-
-      center_nonperiodic_iff_wolfram_form :
-        CENTER_COLUMN_NONPERIODIC <-> wolfram_no_eventual_center_period
-
-      period_defect_false_iff_equal :
-        forall P t,
-          period_defect P t = false <->
-          center_column (t + P)%nat = center_column t
-
-      period_defect_true_iff_neq :
-        forall P t,
-          period_defect P t = true <->
-          center_column (t + P)%nat <> center_column t
-
-      pure_period_iff_defect_free_from_zero :
-        forall P,
-          center_pure_period P <->
-          (0 < P)%nat /\ defect_free_from P 0
-
-      tail_period_iff_defect_free_from :
-        forall T P,
-          center_tail_period T P <->
-          (0 < P)%nat /\ defect_free_from P T
-
-      period_normalizes_iff_eventual_period :
-        forall P,
-          (0 < P)%nat ->
-          period_normalizes P <-> exists T, center_tail_period T P
-
-      center_eventually_periodic_iff_some_period_normalizes :
-        center_column_eventually_periodic <->
-        exists P, (0 < P)%nat /\ period_normalizes P
-
-      productive_nonperiodic_implies_center_nonperiodic :
-        CENTER_COLUMN_PRODUCTIVELY_NONPERIODIC ->
-        CENTER_COLUMN_NONPERIODIC
-
-      productive_eventual_nonperiodic_implies_productive_not_pure :
-        CENTER_COLUMN_PRODUCTIVELY_NONPERIODIC ->
-        center_not_purely_periodic_productive
-
-      productive_not_pure_implies_not_purely_periodic :
-        center_not_purely_periodic_productive ->
-        CENTER_COLUMN_NOT_PURELY_PERIODIC
-
-      certified_center_normalization_interface :
-        CENTER_NORMALIZATION_INTERFACE
-
-      challenge_from_lift :
-        CENTER_TAIL_TO_WINDOWS_LIFT_OBLIGATION ->
-        RULE30_PERIODICITY_CHALLENGE
-
-      wolfram_form_from_lift :
-        CENTER_TAIL_TO_WINDOWS_LIFT_OBLIGATION ->
-        wolfram_no_eventual_center_period
-
-      reduction_contract_by_auto :
-        CENTER_TAIL_TO_WINDOWS_LIFT_OBLIGATION ->
-        RULE30_PERIODICITY_CHALLENGE
-
-      wolfram_form_by_auto :
-        CENTER_TAIL_TO_WINDOWS_LIFT_OBLIGATION ->
-        wolfram_no_eventual_center_period
-
-    Automation:
-
-      rule30_reduction
-      rule30_lift
-
-    Lift interface:
-
-      RULE30_LIFT_INTERFACE
-      Rule30ChallengeClosed
+      PROPOSITIO   : Prop
+      WITNESS      : Prop
 
     Certified endpoint:
 
-      rule30_periodicity_reduction_contract_qed : WITNESS
+      pigeonhole_divisibility_qed : WITNESS
 
-      certified_reduction_contract :
-        RULE30_REDUCTION_CONTRACT
+    Selected proof witness:
 
-      certified_challenge_under_lift :
-        CENTER_TAIL_TO_WINDOWS_LIFT_OBLIGATION ->
-        RULE30_PERIODICITY_CHALLENGE
+      UNCONDITIONAL_PROOF : WITNESS
 
-      certified_wolfram_form_under_lift :
-        CENTER_TAIL_TO_WINDOWS_LIFT_OBLIGATION ->
-        wolfram_no_eventual_center_period
 
-    Secondary corollary:
+7 - Notes
+    -----
 
-      center_tail_window_lift_implies_not_purely_periodic :
-        center_tail_lifts_to_windows -> CENTER_COLUMN_NOT_PURELY_PERIODIC
+    The switch selects:
+
+      `S003_91_Multiplexing/S003_91_02C__Proof.v`
+
+    and the terminal theorem is closed under the global context in the recorded
+    `Print Assumptions` output.

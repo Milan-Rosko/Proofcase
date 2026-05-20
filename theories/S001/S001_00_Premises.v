@@ -14,10 +14,9 @@
 
   OVERVIEW
 
-  We start with a tutorial layer for elementary propositional reasoning in a
-  lambda shaped setting. We show the smallest possible examples: How to
-  declare propositions; how to start a proof; how to use assumptions; and how
-  to finish proofs. Every theorem here is intentionally tiny and readable.
+  We start with elementary reasoning in a lambda-shaped setting: how to
+  inspect terms, declare small data types, compute examples, state
+  propositions, begin a proof, use assumptions, and finish tiny proofs.
 
 *)
 
@@ -103,35 +102,6 @@ Check Prop.
 
 (*
 │
-│          We can see that rocq follows a functional paradigm.
-│
-*)
-
-Inductive german_day : Type :=
-  | Montag
-  | Dienstag
-  | Mittwoch
-  | Donnerstag
-  | Freitag
-  | Samstag
-  | Sonntag.
-  
-Definition next_german_day (d:german_day) : german_day :=
-  match d with
-  | Montag => Dienstag
-  | Dienstag => Mittwoch
-  | Mittwoch => Donnerstag
-  | Donnerstag => Freitag
-  | Freitag => Samstag
-  | Samstag => Sonntag
-  | Sonntag => Montag
-  end.
-
-Compute (next_german_day Freitag).
-
-
-(*
-│
 │          Applying a function means substituting an argument into its
 │          body. Rocq can compute such reductions automatically.
 │
@@ -155,6 +125,41 @@ Definition first_nat :=
     x.
 
 Compute first_nat 3 7.
+
+(*
+│
+│          Rocq follows a functional paradigm, and terms correspond to
+│          proofs under the Curry-Howard correspondence.
+│
+*)
+
+Inductive german_day : Type :=
+  | Montag
+  | Dienstag
+  | Mittwoch
+  | Donnerstag
+  | Freitag
+  | Samstag
+  | Sonntag.
+  
+Definition the_german_day_after (d:german_day) : german_day :=
+  match d with
+  | Montag => Dienstag
+  | Dienstag => Mittwoch
+  | Mittwoch => Donnerstag
+  | Donnerstag => Freitag
+  | Freitag => Samstag
+  | Samstag => Sonntag
+  | Sonntag => Montag
+  end.
+
+Compute (the_german_day_after Montag).
+
+Compute (the_german_day_after (the_german_day_after Samstag)).
+
+Lemma two_days_after_samstag : (the_german_day_after (the_german_day_after Samstag)) = Montag.
+
+Proof. simpl. reflexivity. Qed.
 
 (*
 │
@@ -196,29 +201,22 @@ Variable rain_causes_umbrellas : Rain -> Umbrella.
 
 (*
 │
-│          To prove an implication, we assume its premise.
+│          To prove an implication, we assume its premise. We omit
+│          expositions on how proofs work.
 │
 *)
 
 Theorem rain_makes_wet :
   Rain -> WetStreet.
 Proof.
-  intro HRain.
-  apply rain_causes_wet.
-  exact HRain.
+  auto.
 Qed.
 
 (*
 │
 │          After `intro HRain`, the assumption `HRain : Rain` is
-│          available in the local context.
-│
-*)
-
-(*
-│
-│          Internally, the previous proof behaves exactly like a
-│          lambda function.
+│          available in the local context. Internally, the previous
+│          proof behaves exactly like a lambda function.
 │
 *)
 
@@ -233,7 +231,7 @@ Check (fun HRain : Rain => rain_causes_wet HRain).
 Theorem rain_makes_wet_term :
   Rain -> WetStreet.
 Proof.
-  exact (fun HRain => rain_causes_wet HRain).
+  auto.
 Qed.
 
 (*
@@ -255,10 +253,7 @@ Variable wet_implies_umbrellas :
 Theorem rain_implies_umbrellas :
   Rain -> Umbrella.
 Proof.
-  intro HRain.
-  apply wet_implies_umbrellas.
-  apply rain_causes_wet.
-  exact HRain.
+  auto.
 Qed.
 
 (*
@@ -271,10 +266,7 @@ Qed.
 Theorem rain_implies_umbrellas_term :
   Rain -> Umbrella.
 Proof.
-  exact
-    (fun HRain =>
-       wet_implies_umbrellas
-         (rain_causes_wet HRain)).
+  auto.
 Qed.
 
 (*
@@ -286,9 +278,7 @@ Qed.
 Theorem identity_prop :
   forall P : Prop, P -> P.
 Proof.
-  intro P.
-  intro HP.
-  exact HP.
+  auto.
 Qed.
 
 (*
@@ -300,20 +290,9 @@ Qed.
 *)
 
 Theorem use_existing_assumptions :
-  Rain ->
-  (Rain -> WetStreet) ->
-  WetStreet.
+  Rain -> (Rain -> WetStreet) -> WetStreet.
 Proof.
-  intro HRain.
-  intro HRule.
-  apply HRule.
-  exact HRain.
+  auto.
 Qed.
 
 End Rain_Examples.
-
-(*
-│
-│          This concludes the miniature introduction.
-│
-*)

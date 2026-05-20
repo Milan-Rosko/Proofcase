@@ -1,4 +1,4 @@
-(*S002_96_QED.v*)
+(*S003_91_02B__Rewrite.v*)
 
 (*
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -9,62 +9,121 @@
 │                                      visit https://www.mozilla.org/en-US/MPL │
 └──────────────────────────────────────────────────────────────────────────────┘
 ┌──────────────────────────────────────────────────────────────────────────────┐
-│                           Proofcase / S002_96_QED                            │
+│                       Proofcase / S003_91_02B__Rewrite                       │
 └──────────────────────────────────────────────────────────────────────────────┘
 
   OVERVIEW
 
-  This file exposes the terminal certification theorem of S002 and records
-  its assumption report.
-
-  Certification closes by reusing the completed proof selected by the
-  constructive switch.
+  This conjectural rewrite presentation rebuilds the reframed package from
+  four named obligations and then derives `WITNESS`. It records a historical
+  proof layer; the terminal switch selects the completed proof in
+  `S003_91_02C__Proof`.
 
 *)
+
+From S003 Require Export S003_01__Reframing.
+
+(*
+│
+│          The rewrite assembly packages four named obligations
+│          matching the semantic components exported by the reframing
+│          layer.
+│
+*)
+
+Module Export four_conjectures.
 
 (*
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │                                                                              │
-│                                SWITCH IMPORT                                 │
+│                          REWRITE OBLIGATION PACKAGE                          │
 │                                                                              │
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
 (*
 │
-│          The certification layer imports the proof selected by the
-│          switch.
+│          Every bounded source element factors into a power of `2`
+│          times an odd core.
 │
 *)
 
-From S002.S002_91_Multiplexing Require Export S002_91_99__Switch.
+Conjecture show_two_adic_factorization :
+  forall n,
+    two_adic_factorization_package n.
+
+(*
+│
+│          The odd integers in `1` through `2n` are exhausted by a
+│          list of cardinality `n`.
+│
+*)
+
+Conjecture show_odd_domain_exhaustion :
+  forall n,
+    odd_domain_package n.
+
+(*
+│
+│          Any bounded distinct selection of length `n + 1` contains
+│          two distinct members sharing one odd core.
+│
+*)
+
+Conjecture show_odd_core_collision :
+  forall n A,
+    bounded_selection_package n A ->
+    odd_core_collision_package n A.
+
+(*
+│
+│          Two distinct selected integers with the same odd core are
+│          ordered by divisibility.
+│
+*)
+
+Conjecture show_common_odd_core_implies_divisibility :
+  forall n A,
+    odd_core_divisibility_package n A.
+
+End four_conjectures.
 
 (*
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │                                                                              │
-│                                    Q.E.D.                                    │
+│                               REWRITE ASSEMBLY                               │
 │                                                                              │
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
 (*
 │
-│          The final theorem certifies the contract by direct reuse of
-│          the selected proof.
+│          The four named obligations assemble into the reframed
+│          expansion.
 │
 *)
 
-Theorem pigeonhole_divisibility_qed : WITNESS.
+Theorem the_four_conjectures_hold :
+  first_expansion.
 Proof.
-  exact UNCONDITIONAL_PROOF.
+  intros n A Hselection.
+  split.
+  - exact (show_two_adic_factorization n).
+  - split.
+    + exact (show_odd_domain_exhaustion n).
+    + split.
+      * exact (show_odd_core_collision n A Hselection).
+      * exact (show_common_odd_core_implies_divisibility n A).
 Qed.
 
 (*
 │
-│          The terminal assumption report records the dependencies of
-│          the certified endpoint.
+│          The assembled reframing package gives `WITNESS`.
 │
 *)
 
-Redirect "theories/S002/_appendix/_assumptions/pigeonhole_divisibility_qed"
-  Print Assumptions pigeonhole_divisibility_qed.
+Theorem UNCONDITIONAL_PROOF : WITNESS.
+Proof.
+  apply first_expansion_implies_WITNESS.
+  exact the_four_conjectures_hold.
+Qed.
