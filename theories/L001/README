@@ -6,10 +6,6 @@
     L001 formalizes the APORETIC LEMMA: a constructive fixed-point, collapse,
     and obstruction layer over the M001 regulator substrate.
 
-    The theorem does not assert classical excluded middle, does not refute
-    excluded middle in Rocq, and does not introduce semantic truth, arithmetic
-    provability, modal machinery, or a new checker.
-
 
 2 - State
     -----

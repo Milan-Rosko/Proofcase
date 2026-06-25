@@ -65,33 +65,10 @@
       A constructive framework for finite, syntactic, Boolean-checkable
       derivability between objects.
 
-    S001
+    L001
 
-      ROCQ TUTORIAL
+      APORETIC LEMMA
 
-      First-contact tutorial examples for terms, computation, tiny data types,
-      proof scripts, proof terms, and Curry-Howard implication.
+    a constructive fixed-point, collapse, and obstruction layer over the M001
+    regulator substrate.
 
-    S002
-
-      GENERAL LOGIC FORMULARY
-
-      A compact reference formulary of reusable logical proof patterns,
-      starting with elementary propositional reasoning and quantifiers.
-
-    S003
-
-      PIGEONHOLE DIVISIBILITY ERDŐS-PÓLYA ANECDOTE
-
-      A formal proof of the Erdős-Pólya anecdote that among any `n + 1`
-      distinct positive integers chosen from `1` through `2n`, two are related
-      by divisibility.
-
-    S004
-
-      RULE 30 CENTER-COLUMN REDUCTION CONTRACT
-
-      A self-contained Rule 30 base semantics and a closed proof of the
-      center-column periodicity reduction contract. The package does not prove
-      the unconditional center-column nonperiodicity claim; it exposes the
-      center-tail-to-window lift obligation as the remaining dependency.
