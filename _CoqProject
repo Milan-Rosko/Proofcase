@@ -8,7 +8,7 @@
 -arg -native-compiler
 -arg ondemand
 
-# Algorithmic Contribution: CARRYLESS PAIRING
+# Algorithm: CARRYLESS PAIRING
 
 -Q theories/A001 A001
 
@@ -21,7 +21,7 @@
 	theories/A001/A001_95_API.v
 	theories/A001/A001_97_Artifacts.v
 
-# Model Contribution: CONSTRUCTIVE REGULATOR THEORY
+# Framework: REGULATOR THEORY
 
 -Q theories/M001 M001
 
@@ -39,7 +39,7 @@
 	theories/M001/M001_97_Artifacts.v
 	theories/M001/M001_98_Sanity.v
 
-# Logic Contribution: APORETIC FIXED POINT
+# Theorem: APORETIC LEMMA
 
 -Q theories/L001 L001
 
@@ -49,39 +49,3 @@
 	theories/L001/L001_95_API.v
 	theories/L001/L001_97_Artifacts.v
 
-# Semantics: TUTORIAL
-
--Q theories/S001 S001
-
-	theories/S001/S001_00_Premises.v
-	theories/S001/S001_01__Lambda_Calculus.v
-
-# Semantics: PRINCIPLE FORMULARY
-
--Q theories/S002 S002
-
-	theories/S002/S002_00_Premises.v
-	theories/S002/S002_01__Syllogisms.v
-	theories/S002/S002_02__Quantifiers.v
-
-# Semantics: ERDŐS-PÓLYA PIGEONHOLE ANECDOTE
-
--Q theories/S003 S003
-
-	theories/S003/S003_00_Premises.v
-	theories/S003/S003_01__Reframing.v
-	theories/S003/S003_91_Multiplexing/S003_91_01A__Initial.v
-	theories/S003/S003_91_Multiplexing/S003_91_01B__Expansion.v
-	theories/S003/S003_91_Multiplexing/S003_91_02A__Peeling.v
-	theories/S003/S003_91_Multiplexing/S003_91_02B__Rewrite.v
-	theories/S003/S003_91_Multiplexing/S003_91_02C__Proof.v
-	theories/S003/S003_91_Multiplexing/S003_91_99__Switch.v
-	theories/S003/S003_96_QED.v
-
-# Semantics: RULE 30 CENTER-COLUMN SEMANTICS
-
--Q theories/S004 S004
-
-	theories/S004/S004_00_Premises.v
-	theories/S004/S004_01__Center_Normalization.v
-	theories/S004/S004_96_QED.v
