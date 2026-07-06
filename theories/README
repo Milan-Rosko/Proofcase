@@ -30,15 +30,11 @@
     The following file roles are reserved for package-level boundaries:
 
       00_Premises       Shared imports, vocabulary, and neutral definitions.
-      91_Multiplexing/  Obligations and exports controlled by a switch.
-      92_Constructor    Construction of payloads from theorem surface.
-      93_Construct/     Concrete export-facing payload.
       94_IO             Effective Input/Output.
       95_API            Stable import surface for other packages.
       96_QED            Final theorem closure for the package and reports.
       97_Artifacts      Ocaml artifact extraction commands.
       98_Sanity         Local consistency and smoke checks.
-      98_Sanity/        Local consistency and smoke checks for a payload.
       99_Exposition     Examples and demonstrations.
 
     Note that not every package contains every boundary file.
@@ -58,6 +54,13 @@
       Certified pairing and unpairing of natural numbers using the Fibonacci
       base.
 
+    A002
+
+      CONSTRUCTIVE CARRYLESS HILBERT PROVER
+
+      Effective arithmetic verification of finite implicational Hilbert
+      derivations over the A001 carryless pairing surface.
+
     M001
 
       REGULATOR THEORY
@@ -71,4 +74,3 @@
 
     a constructive fixed-point, collapse, and obstruction layer over the M001
     regulator substrate.
-

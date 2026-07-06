@@ -8,7 +8,7 @@
 -arg -native-compiler
 -arg ondemand
 
-# Algorithm: CARRYLESS PAIRING
+# Algorithmic Contribution: CARRYLESS PAIRING
 
 -Q theories/A001 A001
 
@@ -21,7 +21,24 @@
 	theories/A001/A001_95_API.v
 	theories/A001/A001_97_Artifacts.v
 
-# Framework: REGULATOR THEORY
+# Algorithmic Contribution: CONSTRUCTIVE CARRYLESS HILBERT PROVER
+
+-Q theories/A002 A002
+
+	theories/A002/A002_00_Premises.v
+	theories/A002/A002_01__A001_Wrappers.v
+	theories/A002/A002_02__Tagged_Lists.v
+	theories/A002/A002_03__Formula_Syntax.v
+	theories/A002/A002_04__Line_Syntax.v
+	theories/A002/A002_05__Rule_Checkers_Hilbert.v
+	theories/A002/A002_06__Verifier_Core.v
+	theories/A002/A002_07__Certificates.v
+	theories/A002/A002_08__Soundness.v
+	theories/A002/A002_94_IO.v
+	theories/A002/A002_95_API.v
+	theories/A002/A002_97_Artifacts.v
+
+# Model Contribution: CONSTRUCTIVE REGULATOR THEORY
 
 -Q theories/M001 M001
 
@@ -39,7 +56,7 @@
 	theories/M001/M001_97_Artifacts.v
 	theories/M001/M001_98_Sanity.v
 
-# Theorem: APORETIC LEMMA
+# Logic Contribution: APORETIC LEMMA
 
 -Q theories/L001 L001
 
@@ -48,4 +65,3 @@
 	theories/L001/L001_02__Aporetic_Obstruction.v
 	theories/L001/L001_95_API.v
 	theories/L001/L001_97_Artifacts.v
-

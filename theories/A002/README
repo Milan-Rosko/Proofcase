@@ -1,0 +1,332 @@
+(* README *)
+
+1 - Summary
+    -------
+
+    A002 formalizes an EFFECTIVE ARITHMETIC CERTIFICATE VERIFIER over the A001
+    carryless pairing package. Its exported verifier is an executable function
+    on natural numbers:
+
+      - `A002_Verify : nat -> nat -> nat`
+
+    The result is always an A001-coded status/payload pair:
+
+      - status `1` carries a numerical certificate payload
+      - status `0` carries a numerical error code
+
+    The first implemented kernel, A002-Core, checks finite derivation codes for
+    the implicational Hilbert fragment with axiom heads K, S, and modus ponens.
+    It verifies a supplied derivation line by line.
+
+
+2 - State
+    -----
+
+                      ┌──────────────────────────────────┐
+                      │              x                   │
+                      │   └─┴─┴─┴─┴─┴─┴─┴─┴─┴─┘ 6 / 10   │
+                      └──────────────────────────────────┘
+
+    Evaluation: 6, Working. Effective, mechanized, documented, and connected to
+    A001. The executable verifier, parser surface, IO layer, API layer, and
+    extraction commands are present.
+
+
+3 - Intuition
+    ---------
+
+    A002 treats proofs as arithmetic data. A derivation is a natural number
+    whose A001 decoding exposes a claimed length and a tagged list body:
+
+      ┌────────────┐
+      │ derivation │  =  encode n body
+      └────────────┘
+
+    The body is not trusted merely because A001 can decode it. Every list node,
+    formula node, line, and rule tag must be a canonical A001 pair code before
+    A002 uses its components:
+
+      c is structured only if
+
+        canonical001b c = true
+
+      where
+
+        canonical001b c = Nat.eqb (encode (fst001 c) (snd001 c)) c.
+
+    This prevents A002 from silently normalizing malformed numbers through the
+    total A001 decoder.
+
+    A line is a canonical pair:
+
+      ┌──────┐
+      │ line │  =  encode tag formula
+      └──────┘
+
+    The tag selects one of three fixed arithmetic rule checkers:
+
+      tag_axk       checks  A -> (B -> A)
+      tag_axs       checks  (A -> (B -> C)) -> ((A -> B) -> (A -> C))
+      tag_mp p q    checks  modus ponens from earlier lines p and q
+
+    For modus ponens, line `j` tagged by `tag_mp p q` must cite strictly
+    earlier lines:
+
+      p < j,    q < j.
+
+    A002 fetches the displayed formulas at lines `p`, `q`, and `j`, parses the
+    formula at `q` as an implication, and checks the purely syntactic alignment:
+
+      line q : A -> B
+      line p : A
+      line j : B
+
+    Verification is bounded by the claimed length `n`. The main loop runs from
+    line `0` through line `n - 1`, carrying a list of numerical local
+    certificates. Any failure returns immediately with the first deterministic
+    error code:
+
+      reject stage index detail
+        = encode 0 (encode stage (encode index detail)).
+
+    If all lines pass, A002 fetches the final displayed formula and compares it
+    with the target code `theta` by `Nat.eqb`. On success it returns:
+
+      accept p
+        = encode 1 p
+
+    where the certificate payload records the claimed length, target, local
+    certificate list, and final formula:
+
+      p = encode n (encode theta (encode certs final_formula)).
+
+
+4 - Tree
+    ----
+
+    Stdlib
+     ▼
+    A001_95_API
+     ▼
+    A002_00_Premises
+     ▼
+    A002_01__A001_Wrappers
+     ▼
+    A002_02__Tagged_Lists
+     ▼
+    A002_03__Formula_Syntax
+     ▼
+    A002_04__Line_Syntax
+     ▼
+    A002_05__Rule_Checkers_Hilbert
+     ▼
+    A002_06__Verifier_Core
+     ▼
+    A002_07__Certificates
+     ▼
+    A002_08__Soundness
+     ▼
+    A002_94_IO
+     ▼
+    A002_95_API
+     ▼
+    A002_97_Artifacts
+
+
+5 - Files
+    -----
+
+    A002_00_Premises.v
+
+      Stdlib and A001 import hub for A002. Defines arithmetic result
+      conventions, `accept`, `reject`, error stages, error details, and the
+      public verifier/checker type aliases.
+
+    A002_01__A001_Wrappers.v
+
+      Canonical A001 destructuring layer. Defines `fst001`, `snd001`,
+      `recode001`, `canonical001b`, and `is_pair001b`, then proves the basic
+      projection and canonicity facts for freshly encoded A001 pairs.
+
+    A002_02__Tagged_Lists.v
+
+      A001-coded finite list layer. Defines `code_nil`, `code_cons`,
+      `code_derivation`, bounded indexing by `nth_list_fuel`, and exact claimed
+      length checking by `list_exact_lengthb`.
+
+    A002_03__Formula_Syntax.v
+
+      Formula syntax for the implicational object language. Defines variables,
+      implications, bounded formula recognition by `is_formula_fuel`, the total
+      wrapper `is_formula`, and the arithmetic implication parser `parse_imp`.
+
+    A002_04__Line_Syntax.v
+
+      Proof-line and rule-tag syntax. Defines `code_line`, `tag_axk`,
+      `tag_axs`, `tag_mp`, `parse_rule_tag`, and `parse_line`.
+
+    A002_05__Rule_Checkers_Hilbert.v
+
+      Executable local checkers for the fixed Hilbert core. Implements
+      `check_axk`, `check_axs`, and `check_mp`, together with result
+      projections and line-formula access helpers.
+
+    A002_06__Verifier_Core.v
+
+      Main bounded verifier. Implements `verify_line`, `verify_lines`,
+      `final_formula_result`, and `A002_Verify`. The loop is structurally
+      recursive on explicit fuel derived from the claimed derivation length.
+
+    A002_07__Certificates.v
+
+      Certificate naming and checking layer. Defines local and global
+      certificate constructors/projections and the executable certificate
+      checker `A002_Certb`.
+
+    A002_08__Soundness.v
+
+      Initial theorem surface. Proves verifier acceptance implies
+      `A002_Certb`, generated certificates check, deterministic verifier
+      behavior, and accepted-result shape facts for the local checkers.
+
+    A002_94_IO.v
+
+      Extraction-facing IO dispatcher. Defines `A002_IO_Query`,
+      `A002_IO_Result`, `A002_IO`, parser/verifier diagnostics, and compact
+      `*_Z` views using binary integers.
+
+    A002_95_API.v
+
+      Stable public import surface. Re-exports the IO and theorem surface
+      through a single package interface.
+
+    A002_97_Artifacts.v
+
+      Artifact layer. Redirects `Print Assumptions` for the public theorem
+      names and extracts `A002_Verifier` and `A002_IO` OCaml artifacts.
+
+    _appendix/_artifacts/
+
+      Intended location for extracted OCaml artifacts:
+      `A002_Verifier.{ml,mli}` and `A002_IO.{ml,mli}`.
+
+    _appendix/_assumptions/
+
+      Intended location for redirected assumption reports for the public A002
+      theorem surface.
+
+    _appendix/examples/
+
+      Intended location for computed examples and failure diagnostics.
+
+
+6 - API
+    ---
+
+    The public theorem and executable surface is exposed by
+
+      `From A002 Require Import A002_95_API.`
+
+    Arithmetic verifier:
+
+      A002_Verify      : nat -> nat -> nat
+      A002_Certb       : nat -> nat -> nat -> bool
+
+    A001 canonical destructuring:
+
+      fst001           : nat -> nat
+      snd001           : nat -> nat
+      recode001        : nat -> nat
+      canonical001b    : nat -> bool
+      is_pair001b      : nat -> nat -> nat -> bool
+
+    Formula constructors and parsers:
+
+      code_var         : nat -> nat
+      code_imp         : nat -> nat -> nat
+      is_formula_fuel  : nat -> nat -> bool
+      formula_bound    : nat -> nat
+      is_formula       : nat -> bool
+      parse_imp        : nat -> nat
+
+    List and derivation constructors:
+
+      code_nil         : nat
+      code_cons        : nat -> nat -> nat
+      code_derivation  : nat -> nat -> nat
+      list_exact_lengthb : nat -> nat -> bool
+      nth_list_fuel    : nat -> nat -> nat -> nat
+
+    Line and rule constructors:
+
+      code_line        : nat -> nat -> nat
+      tag_axk          : nat
+      tag_axs          : nat
+      tag_mp           : nat -> nat -> nat
+      parse_rule_tag   : nat -> nat
+      parse_line       : nat -> nat
+
+    Rule checkers:
+
+      check_axk        : nat -> nat
+      check_axs        : nat -> nat
+      check_mp         : nat -> nat -> nat -> nat -> nat -> nat
+
+    Main theorem surface:
+
+      A002_Verify_accept_sound :
+        forall d theta p,
+          A002_Verify d theta = encode 1 p ->
+          A002_Certb d theta p = true
+
+      A002_generated_cert_checks :
+        forall d theta p,
+          A002_Verify d theta = encode 1 p ->
+          A002_Certb d theta p = true
+
+      A002_Verify_deterministic_export :
+        forall d theta r1 r2,
+          A002_Verify d theta = r1 ->
+          A002_Verify d theta = r2 ->
+          r1 = r2
+
+    IO:
+
+      A002_IO          : A002_IO_Query -> A002_IO_Result
+      A002_IO_Z        : A002_IO_Query -> A002_IO_Result_Z
+
+
+7 - Notes
+    -----
+
+    A002 intentionally depends on A001 for all pairing and unpairing. It does
+    not redefine `encode` or `decode`. The verifier returns natural numbers
+    only. A successful result is decoded as
+
+      encode 1 p
+
+    and a failed result is decoded as
+
+      encode 0 (encode stage (encode index detail)).
+
+    The current `A002_Certb` is an executable generated-certificate checker:
+    it reruns `A002_Verify d theta` and compares the result with `accept p`.
+    This is arithmetic and deterministic, but it is not yet a standalone
+    decompositional certificate replay checker.
+
+    The local checker soundness facts in `A002_08__Soundness` presently certify
+    accepted-result shape. The stronger schema-inversion statements for K, S,
+    and MP remain planned proof work.
+
+    The total formula wrapper uses
+
+      formula_bound c = S c.
+
+    This is executable and bounded. Proving the full constructor theorem
+    `is_formula_imp` for that wrapper requires either an A001 code-growth lemma
+    or a revised formula-bound design with a locally provable fuel monotonicity
+    argument.
+
+    Compact IO views such as `A002_IO_Z` and `Verify_Diagnostic_Z` are provided
+    so `vm_compute` examples can print binary integers rather than large Peano
+    numerals.
