@@ -15,9 +15,10 @@
   OVERVIEW
 
   L001_02 is the obstruction boundary of the Aporetic fixed-point theorem.
-  The previous file proves collapse statements of the form `C Bot`; this file
-  adds explicit consistency hypotheses and converts those collapses into
-  impossibility statements. No new fixed point is constructed here.
+  The first theorem is the local obstruction: a supplied closure-equivalence
+  negation fixed point, local bivalence at that fixed point, modus ponens,
+  and consistency are incompatible. Full evaluation frames enter only later
+  as corollaries that produce the fixed point.
 
   The file is intentionally layered. We first state the generic closure
   obstruction, then specialize it to the regulator closure induced by an M001
@@ -66,10 +67,37 @@ Definition RegulatorClosureConsistent
 
 (*
 │
+│          Core local obstruction. The collapse theorem supplies `C
+│          Bot` from a supplied negation fixed point and the single
+│          local branch datum at that fixed point; the consistency
+│          boundary turns that accepted bottom formula into `False`.
+│          No evaluation frame or global excluded-middle schema is
+│          used here.
+│
+*)
+
+(*    Consistent(C) ∧ ModusPonens(C) ∧ NegFP_C(B) ∧ LocalLEM_C(B) ⇒ False.    *)
+
+Theorem core_diagonal_obstruction :
+  forall (C : Formula -> Prop) B,
+    ClosureModusPonens C ->
+    ClosureConsistent C ->
+    NegationFixedPointFor C B ->
+    ClosureLocalExcludedMiddle C B ->
+    False.
+Proof.
+  intros C B Hmodus_ponens Hconsistent Hfixed_point Hlocal.
+  apply Hconsistent.
+  exact
+    (local_branch_collapse
+       C B Hmodus_ponens Hfixed_point Hlocal).
+Qed.
+
+(*
+│
 │          A negation fixed point blocks closure-level excluded middle
-│          under consistency. The collapse theorem supplies `C Bot`;
-│          the consistency boundary turns that accepted bottom formula
-│          into `False`.
+│          under consistency because global excluded middle supplies
+│          the required local branch datum at the fixed point.
 │
 *)
 
@@ -84,25 +112,25 @@ Theorem negfixp_obstructs_lem :
     False.
 Proof.
   intros C B Hconsistent Hmodus_ponens Hfixed_point Hexcluded_middle.
-  apply Hconsistent.
   exact
-    (negfixp_lem_collapse
-       C B Hmodus_ponens Hfixed_point Hexcluded_middle).
+    (core_diagonal_obstruction
+       C B Hmodus_ponens Hconsistent Hfixed_point
+       (closure_lem_to_local_lemma C B Hexcluded_middle)).
 Qed.
 
 (*
 │
-│          Evaluation closure blocks closure-level excluded middle
-│          under consistency. We first use `L001_01` to build a
-│          diagonal formula and derive `C Bot`; no consistency is used
-│          until the final line.
+│          Full-frame corollary. Full evaluation first yields the
+│          bottom goal frame; the bottom goal frame produces the local
+│          diagonal datum; global excluded middle supplies the local
+│          branch at that datum; the core obstruction does the rest.
 │
 *)
 
 (*   Consistent(C) ∧ ModusPonens(C) ∧ EvalComplete(C) ∧ ExcludedMiddle(C) ⇒   *)
 (*                                   False.                                   *)
 
-Theorem aporetic_obstruction :
+Theorem full_frame_obstruction_corollary :
   forall (C : Formula -> Prop) Code
          (E : ClosureEvaluationFrame C Code),
     ClosureConsistent C ->
@@ -112,10 +140,33 @@ Theorem aporetic_obstruction :
 Proof.
   intros C Code E Hconsistent Hmodus_ponens Hexcluded_middle.
   destruct
-    (lem_collapse
-       C Code E Hmodus_ponens Hexcluded_middle)
-    as [B [_fixed_point [_branch Hbottom]]].
-  exact (Hconsistent Hbottom).
+    (eval_bottom_negfixp
+       C Code (ceval_apply E)
+       (eval_full_to_eval_bottom C Code E))
+    as [B Hfixed_point].
+  exact
+    (core_diagonal_obstruction
+       C B Hmodus_ponens Hconsistent Hfixed_point
+       (closure_lem_to_local_lemma C B Hexcluded_middle)).
+Qed.
+
+(*
+│
+│          Compatibility spelling retained for older clients: the
+│          former aporetic obstruction is now the full-frame corollary
+│          of the local obstruction.
+│
+*)
+
+Theorem aporetic_obstruction :
+  forall (C : Formula -> Prop) Code
+         (E : ClosureEvaluationFrame C Code),
+    ClosureConsistent C ->
+    ClosureModusPonens C ->
+    ClosureExcludedMiddle C ->
+    False.
+Proof.
+  exact full_frame_obstruction_corollary.
 Qed.
 
 (*

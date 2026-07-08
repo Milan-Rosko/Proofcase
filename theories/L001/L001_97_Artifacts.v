@@ -39,11 +39,54 @@ From L001 Require Export L001_95_API.
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
+Theorem certified_aporetic_local_branch_collapse_contract :
+  APORETIC_LOCAL_BRANCH_COLLAPSE_CONTRACT.
+Proof.
+  intros C B Hmp Hfix Hlocal.
+  exact (local_branch_collapse C B Hmp Hfix Hlocal).
+Qed.
+
+Theorem certified_aporetic_core_diagonal_obstruction_contract :
+  APORETIC_CORE_DIAGONAL_OBSTRUCTION_CONTRACT.
+Proof.
+  intros C B Hmp Hcons Hfix Hlocal.
+  exact (core_diagonal_obstruction C B Hmp Hcons Hfix Hlocal).
+Qed.
+
+Theorem certified_aporetic_eval_bottom_negfixp_contract :
+  APORETIC_EVAL_BOTTOM_NEGFIXP_CONTRACT.
+Proof.
+  intros C Code ev Hbottom.
+  exact (eval_bottom_negfixp C Code ev Hbottom).
+Qed.
+
+Theorem certified_aporetic_eval_full_to_eval_bottom_contract :
+  APORETIC_EVAL_FULL_TO_EVAL_BOTTOM_CONTRACT.
+Proof.
+  intros C Code E.
+  exact (eval_full_to_eval_bottom C Code E).
+Qed.
+
+Theorem certified_aporetic_full_frame_obstruction_corollary_contract :
+  APORETIC_FULL_FRAME_OBSTRUCTION_COROLLARY_CONTRACT.
+Proof.
+  intros C Code E Hcons Hmp Hlem.
+  exact
+    (full_frame_obstruction_corollary
+       C Code E Hcons Hmp Hlem).
+Qed.
+
 Theorem certified_aporetic_fixed_point_contract :
   APORETIC_FIXED_POINT_CONTRACT.
 Proof.
   intros C Code E.
-  exact (negfixp_existence C Code E).
+  destruct
+    (eval_bottom_negfixp
+       C Code (ceval_apply E)
+       (eval_full_to_eval_bottom C Code E))
+    as [B Hfix].
+  exists B.
+  exact Hfix.
 Qed.
 
 Theorem certified_aporetic_excluded_middle_collapse_contract :
@@ -156,6 +199,11 @@ Theorem certified_aporetic_lemma_contract :
   APORETIC_LEMMA_CONTRACT.
 Proof.
   repeat split.
+  - exact certified_aporetic_local_branch_collapse_contract.
+  - exact certified_aporetic_core_diagonal_obstruction_contract.
+  - exact certified_aporetic_eval_bottom_negfixp_contract.
+  - exact certified_aporetic_eval_full_to_eval_bottom_contract.
+  - exact certified_aporetic_full_frame_obstruction_corollary_contract.
   - exact certified_aporetic_fixed_point_contract.
   - exact certified_aporetic_excluded_middle_collapse_contract.
   - exact certified_aporetic_excluded_middle_obstruction_contract.

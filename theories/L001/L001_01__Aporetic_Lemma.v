@@ -14,10 +14,11 @@
 
   OVERVIEW
 
-  Curry fixed-point and collapse layer for L001. We factor the aporetic
-  diagonal through goal-specific evaluation frames, derive negation fixed
-  points at bottom, and prove the generic and regulator-specific branch
-  collapses used by the obstruction layer.
+  Local collapse and diagonal-production layer for L001. The primitive
+  collapse theorem consumes a supplied closure-equivalence negation fixed
+  point and the single local branch datum at that formula. Goal-specific and
+  full evaluation frames appear only afterward as sufficient ways to produce
+  the fixed point.
 
 *)
 
@@ -147,6 +148,47 @@ Proof.
   exact
     ((proj2 (negfixp_eq_curry_bot C B))
        Hcurry).
+Qed.
+
+(*
+│
+│          Paper endpoint: the goal-restricted anti-diagonal
+│          production principle at bottom produces a
+│          closure-equivalence negation fixed point. This is the
+│          diagonal-production theorem used before any full-frame
+│          corollary.
+│
+*)
+
+(*                       EvC_⊥(C,ev) ⇒ ∃B. NegFP_C(B).                        *)
+
+Theorem eval_bottom_negfixp :
+  forall (C : Formula -> Prop) Code
+         (ev : Code -> Code -> Formula),
+    ClosureEvaluationFrameForGoal C Code ev Bot ->
+    exists B : Formula,
+      NegationFixedPointFor C B.
+Proof.
+  exact closure_goal_frame_negation_fixed_point_lemma.
+Qed.
+
+(*
+│
+│          Paper endpoint: a full closure evaluation frame is
+│          sufficient for the goal-restricted anti-diagonal production
+│          principle at bottom.
+│
+*)
+
+(*                            Eval(C) ⇒ EvC_⊥(C).                             *)
+
+Theorem eval_full_to_eval_bottom :
+  forall (C : Formula -> Prop) Code
+         (E : ClosureEvaluationFrame C Code),
+    ClosureEvaluationFrameForGoal C Code (ceval_apply E) Bot.
+Proof.
+  intros C Code E.
+  exact (closure_evaluation_frame_implies_goal_frame_lemma C Code E Bot).
 Qed.
 
 (*
@@ -293,11 +335,11 @@ Qed.
 
 (*            ModusPonens(C) ∧ (B ≃_C ¬B) ∧ (C(B) ∨ C(¬B)) ⇒ C(⊥).            *)
 
-Theorem negfixp_decision_collapse :
+Theorem local_branch_collapse :
   forall (C : Formula -> Prop) B,
     ClosureModusPonens C ->
     NegationFixedPointFor C B ->
-    (C B \/ C (formula_negation B)) ->
+    ClosureLocalExcludedMiddle C B ->
     C Bot.
 Proof.
   intros C B Hmp Hfix Hdec.
@@ -308,6 +350,24 @@ Proof.
   - exact
       (negfixp_right_collapse
          C B Hmp Hfix HNB).
+Qed.
+
+(*
+│
+│          Compatibility spelling retained for older clients: the
+│          supplied branch disjunction is the local excluded-middle
+│          datum.
+│
+*)
+
+Theorem negfixp_decision_collapse :
+  forall (C : Formula -> Prop) B,
+    ClosureModusPonens C ->
+    NegationFixedPointFor C B ->
+    (C B \/ C (formula_negation B)) ->
+    C Bot.
+Proof.
+  exact local_branch_collapse.
 Qed.
 
 (*
@@ -330,9 +390,9 @@ Theorem negfixp_lem_collapse :
 Proof.
   intros C B Hmp Hfix Hlem.
   apply
-    (negfixp_decision_collapse
+    (local_branch_collapse
        C B Hmp Hfix).
-  apply Hlem.
+  exact (closure_lem_to_local_lemma C B Hlem).
 Qed.
 
 (*

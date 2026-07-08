@@ -62,6 +62,18 @@ Definition ClosureNegationFixedPoint
 
 (*
 │
+│          Stable public spelling for local internal bivalence at a
+│          fixed formula.
+│
+*)
+
+Definition ClosureLocalLEM
+    (C : ClosureTheory)
+    (B : Formula) : Prop :=
+  ClosureLocalExcludedMiddle C B.
+
+(*
+│
 │          A closure decider is precisely a sound Boolean decision
 │          record for the closure. The record contains the function
 │          `Formula -> bool` and branch soundness proofs.
@@ -97,8 +109,68 @@ Definition ClosureDeciderExists
 
 (*
 │
+│          Core local collapse contract. A supplied
+│          closure-equivalence negation fixed point and local internal
+│          bivalence at that formula collapse to accepted bottom under
+│          modus ponens.
+│
+*)
+
+Definition APORETIC_LOCAL_BRANCH_COLLAPSE_CONTRACT : Prop :=
+  forall (C : ClosureTheory) (B : Formula),
+    ClosureModusPonens C ->
+    ClosureNegationFixedPoint C B ->
+    ClosureLocalLEM C B ->
+    C Bot.
+
+(*
+│
+│          Core local obstruction contract. Consistency turns the
+│          local branch collapse into contradiction.
+│
+*)
+
+Definition APORETIC_CORE_DIAGONAL_OBSTRUCTION_CONTRACT : Prop :=
+  forall (C : ClosureTheory) (B : Formula),
+    ClosureModusPonens C ->
+    ClosureConsistent C ->
+    ClosureNegationFixedPoint C B ->
+    ClosureLocalLEM C B ->
+    False.
+
+(*
+│
+│          Goal-restricted anti-diagonal production contract. The
+│          bottom goal frame is enough to produce the local diagonal
+│          datum.
+│
+*)
+
+Definition APORETIC_EVAL_BOTTOM_NEGFIXP_CONTRACT : Prop :=
+  forall (C : ClosureTheory) Code
+         (ev : Code -> Code -> Formula),
+    ClosureEvaluationFrameForGoal C Code ev Bot ->
+    exists B : Formula,
+      ClosureNegationFixedPoint C B.
+
+(*
+│
+│          Full-frame-to-goal-frame contract. Full evaluation is only
+│          a sufficient route to the bottom goal frame.
+│
+*)
+
+Definition APORETIC_EVAL_FULL_TO_EVAL_BOTTOM_CONTRACT : Prop :=
+  forall (C : ClosureTheory) Code
+         (E : ClosureEvaluationFrame C Code),
+    ClosureEvaluationFrameForGoal C Code (ceval_apply E) Bot.
+
+(*
+│
 │          Evaluation closure supplies a formula equivalent, inside
 │          the closure predicate, to its own object-level negation.
+│          This is retained as a corollary-level compatibility
+│          contract.
 │
 *)
 
@@ -110,8 +182,25 @@ Definition APORETIC_FIXED_POINT_CONTRACT : Prop :=
 
 (*
 │
+│          Full-frame obstruction corollary: full evaluation and
+│          global excluded middle recover the local configuration and
+│          hence contradict consistency.
+│
+*)
+
+Definition APORETIC_FULL_FRAME_OBSTRUCTION_COROLLARY_CONTRACT : Prop :=
+  forall (C : ClosureTheory) Code
+         (E : ClosureEvaluationFrame C Code),
+    ClosureConsistent C ->
+    ClosureModusPonens C ->
+    ClosureExcludedMiddle C ->
+    False.
+
+(*
+│
 │          Evaluation closure plus closure-level excluded middle
-│          collapses to bottom inside the same closure predicate.
+│          collapses to bottom inside the same closure predicate. This
+│          is retained as a corollary-level compatibility contract.
 │
 *)
 
@@ -216,6 +305,11 @@ Definition APORETIC_DECIDER_IMPOSSIBILITY_CONTRACT : Prop :=
 *)
 
 Definition APORETIC_LEMMA_CONTRACT : Prop :=
+  APORETIC_LOCAL_BRANCH_COLLAPSE_CONTRACT /\
+  APORETIC_CORE_DIAGONAL_OBSTRUCTION_CONTRACT /\
+  APORETIC_EVAL_BOTTOM_NEGFIXP_CONTRACT /\
+  APORETIC_EVAL_FULL_TO_EVAL_BOTTOM_CONTRACT /\
+  APORETIC_FULL_FRAME_OBSTRUCTION_COROLLARY_CONTRACT /\
   APORETIC_FIXED_POINT_CONTRACT /\
   APORETIC_EXCLUDED_MIDDLE_COLLAPSE_CONTRACT /\
   APORETIC_EXCLUDED_MIDDLE_OBSTRUCTION_CONTRACT /\

@@ -96,11 +96,13 @@ Qed.
 
 (*
 │
-│          `ClosureExcludedMiddle C` is excluded-middle status inside
-│          the closure predicate: every formula is either accepted by
-│          `C`, or its object-level negation is accepted by `C`. This
-│          is not Rocq's excluded middle and does not assert `A \/ ~
-│          A` for arbitrary propositions.
+│          `ClosureExcludedMiddle C` is global excluded-middle status
+│          inside the closure predicate: every formula is either
+│          accepted by `C`, or its object-level negation is accepted
+│          by `C`. This is not Rocq's excluded middle and does not
+│          assert `A \/ ~ A` for arbitrary propositions. The local
+│          obstruction below uses only the single instance
+│          `ClosureLocalExcludedMiddle C B`.
 │
 *)
 
@@ -221,6 +223,41 @@ Definition NegationFixedPointFor
     (C : Formula -> Prop)
     (B : Formula) : Prop :=
   ClosureEquiv C B (formula_negation B).
+
+(*
+│
+│          `ClosureLocalExcludedMiddle C B` is the single internal
+│          bivalence commitment at the formula `B`: either `C B` or `C
+│          (¬B)`. It is the local branch datum used by the core
+│          obstruction and is strictly weaker in shape than global
+│          `ClosureExcludedMiddle C`.
+│
+*)
+
+(*                       LocalLEM(C,B) ≔ C(B) ∨ C(¬B).                        *)
+
+Definition ClosureLocalExcludedMiddle
+    (C : Formula -> Prop)
+    (B : Formula) : Prop :=
+  C B \/ C (formula_negation B).
+
+(*
+│
+│          Global closure excluded middle immediately supplies the
+│          local branch datum at any chosen formula.
+│
+*)
+
+(*                 ClosureExcludedMiddle(C) ⇒ LocalLEM(C,B).                  *)
+
+Theorem closure_lem_to_local_lemma :
+  forall (C : Formula -> Prop) (B : Formula),
+    ClosureExcludedMiddle C ->
+    ClosureLocalExcludedMiddle C B.
+Proof.
+  intros C B Hlem.
+  exact (Hlem B).
+Qed.
 
 (*
 │
