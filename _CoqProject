@@ -21,7 +21,7 @@
 	theories/A001/A001_95_API.v
 	theories/A001/A001_97_Artifacts.v
 
-# Algorithmic Contribution: CONSTRUCTIVE CARRYLESS HILBERT PROVER
+# Algorithmic Contribution: CONSTRUCTIVE SEQUENT FRAGMENT
 
 -Q theories/A002 A002
 

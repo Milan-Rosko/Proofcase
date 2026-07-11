@@ -58,6 +58,13 @@
       Certified pairing and unpairing of natural numbers using the Fibonacci
       base.
 
+    A002
+
+      CONSTRUCTIVE SEQUENT FRAGMENT
+ 
+      Arithmetic verifier for the implicational fragment with axiom schemas S, K
+      and MP.
+
     M001
 
       REGULATOR THEORY
