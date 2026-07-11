@@ -15,6 +15,9 @@
       normalized_linesb : list NormalizedFormula ->
                           NormalizedDerivation -> bool
 
+      normalized_verifyb : NormalizedDerivation ->
+                           NormalizedFormula -> bool
+
     Two closed reflection theorems identify executable acceptance with the
     independent inductive validity judgments:
 
@@ -26,10 +29,17 @@
         normalized_linesb prefix lines = true <->
         NormalizedLines prefix lines
 
-    A002 also retains its original A001-coded arithmetic verifier as a
-    compatibility and serialization surface:
+      normalized_verifyb_iff :
+        normalized_verifyb lines target = true <->
+        NormalizedProof lines target
 
-      A002_Verify : nat -> nat -> nat
+    A002 exposes a certified A001-coded arithmetic entry point:
+
+      A002_Verify_certified : nat -> nat -> nat
+
+    It normalizes the arithmetic derivation and target, requires
+    target-sensitive normalized validity, and only then returns the legacy
+    arithmetic verifier result.
 
     Arithmetic inputs are guarded against non-canonical A001 pair codes before
     their decoded components are interpreted as lists, formulas, lines, rules,
@@ -53,14 +63,9 @@
     facts are closed under the global context. The package is not yet fully
     peer reviewed.
 
-    Two boundaries remain explicit:
-
-      - there is not yet a theorem relating normalization of an arbitrary
-        arithmetic derivation code to `normalized_linesb`;
-
-      - `A002_Certb` reruns `A002_Verify` and compares the complete result. It
-        is agreement checking, not an independent decompositional replay of
-        the certificate fields.
+    One boundary remains explicit: certificate checking compares the complete
+    certified verifier result with `accept payload`. It is agreement checking,
+    not an independent decompositional replay of the certificate fields.
 
 
 3 - Intuition
@@ -130,17 +135,35 @@
       line 1: K -> (A -> K)    [K]
       line 2: A -> K           [MP 0 1]
 
-    `normalized_linesb []` accepts this list by direct reduction. The general
-    theorem is not the example but the reflection result:
+    `normalized_verifyb` accepts this list for target `C` by direct reduction.
+    The general theorem is not the example but the target-sensitive reflection
+    result:
 
-      normalized_linesb prefix lines = true
+      normalized_verifyb lines target = true
         <->
-      NormalizedLines prefix lines.
+      NormalizedProof lines target.
 
     `NormalizedLines` is defined independently. Its cons constructor requires
     a valid `NormalizedStep` for the head line and recursively validates the
     tail under the prefix extended by the displayed formula. Thus the Boolean
     checker is proved sound and complete for the inductive rule system.
+    `NormalizedProof` additionally requires a nonempty final conclusion equal
+    to the requested target.
+
+    Arithmetic normalization supplies the missing transport bridge:
+
+      normalize_derivation : nat -> option NormalizedDerivation
+      normalize_formula    : nat -> option NormalizedFormula.
+
+    The public arithmetic verifier is gated by `normalized_verifyb`. Its
+    end-to-end theorem states:
+
+      A002_Verify_certified d theta = accept payload
+        ->
+      exists lines target,
+        normalize_derivation d = Some lines /\
+        normalize_formula theta = Some target /\
+        NormalizedProof lines target.
 
     The older arithmetic surface represents the same kinds of data with A001
     pairing. A line is
@@ -225,8 +248,10 @@
       Defines `NormalizedFormula`, `NormalizedRule`, `NormalizedLine`,
       `NormalizedDerivation`, the structural equality and derivation checkers,
       the independent judgments `NormalizedStep` and `NormalizedLines`, and the
-      soundness/completeness theorems packaged as `normalized_stepb_iff` and
-      `normalized_linesb_iff`.
+      soundness/completeness theorems packaged as `normalized_stepb_iff`,
+      `normalized_linesb_iff`, and `normalized_verifyb_iff`. Defines arithmetic
+      normalization and the certified arithmetic entry point with its
+      end-to-end soundness theorem.
 
     A002_94_IO.v
 
@@ -308,6 +333,9 @@
       normalized_linesb :
         list NormalizedFormula -> NormalizedDerivation -> bool
 
+      normalized_verifyb :
+        NormalizedDerivation -> NormalizedFormula -> bool
+
     Normalized validity:
 
       NormalizedStep :
@@ -316,6 +344,9 @@
 
       NormalizedLines :
         list NormalizedFormula -> NormalizedDerivation -> Prop
+
+      NormalizedProof :
+        NormalizedDerivation -> NormalizedFormula -> Prop
 
     Principal reflection theorems:
 
@@ -330,10 +361,30 @@
         normalized_linesb prefix lines = true <->
         NormalizedLines prefix lines
 
+      normalized_verifyb_iff : forall lines target,
+        normalized_verifyb lines target = true <->
+        NormalizedProof lines target
+
+      certified_verify_accept_sound : forall d theta payload,
+        A002_Verify_certified d theta = accept payload ->
+        exists lines target,
+          normalize_derivation d = Some lines /\
+          normalize_formula theta = Some target /\
+          NormalizedProof lines target
+
     Arithmetic compatibility verifier:
 
       A002_Verify : nat -> nat -> nat
       A002_Certb  : nat -> nat -> nat -> bool
+
+      A002_Verify_certified : nat -> nat -> nat
+      A002_Certified_Certb  : nat -> nat -> nat -> bool
+
+      normalize_formula    : nat -> option NormalizedFormula
+      normalize_rule       : nat -> option NormalizedRule
+      normalize_line       : nat -> option NormalizedLine
+      normalize_lines      : nat -> nat -> option NormalizedDerivation
+      normalize_derivation : nat -> option NormalizedDerivation
 
       accept      : nat -> nat
       reject      : nat -> nat -> nat -> nat
@@ -422,6 +473,8 @@
       check_mp_sound
       normalized_stepb_iff
       normalized_linesb_iff
+      normalized_verifyb_iff
+      certified_verify_accept_sound
 
     The normalized checker datatypes and functions are included in extracted
     `A002_Verifier.ml`:
@@ -432,6 +485,12 @@
       normalized_formula_eqb
       normalized_stepb
       normalized_linesb
+      normalized_verifyb
+      normalize_formula
+      normalize_rule
+      normalize_line
+      normalize_lines
+      normalize_derivation
 
 
 8 - Notes
@@ -451,8 +510,9 @@
 
       encode 1 (encode n (encode theta (encode certs final_formula))).
 
-    `A002_Certb` is intentionally conservative but not independent: it reruns
-    `A002_Verify d theta` and checks equality with `accept p`.
+    `A002_Certified_Certb` is intentionally conservative but not independent:
+    it runs `A002_Verify_certified d theta` and checks equality with
+    `accept payload`.
 
     The arithmetic formula recognizer uses
 
@@ -462,7 +522,8 @@
     closed-computation surface. Normalized formulas carry their structure
     directly and require no arithmetic fuel bound.
 
-    A future arithmetic-normalization theorem may connect successful decoding
-    of canonical arithmetic derivations to `NormalizedDerivation` and prove
-    agreement between `A002_Verify` and `normalized_linesb`. That bridge is not
-    claimed by the present package.
+    `certified_verify_accept_sound` is the arithmetic-to-inductive bridge: an
+    accepted public arithmetic result necessarily normalizes to a
+    target-sensitive `NormalizedProof`. The legacy `A002_Verify` remains
+    available for compatibility, but the IO dispatcher uses
+    `A002_Verify_certified`.

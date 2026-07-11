@@ -72,10 +72,10 @@ Inductive A002_IO_Result : Type :=
 │
 *)
 
-(*                   A002_Verified(d,θ) ≔ A002_Verify(d,θ).                   *)
+(*              A002_Verified(d,θ) ≔ A002_Verify_certified(d,θ).              *)
 
 Definition A002_Verified : nat -> nat -> nat :=
-  A002_Verify.
+  A002_Verify_certified.
 
 (*
 │
@@ -84,10 +84,10 @@ Definition A002_Verified : nat -> nat -> nat :=
 │
 *)
 
-(*             A002_Certificate_Check(d,θ,p) ≔ A002_Certb(d,θ,p).             *)
+(*        A002_Certificate_Check(d,θ,p) ≔ A002_Certified_Certb(d,θ,p).        *)
 
 Definition A002_Certificate_Check : nat -> nat -> nat -> bool :=
-  A002_Certb.
+  A002_Certified_Certb.
 
 (*
 │
@@ -119,8 +119,8 @@ Definition A002_Parse_Line : nat -> nat :=
 │
 *)
 
-(*        A002_IO(Verify_Query(d,θ))=Verify_Result(A002_Verify(d,θ)).         *)
-(*   A002_IO(Cert_Check_Query(d,θ,p))=Cert_Check_Result(A002_Certb(d,θ,p)).   *)
+(*   A002_IO(Verify_Query(d,θ))=Verify_Result(A002_Verify_certified(d,θ)).    *)
+(*A002_IO(Cert_Check_Query(d,θ,p))=Cert_Check_Result(A002_Certified_Certb(d,θ,p)).*)
 
 
 Definition A002_IO (q : A002_IO_Query) : A002_IO_Result :=
@@ -178,7 +178,7 @@ Definition Decode_Error (payload : nat) : nat * nat * nat :=
 *)
 
 (*       Verify_Diagnostic(d,θ)=(r,result_status(r),result_payload(r))        *)
-(*                         where r=A002_Verify(d,θ).                          *)
+(*                    where r=A002_Verify_certified(d,θ).                     *)
 
 Definition Verify_Diagnostic (d theta : nat) : nat * nat * nat :=
   let r := A002_Verified d theta in

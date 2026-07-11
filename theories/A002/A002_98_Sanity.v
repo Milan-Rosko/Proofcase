@@ -20,9 +20,10 @@
   so no A001 arithmetic container is materialized.
 
   These are closed compile-time computations, not an additional theorem
-  layer. General K/S/MP correctness and whole-derivation validity are already
-  supplied by `normalized_stepb_iff` and `normalized_linesb_iff`; the probes
-  only confirm that representative normalized programs reduce immediately.
+  layer. General K/S/MP correctness, whole-derivation validity, and
+  target-sensitive verification are supplied by `normalized_stepb_iff`,
+  `normalized_linesb_iff`, and `normalized_verifyb_iff`; the probes only
+  confirm that representative normalized programs reduce immediately.
 
 *)
 
@@ -77,10 +78,10 @@ Definition sanity_K_derivation : NormalizedDerivation :=
 │
 *)
 
-(*                   normalized_linesb([], [K(A,B)])=true.                    *)
+(*                 normalized_verifyb([K(A,B)],K(A,B))=true.                  *)
 
 Example sanity_normalized_K_checks :
-  normalized_linesb [] sanity_K_derivation = true.
+  normalized_verifyb sanity_K_derivation sanity_K = true.
 Proof.
   reflexivity.
 Qed.
@@ -126,10 +127,10 @@ Definition sanity_MP_derivation : NormalizedDerivation :=
 │
 *)
 
-(*                  [K, K→(A→K), MP(0,1,A→K)] checks = true.                  *)
+(*          normalized_verifyb([K, K→(A→K), MP(0,1,A→K)], A→K)=true.          *)
 
 Example sanity_normalized_MP_checks :
-  normalized_linesb [] sanity_MP_derivation = true.
+  normalized_verifyb sanity_MP_derivation sanity_MP_conclusion = true.
 Proof.
   reflexivity.
 Qed.

@@ -20,12 +20,12 @@
   without materializing nested A001 codes.
 
   The first half of this file preserves the original A001-coded verifier as
-  an extraction and compatibility surface. Its certificate checker
-  deliberately reruns that verifier and therefore establishes agreement, not
-  an independent logical soundness theorem. The second half is the
-  effectivity boundary: formulas, rules, lines, and derivations are
-  normalized to inductive data, checked structurally, and related to
-  independent inductive validity judgments by two reflection theorems.
+  an extraction and compatibility surface. The second half is the certified
+  effectivity boundary: arithmetic formulas and derivations normalize to
+  inductive data, structural checking is reflected into independent K/S/MP
+  judgments, target-sensitive verification rejects empty or wrong-conclusion
+  proofs, and the public arithmetic entry point is gated by that normalized
+  proof check.
 
 *)
 
@@ -1139,4 +1139,318 @@ Proof.
   split.
   - apply normalized_linesb_sound.
   - apply normalized_linesb_complete.
+Qed.
+
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                   TARGET-SENSITIVE NORMALIZED VERIFICATION                   │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
+
+(*
+│
+│          `normalized_conclusion` returns the formula displayed by
+│          the final line of a nonempty normalized derivation.
+│
+*)
+
+Fixpoint normalized_conclusion
+  (lines : NormalizedDerivation)
+  : option NormalizedFormula :=
+  match lines with
+  | [] => None
+  | line :: rest =>
+      match rest with
+      | [] => Some (normalized_line_formula line)
+      | _ => normalized_conclusion rest
+      end
+  end.
+
+(*
+│
+│          `normalized_verifyb lines target` requires a rule-correct
+│          line sequence and equality between its final displayed
+│          formula and the requested target. Empty derivations are
+│          rejected because they have no conclusion.
+│
+*)
+
+Definition normalized_verifyb
+  (lines : NormalizedDerivation)
+  (target : NormalizedFormula)
+  : bool :=
+  normalized_linesb [] lines
+  && match normalized_conclusion lines with
+     | Some conclusion => normalized_formula_eqb conclusion target
+     | None => false
+     end.
+
+(*
+│
+│          `NormalizedProof lines target` is the independent
+│          target-sensitive validity proposition: all lines are
+│          inductively valid and the last line displays `target`.
+│
+*)
+
+Definition NormalizedProof
+  (lines : NormalizedDerivation)
+  (target : NormalizedFormula)
+  : Prop :=
+  NormalizedLines [] lines /\
+  normalized_conclusion lines = Some target.
+
+(*   normalized_verifyb(lines,target)=true ⇔ NormalizedProof(lines,target).   *)
+
+Theorem normalized_verifyb_iff :
+  forall lines target,
+    normalized_verifyb lines target = true <->
+    NormalizedProof lines target.
+Proof.
+  intros lines target.
+  unfold normalized_verifyb, NormalizedProof.
+  rewrite Bool.andb_true_iff.
+  rewrite normalized_linesb_iff.
+  destruct (normalized_conclusion lines) as [conclusion|] eqn:Hconclusion.
+  - rewrite normalized_formula_eqb_eq.
+    split.
+    + intros [Hlines Heq].
+      subst conclusion.
+      split.
+      * exact Hlines.
+      * reflexivity.
+    + intros [Hlines Htarget].
+      inversion Htarget.
+      split.
+      * exact Hlines.
+      * reflexivity.
+  - split.
+    + intros [_ Hfalse]. discriminate.
+    + intros [_ Hfalse]. discriminate.
+Qed.
+
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                           ARITHMETIC NORMALIZATION                           │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
+
+(*
+│
+│          `normalize_formula_fuel` converts a canonical arithmetic
+│          formula tree into the inductive normal form. The explicit
+│          fuel is consumed only when descending through implication
+│          nodes.
+│
+*)
+
+Fixpoint normalize_formula_fuel
+  (fuel c : nat)
+  : option NormalizedFormula :=
+  match fuel with
+  | 0 => None
+  | S fuel' =>
+      if canonical001b c then
+        let tag := formula_tag c in
+        let payload := formula_payload c in
+        if Nat.eqb tag TAG_VAR then
+          Some (NFVar payload)
+        else if Nat.eqb tag TAG_IMP then
+          if canonical001b payload then
+            match normalize_formula_fuel fuel' (fst001 payload),
+                  normalize_formula_fuel fuel' (snd001 payload) with
+            | Some A, Some B => Some (NFImp A B)
+            | _, _ => None
+            end
+          else None
+        else None
+      else None
+  end.
+
+Definition normalize_formula (c : nat) : option NormalizedFormula :=
+  normalize_formula_fuel (formula_bound c) c.
+
+(*
+│
+│          `normalize_rule` converts a canonical arithmetic K, S, or
+│          MP tag into its typed rule constructor.
+│
+*)
+
+Definition normalize_rule (tag : nat) : option NormalizedRule :=
+  if canonical001b tag then
+    let rule := rule_code tag in
+    let payload := rule_payload tag in
+    if Nat.eqb rule RULE_AXK then
+      if Nat.eqb payload 0 then Some NRAxK else None
+    else if Nat.eqb rule RULE_AXS then
+      if Nat.eqb payload 0 then Some NRAxS else None
+    else if Nat.eqb rule RULE_MP then
+      if canonical001b payload then
+        Some (NRMP (fst001 payload) (snd001 payload))
+      else None
+    else None
+  else None.
+
+(*
+│
+│          `normalize_line` requires a canonical arithmetic line, a
+│          recognized rule tag, and a recursively normalized displayed
+│          formula.
+│
+*)
+
+Definition normalize_line (ell : nat) : option NormalizedLine :=
+  if canonical001b ell then
+    match normalize_rule (line_tag ell),
+          normalize_formula (line_formula ell) with
+    | Some rule, Some formula =>
+        Some (Build_NormalizedLine rule formula)
+    | _, _ => None
+    end
+  else None.
+
+(*
+│
+│          `normalize_lines n body` consumes exactly `n` canonical
+│          cons cells and requires the unique nil node at the end,
+│          converting every arithmetic line along the way.
+│
+*)
+
+Fixpoint normalize_lines
+  (n body : nat)
+  : option NormalizedDerivation :=
+  match n with
+  | 0 =>
+      if is_nil_nodeb body then Some [] else None
+  | S n' =>
+      if canonical001b body then
+        if Nat.eqb (list_tag body) TAG_CONS then
+          let payload := list_payload body in
+          if canonical001b payload then
+            match normalize_line (fst001 payload),
+                  normalize_lines n' (snd001 payload) with
+            | Some line, Some rest => Some (line :: rest)
+            | _, _ => None
+            end
+          else None
+        else None
+      else None
+  end.
+
+(*
+│
+│          `normalize_derivation` converts a canonical arithmetic
+│          header and its exact tagged line body into a normalized
+│          derivation.
+│
+*)
+
+Definition normalize_derivation
+  (d : nat)
+  : option NormalizedDerivation :=
+  if canonical001b d then
+    normalize_lines (fst001 d) (snd001 d)
+  else None.
+
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                       CERTIFIED ARITHMETIC ENTRY POINT                       │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
+
+Lemma reject_not_accept :
+  forall stage index detail payload,
+    reject stage index detail <> accept payload.
+Proof.
+  intros stage index detail payload Heq.
+  apply (f_equal fst001) in Heq.
+  unfold reject, accept in Heq.
+  repeat rewrite fst001_encode in Heq.
+  discriminate.
+Qed.
+
+(*
+│
+│          `A002_Verify_certified` first normalizes the arithmetic
+│          derivation and target, then requires target-sensitive
+│          normalized validity before returning the legacy verifier
+│          result. Arithmetic acceptance is therefore gated by the
+│          proved inductive checker.
+│
+*)
+
+Definition A002_Verify_certified
+  (d theta : nat)
+  : nat :=
+  match normalize_derivation d, normalize_formula theta with
+  | Some lines, Some target =>
+      if normalized_verifyb lines target then
+        A002_Verify d theta
+      else
+        reject STAGE_RULE 0 ERR_BAD_CONCLUSION
+  | _, _ =>
+      reject STAGE_DERIVATION_HEADER 0 ERR_NONCANONICAL_DERIVATION
+  end.
+
+Definition A002_Certified_Certb
+  (d theta payload : nat)
+  : bool :=
+  Nat.eqb (A002_Verify_certified d theta) (accept payload).
+
+(*
+│
+│          End-to-end arithmetic soundness: any accepted arithmetic
+│          result has a successfully normalized derivation and target
+│          satisfying the independent inductive proof judgment.
+│
+*)
+
+Theorem certified_verify_accept_sound :
+  forall d theta payload,
+    A002_Verify_certified d theta = accept payload ->
+    exists lines target,
+      normalize_derivation d = Some lines /\
+      normalize_formula theta = Some target /\
+      NormalizedProof lines target.
+Proof.
+  intros d theta payload Haccept.
+  unfold A002_Verify_certified in Haccept.
+  destruct (normalize_derivation d) as [lines|] eqn:Hlines.
+  - destruct (normalize_formula theta) as [target|] eqn:Htarget.
+    + destruct (normalized_verifyb lines target) eqn:Hverify.
+      * exists lines, target.
+        split.
+        -- reflexivity.
+        -- split.
+           ++ reflexivity.
+           ++ apply normalized_verifyb_iff.
+              exact Hverify.
+      * exfalso.
+        eapply reject_not_accept.
+        exact Haccept.
+    + exfalso.
+      eapply reject_not_accept.
+      exact Haccept.
+  - exfalso.
+    eapply reject_not_accept.
+    exact Haccept.
+Qed.
+
+Theorem certified_generated_cert_checks :
+  forall d theta payload,
+    A002_Verify_certified d theta = accept payload ->
+    A002_Certified_Certb d theta payload = true.
+Proof.
+  intros d theta payload Haccept.
+  unfold A002_Certified_Certb.
+  rewrite Haccept.
+  apply Nat.eqb_refl.
 Qed.
