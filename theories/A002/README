@@ -3,20 +3,37 @@
 1 - Summary
     -------
 
-    A002 formalizes an EFFECTIVE ARITHMETIC CERTIFICATE VERIFIER over the A001
-    carryless pairing package. Its exported verifier is an executable function
-    on natural numbers:
+    A002 formalizes an EFFECTIVE HILBERT CERTIFICATE VERIFIER for the
+    implicational fragment with axiom schemas K and S and modus ponens.
 
-      - `A002_Verify : nat -> nat -> nat`
+    The principal verifier operates on inductive normal forms rather than on
+    nested arithmetic container codes:
 
-    The result is always an A001-coded status/payload pair:
+      normalized_stepb  : list NormalizedFormula ->
+                          NormalizedRule -> NormalizedFormula -> bool
 
-      - status `1` carries a numerical certificate payload
-      - status `0` carries a numerical error code
+      normalized_linesb : list NormalizedFormula ->
+                          NormalizedDerivation -> bool
 
-    The first implemented kernel, A002-Core, checks finite derivation codes for
-    the implicational Hilbert fragment with axiom heads K, S, and modus ponens.
-    It verifies a supplied derivation line by line.
+    Two closed reflection theorems identify executable acceptance with the
+    independent inductive validity judgments:
+
+      normalized_stepb_iff :
+        normalized_stepb prefix rule formula = true <->
+        NormalizedStep prefix rule formula
+
+      normalized_linesb_iff :
+        normalized_linesb prefix lines = true <->
+        NormalizedLines prefix lines
+
+    A002 also retains its original A001-coded arithmetic verifier as a
+    compatibility and serialization surface:
+
+      A002_Verify : nat -> nat -> nat
+
+    Arithmetic inputs are guarded against non-canonical A001 pair codes before
+    their decoded components are interpreted as lists, formulas, lines, rules,
+    or certificates.
 
 
 2 - State
@@ -24,81 +41,133 @@
 
                       ┌──────────────────────────────────┐
                       │              x                   │
-                      │   └─┴─┴─┴─┴─┴─┴─┴─┴─┴─┘ 6 / 10   │
+                      │   └─┴─┴─┴─┴─┴─┴─┴─┴─┴─┘ 7 / 10   │
                       └──────────────────────────────────┘
 
-    Evaluation: 6, Working. Effective, mechanized, documented, and connected to
-    A001. The executable verifier, parser surface, IO layer, API layer, and
-    extraction commands are present.
+    Evaluation: 7, Solid. The normalized checker is effective, structurally
+    recursive, documented, extracted, and proved equivalent to inductive K/S/MP
+    validity. The arithmetic compatibility verifier remains executable and
+    deterministically rejects malformed inputs.
+
+    The principal reflection theorems and the published arithmetic agreement
+    facts are closed under the global context. The package is not yet fully
+    peer reviewed.
+
+    Two boundaries remain explicit:
+
+      - there is not yet a theorem relating normalization of an arbitrary
+        arithmetic derivation code to `normalized_linesb`;
+
+      - `A002_Certb` reruns `A002_Verify` and compares the complete result. It
+        is agreement checking, not an independent decompositional replay of
+        the certificate fields.
 
 
 3 - Intuition
     ---------
 
-    A002 treats proofs as arithmetic data. A derivation is a natural number
-    whose A001 decoding exposes a claimed length and a tagged list body:
+    A proof is checked most directly as typed finite syntax:
 
-      ┌────────────┐
-      │ derivation │  =  encode n body
-      └────────────┘
+      Inductive NormalizedFormula :=
+      | NFVar : nat -> NormalizedFormula
+      | NFImp : NormalizedFormula -> NormalizedFormula -> NormalizedFormula.
 
-    The body is not trusted merely because A001 can decode it. Every list node,
-    formula node, line, and rule tag must be a canonical A001 pair code before
-    A002 uses its components:
+      Inductive NormalizedRule :=
+      | NRAxK
+      | NRAxS
+      | NRMP : nat -> nat -> NormalizedRule.
 
-      c is structured only if
+      Record NormalizedLine := {
+        normalized_line_rule    : NormalizedRule;
+        normalized_line_formula : NormalizedFormula
+      }.
 
-        canonical001b c = true
+    A normalized derivation is an ordinary list of normalized lines. Checking
+    proceeds from left to right while carrying the formulas displayed by the
+    accepted prefix:
 
-      where
+      prefix = []
+         |
+         | check line 0
+         v
+      prefix = [formula 0]
+         |
+         | check line 1
+         v
+      prefix = [formula 0; formula 1]
+         |
+         | ...
 
-        canonical001b c = Nat.eqb (encode (fst001 c) (snd001 c)) c.
+    The local checker recognizes exactly three rules.
 
-    This prevents A002 from silently normalizing malformed numbers through the
-    total A001 decoder.
+    K:
 
-    A line is a canonical pair:
+      A -> (B -> A)
 
-      ┌──────┐
-      │ line │  =  encode tag formula
-      └──────┘
+    S:
 
-    The tag selects one of three fixed arithmetic rule checkers:
+      (A -> (B -> C)) -> ((A -> B) -> (A -> C))
 
-      tag_axk       checks  A -> (B -> A)
-      tag_axs       checks  (A -> (B -> C)) -> ((A -> B) -> (A -> C))
-      tag_mp p q    checks  modus ponens from earlier lines p and q
+    MP:
 
-    For modus ponens, line `j` tagged by `tag_mp p q` must cite strictly
-    earlier lines:
+      prefix[p] = A
+      prefix[q] = A -> B
+      -------------------
+             B
 
-      p < j,    q < j.
+    MP citations are prefix lookups, so a line cannot cite itself or a future
+    line. The checker does not search for premises: the two indices are part of
+    the normalized rule data.
 
-    A002 fetches the displayed formulas at lines `p`, `q`, and `j`, parses the
-    formula at `q` as an implication, and checks the purely syntactic alignment:
+    The sanity layer uses the smallest nontrivial MP derivation. Let
 
-      line q : A -> B
-      line p : A
-      line j : B
+      K  = A -> (B -> A)
+      C  = A -> K.
 
-    Verification is bounded by the claimed length `n`. The main loop runs from
-    line `0` through line `n - 1`, carrying a list of numerical local
-    certificates. Any failure returns immediately with the first deterministic
-    error code:
+    Then:
 
-      reject stage index detail
-        = encode 0 (encode stage (encode index detail)).
+      line 0: K                 [K]
+      line 1: K -> (A -> K)    [K]
+      line 2: A -> K           [MP 0 1]
 
-    If all lines pass, A002 fetches the final displayed formula and compares it
-    with the target code `theta` by `Nat.eqb`. On success it returns:
+    `normalized_linesb []` accepts this list by direct reduction. The general
+    theorem is not the example but the reflection result:
 
-      accept p
-        = encode 1 p
+      normalized_linesb prefix lines = true
+        <->
+      NormalizedLines prefix lines.
 
-    where the certificate payload records the claimed length, target, local
-    certificate list, and final formula:
+    `NormalizedLines` is defined independently. Its cons constructor requires
+    a valid `NormalizedStep` for the head line and recursively validates the
+    tail under the prefix extended by the displayed formula. Thus the Boolean
+    checker is proved sound and complete for the inductive rule system.
 
-      p = encode n (encode theta (encode certs final_formula)).
+    The older arithmetic surface represents the same kinds of data with A001
+    pairing. A line is
+
+      code_line tag formula = encode tag formula,
+
+    while a tagged cons cell is
+
+      code_cons head tail = encode 1 (encode head tail).
+
+    Repeated pairing makes closed container values grow rapidly. For that
+    reason arithmetic codes are retained at transport boundaries, while
+    internal effectivity and logical reflection are established on inductive
+    normal forms.
+
+    A001 decoding is total on all naturals. A002 therefore never trusts a
+    decoded pair merely because decoding produced two projections. A number is
+    treated as structured only when
+
+      canonical001b c = true,
+
+    where
+
+      canonical001b c = Nat.eqb (encode (fst001 c) (snd001 c)) c.
+
+    This fixed-point guard prevents malformed arithmetic inputs from being
+    silently normalized into valid nodes.
 
 
 4 - Tree
@@ -110,27 +179,17 @@
      ▼
     A002_00_Premises
      ▼
-    A002_01__A001_Wrappers
+    A002_01__Hilbert_Syntax_Checkers
      ▼
-    A002_02__Tagged_Lists
-     ▼
-    A002_03__Formula_Syntax
-     ▼
-    A002_04__Line_Syntax
-     ▼
-    A002_05__Rule_Checkers_Hilbert
-     ▼
-    A002_06__Verifier_Core
-     ▼
-    A002_07__Certificates
-     ▼
-    A002_08__Soundness
+    A002_02__Normalization
      ▼
     A002_94_IO
      ▼
     A002_95_API
      ▼
     A002_97_Artifacts
+     ▼
+    A002_98_Sanity
 
 
 5 - Files
@@ -138,86 +197,81 @@
 
     A002_00_Premises.v
 
-      Stdlib and A001 import hub for A002. Defines arithmetic result
-      conventions, `accept`, `reject`, error stages, error details, and the
-      public verifier/checker type aliases.
+      Consolidated arithmetic substrate and A001 import boundary. Defines the
+      status/error protocol, canonical A001 destructuring, tagged finite lists,
+      arithmetic formula constructors, bounded recognition, implication
+      parsing, and elementary constructor/reflection facts.
 
-    A002_01__A001_Wrappers.v
+      The central representation rule is that total A001 projections are never
+      interpreted structurally until the enclosing number passes
+      `canonical001b`.
 
-      Canonical A001 destructuring layer. Defines `fst001`, `snd001`,
-      `recode001`, `canonical001b`, and `is_pair001b`, then proves the basic
-      projection and canonicity facts for freshly encoded A001 pairs.
+    A002_01__Hilbert_Syntax_Checkers.v
 
-    A002_02__Tagged_Lists.v
+      Combined arithmetic syntax, parser, and local-checker layer. Defines line
+      codes, K/S/MP tags, guarded tag and line parsers, result projections,
+      derivation-line access, and the total arithmetic checkers `check_axk`,
+      `check_axs`, and `check_mp`.
 
-      A001-coded finite list layer. Defines `code_nil`, `code_cons`,
-      `code_derivation`, bounded indexing by `nth_list_fuel`, and exact claimed
-      length checking by `list_exact_lengthb`.
+      K and S check complete schema shape. MP requires two strictly earlier
+      citations and checks antecedent/consequent alignment syntactically.
 
-    A002_03__Formula_Syntax.v
+    A002_02__Normalization.v
 
-      Formula syntax for the implicational object language. Defines variables,
-      implications, bounded formula recognition by `is_formula_fuel`, the total
-      wrapper `is_formula`, and the arithmetic implication parser `parse_imp`.
+      Consolidated verifier, certificate, theorem, and normalization layer.
+      Retains `A002_Verify`, arithmetic certificate layouts, deterministic
+      diagnostics, and compatibility facts.
 
-    A002_04__Line_Syntax.v
-
-      Proof-line and rule-tag syntax. Defines `code_line`, `tag_axk`,
-      `tag_axs`, `tag_mp`, `parse_rule_tag`, and `parse_line`.
-
-    A002_05__Rule_Checkers_Hilbert.v
-
-      Executable local checkers for the fixed Hilbert core. Implements
-      `check_axk`, `check_axs`, and `check_mp`, together with result
-      projections and line-formula access helpers.
-
-    A002_06__Verifier_Core.v
-
-      Main bounded verifier. Implements `verify_line`, `verify_lines`,
-      `final_formula_result`, and `A002_Verify`. The loop is structurally
-      recursive on explicit fuel derived from the claimed derivation length.
-
-    A002_07__Certificates.v
-
-      Certificate naming and checking layer. Defines local and global
-      certificate constructors/projections and the executable certificate
-      checker `A002_Certb`.
-
-    A002_08__Soundness.v
-
-      Initial theorem surface. Proves verifier acceptance implies
-      `A002_Certb`, generated certificates check, deterministic verifier
-      behavior, and accepted-result shape facts for the local checkers.
+      Defines `NormalizedFormula`, `NormalizedRule`, `NormalizedLine`,
+      `NormalizedDerivation`, the structural equality and derivation checkers,
+      the independent judgments `NormalizedStep` and `NormalizedLines`, and the
+      soundness/completeness theorems packaged as `normalized_stepb_iff` and
+      `normalized_linesb_iff`.
 
     A002_94_IO.v
 
-      Extraction-facing IO dispatcher. Defines `A002_IO_Query`,
-      `A002_IO_Result`, `A002_IO`, parser/verifier diagnostics, and compact
-      `*_Z` views using binary integers.
+      Arithmetic transport and extraction-facing dispatcher. Defines commands
+      for verification, generated-certificate agreement, formula diagnostics,
+      and line parsing. Provides result/error decoding and compact `BinNums.Z`
+      presentation views.
+
+      This is not the normalization proof boundary; it preserves the serialized
+      arithmetic protocol for clients that require it.
 
     A002_95_API.v
 
-      Stable public import surface. Re-exports the IO and theorem surface
-      through a single package interface.
+      Stable public import surface. Re-exports the normalized types, checkers,
+      reflection theorems, arithmetic compatibility surface, and IO dispatcher
+      through one package dependency.
 
     A002_97_Artifacts.v
 
-      Artifact layer. Redirects `Print Assumptions` for the public theorem
-      names and extracts `A002_Verifier` and `A002_IO` OCaml artifacts.
+      Reproducibility boundary. Redirects `Print Assumptions` for the published
+      arithmetic and normalized theorems, then extracts the arithmetic and
+      normalized verifier surfaces plus the IO dispatcher to OCaml.
+
+    A002_98_Sanity.v
+
+      Two deliberately small closed computations over normalized syntax: one K
+      line and one K/K/MP derivation. Both close by reflexivity and construct no
+      nested A001 arithmetic container.
 
     _appendix/_artifacts/
 
-      Intended location for extracted OCaml artifacts:
-      `A002_Verifier.{ml,mli}` and `A002_IO.{ml,mli}`.
+      Source-side artifact locations for `A002_Verifier.{ml,mli}` and
+      `A002_IO.{ml,mli}`. The approved compile bridge generates current outputs
+      in its isolated shadow output tree.
 
     _appendix/_assumptions/
 
-      Intended location for redirected assumption reports for the public A002
-      theorem surface.
+      Source-side report locations for the public theorem surface. The bridge
+      emits current redirected reports in the isolated output tree; the
+      normalized reflection reports state `Closed under the global context`.
 
     _appendix/examples/
 
-      Intended location for computed examples and failure diagnostics.
+      Reserved arithmetic example locations. Current effectivity probes live in
+      `A002_98_Sanity.v` and operate on normalized inductive syntax.
 
 
 6 - API
@@ -227,106 +281,188 @@
 
       `From A002 Require Import A002_95_API.`
 
-    Arithmetic verifier:
+    Normalized syntax:
 
-      A002_Verify      : nat -> nat -> nat
-      A002_Certb       : nat -> nat -> nat -> bool
+      NormalizedFormula : Type
+      NFVar             : nat -> NormalizedFormula
+      NFImp             : NormalizedFormula -> NormalizedFormula ->
+                          NormalizedFormula
+
+      NormalizedRule    : Type
+      NRAxK             : NormalizedRule
+      NRAxS             : NormalizedRule
+      NRMP              : nat -> nat -> NormalizedRule
+
+      NormalizedLine       : Type
+      NormalizedDerivation : Type
+
+    Normalized executable checking:
+
+      normalized_formula_eqb :
+        NormalizedFormula -> NormalizedFormula -> bool
+
+      normalized_stepb :
+        list NormalizedFormula ->
+        NormalizedRule -> NormalizedFormula -> bool
+
+      normalized_linesb :
+        list NormalizedFormula -> NormalizedDerivation -> bool
+
+    Normalized validity:
+
+      NormalizedStep :
+        list NormalizedFormula ->
+        NormalizedRule -> NormalizedFormula -> Prop
+
+      NormalizedLines :
+        list NormalizedFormula -> NormalizedDerivation -> Prop
+
+    Principal reflection theorems:
+
+      normalized_formula_eqb_eq : forall A B,
+        normalized_formula_eqb A B = true <-> A = B
+
+      normalized_stepb_iff : forall prefix rule formula,
+        normalized_stepb prefix rule formula = true <->
+        NormalizedStep prefix rule formula
+
+      normalized_linesb_iff : forall prefix lines,
+        normalized_linesb prefix lines = true <->
+        NormalizedLines prefix lines
+
+    Arithmetic compatibility verifier:
+
+      A002_Verify : nat -> nat -> nat
+      A002_Certb  : nat -> nat -> nat -> bool
+
+      accept      : nat -> nat
+      reject      : nat -> nat -> nat -> nat
 
     A001 canonical destructuring:
 
-      fst001           : nat -> nat
-      snd001           : nat -> nat
-      recode001        : nat -> nat
-      canonical001b    : nat -> bool
-      is_pair001b      : nat -> nat -> nat -> bool
+      fst001        : nat -> nat
+      snd001        : nat -> nat
+      recode001     : nat -> nat
+      canonical001b : nat -> bool
+      is_pair001b   : nat -> nat -> nat -> bool
 
-    Formula constructors and parsers:
+    Arithmetic constructors and parsers:
 
-      code_var         : nat -> nat
-      code_imp         : nat -> nat -> nat
-      is_formula_fuel  : nat -> nat -> bool
-      formula_bound    : nat -> nat
-      is_formula       : nat -> bool
-      parse_imp        : nat -> nat
+      code_var          : nat -> nat
+      code_imp          : nat -> nat -> nat
+      code_nil          : nat
+      code_cons         : nat -> nat -> nat
+      code_derivation   : nat -> nat -> nat
+      code_line         : nat -> nat -> nat
 
-    List and derivation constructors:
+      tag_axk           : nat
+      tag_axs           : nat
+      tag_mp            : nat -> nat -> nat
 
-      code_nil         : nat
-      code_cons        : nat -> nat -> nat
-      code_derivation  : nat -> nat -> nat
+      parse_imp         : nat -> nat
+      parse_rule_tag    : nat -> nat
+      parse_line        : nat -> nat
+      is_formula        : nat -> bool
       list_exact_lengthb : nat -> nat -> bool
-      nth_list_fuel    : nat -> nat -> nat -> nat
 
-    Line and rule constructors:
+    Arithmetic local checkers:
 
-      code_line        : nat -> nat -> nat
-      tag_axk          : nat
-      tag_axs          : nat
-      tag_mp           : nat -> nat -> nat
-      parse_rule_tag   : nat -> nat
-      parse_line       : nat -> nat
+      check_axk : nat -> nat
+      check_axs : nat -> nat
+      check_mp  : nat -> nat -> nat -> nat -> nat -> nat
 
-    Rule checkers:
+    Arithmetic agreement facts:
 
-      check_axk        : nat -> nat
-      check_axs        : nat -> nat
-      check_mp         : nat -> nat -> nat -> nat -> nat -> nat
+      verify_accept_sound : forall d theta p,
+        A002_Verify d theta = encode 1 p ->
+        A002_Certb d theta p = true
 
-    Main theorem surface:
+      generated_cert_checks : forall d theta p,
+        A002_Verify d theta = encode 1 p ->
+        A002_Certb d theta p = true
 
-      A002_Verify_accept_sound :
-        forall d theta p,
-          A002_Verify d theta = encode 1 p ->
-          A002_Certb d theta p = true
-
-      A002_generated_cert_checks :
-        forall d theta p,
-          A002_Verify d theta = encode 1 p ->
-          A002_Certb d theta p = true
-
-      A002_Verify_deterministic_export :
-        forall d theta r1 r2,
-          A002_Verify d theta = r1 ->
-          A002_Verify d theta = r2 ->
-          r1 = r2
+      A002_Verify_deterministic_export : forall d theta r1 r2,
+        A002_Verify d theta = r1 ->
+        A002_Verify d theta = r2 ->
+        r1 = r2
 
     IO:
 
-      A002_IO          : A002_IO_Query -> A002_IO_Result
-      A002_IO_Z        : A002_IO_Query -> A002_IO_Result_Z
+      A002_IO   : A002_IO_Query -> A002_IO_Result
+      A002_IO_Z : A002_IO_Query -> A002_IO_Result_Z
+
+      Decode_Result     : nat -> nat * nat
+      Decode_Error      : nat -> nat * nat * nat
+      Verify_Diagnostic : nat -> nat -> nat * nat * nat
 
 
-7 - Notes
+7 - Reproducibility
+    ---------------
+
+    The package is registered in the root `_CoqProject` under
+
+      `-Q theories/A002 A002`.
+
+    Rocq is invoked only through
+
+      `_tools/1_compile.command`.
+
+    The bridge performs a cached isolated build under `scratch/shadow`, keeps
+    compiled `.vo`, `.glob`, and auxiliary files out of the source theory tree,
+    runs the artifact module, and writes its success certificate to
+
+      `_tools/Dump/success.txt`.
+
+    `A002_97_Artifacts.v` reports assumptions for:
+
+      verify_accept_sound
+      generated_cert_checks
+      check_axk_sound
+      check_axs_sound
+      check_mp_sound
+      normalized_stepb_iff
+      normalized_linesb_iff
+
+    The normalized checker datatypes and functions are included in extracted
+    `A002_Verifier.ml`:
+
+      NormalizedFormula
+      NormalizedRule
+      NormalizedLine
+      normalized_formula_eqb
+      normalized_stepb
+      normalized_linesb
+
+
+8 - Notes
     -----
 
-    A002 intentionally depends on A001 for all pairing and unpairing. It does
-    not redefine `encode` or `decode`. The verifier returns natural numbers
-    only. A successful result is decoded as
+    The normalized layer is the internal effectivity and logical-reflection
+    surface. It avoids the rapid numeric growth caused by repeatedly applying
+    the Fibonacci pairing function to syntax-tree and list containers.
 
-      encode 1 p
-
-    and a failed result is decoded as
+    The arithmetic verifier remains useful for external numerical protocols.
+    It checks a canonical derivation header, an exact tagged-list length, every
+    line, and the final target. Rejections use
 
       encode 0 (encode stage (encode index detail)).
 
-    The current `A002_Certb` is an executable generated-certificate checker:
-    it reruns `A002_Verify d theta` and compares the result with `accept p`.
-    This is arithmetic and deterministic, but it is not yet a standalone
-    decompositional certificate replay checker.
+    Accepted arithmetic results use
 
-    The local checker soundness facts in `A002_08__Soundness` presently certify
-    accepted-result shape. The stronger schema-inversion statements for K, S,
-    and MP remain planned proof work.
+      encode 1 (encode n (encode theta (encode certs final_formula))).
 
-    The total formula wrapper uses
+    `A002_Certb` is intentionally conservative but not independent: it reruns
+    `A002_Verify d theta` and checks equality with `accept p`.
+
+    The arithmetic formula recognizer uses
 
       formula_bound c = S c.
 
-    This is executable and bounded. Proving the full constructor theorem
-    `is_formula_imp` for that wrapper requires either an A001 code-growth lemma
-    or a revised formula-bound design with a locally provable fuel monotonicity
-    argument.
+    This is total and structurally accepted by Rocq, but it is not the preferred
+    closed-computation surface. Normalized formulas carry their structure
+    directly and require no arithmetic fuel bound.
 
-    Compact IO views such as `A002_IO_Z` and `Verify_Diagnostic_Z` are provided
-    so `vm_compute` examples can print binary integers rather than large Peano
-    numerals.
+    A future arithmetic-normalization theorem may connect successful decoding
+    of canonical arithmetic derivations to `NormalizedDerivation` and prove
+    agreement between `A002_Verify` and `normalized_linesb`. That bridge is not
+    claimed by the present package.

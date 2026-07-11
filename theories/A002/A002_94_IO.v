@@ -23,9 +23,22 @@
   executable Boolean. Compact `*_Z` views mirror the same commands with
   binary-integer numeric payloads for readable computation.
 
+  This module is a transport boundary, not the internal effectivity proof.
+  The normalized checker and its reflection theorems are re-exported from the
+  preceding layer; IO commands retain the legacy arithmetic protocol for
+  serialized clients and extracted compatibility.
+
 *)
 
-From A002 Require Export A002_08__Soundness.
+From A002 Require Export A002_02__Normalization.
+
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                          ARITHMETIC COMMAND SURFACE                          │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
 
 (*
 │
@@ -59,6 +72,8 @@ Inductive A002_IO_Result : Type :=
 │
 *)
 
+(*                   A002_Verified(d,θ) ≔ A002_Verify(d,θ).                   *)
+
 Definition A002_Verified : nat -> nat -> nat :=
   A002_Verify.
 
@@ -68,6 +83,8 @@ Definition A002_Verified : nat -> nat -> nat :=
 │          checker for the IO surface.
 │
 *)
+
+(*             A002_Certificate_Check(d,θ,p) ≔ A002_Certb(d,θ,p).             *)
 
 Definition A002_Certificate_Check : nat -> nat -> nat -> bool :=
   A002_Certb.
@@ -79,6 +96,8 @@ Definition A002_Certificate_Check : nat -> nat -> nat -> bool :=
 │
 *)
 
+(*            A002_Parse_Formula(φ) ≔ parse_formula_diagnostic(φ).            *)
+
 Definition A002_Parse_Formula : nat -> nat :=
   parse_formula_diagnostic.
 
@@ -87,6 +106,8 @@ Definition A002_Parse_Formula : nat -> nat :=
 │          `A002_Parse_Line` names the line parser for the IO surface.
 │
 *)
+
+(*                    A002_Parse_Line(ℓ) ≔ parse_line(ℓ).                     *)
 
 Definition A002_Parse_Line : nat -> nat :=
   parse_line.
@@ -97,6 +118,10 @@ Definition A002_Parse_Line : nat -> nat :=
 │          through the certified arithmetic surface.
 │
 *)
+
+(*        A002_IO(Verify_Query(d,θ))=Verify_Result(A002_Verify(d,θ)).         *)
+(*   A002_IO(Cert_Check_Query(d,θ,p))=Cert_Check_Result(A002_Certb(d,θ,p)).   *)
+
 
 Definition A002_IO (q : A002_IO_Query) : A002_IO_Result :=
   match q with
@@ -111,11 +136,21 @@ Definition A002_IO (q : A002_IO_Query) : A002_IO_Result :=
   end.
 
 (*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                            ARITHMETIC DIAGNOSTICS                            │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
+
+(*
 │
 │          `Decode_Result` exposes the status and payload of an
 │          arithmetic result code through A001 decoding.
 │
 *)
+
+(*          Decode_Result(encode(status,payload))=(status,payload).           *)
 
 Definition Decode_Result (r : nat) : nat * nat :=
   (result_status r, result_payload r).
@@ -127,6 +162,8 @@ Definition Decode_Result (r : nat) : nat * nat :=
 │          is rejection.
 │
 *)
+
+(*     Decode_Error(code_error(stage,index,detail))=(stage,index,detail).     *)
 
 Definition Decode_Error (payload : nat) : nat * nat * nat :=
   let stage := fst001 payload in
@@ -140,6 +177,9 @@ Definition Decode_Error (payload : nat) : nat * nat * nat :=
 │
 *)
 
+(*       Verify_Diagnostic(d,θ)=(r,result_status(r),result_payload(r))        *)
+(*                         where r=A002_Verify(d,θ).                          *)
+
 Definition Verify_Diagnostic (d theta : nat) : nat * nat * nat :=
   let r := A002_Verified d theta in
   (r, result_status r, result_payload r).
@@ -151,6 +191,11 @@ Definition Verify_Diagnostic (d theta : nat) : nat * nat * nat :=
 │                                                                              │
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
+
+  The compact view changes presentation only: natural-number payloads are
+  converted to binary integers after the underlying arithmetic command has
+  run. It does not alter validation, normalization, status conventions, or
+  error selection.
 
 (*
 │
@@ -224,6 +269,8 @@ Inductive A002_IO_Result_Z : Type :=
 │          executable interface.
 │
 *)
+
+(*                      A002_IO_Z(q)=Z-view(A002_IO(q)).                      *)
 
 Definition A002_IO_Z (q : A002_IO_Query) : A002_IO_Result_Z :=
   match q with

@@ -14,9 +14,16 @@
 
   OVERVIEW
 
-  Public API surface for A002. We expose the arithmetic verifier, certificate
-  checker, constructors, parsers, Hilbert-rule checkers, theorem surface, and
-  extraction-facing IO layer through a single stable package interface.
+  Public API surface for A002. A single import exposes the normalized
+  formula/rule/line types, structural checker and reflection theorems,
+  together with the arithmetic compatibility verifier, constructors, parsers,
+  Hilbert-rule checkers, certificate agreement surface, and IO dispatcher.
+
+  Downstream logical developments should prefer `NormalizedFormula`,
+  `NormalizedStep`, `NormalizedLines`, `normalized_stepb_iff`, and
+  `normalized_linesb_iff`. The arithmetic functions remain public for
+  serialization and extracted compatibility; artifact generation and sanity
+  probes are intentionally excluded from this stable dependency boundary.
 
 *)
 

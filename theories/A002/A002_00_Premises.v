@@ -14,15 +14,23 @@
 
   OVERVIEW
 
-  Premise layer for A002/EFFECTIVE ARITHMETIC CERTIFICATE VERIFIER. We fix
-  the shared standard-library and A001 pairing environment, then name the
-  status conventions, result constructors, error stages, and error details
-  used by the executable verifier layers.
+  Arithmetic substrate for A002/EFFECTIVE ARITHMETIC CERTIFICATE VERIFIER. We
+  fix the shared standard-library and A001 pairing environment, then define
+  result conventions, canonical A001 destructuring, tagged lists, and formula
+  syntax used by the executable verifier layers.
 
-  The verifier surface of A002 is deliberately arithmetic: every exported
-  checking result is a natural number, read through the certified A001
-  pairing function as a status/payload pair. This file contains only neutral
-  vocabulary and no proof-search or semantic-verification machinery.
+  The verifier surface of A002 is deliberately arithmetic: every structured
+  value and checking result is a natural number interpreted through the
+  certified A001 pairing function. This consolidated base contains the
+  effective data representation and its elementary constructor facts, but no
+  proof search or semantic verification.
+
+  A001 decoding is total, so decoding alone is never treated as evidence that
+  a number is structured. Every destructor below is paired with a canonicity
+  test requiring the input to be a fixed point of decode followed by encode.
+  The later normalization layer replaces these rapidly growing arithmetic
+  containers with inductive data after this representation boundary has been
+  made explicit.
 
 *)
 
@@ -46,6 +54,8 @@ Global Open Scope list_scope.
 │
 *)
 
+(*              result = encode(status,payload), status ∈ {0,1}.              *)
+
 Definition STATUS_REJECT : nat := 0.
 Definition STATUS_ACCEPT : nat := 1.
 
@@ -56,6 +66,8 @@ Definition STATUS_ACCEPT : nat := 1.
 │          certificate or local certificate component.
 │
 *)
+
+(*                          accept(p) ≔ encode(1,p).                          *)
 
 Definition accept (payload : nat) : nat :=
   encode STATUS_ACCEPT payload.
@@ -70,6 +82,8 @@ Definition accept (payload : nat) : nat :=
 │
 *)
 
+(*                 code_error(s,i,d) ≔ encode(s,encode(i,d)).                 *)
+
 Definition code_error (stage index detail : nat) : nat :=
   encode stage (encode index detail).
 
@@ -79,6 +93,8 @@ Definition code_error (stage index detail : nat) : nat :=
 │          rejection branch returns an uncoded diagnostic.
 │
 *)
+
+(*                reject(s,i,d) ≔ encode(0,code_error(s,i,d)).                *)
 
 Definition reject (stage index detail : nat) : nat :=
   encode STATUS_REJECT (code_error stage index detail).
@@ -230,3 +246,741 @@ Definition verifier_t : Type := nat -> nat -> nat.
 *)
 
 Definition cert_checker_t : Type := nat -> nat -> nat -> bool.
+
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                         A001 CANONICAL DESTRUCTURING                         │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
+
+(*
+│
+│          `fst001` is the left projection exposed by the certified
+│          A001 decoder. It is a total arithmetic observation, not by
+│          itself a proof that `c` is a genuine pair code.
+│
+*)
+
+Definition fst001 (c : nat) : nat :=
+  fst (decode c).
+
+(*
+│
+│          `snd001` is the corresponding right projection. Structured
+│          consumers must establish `canonical001b c = true` before
+│          interpreting either projection.
+│
+*)
+
+Definition snd001 (c : nat) : nat :=
+  snd (decode c).
+
+(*
+│
+│          `recode001` sends an arbitrary number to the canonical A001
+│          code of the pair visible through total decoding. It is the
+│          normalization map whose fixed points constitute the
+│          accepted arithmetic representation.
+│
+*)
+
+(*            recode001(c) ≔ encode(π₁(decode(c)), π₂(decode(c))).            *)
+
+Definition recode001 (c : nat) : nat :=
+  encode (fst001 c) (snd001 c).
+
+(*
+│
+│          `canonical001b` is the Boolean representation guard. It
+│          distinguishes actual A001 image points from arbitrary
+│          naturals that the total decoder would otherwise silently
+│          normalize.
+│
+*)
+
+(*                canonical001b(c) = true ⇔ recode001(c) = c.                 *)
+
+Definition canonical001b (c : nat) : bool :=
+  Nat.eqb (recode001 c) c.
+
+(*
+│
+│          `is_pair001b c a b` combines the fixed-point guard with
+│          exact equality of both decoded coordinates. It is the
+│          strongest local test used for constructor-specific nodes
+│          such as the unique nil node.
+│
+*)
+
+(* is_pair001b(c,a,b) = canonical001b(c) ∧? (fst001(c)=?a) ∧? (snd001(c)=?b). *)
+
+Definition is_pair001b (c a b : nat) : bool :=
+  canonical001b c
+  && Nat.eqb (fst001 c) a
+  && Nat.eqb (snd001 c) b.
+
+(*
+│
+│          The left projection law transports A001's certified
+│          roundtrip theorem to the local wrapper vocabulary.
+│
+*)
+
+Lemma fst001_encode :
+  forall a b, fst001 (encode a b) = a.
+Proof.
+  intros a b.
+  unfold fst001.
+  rewrite decode_encode.
+  reflexivity.
+Qed.
+
+(*
+│
+│          The right projection law is the second coordinate of the
+│          same certified A001 roundtrip.
+│
+*)
+
+Lemma snd001_encode :
+  forall a b, snd001 (encode a b) = b.
+Proof.
+  intros a b.
+  unfold snd001.
+  rewrite decode_encode.
+  reflexivity.
+Qed.
+
+(*
+│
+│          Every value constructed with `encode` is a fixed point of
+│          `recode001`, hence passes the canonical representation
+│          guard.
+│
+*)
+
+Lemma canonical001b_encode :
+  forall a b, canonical001b (encode a b) = true.
+Proof.
+  intros a b.
+  unfold canonical001b, recode001.
+  rewrite fst001_encode.
+  rewrite snd001_encode.
+  apply Nat.eqb_refl.
+Qed.
+
+(*
+│
+│          Freshly encoded coordinates pass the combined
+│          canonical-and-projection test exactly.
+│
+*)
+
+Lemma is_pair001b_encode :
+  forall a b, is_pair001b (encode a b) a b = true.
+Proof.
+  intros a b.
+  unfold is_pair001b.
+  rewrite canonical001b_encode.
+  rewrite fst001_encode.
+  rewrite snd001_encode.
+  repeat rewrite Nat.eqb_refl.
+  reflexivity.
+Qed.
+
+(*
+│
+│          A successful Boolean canonicity check reflects to the
+│          propositional fixed-point equation required by later
+│          representation proofs.
+│
+*)
+
+Lemma canonical001b_eq :
+  forall c,
+    canonical001b c = true ->
+    recode001 c = c.
+Proof.
+  intros c Hc.
+  unfold canonical001b in Hc.
+  apply Nat.eqb_eq.
+  exact Hc.
+Qed.
+
+(*
+│
+│          Successful exact pair recognition reflects all three
+│          obligations: outer canonicity and equality of both exposed
+│          coordinates.
+│
+*)
+
+Lemma is_pair001b_sound :
+  forall c a b,
+    is_pair001b c a b = true ->
+    canonical001b c = true /\
+    fst001 c = a /\
+    snd001 c = b.
+Proof.
+  intros c a b Hpair.
+  unfold is_pair001b in Hpair.
+  repeat rewrite Bool.andb_true_iff in Hpair.
+  destruct Hpair as [[Hcanon Hfst] Hsnd].
+  repeat split.
+  - exact Hcanon.
+  - apply Nat.eqb_eq. exact Hfst.
+  - apply Nat.eqb_eq. exact Hsnd.
+Qed.
+
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                                 TAGGED LISTS                                 │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
+
+(*
+│
+│          Arithmetic lists use disjoint outer tags: `0` for nil and
+│          `1` for cons. The cons payload is itself a canonical A001
+│          pair containing head and tail codes.
+│
+*)
+
+Definition TAG_NIL : nat := 0.
+Definition TAG_CONS : nat := 1.
+
+(*
+│
+│          `code_nil` is the unique canonical empty-list node; fixing
+│          its payload to zero rules out alternate encodings of nil.
+│
+*)
+
+(*                          code_nil ≔ encode(0,0).                           *)
+
+Definition code_nil : nat :=
+  encode TAG_NIL 0.
+
+(*
+│
+│          `code_cons h t` nests the head/tail pair beneath the cons
+│          tag. At this raw constructor boundary `t` is merely a
+│          number; bounded list recognition validates the chain
+│          separately.
+│
+*)
+
+(*                  code_cons(h,t) ≔ encode(1, encode(h,t)).                  *)
+
+Definition code_cons (h t : nat) : nat :=
+  encode TAG_CONS (encode h t).
+
+(*
+│
+│          A derivation header records a claimed list length and the
+│          arithmetic code of its line body. Exact agreement between
+│          the claim and body is checked before verification begins.
+│
+*)
+
+(*                 code_derivation(n,body) ≔ encode(n,body).                  *)
+
+Definition code_derivation (n body : nat) : nat :=
+  encode n body.
+
+(*
+│
+│          `list_tag` reads the outer constructor tag. Its value is
+│          interpreted only on branches where the enclosing node has
+│          passed `canonical001b`.
+│
+*)
+
+Definition list_tag (body : nat) : nat :=
+  fst001 body.
+
+(*
+│
+│          `list_payload` reads the outer constructor payload under
+│          the same guarded-destructuring discipline.
+│
+*)
+
+Definition list_payload (body : nat) : nat :=
+  snd001 body.
+
+(*
+│
+│          Nil recognition requires the complete canonical pair
+│          `(TAG_NIL,0)`, not merely a decoded zero tag.
+│
+*)
+
+Definition is_nil_nodeb (body : nat) : bool :=
+  is_pair001b body TAG_NIL 0.
+
+(*
+│
+│          Cons recognition checks only the canonical outer node and
+│          its tag. The nested head/tail payload is checked
+│          independently by `cons_payloadb`.
+│
+*)
+
+Definition is_cons_nodeb (body : nat) : bool :=
+  canonical001b body && Nat.eqb (list_tag body) TAG_CONS.
+
+(*
+│
+│          A cons payload is admissible exactly when it is itself a
+│          canonical A001 pair, ensuring that head and tail
+│          projections are not taken from a non-image code.
+│
+*)
+
+Definition cons_payloadb (payload : nat) : bool :=
+  canonical001b payload.
+
+(*
+│
+│          `list_exact_lengthb n body` consumes exactly `n` canonical
+│          cons nodes and then requires the unique nil node. The
+│          claimed derivation length therefore supplies both the
+│          traversal bound and the exact-shape specification.
+│
+*)
+
+(*               list_exact_lengthb(0,body)=is_nil_nodeb(body).               *)
+(*         list_exact_lengthb(n+1,cons(h,t))=list_exact_lengthb(n,t).         *)
+
+Fixpoint list_exact_lengthb (n body : nat) : bool :=
+  match n with
+  | 0 => is_nil_nodeb body
+  | S n' =>
+      if canonical001b body then
+        if Nat.eqb (list_tag body) TAG_CONS then
+          let payload := list_payload body in
+          if cons_payloadb payload then
+            list_exact_lengthb n' (snd001 payload)
+          else false
+        else false
+      else false
+  end.
+
+(*
+│
+│          `nth_list_fuel fuel body i` performs guarded zero-based
+│          indexing. Every recursive step consumes one unit of fuel
+│          and one cons cell; all structural failures are returned
+│          through the uniform arithmetic rejection channel.
+│
+*)
+
+Fixpoint nth_list_fuel (fuel body i : nat) : nat :=
+  match fuel with
+  | 0 => reject STAGE_LIST_STRUCTURE i ERR_FUEL_EXHAUSTED
+  | S fuel' =>
+      if canonical001b body then
+        let tag := list_tag body in
+        let payload := list_payload body in
+        if Nat.eqb tag TAG_CONS then
+          if cons_payloadb payload then
+            let h := fst001 payload in
+            let t := snd001 payload in
+            if Nat.eqb i 0 then
+              accept h
+            else
+              nth_list_fuel fuel' t (Nat.pred i)
+          else
+            reject STAGE_LIST_STRUCTURE i ERR_NONCANONICAL_NODE
+        else if Nat.eqb tag TAG_NIL then
+          reject STAGE_LIST_STRUCTURE i ERR_INDEX_OUT_OF_RANGE
+        else
+          reject STAGE_LIST_STRUCTURE i ERR_BAD_LIST_TAG
+      else
+        reject STAGE_LIST_STRUCTURE i ERR_NONCANONICAL_NODE
+  end.
+
+(*
+│
+│          `nth_list` supplies the tight structural budget `S i`:
+│          locating index `i` requires inspection of at most `i+1`
+│          cons nodes.
+│
+*)
+
+Definition nth_list (body i : nat) : nat :=
+  nth_list_fuel (S i) body i.
+
+(*
+│
+│          The canonical empty-list constructor satisfies the nil
+│          recognizer.
+│
+*)
+
+Lemma is_nil_nodeb_code_nil :
+  is_nil_nodeb code_nil = true.
+Proof.
+  unfold is_nil_nodeb, code_nil.
+  apply is_pair001b_encode.
+Qed.
+
+(*
+│
+│          Every constructed cons cell satisfies the canonical
+│          outer-node and tag test, independently of whether its tail
+│          later forms a complete list.
+│
+*)
+
+Lemma is_cons_nodeb_code_cons :
+  forall h t, is_cons_nodeb (code_cons h t) = true.
+Proof.
+  intros h t.
+  unfold is_cons_nodeb, code_cons, list_tag.
+  rewrite canonical001b_encode.
+  rewrite fst001_encode.
+  apply Nat.eqb_refl.
+Qed.
+
+(*
+│
+│          The unique nil constructor is recognized as a list of exact
+│          length zero.
+│
+*)
+
+Lemma list_exact_lengthb_code_nil :
+  list_exact_lengthb 0 code_nil = true.
+Proof.
+  cbn [list_exact_lengthb].
+  apply is_nil_nodeb_code_nil.
+Qed.
+
+(*
+│
+│          Prepending a constructed cons cell transports exact-length
+│          recognition from `n` to `S n`.
+│
+*)
+
+Lemma list_exact_lengthb_code_cons :
+  forall n h t,
+    list_exact_lengthb n t = true ->
+    list_exact_lengthb (S n) (code_cons h t) = true.
+Proof.
+  intros n h t Hlen.
+  cbn [list_exact_lengthb].
+  unfold code_cons, list_tag, list_payload, cons_payloadb.
+  rewrite canonical001b_encode.
+  rewrite fst001_encode.
+  rewrite snd001_encode.
+  rewrite Nat.eqb_refl.
+  rewrite canonical001b_encode.
+  rewrite snd001_encode.
+  exact Hlen.
+Qed.
+
+(*
+│
+│          Index zero of a constructed cons cell returns its head
+│          whenever at least one unit of fuel is available.
+│
+*)
+
+Lemma nth_list_fuel_code_cons_zero :
+  forall fuel h t,
+    nth_list_fuel (S fuel) (code_cons h t) 0 = accept h.
+Proof.
+  intros fuel h t.
+  cbn [nth_list_fuel].
+  unfold code_cons, list_tag, list_payload, cons_payloadb.
+  rewrite canonical001b_encode.
+  rewrite fst001_encode.
+  rewrite snd001_encode.
+  rewrite Nat.eqb_refl.
+  rewrite canonical001b_encode.
+  rewrite fst001_encode.
+  reflexivity.
+Qed.
+
+(*
+│
+│          Successor indexing through a constructed cons cell removes
+│          that cell, decrements the requested index, and continues
+│          with the remaining fuel.
+│
+*)
+
+Lemma nth_list_fuel_code_cons_succ :
+  forall fuel h t i,
+    nth_list_fuel (S fuel) (code_cons h t) (S i) =
+    nth_list_fuel fuel t i.
+Proof.
+  intros fuel h t i.
+  cbn [nth_list_fuel].
+  unfold code_cons, list_tag, list_payload, cons_payloadb.
+  rewrite canonical001b_encode.
+  rewrite fst001_encode.
+  rewrite snd001_encode.
+  rewrite canonical001b_encode.
+  rewrite Nat.eqb_refl.
+  rewrite snd001_encode.
+  reflexivity.
+Qed.
+
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                                FORMULA SYNTAX                                │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
+
+(*
+│
+│          The arithmetic object language has two disjoint outer tags:
+│          variables carry tag `0`, while implications carry tag `1`
+│          and a nested antecedent/consequent pair.
+│
+*)
+
+Definition TAG_VAR : nat := 0.
+Definition TAG_IMP : nat := 1.
+
+(*
+│
+│          `code_var i` represents the object-language variable with
+│          numerical index `i`. Every natural payload is a valid
+│          variable name.
+│
+*)
+
+(*                         code_var(i) ≔ encode(0,i).                         *)
+
+Definition code_var (i : nat) : nat :=
+  encode TAG_VAR i.
+
+(*
+│
+│          `code_imp a b` represents implication by storing the
+│          canonical pair `(a,b)` beneath the implication tag.
+│          Well-formedness of the two component codes is a separate
+│          recursive obligation.
+│
+*)
+
+(*                  code_imp(a,b) ≔ encode(1, encode(a,b)).                   *)
+
+Definition code_imp (a b : nat) : nat :=
+  encode TAG_IMP (encode a b).
+
+(*
+│
+│          `formula_tag` reads the outer formula constructor exposed
+│          by A001 decoding; callers interpret it only after checking
+│          outer canonicity.
+│
+*)
+
+Definition formula_tag (c : nat) : nat :=
+  fst001 c.
+
+(*
+│
+│          `formula_payload` reads the variable index or implication
+│          payload selected by the guarded outer tag.
+│
+*)
+
+Definition formula_payload (c : nat) : nat :=
+  snd001 c.
+
+(*
+│
+│          `is_formula_fuel fuel c` is bounded structural recognition
+│          for arithmetic formula trees. Variables terminate
+│          immediately; implications consume one unit of fuel and
+│          require a canonical component pair whose two children both
+│          normalize recursively.
+│
+*)
+
+(*                 is_formula_fuel(S f, code_var(i)) = true.                  *)
+(*       is_formula_fuel(S f, code_imp(a,b)) = is_formula_fuel(f,a) ∧?        *)
+(*                           is_formula_fuel(f,b).                            *)
+
+Fixpoint is_formula_fuel (fuel c : nat) : bool :=
+  match fuel with
+  | 0 => false
+  | S fuel' =>
+      if canonical001b c then
+        let tag := formula_tag c in
+        let payload := formula_payload c in
+        if Nat.eqb tag TAG_VAR then
+          true
+        else if Nat.eqb tag TAG_IMP then
+          if canonical001b payload then
+            is_formula_fuel fuel' (fst001 payload)
+            && is_formula_fuel fuel' (snd001 payload)
+          else false
+        else false
+      else false
+  end.
+
+(*
+│
+│          `formula_bound c = S c` supplies a total arithmetic fuel
+│          budget without requiring a separate size field in the
+│          encoded syntax. The later inductive normalization layer
+│          avoids computing with this large numerical bound.
+│
+*)
+
+Definition formula_bound (c : nat) : nat :=
+  S c.
+
+(*
+│
+│          `is_formula` is the total arithmetic recognizer obtained by
+│          instantiating the bounded descent with `formula_bound`.
+│
+*)
+
+Definition is_formula (c : nat) : bool :=
+  is_formula_fuel (formula_bound c) c.
+
+(*
+│
+│          `parse_imp phi` performs only the guarded outer-shape
+│          inversion needed by rule checkers. On success it returns
+│          the canonical antecedent/consequent payload; it does not
+│          recursively certify the two formulas.
+│
+*)
+
+(*              parse_imp(code_imp(a,b)) = accept(encode(a,b)).               *)
+
+Definition parse_imp (phi : nat) : nat :=
+  if canonical001b phi then
+    let tag := formula_tag phi in
+    let payload := formula_payload phi in
+    if Nat.eqb tag TAG_IMP then
+      if canonical001b payload then
+        accept payload
+      else
+        reject STAGE_FORMULA 0 ERR_BAD_IMP_PAYLOAD
+    else
+      reject STAGE_FORMULA 0 ERR_NOT_IMP
+  else
+    reject STAGE_FORMULA 0 ERR_NONCANONICAL_FORMULA.
+
+(*
+│
+│          `parse_formula_diagnostic` lifts total formula recognition
+│          into the uniform arithmetic result convention, returning
+│          the original code on success and a formula-stage diagnostic
+│          on failure.
+│
+*)
+
+Definition parse_formula_diagnostic (phi : nat) : nat :=
+  if is_formula phi then
+    accept phi
+  else
+    reject STAGE_FORMULA 0 ERR_BAD_FORMULA_TAG.
+
+(*
+│
+│          Every constructed variable is accepted by bounded formula
+│          recognition for any positive fuel budget.
+│
+*)
+
+Lemma is_formula_fuel_var :
+  forall fuel i,
+    0 < fuel ->
+    is_formula_fuel fuel (code_var i) = true.
+Proof.
+  intros fuel i Hfuel.
+  destruct fuel as [|fuel']; [lia|].
+  cbn [is_formula_fuel].
+  unfold code_var, formula_tag, formula_payload.
+  rewrite canonical001b_encode.
+  rewrite fst001_encode.
+  rewrite Nat.eqb_refl.
+  reflexivity.
+Qed.
+
+(*
+│
+│          The total wrapper recognizes every constructed variable by
+│          specializing the positive-fuel lemma to `formula_bound`.
+│
+*)
+
+Lemma is_formula_var :
+  forall i, is_formula (code_var i) = true.
+Proof.
+  intro i.
+  unfold is_formula, formula_bound.
+  apply is_formula_fuel_var.
+  lia.
+Qed.
+
+(*
+│
+│          If both children are recognized with fuel `f`, their
+│          implication is recognized with one additional step. This is
+│          the structural constructor rule used when relating
+│          arithmetic syntax to inductive normal forms.
+│
+*)
+
+Lemma is_formula_fuel_imp :
+  forall fuel a b,
+    is_formula_fuel fuel a = true ->
+    is_formula_fuel fuel b = true ->
+    is_formula_fuel (S fuel) (code_imp a b) = true.
+Proof.
+  intros fuel a b Ha Hb.
+  cbn [is_formula_fuel].
+  unfold code_imp, formula_tag, formula_payload.
+  rewrite canonical001b_encode.
+  rewrite fst001_encode.
+  rewrite snd001_encode.
+  cbn [TAG_VAR TAG_IMP].
+  rewrite Nat.eqb_refl.
+  rewrite canonical001b_encode.
+  apply Bool.andb_true_iff.
+  split.
+  - rewrite fst001_encode. exact Ha.
+  - rewrite snd001_encode. exact Hb.
+Qed.
+
+(*
+│
+│          Guarded implication parsing is a left inverse of the
+│          arithmetic implication constructor: the original canonical
+│          child pair is recovered exactly.
+│
+*)
+
+Lemma parse_imp_code_imp :
+  forall a b, parse_imp (code_imp a b) = accept (encode a b).
+Proof.
+  intros a b.
+  unfold parse_imp, code_imp, formula_tag, formula_payload.
+  rewrite canonical001b_encode.
+  rewrite fst001_encode.
+  rewrite snd001_encode.
+  cbn [TAG_VAR TAG_IMP].
+  rewrite Nat.eqb_refl.
+  rewrite canonical001b_encode.
+  reflexivity.
+Qed.

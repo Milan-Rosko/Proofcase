@@ -26,17 +26,12 @@
 -Q theories/A002 A002
 
 	theories/A002/A002_00_Premises.v
-	theories/A002/A002_01__A001_Wrappers.v
-	theories/A002/A002_02__Tagged_Lists.v
-	theories/A002/A002_03__Formula_Syntax.v
-	theories/A002/A002_04__Line_Syntax.v
-	theories/A002/A002_05__Rule_Checkers_Hilbert.v
-	theories/A002/A002_06__Verifier_Core.v
-	theories/A002/A002_07__Certificates.v
-	theories/A002/A002_08__Soundness.v
+	theories/A002/A002_01__Hilbert_Syntax_Checkers.v
+	theories/A002/A002_02__Normalization.v
 	theories/A002/A002_94_IO.v
 	theories/A002/A002_95_API.v
 	theories/A002/A002_97_Artifacts.v
+	theories/A002/A002_98_Sanity.v
 
 # Model Contribution: CONSTRUCTIVE REGULATOR THEORY
 
