@@ -21,7 +21,7 @@
 	theories/A001/A001_95_API.v
 	theories/A001/A001_97_Artifacts.v
 
-# Algorithmic Contribution: CONSTRUCTIVE SEQUENT FRAGMENT
+# Algorithmic Contribution: CARRYLESS SEQUENT
 
 -Q theories/A002 A002
 

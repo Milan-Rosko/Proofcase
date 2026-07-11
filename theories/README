@@ -60,7 +60,7 @@
 
     A002
 
-      CONSTRUCTIVE SEQUENT FRAGMENT
+      CARRYLESS SEQUENT
  
       Arithmetic verifier for the implicational fragment with axiom schemas S, K
       and MP.
