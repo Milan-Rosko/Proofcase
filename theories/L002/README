@@ -121,6 +121,18 @@
     Recursive mirroring records the same obstruction at each finite syntactic
     depth.
 
+    Epistemically, consider an evaluative subprocess that asks whether its own
+    operation is controlled by the enclosing regulator. It may continue under
+    internal attribution without deciding that attribution, or respond as
+    though the operation were externally controlled. Adequate certification of
+    internal control would make the subprocess complete with respect to the
+    relevant diagonal behavior of the regulator: it could reconstruct the
+    missing fixed-point direction and thereby contradict consistency in the
+    metatheory. External attribution therefore need not denote external causal
+    origin. It may instead express the unavoidable appearance of externality
+    produced by the regulator's inability to recognize its own generative
+    operation completely.
+
     Symbolic Regulation further distinguishes content from its attributed
     provenance. Caller-supplied formula codings represent the claims that a
     content is internally or externally produced. A regulator may leave one
