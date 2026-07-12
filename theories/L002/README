@@ -1,0 +1,180 @@
+(* README *)
+
+1 - Summary
+    -------
+
+    L002 formalizes the TRIVIAL FIXED-POINT LEMMA: a compact reification result
+    for positive implication. Evidence in a proof-relevant Kripke presentation
+    can be converted into a bare constructive proof. Two certified theorems
+    witness the construction:
+
+      - `semantic_erasure_preserves_validity`
+      - `semantic_renaming_is_invisible`
+
+    The public closure is `trivial_fixed_point_lemma_qed`.
+
+
+2 - State
+    -----
+
+    Constructive and kernel checked. The public assumption reports are closed
+    under the global context. Conceptually useful but deliberately modest in
+    scope. Not fully peer reviewed.
+
+
+3 - Intuition
+    ---------
+
+    Worlds are constructive formula contexts. `CtxExt Gamma Delta` means that
+    every hypothesis at `Gamma` remains available at the future world `Delta`.
+    Bare proofs are stable under this relation by `bare_weaken`.
+
+    Formulas are interpreted recursively:
+
+      Forces Gamma (Atom n)  = Bare Gamma (Atom n)
+
+      Forces Gamma (Impl A B) =
+        forall Delta,
+          CtxExt Gamma Delta ->
+          Forces Delta A ->
+          Forces Delta B
+
+    Thus semantic implication is a uniform function over all future contexts,
+    not a second copy of the bare implication constructor.
+
+    Two recursive operations connect syntax and semantics:
+
+      reflect : Bare Gamma A   -> Forces Gamma A
+      reify   : Forces Gamma A -> Bare Gamma A
+
+    At implication type, `reflect` weakens a bare function and applies it to a
+    reified semantic argument. `reify` introduces the antecedent in a future
+    context, reflects the fresh hypothesis, applies the semantic function, and
+    reifies its result.
+
+      Bare Gamma A ── reflect ──▶ Forces Gamma A
+           ▲                            │
+           └────────── reify ───────────┘
+
+    A `Semantic Gamma A` packages a description with forcing evidence. Erasure
+    discards the description and reifies the evidence:
+
+      erase_semantic_proof :
+        Semantic Gamma A -> Bare (erase_ctx Gamma) A.
+
+    Renaming descriptions or named hypotheses does not change the transported
+    erased proof. In this limited sense, constructive syntax is a fixed point
+    of the chosen presentation: it reflects into function-space evidence and
+    reifies back into syntax. The construction is close in spirit to
+    normalization by evaluation; it is not a general completeness theorem.
+
+
+4 - Tree
+    ----
+
+    Stdlib
+     ▼
+    L002_00_Premise
+     ▼
+    L002_01__Erasure
+     ▼
+    L002_96_Qed
+
+
+5 - Files
+    -----
+
+    L002_00_Premise.v
+
+      Defines formulas, named and bare contexts, constructive derivability,
+      context extension, and weakening.
+
+    L002_01__Erasure.v
+
+      Defines proof-relevant Kripke forcing, semantic presentations, mutual
+      reflection and reification, semantic erasure, monotonicity, and
+      invariance under renaming. Includes small identity and ground examples.
+
+    L002_96_Qed.v
+
+      States the semantic-elimination contract, proves the public fixed-point
+      theorem and compatibility theorem, and redirects their assumption
+      reports.
+
+    _appendix/_assumptions_constructive/
+
+      Redirected `Print Assumptions` output for the public theorem surface.
+
+
+6 - API
+    ---
+
+    The public theorem surface is exposed by
+
+      `From L002 Require Import L002_96_Qed.`
+
+    Public surface by use case:
+
+    Syntax and bare proof:
+
+      Form                    : Type                                        (00)
+      Atom                    : nat -> Form                                 (00)
+      Impl                    : Form -> Form -> Form                        (00)
+      Ctx                     : Type                                        (00)
+      NamedHyp                : Type                                        (00)
+      NCtx                    : Type                                        (00)
+      erase_ctx               : NCtx -> Ctx                                (00)
+      Has                     : Ctx -> Form -> Type                         (00)
+      Bare                    : Ctx -> Form -> Type                         (00)
+
+    Structural context theory:
+
+      CtxExt                  : Ctx -> Ctx -> Type                          (00)
+      ctx_ext_refl            : forall Gamma, CtxExt Gamma Gamma           (00)
+      ctx_ext_trans           : forall Gamma Delta Theta,
+                                CtxExt Gamma Delta -> CtxExt Delta Theta ->
+                                CtxExt Gamma Theta                          (00)
+      ctx_ext_push            : forall Gamma A, CtxExt Gamma (A :: Gamma)  (00)
+      bare_weaken             : Bare Gamma A -> forall Delta,
+                                CtxExt Gamma Delta -> Bare Delta A          (00)
+
+    Proof-relevant semantics:
+
+      Forces                  : Ctx -> Form -> Type                         (01)
+      Semantic                : NCtx -> Form -> Type                        (01)
+      reflect                 : Bare Gamma A -> Forces Gamma A             (01)
+      reify                   : Forces Gamma A -> Bare Gamma A             (01)
+      erase_semantic_proof    : Semantic Gamma A ->
+                                Bare (erase_ctx Gamma) A                    (01)
+      forces_monotone         : CtxExt Gamma Delta -> Forces Gamma A ->
+                                Forces Delta A                              (01)
+
+    Certified theorems:
+
+      semantic_erasure_preserves_validity : forall Gamma A,
+        Semantic Gamma A -> Bare (erase_ctx Gamma) A
+
+      semantic_renaming_is_invisible : forall f Gamma A
+        (p : Semantic Gamma A),
+        transport
+          (fun Delta => Bare Delta A)
+          (erase_ctx_rename f Gamma)
+          (erase_semantic_proof (rename_semantic_proof f p)) =
+        erase_semantic_proof p
+
+      trivial_fixed_point_lemma_qed :
+        TRIVIAL_FIXED_POINT_LEMMA_CONTRACT
+
+7 - Notes
+    -----
+
+    The result concerns this proof-relevant Kripke semantics of positive
+    implication. Atomic forcing is grounded in bare atomic evidence, so the
+    reification theorem is intentionally built into the interpretation. It is
+    not a completeness theorem for arbitrary external models or semantic
+    oracles, nor a claim that semantics in general can be eliminated.
+
+    Its contribution is expository: it isolates weakening, function-space
+    implication, reflection, reification, and presentation invariance in a
+    small kernel-checked development. Calling the resulting term a
+    semantics-free witness remains a metatheoretic reading of that reification.

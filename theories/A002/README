@@ -3,236 +3,69 @@
 1 - Summary
     -------
 
-    CARRYLESS SEQUENT is A002's certified checker for closed implicational
-    Hilbert sequents with axiom schemas K and S and modus ponens.
+    A002 formalizes CARRYLESS SEQUENT: a certified checker for closed
+    implicational Hilbert derivations with axiom schemas K and S and modus
+    ponens. Two theorems connect its executable checker to an inductive proof
+    judgment:
 
-    The principal verifier operates on inductive normal forms rather than on
-    nested arithmetic container codes:
-
-      normalized_stepb  : list NormalizedFormula ->
-                          NormalizedRule -> NormalizedFormula -> bool
-
-      normalized_linesb : list NormalizedFormula ->
-                          NormalizedDerivation -> bool
-
-      normalized_verifyb : NormalizedDerivation ->
-                           NormalizedFormula -> bool
-
-    Three closed reflection theorems identify executable acceptance with the
-    independent inductive validity judgments:
-
-      normalized_stepb_iff :
-        normalized_stepb prefix rule formula = true <->
-        NormalizedStep prefix rule formula
-
-      normalized_linesb_iff :
-        normalized_linesb prefix lines = true <->
-        NormalizedLines prefix lines
-
-      normalized_verifyb_iff :
-        normalized_verifyb lines target = true <->
-        NormalizedProof lines target
-
-    A002 exposes a certified A001-coded arithmetic entry point:
-
-      A002_Verify_certified : nat -> nat -> nat
-
-    It normalizes the arithmetic derivation and target, requires
-    target-sensitive normalized validity, and returns a canonical payload
-    binding the accepted derivation code to its target code.
-
-    Certified rejection diagnostics distinguish the failed boundary:
-
-      derivation normalization
-        STAGE_DERIVATION_HEADER, index 0,
-        ERR_NONCANONICAL_DERIVATION
-
-      target normalization
-        STAGE_FORMULA, index 0,
-        ERR_NONCANONICAL_FORMULA
-
-      normalized K/S/MP obligation
-        STAGE_RULE, first failing line index,
-        ERR_NORMALIZED_STEP_REJECTED
-
-      empty normalized derivation
-        STAGE_CONCLUSION, index 0,
-        ERR_EMPTY_DERIVATION
-
-      requested conclusion mismatch
-        STAGE_CONCLUSION, final line index,
-        ERR_BAD_CONCLUSION
-
-    Arithmetic inputs are guarded against non-canonical A001 pair codes before
-    their decoded components are interpreted as lists, formulas, lines, rules,
-    or certificates.
+      - `normalized_verifyb_iff`       : Boolean checking reflects validity
+      - `certified_verify_accept_sound`: arithmetic acceptance implies validity
 
 
 2 - State
     -----
 
                       ┌──────────────────────────────────┐
-                      │                  x               │
-                      │   └─┴─┴─┴─┴─┴─┴─┴─┴─┴─┘ 8 / 10   │
+                      │                x                 │
+                      │   └─┴─┴─┴─┴─┴─┴─┴─┴─┴─┘ 7 / 10   │
                       └──────────────────────────────────┘
 
-    Evaluation: 8, Decent. The normalized checker is effective, structurally
-    recursive, documented, extracted, and proved equivalent to inductive K/S/MP
-    validity. The arithmetic compatibility verifier remains executable and
-    deterministically rejects malformed inputs.
-
-    The principal reflection theorems and the published arithmetic agreement
-    facts are closed under the global context. The package is not yet fully
-    peer reviewed.
-
-    Certified payload checking is independent of the verifier. It validates
-    canonical payload structure, exact derivation/target binding, arithmetic
-    normalization, and target-sensitive inductive proof validity.
+    Evaluation: 7, Serviceable. Effective, mechanized, documented. Proof
+    tactics and prose are not optimal. Not peer reviewed.
 
 
 3 - Intuition
     ---------
 
-    A proof is checked most directly as typed finite syntax:
+    A normalized derivation is a list of formulas annotated with one of three
+    rules:
 
-      Inductive NormalizedFormula :=
-      | NFVar : nat -> NormalizedFormula
-      | NFImp : NormalizedFormula -> NormalizedFormula -> NormalizedFormula.
+      K:   A -> (B -> A)
 
-      Inductive NormalizedRule :=
-      | NRAxK
-      | NRAxS
-      | NRMP : nat -> nat -> NormalizedRule.
+      S:   (A -> (B -> C)) -> ((A -> B) -> (A -> C))
 
-      Record NormalizedLine := {
-        normalized_line_rule    : NormalizedRule;
-        normalized_line_formula : NormalizedFormula
-      }.
+      MP:  prefix[p] = A     prefix[q] = A -> B
+           -------------------------------------
+                             B
 
-    A normalized derivation is an ordinary list of normalized lines. Checking
-    proceeds from left to right while carrying the formulas displayed by the
-    accepted prefix:
+    The checker reads the list from left to right. MP citations are lookups in
+    the accepted prefix, so no line can cite itself or a future line. The final
+    formula must equal the requested target.
 
-      prefix = []
-         |
-         | check line 0
-         v
-      prefix = [formula 0]
-         |
-         | check line 1
-         v
-      prefix = [formula 0; formula 1]
-         |
-         | ...
+      lines, target
+           │
+           ▼
+      normalized_verifyb ── true ──▶ NormalizedProof lines target
 
-    The local checker recognizes exactly three rules.
-
-    K:
-
-      A -> (B -> A)
-
-    S:
-
-      (A -> (B -> C)) -> ((A -> B) -> (A -> C))
-
-    MP:
-
-      prefix[p] = A
-      prefix[q] = A -> B
-      -------------------
-             B
-
-    MP citations are prefix lookups, so a line cannot cite itself or a future
-    line. The checker does not search for premises: the two indices are part of
-    the normalized rule data.
-
-    The sanity layer uses the smallest nontrivial MP derivation. Let
-
-      K  = A -> (B -> A)
-      C  = A -> K.
-
-    Then:
-
-      line 0: K                 [K]
-      line 1: K -> (A -> K)    [K]
-      line 2: A -> K           [MP 0 1]
-
-    `normalized_verifyb` accepts this list for target `C` by direct reduction.
-    The general theorem is not the example but the target-sensitive reflection
-    result:
+    This correspondence is exact:
 
       normalized_verifyb lines target = true
         <->
       NormalizedProof lines target.
 
-    Conversely, canonical quotation is complete. Every inductively valid
-    normalized proof is encoded and accepted:
+    The public entry point accepts natural-number codes:
 
-      NormalizedProof lines target
-        ->
-      A002_Verify_certified
-        (encode_normalized_derivation lines)
-        (encode_normalized_formula target)
-      = accept
-        (certified_payload
-          (encode_normalized_derivation lines)
-          (encode_normalized_formula target)).
+      A002_Verify_certified : nat -> nat -> nat.
 
-    `NormalizedLines` is defined independently. Its cons constructor requires
-    a valid `NormalizedStep` for the head line and recursively validates the
-    tail under the prefix extended by the displayed formula. Thus the Boolean
-    checker is proved sound and complete for the inductive rule system.
-    `NormalizedProof` additionally requires a nonempty final conclusion equal
-    to the requested target.
-
-    Arithmetic normalization supplies the missing transport bridge:
-
-      normalize_derivation : nat -> option NormalizedDerivation
-      normalize_formula    : nat -> option NormalizedFormula.
-
-    The public arithmetic verifier is gated by `normalized_verifyb`. Its
-    end-to-end theorem states:
-
-      A002_Verify_certified d theta = accept payload
-        ->
-      exists lines target,
-        normalize_derivation d = Some lines /\
-        normalize_formula theta = Some target /\
-        NormalizedProof lines target.
-
-    `A002_Verify_certified` does not invoke the legacy `A002_Verify`. It makes
-    one pass to decode the arithmetic representation into inductive syntax and
-    then checks that syntax with `normalized_verifyb`; it does not traverse the
-    large arithmetic representation a second time. Clients already holding
-    inductive syntax call `normalized_verifyb` directly and incur no A001
-    pairing or large-number execution cost.
-
-    The older arithmetic surface represents the same kinds of data with A001
-    pairing. A line is
-
-      code_line tag formula = encode tag formula,
-
-    while a tagged cons cell is
-
-      code_cons head tail = encode 1 (encode head tail).
-
-    Repeated pairing makes closed container values grow rapidly. For that
-    reason arithmetic codes are retained at transport boundaries, while
-    internal effectivity and logical reflection are established on inductive
-    normal forms.
-
-    A001 decoding is total on all naturals. A002 therefore never trusts a
-    decoded pair merely because decoding produced two projections. A number is
-    treated as structured only when
-
-      canonical001b c = true,
-
-    where
+    It first converts the coded formula and derivation into inductive normal
+    forms, then runs the proved checker. A001 decoding is total, so a decoded
+    pair is used structurally only when re-encoding returns the original code:
 
       canonical001b c = Nat.eqb (encode (fst001 c) (snd001 c)) c.
 
-    This fixed-point guard prevents malformed arithmetic inputs from being
-    silently normalized into valid nodes.
+    This guard prevents malformed arithmetic inputs from being mistaken for
+    syntax. Conversely, every `NormalizedProof` has a canonical arithmetic
+    quotation accepted by `A002_Verify_certified`.
 
 
 4 - Tree
@@ -262,156 +95,111 @@
 
     A002_00_Premises.v
 
-      Consolidated arithmetic substrate and A001 import boundary. Defines the
-      status/error protocol, canonical A001 destructuring, tagged finite lists,
-      arithmetic formula constructors, bounded recognition, implication
-      parsing, and elementary constructor/reflection facts.
-
-      The central representation rule is that total A001 projections are never
-      interpreted structurally until the enclosing number passes
-      `canonical001b`.
+      A001 import boundary and arithmetic substrate. Defines canonical pairing
+      guards, tagged lists, formula constructors, and the result protocol.
 
     A002_01__Hilbert_Syntax_Checkers.v
 
-      Combined arithmetic syntax, parser, and local-checker layer. Defines line
-      codes, K/S/MP tags, guarded tag and line parsers, result projections,
-      derivation-line access, and the total arithmetic checkers `check_axk`,
-      `check_axs`, and `check_mp`.
-
-      K and S check complete schema shape. MP requires two strictly earlier
-      citations and checks antecedent/consequent alignment syntactically.
+      Arithmetic parsers and local K, S, and MP checkers. MP requires two
+      strictly earlier citations and checks their formulas syntactically.
 
     A002_02__Normalization.v
 
-      Consolidated verifier, certificate, theorem, and normalization layer.
-      Retains `A002_Verify`, arithmetic certificate layouts, deterministic
-      diagnostics, and compatibility facts.
-
-      Defines `NormalizedFormula`, `NormalizedRule`, `NormalizedLine`,
-      `NormalizedDerivation`, the structural equality and derivation checkers,
-      the independent judgments `NormalizedStep` and `NormalizedLines`, and the
-      soundness/completeness theorems packaged as `normalized_stepb_iff`,
-      `normalized_linesb_iff`, and `normalized_verifyb_iff`. The diagnostic
-      traversal `normalized_failure_index` agrees with whole-line acceptance by
-      `normalized_failure_index_none_iff`. Defines arithmetic normalization and
-      the certified arithmetic entry point with its end-to-end soundness
-      theorem and stage-specific rejection classifications.
+      Defines normalized formulas, rules, lines, derivations, Boolean checkers,
+      and the independent judgments `NormalizedStep`, `NormalizedLines`, and
+      `NormalizedProof`. Proves reflection, arithmetic soundness, canonical
+      quotation completeness, and independent certificate replay.
 
     A002_94_IO.v
 
-      Arithmetic transport and extraction-facing dispatcher. Defines commands
-      for certified verification, independent certificate replay, formula diagnostics,
-      and line parsing. Provides result/error decoding and compact `BinNums.Z`
-      presentation views.
-
-      This is not the normalization proof boundary; it preserves the serialized
-      arithmetic protocol for clients that require it.
+      Extraction-facing dispatcher for verification, certificate replay,
+      parsing, and diagnostics. Provides compact `BinNums.Z` result views.
 
     A002_95_API.v
 
-      Stable public import surface. Re-exports the normalized types, checkers,
-      reflection theorems, arithmetic compatibility surface, and IO dispatcher
-      through one package dependency.
+      Stable package API. Re-exports the certified theorem and executable
+      surfaces.
 
     A002_97_Artifacts.v
 
-      Reproducibility boundary. Redirects `Print Assumptions` for the published
-      arithmetic and normalized theorems, then extracts the arithmetic and
-      normalized verifier surfaces plus the IO dispatcher to OCaml.
+      Redirects `Print Assumptions` for the published theorems and extracts the
+      arithmetic verifier, normalized checker, and IO dispatcher to OCaml.
 
     A002_98_Sanity.v
 
-      Two deliberately small closed computations over normalized syntax: one K
-      line and one K/K/MP derivation. Both close by reflexivity and construct no
-      nested A001 arithmetic container.
+      Closed computations for a K instance and a three-line K/K/MP derivation.
 
     _appendix/_artifacts/
 
-      Source-side artifact locations for `A002_Verifier.{ml,mli}` and
-      `A002_IO.{ml,mli}`. The approved compile bridge generates current outputs
-      in its isolated shadow output tree.
+      Extracted OCaml: `A002_Verifier.{ml,mli}` and `A002_IO.{ml,mli}`.
 
     _appendix/_assumptions/
 
-      Source-side report locations for the public theorem surface. The bridge
-      emits current redirected reports in the isolated output tree; the
-      normalized reflection reports state `Closed under the global context`.
-
-    _appendix/examples/
-
-      Reserved arithmetic example locations. Current effectivity probes live in
-      `A002_98_Sanity.v` and operate on normalized inductive syntax.
+      Redirected `Print Assumptions` output for the public theorem surface.
 
 
 6 - API
     ---
 
-    The public theorem and executable surface is exposed by
+    The public theorem surface is exposed by
 
       `From A002 Require Import A002_95_API.`
 
-    Normalized syntax:
+    Public surface by use case:
 
-      NormalizedFormula : Type
-      NFVar             : nat -> NormalizedFormula
-      NFImp             : NormalizedFormula -> NormalizedFormula ->
-                          NormalizedFormula
+    Normalized syntax and validity:
 
-      NormalizedRule    : Type
-      NRAxK             : NormalizedRule
-      NRAxS             : NormalizedRule
-      NRMP              : nat -> nat -> NormalizedRule
+      NormalizedFormula       : Type                                        (02)
+      NFVar                   : nat -> NormalizedFormula                    (02)
+      NFImp                   : NormalizedFormula -> NormalizedFormula ->
+                                NormalizedFormula                           (02)
+      NormalizedRule          : Type                                        (02)
+      NRAxK, NRAxS            : NormalizedRule                              (02)
+      NRMP                    : nat -> nat -> NormalizedRule                (02)
+      NormalizedLine          : Type                                        (02)
+      NormalizedDerivation    : Type                                        (02)
+      NormalizedStep          : list NormalizedFormula -> NormalizedRule ->
+                                NormalizedFormula -> Prop                   (02)
+      NormalizedLines         : list NormalizedFormula ->
+                                NormalizedDerivation -> Prop                (02)
+      NormalizedProof         : NormalizedDerivation ->
+                                NormalizedFormula -> Prop                   (02)
 
-      NormalizedLine       : Type
-      NormalizedDerivation : Type
+    Executable checking:
 
-    Normalized executable checking:
+      normalized_formula_eqb  : NormalizedFormula ->
+                                NormalizedFormula -> bool                   (02)
+      normalized_stepb        : list NormalizedFormula -> NormalizedRule ->
+                                NormalizedFormula -> bool                   (02)
+      normalized_linesb       : list NormalizedFormula ->
+                                NormalizedDerivation -> bool                (02)
+      normalized_verifyb      : NormalizedDerivation ->
+                                NormalizedFormula -> bool                   (02)
+      normalized_failure_index : list NormalizedFormula ->
+                                 NormalizedDerivation -> nat -> option nat  (02)
 
-      normalized_formula_eqb :
-        NormalizedFormula -> NormalizedFormula -> bool
+    Arithmetic boundary:
 
-      normalized_stepb :
-        list NormalizedFormula ->
-        NormalizedRule -> NormalizedFormula -> bool
+      A002_Verify_certified   : nat -> nat -> nat                           (02)
+      A002_Certified_Certb    : nat -> nat -> nat -> bool                   (02)
+      normalize_formula      : nat -> option NormalizedFormula             (02)
+      normalize_derivation   : nat -> option NormalizedDerivation          (02)
+      encode_normalized_formula : NormalizedFormula -> nat                 (02)
+      encode_normalized_derivation : NormalizedDerivation -> nat           (02)
+      certified_payload      : nat -> nat -> nat                           (02)
+      canonical001b          : nat -> bool                                 (00)
 
-      normalized_linesb :
-        list NormalizedFormula -> NormalizedDerivation -> bool
+    Dispatcher and inspection:
 
-      normalized_verifyb :
-        NormalizedDerivation -> NormalizedFormula -> bool
+      A002_IO_Query, A002_IO_Result                                        (94)
+      A002_IO          : A002_IO_Query -> A002_IO_Result                   (94)
+      A002_IO_Z        : A002_IO_Query -> A002_IO_Result_Z                 (94)
 
-    Normalized validity:
-
-      NormalizedStep :
-        list NormalizedFormula ->
-        NormalizedRule -> NormalizedFormula -> Prop
-
-      NormalizedLines :
-        list NormalizedFormula -> NormalizedDerivation -> Prop
-
-      NormalizedProof :
-        NormalizedDerivation -> NormalizedFormula -> Prop
-
-    Principal reflection theorems:
-
-      normalized_formula_eqb_eq : forall A B,
-        normalized_formula_eqb A B = true <-> A = B
-
-      normalized_stepb_iff : forall prefix rule formula,
-        normalized_stepb prefix rule formula = true <->
-        NormalizedStep prefix rule formula
-
-      normalized_linesb_iff : forall prefix lines,
-        normalized_linesb prefix lines = true <->
-        NormalizedLines prefix lines
+    Certified theorems:
 
       normalized_verifyb_iff : forall lines target,
         normalized_verifyb lines target = true <->
         NormalizedProof lines target
-
-      normalized_failure_index_none_iff : forall prefix lines index,
-        normalized_failure_index prefix lines index = None <->
-        normalized_linesb prefix lines = true
 
       certified_verify_accept_sound : forall d theta payload,
         A002_Verify_certified d theta = accept payload ->
@@ -430,216 +218,14 @@
             (encode_normalized_derivation lines)
             (encode_normalized_formula target))
 
-      certified_certb_iff : forall d theta payload,
-        A002_Certified_Certb d theta payload = true <->
-        payload = certified_payload d theta /\
-        exists lines target,
-          normalize_derivation d = Some lines /\
-          normalize_formula theta = Some target /\
-          NormalizedProof lines target
-
-    Arithmetic compatibility verifier:
-
-      A002_Verify : nat -> nat -> nat
-      A002_Certb  : nat -> nat -> nat -> bool
-
-      A002_Verify_certified : nat -> nat -> nat
-      A002_Certified_Certb  : nat -> nat -> nat -> bool
-
-      normalize_formula    : nat -> option NormalizedFormula
-      normalize_rule       : nat -> option NormalizedRule
-      normalize_line       : nat -> option NormalizedLine
-      normalize_lines      : nat -> nat -> option NormalizedDerivation
-      normalize_derivation : nat -> option NormalizedDerivation
-
-      normalized_failure_index :
-        list NormalizedFormula -> NormalizedDerivation -> nat -> option nat
-      normalized_rejection :
-        NormalizedDerivation -> nat
-
-      encode_normalized_formula    : NormalizedFormula -> nat
-      encode_normalized_rule       : NormalizedRule -> nat
-      encode_normalized_line       : NormalizedLine -> nat
-      encode_normalized_lines      : NormalizedDerivation -> nat
-      encode_normalized_derivation : NormalizedDerivation -> nat
-      certified_payload            : nat -> nat -> nat
-
-      accept      : nat -> nat
-      reject      : nat -> nat -> nat -> nat
-
-    A001 canonical destructuring:
-
-      fst001        : nat -> nat
-      snd001        : nat -> nat
-      recode001     : nat -> nat
-      canonical001b : nat -> bool
-      is_pair001b   : nat -> nat -> nat -> bool
-
-    Arithmetic constructors and parsers:
-
-      code_var          : nat -> nat
-      code_imp          : nat -> nat -> nat
-      code_nil          : nat
-      code_cons         : nat -> nat -> nat
-      code_derivation   : nat -> nat -> nat
-      code_line         : nat -> nat -> nat
-
-      tag_axk           : nat
-      tag_axs           : nat
-      tag_mp            : nat -> nat -> nat
-
-      parse_imp         : nat -> nat
-      parse_rule_tag    : nat -> nat
-      parse_line        : nat -> nat
-      is_formula        : nat -> bool
-      list_exact_lengthb : nat -> nat -> bool
-
-    Arithmetic local checkers:
-
-      check_axk : nat -> nat
-      check_axs : nat -> nat
-      check_mp  : nat -> nat -> nat -> nat -> nat -> nat
-
-    Arithmetic agreement facts:
-
-      verify_accept_sound : forall d theta p,
-        A002_Verify d theta = encode 1 p ->
-        A002_Certb d theta p = true
-
-      generated_cert_checks : forall d theta p,
-        A002_Verify d theta = encode 1 p ->
-        A002_Certb d theta p = true
-
-      A002_Verify_deterministic_export : forall d theta r1 r2,
-        A002_Verify d theta = r1 ->
-        A002_Verify d theta = r2 ->
-        r1 = r2
-
-    IO:
-
-      A002_IO   : A002_IO_Query -> A002_IO_Result
-      A002_IO_Z : A002_IO_Query -> A002_IO_Result_Z
-
-      Decode_Result     : nat -> nat * nat
-      Decode_Error      : nat -> nat * nat * nat
-      Verify_Diagnostic : nat -> nat -> nat * nat * nat
-
-
-7 - Reproducibility
-    ---------------
-
-    The package is registered in the root `_CoqProject` under
-
-      `-Q theories/A002 A002`.
-
-    Rocq is invoked only through
-
-      `_tools/1_compile.command`.
-
-    The bridge performs a cached isolated build under `scratch/shadow`, keeps
-    compiled `.vo`, `.glob`, and auxiliary files out of the source theory tree,
-    runs the artifact module, and writes its success certificate to
-
-      `_tools/Dump/success.txt`.
-
-    `A002_97_Artifacts.v` reports assumptions for:
-
-      verify_accept_sound
-      generated_cert_checks
-      check_axk_sound
-      check_axs_sound
-      check_mp_sound
-      normalized_stepb_iff
-      normalized_linesb_iff
-      normalized_failure_index_none_iff
-      normalized_verifyb_iff
-      certified_verify_accept_sound
-      certified_verify_complete
-      certified_verify_accept_payload
-      certified_certb_iff
-      certified_generated_cert_checks
-
-    The normalized checker datatypes and functions are included in extracted
-    `A002_Verifier.ml`:
-
-      NormalizedFormula
-      NormalizedRule
-      NormalizedLine
-      normalized_formula_eqb
-      normalized_stepb
-      normalized_linesb
-      normalized_failure_index
-      normalized_verifyb
-      normalized_rejection
-      normalize_formula
-      normalize_rule
-      normalize_line
-      normalize_lines
-      normalize_derivation
-      encode_normalized_formula
-      encode_normalized_rule
-      encode_normalized_line
-      encode_normalized_lines
-      encode_normalized_derivation
-      certified_payload
-
-
-8 - Notes
+7 - Notes
     -----
 
-    The normalized layer is the internal effectivity and logical-reflection
-    surface. It avoids the rapid numeric growth caused by repeatedly applying
-    the Fibonacci pairing function to syntax-tree and list containers.
+    The normalized layer is the preferred checking surface: formulas and lists
+    carry their structure directly and avoid the rapid growth of nested A001
+    codes. The arithmetic layer remains the serialization boundary for clients
+    that require natural-number protocols.
 
-    The arithmetic verifier remains useful for external numerical protocols.
-    It checks a canonical derivation header, an exact tagged-list length, every
-    line, and the final target. Rejections use
-
-      encode 0 (encode stage (encode index detail)).
-
-    Legacy accepted arithmetic results use
-
-      encode 1 (encode n (encode theta (encode certs final_formula))).
-
-    Certified accepted results use
-
-      accept (certified_payload derivation_code target_code),
-
-    where both codes have passed normalization and target-sensitive inductive
-    verification.
-
-    Certified rejection results retain the same A001-coded error envelope but
-    separate input normalization, first failing rule line, empty derivation,
-    and final-conclusion mismatch. `normalized_failure_index_none_iff` proves
-    that the rule-diagnostic traversal reports no line exactly when the
-    normalized whole-line checker accepts.
-
-    `A002_Certified_Certb` is an independent replay checker. It does not invoke
-    `A002_Verify` or `A002_Verify_certified`; it checks canonical payload
-    binding and reruns only normalization plus the proved structural verifier.
-
-    The arithmetic formula recognizer uses
-
-      formula_bound c = S c.
-
-    This is total and structurally accepted by Rocq, but it is not the preferred
-    closed-computation surface. Normalized formulas carry their structure
-    directly and require no arithmetic fuel bound.
-
-    `certified_verify_accept_sound` is the arithmetic-to-inductive bridge: an
-    accepted public arithmetic result necessarily normalizes to a
-    target-sensitive `NormalizedProof`. The legacy `A002_Verify` remains
-    available for compatibility, but the IO dispatcher uses
-    `A002_Verify_certified`.
-
-    The certified path does not delegate to that legacy verifier. Arithmetic
-    normalization is the serialization boundary; all proof-rule execution
-    after it is over `NormalizedFormula`, `NormalizedLine`, and ordinary lists.
-
-    `certified_verify_complete` proves the converse for the canonical quotation:
-    every `NormalizedProof` can be serialized by `encode_normalized_derivation`
-    and `encode_normalized_formula`, and that serialization is accepted.
-
-    `certified_certb_iff` characterizes replay exactly: a payload checks if and
-    only if it is the canonical `(derivation_code,target_code)` binding and
-    those codes normalize to a `NormalizedProof`.
+    Accepted certified results bind the derivation code to the target code.
+    `A002_Certified_Certb` independently checks that binding, reruns
+    normalization, and applies the proved structural verifier.

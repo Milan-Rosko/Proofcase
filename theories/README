@@ -7,7 +7,7 @@
 
     A##  Algorithmic contributions: algorithms and effective methods.
 
-    L##  Lemmatic contributions: lemmas, theorems, reductions, metatheorems, 
+    L##  Lemmatic contributions: lemmas, theorems, reductions, metatheorems,
          separations, and reusable formal gadgets.
 
     M##  Model contributions: full formal models, logics, proof theories,
@@ -61,9 +61,9 @@
     A002
 
       CARRYLESS SEQUENT
- 
-      Arithmetic verifier for the implicational fragment with axiom schemas S, K
-      and MP.
+
+      Certified verification of closed implicational Hilbert sequents, with
+      normalized proof checking and A001 carryless arithmetic serialization.
 
     M001
 
@@ -79,3 +79,10 @@
       A constructive fixed-point, collapse, and obstruction layer over the
       M001 regulator substrate.
 
+    L002
+
+      TRIVIAL FIXED-POINT LEMMA
+
+      A compact reification result for positive implication: proof-relevant
+      Kripke evidence is reflected from and reified into bare constructive
+      syntax.
