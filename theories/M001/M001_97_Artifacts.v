@@ -17,8 +17,7 @@
   Computational artifacts for M001. This file emits assumption reports for
   the main constructive theorems and extracts the executable checker,
   proof-script transformers, certificate checkers, regulator-instruction
-  checker, and symbolic-regulator acceptance functions. The artifacts are
-  operational code, not an additional API layer and not a semantic validator.
+  checker, and symbolic-regulator acceptance functions.
 
   The extraction surface is intentionally narrow: Boolean predicates,
   proof-script accessors, proof checkers, deduction and reductio transforms,

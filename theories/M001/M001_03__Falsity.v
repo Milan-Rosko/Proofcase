@@ -28,11 +28,9 @@
   conclusion through `formula_negation`; and
   `regulator_theory_reductio_minimal_checked` is the EFQ-free minimal-profile
   form. The certificate records below separate computed reductio
-  certificates, whose target proof is the output of the reductio transformer,
-  from paired certificates, whose source and target proof scripts are checked
-  independently. This file does not introduce semantic validity, external
-  model theory, modal provability, arithmetic coding, diagonal obstruction,
-  or self-recognition.
+  certificates, whose target proof is produced by the reductio transformer,
+  from paired certificates, whose source and target scripts are checked
+  independently.
 
 *)
 
@@ -367,14 +365,12 @@ Record CheckedReductioCertificate : Type := {
 
 (*
 │
-│          `RawReductioCertificate` is the finite-data certificate
-│          shape. Its axiom source is a `FiniteAxiomSet`, not an
-│          arbitrary function-valued `AxiomSet`, so the whole record
-│          can be serialised, transmitted, and re-checked by the
-│          Boolean verifier. It is paired rather than computed: the
-│          verifier checks both scripts independently and does not
-│          assert syntactic equality with
-│          `regulator_theory_reductio_transform A p`.
+│          `RawReductioCertificate` is the serialisable finite-data
+│          certificate shape, with a `FiniteAxiomSet` as its axiom
+│          source. The verifier checks its paired source and target
+│          scripts independently, without requiring the target to
+│          equal `regulator_theory_reductio_transform A p`
+│          syntactically.
 │
 *)
 
@@ -462,11 +458,9 @@ Qed.
 
 (*
 │
-│          The diagnostic helpers below report finite certificate
-│          shape only: proof lengths and the advertised reductio
-│          conclusion. They are not part of the trusted checking path
-│          and downstream proof layers should not depend on them as
-│          stable logical interfaces.
+│          The diagnostic helpers below report proof lengths and the
+│          advertised reductio conclusion. They sit outside the
+│          trusted checking path and the stable logical interface.
 │
 *)
 

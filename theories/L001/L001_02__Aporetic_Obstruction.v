@@ -457,12 +457,10 @@ Qed.
 
 (*
 │
-│          A refutation-only classifier is sound vacuously when it
-│          always returns `false`. The construction shows that pure
-│          refutation behavior does not, by itself, force the Aporetic
-│          collapse: the diagonal argument needs a positive accepted
-│          branch, while a false-on-all classifier supplies no
-│          accepted refutation.
+│          A refutation-only classifier is vacuously sound when it
+│          always returns `false`. Aporetic collapse requires a
+│          positive accepted branch, which the false-on-all classifier
+│          never supplies.
 │
 *)
 

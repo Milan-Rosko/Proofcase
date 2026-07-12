@@ -22,6 +22,12 @@ module Nat :
   val leb : Big_int_Z.big_int -> Big_int_Z.big_int -> bool
 
   val ltb : Big_int_Z.big_int -> Big_int_Z.big_int -> bool
+
+  val even : Big_int_Z.big_int -> bool
+
+  val odd : Big_int_Z.big_int -> bool
+
+  val div2 : Big_int_Z.big_int -> Big_int_Z.big_int
  end
 
 val map : ('a1 -> 'a2) -> 'a1 list -> 'a2 list
@@ -37,12 +43,6 @@ val sum_fib : Big_int_Z.big_int list -> Big_int_Z.big_int
 val two : Big_int_Z.big_int -> Big_int_Z.big_int
 
 val two_j_minus1 : Big_int_Z.big_int -> Big_int_Z.big_int
-
-val is_even : Big_int_Z.big_int -> bool
-
-val is_odd : Big_int_Z.big_int -> bool
-
-val div2 : Big_int_Z.big_int -> Big_int_Z.big_int
 
 type params =
 | Build_Params of (Big_int_Z.big_int -> Big_int_Z.big_int list)

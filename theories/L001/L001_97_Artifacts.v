@@ -237,8 +237,8 @@ Qed.
 │
 *)
 
-Redirect "theories/L001/_appendix/_assumptions_constructive/certified_aporetic_lemma_contract"
+Redirect "theories/L001/_appendix/_assumptions/certified_aporetic_lemma_contract"
   Print Assumptions certified_aporetic_lemma_contract.
 
-Redirect "theories/L001/_appendix/_assumptions_constructive/aporetic_lemma_qed"
+Redirect "theories/L001/_appendix/_assumptions/aporetic_lemma_qed"
   Print Assumptions aporetic_lemma_qed.

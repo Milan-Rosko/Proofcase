@@ -26,18 +26,14 @@
   sense; semantic interpretation, model theory, and modal provability are
   explicitly outside the package.
 
-  The trusted base of M001 is intentionally narrow. We import only
-  `Bool.Bool`, `Lists.List`, and `Arith_base` from the standard library, and
-  we open `ListNotations` so that finite proof scripts read cleanly
-  throughout. No further base is needed: the checker is a Boolean function on
-  finite lists of natural-number-indexed proof lines, the deduction
-  transformer is a structural recursion on the same data, and the certificate
-  verifiers are point-free Boolean conjunctions. We deliberately avoid
-  classical logic libraries, real numbers, set-theoretic libraries,
-  extraction or IO protocol modules, semantic truth, model theory,
-  arithmetized syntax, object-level substitution, self-tokens, and internal
-  self-interpretation principles; every one of those would either widen the
-  trust boundary or commit the package to an interpretation it does not have.
+  The trusted base of M001 is intentionally narrow. We import `Bool.Bool`,
+  `Lists.List`, and `Arith_base` from the standard library, and open
+  `ListNotations` so that finite proof scripts read cleanly throughout. The
+  checker is a Boolean function on finite lists of natural-number-indexed
+  proof lines, the deduction transformer is a structural recursion on the
+  same data, and the certificate verifiers are point-free Boolean
+  conjunctions. This constructive syntactic scope fixes the package's trust
+  boundary.
 
 *)
 
@@ -71,11 +67,10 @@ From Stdlib Require Export Arith_base.
 
 (*
 │
-│          `ListNotations` is opened as a notation scope, not
-│          re-required as a module: every later file uses `[]`, `[ x
-│          ]`, `x :: xs`, and `[x; y; z]` for finite lists, and the
-│          scope must already be active at parse time when those files
-│          import the premise.
+│          `ListNotations` is opened as a notation scope. Every later
+│          file uses `[]`, `[ x ]`, `x :: xs`, and `[x; y; z]` for
+│          finite lists, and the scope must already be active at parse
+│          time when those files import the premise.
 │
 *)
 
@@ -105,10 +100,8 @@ Inductive Formula : Type :=
 
 (*
 │
-│          A context is a finite list of formulas. We do not quotient
-│          by permutation, contraction, or extensional set equality:
-│          later checker layers operate over this literal list
-│          structure.
+│          A context is a literal finite list of formulas. Later
+│          checker layers preserve its order and multiplicity.
 │
 *)
 
@@ -184,12 +177,10 @@ Inductive RegulatorLogicProfile : Type :=
 
 (*
 │
-│          A `RegulatorTheory` is the object-level regulator
+│          A `RegulatorTheory` is the object-level syntactic
 │          specification used by the checker: a logical profile
-│          together with an external axiom source. This record is
-│          still syntax, not model theory; it merely packages the two
-│          finite-checker inputs that determine which `J_Axiom` lines
-│          are available.
+│          together with an external axiom source. These two inputs
+│          determine which `J_Axiom` lines are available.
 │
 *)
 
@@ -217,15 +208,10 @@ Definition regulator_theory_empty_with_efq : RegulatorTheory :=
 (*
 │
 │          A `BooleanEnvironment` is the minimal ambient wrapper for
-│          regulator theories whose visible interface is Boolean. The
-│          name is deliberately light storytelling rather than model
-│          theory: inside this wrapper, regulator theories are
-│          presented through Boolean checkers and Boolean axiom
-│          availability. It is still not a context and not an axiom
-│          set; contexts hold temporary assumptions, axiom sets answer
-│          formula-availability queries, and Boolean environments only
-│          collect the regulator theories that a later ambient layer
-│          may expose.
+│          regulator theories whose visible interface is Boolean. It
+│          collects the regulator theories that a later ambient layer
+│          may expose; contexts separately hold temporary assumptions,
+│          while axiom sets answer formula-availability queries.
 │
 *)
 

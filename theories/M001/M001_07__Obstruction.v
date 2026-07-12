@@ -20,11 +20,9 @@
   non-derivability backward through a checked implication, and records that
   checked scripts remain checked when contexts or axiom sources are enlarged.
 
-  This layer is negative transport, not a consistency obstruction: if `A → B`
-  is checked and `B` is not checked, then `A` is not checked. No consistency
-  theorem, semantic countermodel, modal provability predicate, arithmetic
-  coding, diagonal obstruction, or self-recognition principle is introduced
-  here.
+  This layer proves negative transport: if `A → B` is checked and `B` is
+  uncheckable, then `A` is uncheckable. The result follows by precomposition
+  and uses no consistency hypothesis.
 
 *)
 
@@ -107,10 +105,8 @@ Qed.
 │
 │          `context_included Γ Δ` is syntactic Boolean inclusion of
 │          assumptions: every formula recognized by `ctx_mem_bool` in
-│          `Γ` is also recognized in `Δ`. The checker needs exactly
-│          this form because assumption lines are validated by the
-│          Boolean membership test, not by a quotient or setoid
-│          relation on contexts.
+│          `Γ` is also recognized in `Δ`. This matches the Boolean
+│          membership test used to validate assumption lines.
 │
 *)
 

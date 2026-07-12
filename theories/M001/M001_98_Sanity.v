@@ -14,18 +14,15 @@
 
   OVERVIEW
 
-  Local sanity probes for the active M001 API. The examples below exercise
-  formula equality, context membership, axiom recognition, assumption and MP
-  checking, finite axiom sets, deduction, reductio, certificate checking,
-  checked and inductive derivability, negative precomposition,
-  symbolic-regulator identities, the closure/equivalence interface, and
-  evaluation closure. They are small compile-time witnesses, not a separate
-  theorem layer.
+  Local compile-time sanity probes for the active M001 API. The examples
+  below exercise formula equality, context membership, axiom recognition,
+  assumption and MP checking, finite axiom sets, deduction, reductio,
+  certificate checking, checked and inductive derivability, negative
+  precomposition, symbolic-regulator identities, the closure/equivalence
+  interface, and evaluation closure.
 
-  This file deliberately imports only `M001_95_API`: it checks the public
-  operational surface as downstream users would see it. The probes do not
-  assert global consistency, semantic validity, model existence, modal
-  provability, arithmetic coding, diagonal obstruction, or self-recognition.
+  This file imports `M001_95_API` and checks the public operational surface
+  as downstream users receive it.
 
 *)
 
@@ -485,10 +482,8 @@ Qed.
 
 (*
 │
-│          The evaluation-closure probes keep the generic and
-│          regulator-facing fixed-point engines visible from the
-│          public API. They do not instantiate a semantic evaluator;
-│          they only assert the exported theorem shapes.
+│          The evaluation-closure probes assert the exported shapes of
+│          the generic and regulator-facing fixed-point engines.
 │
 *)
 

@@ -103,10 +103,9 @@ Qed.
 (*
 │
 │          The negation fixed point is the Curry fixed point at `G :=
-│          Bot`, since `formula_negation B = Imp B Bot`. This
-│          factoring shows that the diagonal step is goal parametric;
-│          the choice `G := Bot` only matters at the collapse step,
-│          not at the fixed point step.
+│          Bot`, since `formula_negation B = Imp B Bot`. The diagonal
+│          step is goal parametric; `G := Bot` enters at the collapse
+│          step.
 │
 *)
 
@@ -203,8 +202,7 @@ Qed.
 │
 │          Curry collapse — left branch. If the fixed point itself is
 │          accepted, then `B → (B → G)` gives `B → G`, and a second
-│          modus ponens on the same `B` gives `G`. The conclusion is
-│          `C G`, not closure inconsistency.
+│          modus ponens on the same `B` gives the goal `C G`.
 │
 *)
 
@@ -277,10 +275,9 @@ Qed.
 
 (*
 │
-│          The left branch says that if the fixed point itself is
-│          accepted, then the implication `B → ¬B` yields `¬B`, and
-│          applying `¬B = B → ⊥` to `B` yields `⊥`. The conclusion is
-│          `C Bot`, not a semantic inconsistency claim.
+│          In the left branch, acceptance of the fixed point and `B →
+│          ¬B` yields `¬B`; applying `¬B = B → ⊥` to `B` yields the
+│          syntactic conclusion `C Bot`.
 │
 *)
 
@@ -301,11 +298,9 @@ Qed.
 
 (*
 │
-│          The right branch says that if the negation of the fixed
-│          point is accepted, then the implication `¬B → B` yields
-│          `B`, and the already accepted `¬B` then yields `⊥`. The
-│          conclusion is again `C Bot`, not a semantic inconsistency
-│          claim.
+│          In the right branch, acceptance of the fixed point's
+│          negation and `¬B → B` yields `B`; the already accepted `¬B`
+│          then yields the syntactic conclusion `C Bot`.
 │
 *)
 
@@ -372,10 +367,9 @@ Qed.
 
 (*
 │
-│          `negfixp_lem_collapse` obtains the branch disjunction from
-│          `ClosureExcludedMiddle C` and then routes through the
-│          explicit branch-collapse adapter. This is closure-level
-│          excluded middle only, not Rocq-level excluded middle.
+│          `negfixp_lem_collapse` obtains the object-level branch
+│          disjunction from `ClosureExcludedMiddle C` and routes it
+│          through the explicit branch-collapse adapter.
 │
 *)
 

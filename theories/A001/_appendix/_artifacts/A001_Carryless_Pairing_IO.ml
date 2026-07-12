@@ -58,6 +58,29 @@ module Nat =
 
   let ltb n m =
     leb (Big_int_Z.succ_big_int n) m
+
+  (** val even : Big_int_Z.big_int -> bool **)
+
+  let rec even n =
+    (fun fO fS n -> if Big_int_Z.sign_big_int n <= 0 then fO ()
+  else fS (Big_int_Z.pred_big_int n))
+      (fun _ -> true)
+      (fun n0 ->
+      (fun fO fS n -> if Big_int_Z.sign_big_int n <= 0 then fO ()
+  else fS (Big_int_Z.pred_big_int n))
+        (fun _ -> false)
+        (fun n' -> even n')
+        n0)
+      n
+
+  (** val odd : Big_int_Z.big_int -> bool **)
+
+  let odd n =
+    negb (even n)
+
+  (** val div2 : Big_int_Z.big_int -> Big_int_Z.big_int **)
+
+  let rec div2 = (fun n -> Big_int_Z.div_big_int n (Big_int_Z.big_int_of_int 2))
  end
 
 (** val map : ('a1 -> 'a2) -> 'a1 list -> 'a2 list **)
@@ -104,39 +127,6 @@ let two n =
 let two_j_minus1 j =
   Nat.pred (two j)
 
-(** val is_even : Big_int_Z.big_int -> bool **)
-
-let rec is_even n =
-  (fun fO fS n -> if Big_int_Z.sign_big_int n <= 0 then fO ()
-  else fS (Big_int_Z.pred_big_int n))
-    (fun _ -> true)
-    (fun n0 ->
-    (fun fO fS n -> if Big_int_Z.sign_big_int n <= 0 then fO ()
-  else fS (Big_int_Z.pred_big_int n))
-      (fun _ -> false)
-      (fun k -> is_even k)
-      n0)
-    n
-
-(** val is_odd : Big_int_Z.big_int -> bool **)
-
-let is_odd n =
-  negb (is_even n)
-
-(** val div2 : Big_int_Z.big_int -> Big_int_Z.big_int **)
-
-let rec div2 n =
-  (fun fO fS n -> if Big_int_Z.sign_big_int n <= 0 then fO ()
-  else fS (Big_int_Z.pred_big_int n))
-    (fun _ -> Big_int_Z.zero_big_int)
-    (fun n0 ->
-    (fun fO fS n -> if Big_int_Z.sign_big_int n <= 0 then fO ()
-  else fS (Big_int_Z.pred_big_int n))
-      (fun _ -> Big_int_Z.zero_big_int)
-      (fun k -> Big_int_Z.succ_big_int (div2 k))
-      n0)
-    n
-
 type params =
 | Build_Params of (Big_int_Z.big_int -> Big_int_Z.big_int list)
    * (Big_int_Z.big_int -> Big_int_Z.big_int)
@@ -161,18 +151,18 @@ let odd_band p x y =
     Big_int_Z.big_int list -> Big_int_Z.big_int list **)
 
 let half_even_indices zn =
-  map div2 (filter is_even zn)
+  map Nat.div2 (filter Nat.even zn)
 
 (** val odd_ge_B1 : Big_int_Z.big_int -> Big_int_Z.big_int -> bool **)
 
 let odd_ge_B1 bx k =
-  if is_odd k then Nat.leb (Big_int_Z.succ_big_int bx) k else false
+  (&&) (Nat.odd k) (Nat.leb (Big_int_Z.succ_big_int bx) k)
 
 (** val decode_odd_index :
     Big_int_Z.big_int -> Big_int_Z.big_int -> Big_int_Z.big_int **)
 
 let decode_odd_index bx k =
-  div2 (Big_int_Z.succ_big_int (sub k bx))
+  Nat.div2 (Big_int_Z.succ_big_int (sub k bx))
 
 (** val y_indices :
     Big_int_Z.big_int -> Big_int_Z.big_int list -> Big_int_Z.big_int list **)

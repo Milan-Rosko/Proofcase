@@ -29,9 +29,8 @@
   Every later component is stated as a property of
   `regulator_theory_check_bool` over the `Formula`, `Context`,
   `RegulatorTheory`, and `Proof` in the premise layer. The full list of
-  exported names is in README file. This file does not introduce semantic
-  validity, external model theory, modal provability, arithmetic coding,
-  diagonal obstruction, or self-recognition.
+  exported names is in README. This layer is the finite syntactic kernel of
+  M001.
 
 *)
 
@@ -48,11 +47,9 @@ From M001 Require Export M001_00_Premises.
 (*
 │
 │          `formula_eq_bool` is structural Boolean equality over the
-│          formula tree. We keep equality computational rather than
-│          appealing to a decidable-equality typeclass: every later
-│          checker step uses it under `simpl` / `vm_compute`, and a
-│          Boolean form lets the certificate verifier remain a closed
-│          term.
+│          formula tree. Its computational form supports direct use
+│          under `simpl` / `vm_compute` and keeps the certificate
+│          verifier closed.
 │
 *)
 
@@ -132,11 +129,9 @@ Qed.
 
 (*
 │
-│          `formula_size` is a positive syntactic tree size. We expose
-│          it here because downstream layers use it as a structural
-│          recursion measure and as a certificate-reporting field; it
-│          is deliberately not a semantic complexity measure, and no
-│          later result depends on its precise constants.
+│          `formula_size` is a positive syntactic tree size used as a
+│          structural recursion measure and certificate-reporting
+│          field. Later results depend on positivity alone.
 │
 *)
 
@@ -1084,12 +1079,11 @@ Definition regulator_theory_check_minimal_bool
 │
 │          The closing lemmas split a successful
 │          `regulator_theory_check_bool` into its two conjuncts and
-│          record the list-index facts the deduction transformer needs
-│          when it concatenates checked proof fragments. They are
-│          bookkeeping results about finite scripts, not additional
-│          logical rules: every later checker correctness theorem is a
-│          composition of these, the `mp_valid_bool_*` lemmas, and the
-│          `formula_eq_bool` / `ctx_mem_bool` specs above.
+│          record the list-index facts needed when the deduction
+│          transformer concatenates checked proof fragments. Later
+│          checker-correctness theorems compose this finite-script
+│          bookkeeping with the `mp_valid_bool_*` lemmas and the
+│          `formula_eq_bool` / `ctx_mem_bool` specifications above.
 │
 *)
 

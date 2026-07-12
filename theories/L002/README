@@ -3,107 +3,203 @@
 1 - Summary
     -------
 
-    L002 formalizes the TRIVIAL FIXED-POINT LEMMA: a compact reification result
-    for positive implication. Evidence in a proof-relevant Kripke presentation
-    can be converted into a bare constructive proof. Two certified theorems
-    witness the construction:
+    L002 separates two positions that behave differently after specialization
+    to M001. A full L001 negation fixed point `chi <-> not chi` collapses the
+    checked theory unconditionally. The consistent premise for Mirror
+    Unrefutability is instead the one-way `ExternalMirrorPosition`
+    `not chi -> chi`; consistency then makes `chi` internally irrefutable.
 
-      - `semantic_erasure_preserves_validity`
-      - `semantic_renaming_is_invisible`
+    The package separates this irrefutability from recognition of its source.
+    An adequate internal recognition certificate would reconstruct the
+    counter-position, re-enter the mirror relation, and derive `Bot`.
+    Consistency therefore entails both continuation under the mirrored
+    assumption and opacity of its mirror-position status.
 
-    The public closure is `trivial_fixed_point_lemma_qed`.
+    The seed-based Recursive Mirror Lemma extends the result from one external
+    mirror position to every finite iterate of a supplied mirror operation whose
+    position preservation is proved. Attribution and observable
+    externalization are obtained through explicit response laws for a concrete
+    regulator.
+
+    A finite operational layer leaves the formula language unrestricted. Its
+    logical refinement adds a deterministic transition, a formula observation
+    for every state, and proofs that each observed formula is `AsIF` and
+    recognition-opaque. Continued operation constructively yields a repeated
+    state and repeated logical observation within the first `N + 1` samples.
+    A provenance operational layer assigns an explicit internal/external tag to
+    every state, producing first-class attribution observations. An externally
+    tagged observation with matching logical content satisfies L002's concrete
+    operational externalization relation.
 
 
 2 - State
     -----
 
-    Constructive and kernel checked. The public assumption reports are closed
-    under the global context. Conceptually useful but deliberately modest in
-    scope. Not fully peer reviewed.
+                      ┌──────────────────────────────────┐
+                      │                x                 │
+                      │   └─┴─┴─┴─┴─┴─┴─┴─┴─┴─┘ 7 / 10   │
+                      └──────────────────────────────────┘
+
+    Evaluation: 7, Serviceable. Effective, mechanized, and documented. The
+    recognition and response interfaces remain abstract pending concrete
+    regulator instances. Not peer reviewed.
 
 
 3 - Intuition
     ---------
 
-    Worlds are constructive formula contexts. `CtxExt Gamma Delta` means that
-    every hypothesis at `Gamma` remains available at the future world `Delta`.
-    Bare proofs are stable under this relation by `bare_weaken`.
+    Let `M` be an embedded theory with context `Gamma`. L002 defines
 
-    Formulas are interpreted recursively:
+      AsIF M Gamma A :=
+        M cannot derive formula_negation A from Gamma
 
-      Forces Gamma (Atom n)  = Bare Gamma (Atom n)
+    Thus `AsIF` is the internal form of irrefutability. Continuation under the
+    corresponding assumption is expressed by
 
-      Forces Gamma (Impl A B) =
-        forall Delta,
-          CtxExt Gamma Delta ->
-          Forces Delta A ->
-          Forces Delta B
+      UnderAssumption M Gamma A B :=
+        M derives B from A :: Gamma
 
-    Thus semantic implication is a uniform function over all future contexts,
-    not a second copy of the bare implication constructor.
+    L001 supplies a formula `chi` whose two directions are accepted by `M`:
 
-    Two recursive operations connect syntax and semantics:
+      chi -> formula_negation chi
+      formula_negation chi -> chi
 
-      reflect : Bare Gamma A   -> Forces Gamma A
-      reify   : Forces Gamma A -> Bare Gamma A
+    In the M001 specialization this full `ExternalFixedPoint` is not compatible
+    with consistency. The forward direction constructively derives
+    `formula_negation chi` using assumption, MP, and deduction; the backward
+    direction recovers `chi`, yielding `Bot`.
 
-    At implication type, `reflect` weakens a bare function and applies it to a
-    reified semantic argument. `reify` introduces the antecedent in a future
-    context, reflects the fresh hypothesis, applies the semantic function, and
-    reifies its result.
+    L002 therefore uses only the non-collapsing direction as its live premise:
 
-      Bare Gamma A ── reflect ──▶ Forces Gamma A
-           ▲                            │
-           └────────── reify ───────────┘
+      ExternalMirrorPosition M Gamma chi :=
+        M derives formula_negation chi -> chi
 
-    A `Semantic Gamma A` packages a description with forcing evidence. Erasure
-    discards the description and reifies the evidence:
+    If `M` derived `formula_negation chi`, this mirror direction would recover
+    `chi`, and modus ponens would yield `Bot`. Consistency consequently gives
 
-      erase_semantic_proof :
-        Semantic Gamma A -> Bare (erase_ctx Gamma) A.
+      AsIF M Gamma chi
 
-    Renaming descriptions or named hypotheses does not change the transported
-    erased proof. In this limited sense, constructive syntax is a fixed point
-    of the chosen presentation: it reflects into function-space evidence and
-    reifies back into syntax. The construction is close in spirit to
-    normalization by evaluation; it is not a general completeness theorem.
+    This is the mirror obstruction viewed from within the embedded theory. Full
+    diagonal equivalence remains available only as an explicit collapse result.
+
+    The preferred recognition interface is a dedicated first-class object
+    language:
+
+      recognizes_fixed_point : Formula -> CodedRecognitionClaim
+
+    A `CodedRecognitionCertificate` is a finite instruction carrying an
+    advertised subject and an M001 evidence script. The total L002 recognition
+    checker matches that subject against the claim and checks the missing
+    diagonal direction `A -> formula_negation A` in the base context. A separate
+    executable re-entry transform weakens that evidence under assumption `A`
+    and composes it with the one-line assumption proof to produce
+    `formula_negation A`. Recognition plus the supplied mirror direction
+    therefore reconstructs the full collapsing fixed point. A consistent
+    external mirror position cannot be accepted by the coded regulator.
+
+    The older formula-valued interface
+
+      recognition_claim : Formula -> Formula
+
+    remains for compatibility and abstract response laws. Its adequacy field is
+    caller-supplied and should not by itself receive an epistemic reading. The
+    still narrower `refutation_recognition_claim A := formula_negation A` is
+    likewise retained as a checker-level compatibility instance.
+
+    The older `FixedSymbolicRegulator` remains available only inside the
+    compatibility theorem layer. It and the former L001 full-fixed-point
+    specialization are excluded from the public L002 contracts and from the
+    certified package witness.
+
+    The oracle interpretation is structural. A total oracle fails at
+    self-application; symbolic regulation describes the internal continuation
+    at that failure. The resulting paradox is generated by the regulator's own
+    recursive operation. Recognition opacity prevents the regulator from
+    adequately identifying that generative operation as its own. In this
+    precise, internal Rice-like sense, the regulator cannot settle the
+    provenance of the process whose output regulates its continuation.
+    Recursive mirroring records the same obstruction at each finite syntactic
+    depth.
+
+    Symbolic Regulation further distinguishes content from its attributed
+    provenance. Caller-supplied formula codings represent the claims that a
+    content is internally or externally produced. A regulator may leave one
+    attribution irrefutable, or may be unable to refute either attribution:
+
+      AsIF M Gamma (internal_attribution A) /\
+      AsIF M Gamma (external_attribution A)
+
+    The latter condition is `AttributionallyAmbiguous`. Mirror opacity supplies
+    failed adequate self-recognition: the paradox is internally generated, but
+    its generating process cannot be adequately recovered as the regulator's
+    own. The transition from that opacity to an external-attribution formula
+    requires an empirical response law. This isolates the Reflexica pattern in
+    which an internally generated obstruction becomes available as though it
+    belonged to an external or completed domain.
 
 
 4 - Tree
     ----
 
-    Stdlib
+    M001_95_API
      ▼
-    L002_00_Premise
+    L001_95_API
      ▼
-    L002_01__Erasure
+    L002_00_Premises
      ▼
-    L002_96_Qed
+    L002_01__Mirror_Unrefutability
+     ▼
+    L002_02__Recursive_Mirror_Lemma
+     ▼
+    L002_03__Symbolic_Regulation
+     ▼
+    L002_95_API
+     ▼
+    L002_97_Artifacts
+     ▼
+    L002_98_Sanity
 
 
 5 - Files
     -----
 
-    L002_00_Premise.v
+    L002_00_Premises.v
 
-      Defines formulas, named and bare contexts, constructive derivability,
-      context extension, and weakening.
+      All semantic carriers and interfaces: `AsIF`, mirror positions,
+      consistency, recognition, fixed regulators, finite operation,
+      attribution, provenance, and externalization.
 
-    L002_01__Erasure.v
+    L002_01__Mirror_Unrefutability.v
 
-      Defines proof-relevant Kripke forcing, semantic presentations, mutual
-      reflection and reification, semantic erasure, monotonicity, and
-      invariance under renaming. Includes small identity and ground examples.
+      Fixed-point irrefutability, recognition re-entry, collapse, and mirror
+      opacity, including the L001 specialization.
 
-    L002_96_Qed.v
+    L002_02__Recursive_Mirror_Lemma.v
 
-      States the semantic-elimination contract, proves the public fixed-point
-      theorem and compatibility theorem, and redirects their assumption
-      reports.
+      Finite iteration of a formula-level mirror operation, with
+      irrefutability and recognition opacity at every adequate iterate.
 
-    _appendix/_assumptions_constructive/
+    L002_03__Symbolic_Regulation.v
 
-      Redirected `Print Assumptions` output for the public theorem surface.
+      Consequences and concrete constructions over the premise interfaces:
+      finite recurrence, logical recurrence, provenance observations,
+      attribution, ambiguity, and externalization.
+
+    L002_95_API.v
+
+      Stable public theorem and contract surface.
+
+    L002_97_Artifacts.v
+
+      Certified endpoints and redirected assumption reports.
+
+    L002_98_Sanity.v
+
+      Compile-time probes for the public API.
+
+    task.md
+
+      Empirical hypotheses for the behavior of concrete fixed regulators.
 
 
 6 - API
@@ -111,70 +207,220 @@
 
     The public theorem surface is exposed by
 
-      `From L002 Require Import L002_96_Qed.`
+      `From L002 Require Import L002_95_API.`
 
     Public surface by use case:
 
-    Syntax and bare proof:
+    Regulated assumptions:
 
-      Form                    : Type                                        (00)
-      Atom                    : nat -> Form                                 (00)
-      Impl                    : Form -> Form -> Form                        (00)
-      Ctx                     : Type                                        (00)
-      NamedHyp                : Type                                        (00)
-      NCtx                    : Type                                        (00)
-      erase_ctx               : NCtx -> Ctx                                (00)
-      Has                     : Ctx -> Form -> Type                         (00)
-      Bare                    : Ctx -> Form -> Type                         (00)
+      RegulatedAssumption                                                   (00)
+      AsIF                                                                  (00)
+      AssumptionLicensed                                                    (00)
+      UnderAssumption                                                       (00)
+      AssumptionLicensedContent                                             (00)
+      ForcedContent                                                         (00)
+      AsIFContinuation                                                      (00)
+      assumption_intro                                                      (00)
+      licensed_assumption_forces_content                                    (00)
+      assumption_discharge                                                  (00)
 
-    Structural context theory:
+    External construction:
 
-      CtxExt                  : Ctx -> Ctx -> Type                          (00)
-      ctx_ext_refl            : forall Gamma, CtxExt Gamma Gamma           (00)
-      ctx_ext_trans           : forall Gamma Delta Theta,
-                                CtxExt Gamma Delta -> CtxExt Delta Theta ->
-                                CtxExt Gamma Theta                          (00)
-      ctx_ext_push            : forall Gamma A, CtxExt Gamma (A :: Gamma)  (00)
-      bare_weaken             : Bare Gamma A -> forall Delta,
-                                CtxExt Gamma Delta -> Bare Delta A          (00)
+      ExternalFixedPoint                                                    (00)
+      ExternalMirrorPosition                                                (00)
+      MirrorConsistent                                                      (00)
+      SLambdaConsistent                                                     (00)
+      l001_constructs_external_fixed_point                                  (01)
+      external_fixed_point_unconditionally_collapses                        (01)
+      external_fixed_point_incompatible_with_mirror_consistency             (01)
+      external_mirror_position_reentry_collapses                            (01)
+      external_mirror_position_forces_asif                                  (01)
+      checked_derivable_is_external_mirror_position                         (01)
 
-    Proof-relevant semantics:
+    Recognition and re-entry:
 
-      Forces                  : Ctx -> Form -> Type                         (01)
-      Semantic                : NCtx -> Form -> Type                        (01)
-      reflect                 : Bare Gamma A -> Forces Gamma A             (01)
-      reify                   : Forces Gamma A -> Bare Gamma A             (01)
-      erase_semantic_proof    : Semantic Gamma A ->
-                                Bare (erase_ctx Gamma) A                    (01)
-      forces_monotone         : CtxExt Gamma Delta -> Forces Gamma A ->
-                                Forces Delta A                              (01)
+      CodedRecognitionClaim                                                 (00)
+      recognizes_fixed_point                                                (00)
+      CodedRecognitionCertificate                                           (00)
+      coded_recognition_certificate_check_bool                              (00)
+      coded_recognition_evidence_formula                                    (00)
+      coded_recognition_reentry_transform                                   (00)
+      coded_recognition_regulator                                           (00)
+      CodedRecognitionAccepted                                              (00)
+      coded_recognition_certificate_check_sound                             (00)
+      coded_recognition_reentry_transform_checked                           (00)
+      coded_recognition_acceptance_evidence                                 (00)
+      coded_recognition_evidence_acceptance_complete                        (00)
+      coded_recognition_acceptance_iff_evidence                             (00)
+      coded_recognition_acceptance_sound                                    (00)
+      CodedInternalFixedPointRecognition                                    (00)
+      FixedPointRecognitionCoding                                           (00)
+      refutation_recognition_claim                                          (00)
+      CheckedRefutationRecognitionCertificate                               (00)
+      RecognitionAdequacy                                                   (00)
+      InternalFixedPointRecognition                                         (00)
+      FixedSymbolicRegulator                                                (00)
+      recognition_reenters_regulator                                        (01)
+      coded_recognition_reenters_regulator                                  (01)
+      coded_recognition_completes_external_fixed_point                      (01)
+      coded_recognition_opacity                                             (01)
+      external_fixed_point_reentry_collapses                                (01)
+      refutation_recognition_adequacy                                       (01)
+      external_fixed_point_excludes_checked_refutation_recognition          (01)
+
+    Recursive mirror:
+
+      recursive_mirror_formula                                              (02)
+      RecursiveMirrorAdequacy                                               (02)
+      MirrorStepPreservesExternalFixedPoints                                (02)
+      MirrorStepPreservesExternalMirrorPositions                            (02)
+      implication_reflection_mirror                                         (02)
+      implication_reflection_mirror_preserves_external_fixed_points         (02)
+      implication_reflection_mirror_preserves_external_mirror_positions     (02)
+      RecursiveMirrorPosition                                               (02)
+      recursive_mirror_adequacy_from_seed                                   (02)
+      recursive_mirror_irrefutability                                       (02)
+      recursive_mirror_lemma                                                (02)
+      recursive_mirror_lemma_from_seed                                      (02)
+      coded_recursive_mirror_lemma                                          (02)
+      coded_recursive_mirror_lemma_from_seed                                (02)
+
+    Conditional principles:
+
+      ActiveSchemaSet                                                       (03)
+      SchemaSelected                                                        (03)
+      FiniteOperationalLayer                                                (03)
+      finite_operational_recurrence                                         (03)
+      LogicalOperationalLayer                                               (03)
+      logical_operational_recurrence                                        (03)
+      Provenance                                                            (03)
+      CodedAttributionObservation                                           (03)
+      AttributedProvenanceOperationalLayer                                  (03)
+      operational_attribution_observation                                   (03)
+      operational_attribution_is_concrete                                   (03)
+      attributed_provenance_operational_recurrence                          (03)
+      AttributionCoding                                                     (03)
+      AttributionResponse                                                   (03)
+      SelectedAttributionResponse                                           (03)
+      AttributionallyAmbiguous                                              (03)
+      AttributionalAmbiguityResponse                                        (03)
+      OpacityExternalAttributionResponse                                    (03)
+      implication_reflection_internal_attribution                           (03)
+      unchanged_external_attribution                                        (03)
+      implication_reflection_selected_attribution_response                  (03)
+      SelectedOperationalAttributionLayer                                   (03)
+      selected_operational_attribution_recurrence                           (03)
+      ExternalizationRelation                                               (03)
+      operational_externalizes                                              (03)
+      externally_attributed_observation_externalizes                        (03)
+      ExternalizationResponse                                               (03)
+      oracle_irrefutability_principle                                       (03)
+      recognition_opacity_principle                                         (03)
+      conditional_attribution_principle                                     (03)
+      selected_conditional_attribution_principle                            (03)
+      conditional_attributional_ambiguity_principle                         (03)
+      conditional_opaque_external_attribution_principle                     (03)
+      conditional_externalization_principle                                 (03)
+      recursive_conditional_externalization_principle                       (03)
+
+    Principles of Symbolic Regulation:
+
+      fixed_point_certificate_opacity                                       (03)
+      incomprehensibility_of_symbolic_regulation (compatibility alias)      (03)
+      finite_perpetuity_of_ignorance                                        (03)
+      paradox_of_the_external                                               (03)
 
     Certified theorems:
 
-      semantic_erasure_preserves_validity : forall Gamma A,
-        Semantic Gamma A -> Bare (erase_ctx Gamma) A
+      mirror_lemma_qed :
+        compact endpoint bundling full-fixed-point collapse, live mirror
+        irrefutability, and coded recognition opacity
 
-      semantic_renaming_is_invisible : forall f Gamma A
-        (p : Semantic Gamma A),
-        transport
-          (fun Delta => Bare Delta A)
-          (erase_ctx_rename f Gamma)
-          (erase_semantic_proof (rename_semantic_proof f p)) =
-        erase_semantic_proof p
+      recursive_mirror_lemma_qed :
+        compact endpoint bundling coded all-depth recursive opacity in both
+        adequate-family and seed-plus-preservation forms
 
-      trivial_fixed_point_lemma_qed :
-        TRIVIAL_FIXED_POINT_LEMMA_CONTRACT
+      mirror_opacity :
+        a one-way external mirror position in a consistent embedded theory is
+        irrefutable and opaque to adequate internal recognition
+
+      external_fixed_point_unconditionally_collapses :
+        a full negation fixed point derives `Bot` in the M001 specialization
+
+      external_fixed_point_excludes_checked_refutation_recognition :
+        legacy full-fixed-point corollary; the preferred contract uses the
+        corresponding external mirror-position theorem
+
+      coded_recursive_mirror_lemma / coded_recursive_mirror_lemma_from_seed :
+        the preferred coded all-depth opacity results, respectively from an
+        adequate family and from a seed plus a position-preserving mirror step
+
+      logical_operational_recurrence /
+      attributed_provenance_operational_recurrence :
+        finite recurrence repeats regulated logical content and its concrete
+        provenance observation while preserving coded opacity
+
+      externally_attributed_observation_externalizes :
+        an operational state explicitly tagged with external provenance
+        satisfies the concrete externalization relation
+
+      conditional_externalization_principle :
+        `AsIF` entails externalization under an explicit response law
+
+      conditional_attributional_ambiguity_principle :
+        both supplied provenance formulas remain irrefutable under an explicit
+        ambiguity response law
+
+      fixed_point_certificate_opacity :
+        an adequate fixed-point certificate in the regulated position is
+        excluded by consistency
+
+      coded_fixed_point_certificate_opacity :
+        the concrete finite recognition regulator cannot accept an external
+        fixed-point claim in a consistent embedded theory
+
+      incomprehensibility_of_symbolic_regulation :
+        compatibility alias only; the broader interpretive reading is not part
+        of the certified conclusion
+
+      finite_perpetuity_of_ignorance :
+        every adequate finite mirror iterate remains irrefutable and
+        recognition-opaque
+
+      paradox_of_the_external :
+        an opacity response stabilizes external provenance for the internally
+        generated paradox
+
+      symbolic_regulation_qed :
+        the complete regulated-assumption and mirror-opacity contract
+
+    Assumption reports are emitted only for `mirror_lemma_qed`,
+    `recursive_mirror_lemma_qed`, and `symbolic_regulation_qed`.
+
 
 7 - Notes
     -----
 
-    The result concerns this proof-relevant Kripke semantics of positive
-    implication. Atomic forcing is grounded in bare atomic evidence, so the
-    reification theorem is intentionally built into the interpretation. It is
-    not a completeness theorem for arbitrary external models or semantic
-    oracles, nor a claim that semantics in general can be eliminated.
+    `AsIF` denotes non-refutability. Its operational role is continuation under
+    an assumption, as provided by the ordinary M001 context rule. Recognition
+    adequacy is an explicit re-entry condition on a supplied coding.
 
-    Its contribution is expository: it isolates weakening, function-space
-    implication, reflection, reification, and presentation invariance in a
-    small kernel-checked development. Calling the resulting term a
-    semantics-free witness remains a metatheoretic reading of that reification.
+    Recursive depth is finite and syntactic. The implication-reflection mirror
+    is interderivable with its input, so its iteration validates preservation
+    and certificate plumbing but does not by itself create a new semantic
+    perspective. Physical recurrence, temporal persistence, and observable
+    salience require an interpretation of the formal regulator.
+
+    “Internal Rice-like obstruction” is the intended structural interpretation
+    of recognition opacity. L002 does not invoke or certify Rice's theorem. Its
+    proved claim is narrower: adequate internal recognition of the supplied
+    mirror position would reconstruct its counter-position and contradict
+    consistency.
+
+    Mirror irrefutability and coded recognition opacity are certified logical
+    results. `AttributedProvenanceOperationalLayer` records literal operational
+    attribution tags and supplies a concrete externalization relation. The type
+    deliberately does not identify those tags with independently verified
+    origins; connecting an attribution to a real system remains empirical.
+    Legacy formula-valued attribution response laws remain distinct from truth
+    or positive belief.

@@ -14,11 +14,10 @@
 
   OVERVIEW
 
-  L001 begins where M001 stops. It imports only the frozen M001 evaluation
-  API and interprets the regulated evaluation fixed-point engine as a
-  statement about excluded-middle status at the regulator level. L001 may use
-  Aporetic and status vocabulary; it does not modify M001 or import M001
-  internal files.
+  L001 begins at the frozen M001 evaluation API and interprets its regulated
+  evaluation fixed-point engine as a statement about excluded-middle status
+  at the regulator level. All Aporetic and status vocabulary is built above
+  that public boundary.
 
 *)
 
@@ -34,16 +33,14 @@ From M001 Require Export M001_95_API.
 
 (*
 │
-│          A regulator that merely lacks a proof of excluded middle
-│          remains constructively silent. A regulator that decides the
-│          status of excluded middle, however, reifies the question
-│          into behavior. The first formal branch is the decision
-│          branch: regulated evaluation closure yields a formula `B`
-│          equivalent, under regulator derivability, to its own
+│          A regulator that lacks a proof of excluded middle remains
+│          constructively silent. Deciding its status reifies the
+│          question into behavior. In the first formal branch,
+│          regulated evaluation closure yields a formula `B`
+│          equivalent under regulator derivability to its own
 │          negation. A total regulator decision must classify `B`;
-│          either classification derives `Bot`. Consistency is not
-│          part of that collapse mechanism, and is used only later as
-│          an obstruction hypothesis.
+│          either classification derives `Bot`. Consistency enters
+│          later, when that collapse becomes an obstruction.
 │
 *)
 
@@ -58,13 +55,12 @@ From M001 Require Export M001_95_API.
 (*
 │
 │          `ClosureEquiv C A B` is equivalence inside the closure
-│          predicate: both object-level implications are accepted by
-│          `C`. It is not meta-level equality of formulas and not
-│          semantic equivalence in a model. The whole closure layer
-│          below requires only a constructive closure predicate `C :
-│          Formula -> Prop`, an implication-induced equivalence,
-│          evaluation completeness up to that equivalence, and modus
-│          ponens closure when collapse is extracted.
+│          predicate, consisting of the two accepted object-level
+│          implications `A → B` and `B → A`. The closure layer below
+│          requires a constructive predicate `C : Formula -> Prop`,
+│          this implication-induced equivalence, evaluation
+│          completeness up to that equivalence, and modus ponens
+│          closure when collapse is extracted.
 │
 *)
 
@@ -96,12 +92,10 @@ Qed.
 
 (*
 │
-│          `ClosureExcludedMiddle C` is global excluded-middle status
-│          inside the closure predicate: every formula is either
-│          accepted by `C`, or its object-level negation is accepted
-│          by `C`. This is not Rocq's excluded middle and does not
-│          assert `A \/ ~ A` for arbitrary propositions. The local
-│          obstruction below uses only the single instance
+│          `ClosureExcludedMiddle C` is object-level excluded-middle
+│          status inside the closure predicate: every formula is
+│          accepted by `C` or its object-level negation is accepted by
+│          `C`. The local obstruction below uses the single instance
 │          `ClosureLocalExcludedMiddle C B`.
 │
 *)
@@ -115,11 +109,9 @@ Definition ClosureExcludedMiddle
 
 (*
 │
-│          `ClosureModusPonens C` says that the closure predicate is
-│          closed under object-level modus ponens. It transports
-│          accepted implications and accepted antecedents to accepted
-│          consequents; it is not a global rule for arbitrary Rocq
-│          propositions.
+│          `ClosureModusPonens C` closes the formula-indexed predicate
+│          under object-level modus ponens by transporting accepted
+│          implications and antecedents to accepted consequents.
 │
 *)
 
@@ -194,10 +186,9 @@ Qed.
 (*
 │
 │          `ClosureConsistent C` is the external consistency guard for
-│          a closure predicate: if the object-level bottom formula is
-│          accepted, the ambient Rocq context becomes contradictory.
-│          It is not used to build collapse, only to turn an already
-│          constructed `C Bot` into obstruction.
+│          a closure predicate: acceptance of the object-level bottom
+│          formula makes the ambient Rocq context contradictory. It
+│          turns an already constructed `C Bot` into an obstruction.
 │
 *)
 
@@ -211,9 +202,8 @@ Definition ClosureConsistent
 │
 │          `NegationFixedPointFor C B` says that `B` is a negation
 │          fixed point inside the closure predicate: `B` and its
-│          object-level negation imply each other under `C`. It does
-│          not assert semantic self-negation or a Rocq-level
-│          contradiction by itself.
+│          object-level negation imply each other under `C`. Collapse
+│          requires an additional accepted branch.
 │
 *)
 
@@ -328,11 +318,10 @@ Qed.
 
 (*
 │
-│          `ClosureEvaluationFrame C Code` is the generic evaluation
-│          interface for the closure theorem. It supplies coded
-│          formulas and closure-level completeness up to
-│          `ClosureEquiv`; it is not a semantic truth definition and
-│          not a model of formulas.
+│          `ClosureEvaluationFrame C Code` is the generic syntactic
+│          evaluation interface for the closure theorem. It supplies
+│          coded formulas and closure-level completeness up to
+│          `ClosureEquiv`.
 │
 *)
 
@@ -618,8 +607,7 @@ Definition regulator_closure_evaluation_frame
 │
 │          `regulator_closure_modus_ponens_lemma` specializes the
 │          generic `ClosureModusPonens` contract to the M001 regulator
-│          predicate. It is the M001 instance needed by the later
-│          collapse proofs, not a separate primitive Aporetic theorem.
+│          predicate for use in the later collapse proofs.
 │
 *)
 
@@ -646,12 +634,10 @@ Qed.
 
 (*
 │
-│          `RegulatorClosureExcludedMiddle` is the specialization of
+│          `RegulatorClosureExcludedMiddle` specializes object-level
 │          `ClosureExcludedMiddle` to `RegulatorClosure profile T
-│          Gamma`. It is regulator-level excluded-middle status: every
-│          formula is accepted by the regulator predicate, or its
-│          object-level negation is accepted. This is not Rocq's
-│          excluded middle.
+│          Gamma`: every formula or its object-level negation is
+│          accepted by the regulator predicate.
 │
 *)
 
@@ -841,9 +827,9 @@ Arguments rrefute_true_sound {profile T Gamma} _ _ _.
 │
 │          `RegulatorDoubleNegationBridge` is an optional
 │          regulator-context principle that converts accepted double
-│          negations into accepted formulas. L001 does not assume this
-│          bridge globally; the no-branch obstruction theorems in
-│          `L001_02` take it as an explicit hypothesis.
+│          negations into accepted formulas. The no-branch obstruction
+│          theorems in `L001_02` take it as an explicit local
+│          hypothesis.
 │
 *)
 

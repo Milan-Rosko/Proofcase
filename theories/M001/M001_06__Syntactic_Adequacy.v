@@ -21,11 +21,9 @@
   available regulator-theory axioms, and ordered modus ponens, then proves
   that the checked existential and the inductive closure are equivalent.
 
-  The result is intentionally syntactic. It says that accepted finite proof
-  scripts and the usual inductive closure present the same formulas for a
-  fixed `RegulatorTheory` and context. It does not introduce semantic
-  validity, model theory, modal provability, arithmetic coding, diagonal
-  obstruction, or self-recognition.
+  The result is syntactic: accepted finite proof scripts and the usual
+  inductive closure present the same formulas for a fixed `RegulatorTheory`
+  and context.
 
 *)
 
@@ -41,14 +39,12 @@ From M001 Require Export M001_05__Application.
 
 (*
 │
-│          `regulator_theory_inductive_derivable R Γ A` is the closure
-│          relation corresponding to the checker input `R; Γ`.
-│          Assumptions are read from the context, axiom lines are read
-│          through `available_axiom_bool R`, and MP is the ordinary
-│          ordered rule: from `A` and `A → B`, derive `B`. In the
-│          displayed judgement `⊢ᵢ`, the subscript `i` means inductive
-│          derivability only: it is not a semantic interpretation and
-│          not an additional object-language connective.
+│          `regulator_theory_inductive_derivable R Γ A` is the
+│          syntactic closure relation corresponding to checker input
+│          `R; Γ`. Assumptions come from the context, axiom lines from
+│          `available_axiom_bool R`, and MP is the ordinary ordered
+│          rule: from `A` and `A → B`, derive `B`. The subscript `i`
+│          in `⊢ᵢ` marks this inductive derivability relation.
 │
 *)
 

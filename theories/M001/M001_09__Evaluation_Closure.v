@@ -24,10 +24,8 @@
   `regulator_theory_equivalent`: two formulas are equivalent when each
   implication direction belongs to the checked regulator-theory closure. A
   regulated evaluator that names every formula-valued behavior up to this
-  equivalence yields a formula equivalent to its transformed image. M001
-  stops at this syntactic bridge; it does not assign semantic truth, model
-  validity, arithmetic coding, diagonal obstruction, or self-recognition to
-  the bridge.
+  equivalence yields a formula equivalent to its transformed image. This
+  syntactic bridge is the terminal construction of M001.
 
 *)
 
@@ -235,9 +233,8 @@ Qed.
 (*
 │
 │          A `RegulatorEvaluationFrame` is the checked-regulator
-│          version of an evaluation frame. Completeness now names
-│          every behavior only up to `regulator_theory_equivalent`,
-│          not by syntactic equality of formulas.
+│          version of an evaluation frame. Its completeness field
+│          names every behavior up to `regulator_theory_equivalent`.
 │
 *)
 

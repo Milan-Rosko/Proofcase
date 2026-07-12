@@ -178,7 +178,7 @@
       Certified contract endpoints and assumption-report hooks for
       `certified_aporetic_lemma_contract` and `aporetic_lemma_qed`.
 
-    _appendix/_assumptions_constructive/
+    _appendix/_assumptions/
 
       Redirect target for the L001 assumption reports.
 

@@ -93,10 +93,9 @@ Definition regulator_instruction_tag
 
 (*
 │
-│          The instruction/proof-line translations are mechanical.
-│          They do not check an instruction; they only move between
-│          the native regulator vocabulary and the proof-line grammar
-│          consumed by the kernel checker.
+│          The instruction/proof-line translations mechanically move
+│          between the native regulator vocabulary and the proof-line
+│          grammar consumed by the kernel checker.
 │
 *)
 
@@ -695,10 +694,8 @@ Record SymbolicRegulator : Type := {
 
 (*
 │
-│          `S_λ` is the symbolic-regulator alias used by the
-│          paper-facing notation. It is definitionally the same type
-│          as `SymbolicRegulator`; the alias does not add arithmetic
-│          coding, a provability predicate, or a semantic model.
+│          `S_λ` is the paper-facing alias for the existing
+│          `SymbolicRegulator` type.
 │
 *)
 

@@ -60,3 +60,15 @@
 	theories/L001/L001_02__Aporetic_Obstruction.v
 	theories/L001/L001_95_API.v
 	theories/L001/L001_97_Artifacts.v
+
+# Logic Contribution: SYMBOLIC REGULATION
+
+-Q theories/L002 L002
+
+	theories/L002/L002_00_Premises.v
+	theories/L002/L002_01__Mirror_Unrefutability.v
+	theories/L002/L002_02__Recursive_Mirror_Lemma.v
+	theories/L002/L002_03__Symbolic_Regulation.v
+	theories/L002/L002_95_API.v
+	theories/L002/L002_97_Artifacts.v
+	theories/L002/L002_98_Sanity.v

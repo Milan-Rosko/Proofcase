@@ -1,0 +1,502 @@
+(*L002_01__Mirror_Unrefutability.v*)
+
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                      Author and Copyright remark. Author(s): │
+│                ╭╮╮╮─╮                Milan Rosko  https://www.milanrosko.com │
+│                ││││╭╯                Licence. This file is distributed under │
+│                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
+│                                      visit https://www.mozilla.org/en-US/MPL │
+└──────────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                  Proofcase / L002_01__Mirror_Unrefutability                  │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+  OVERVIEW
+
+  Mirror-irrefutability layer for L002. We prove that a full L001 negation
+  fixed point collapses unconditionally after specialization to M001
+  deduction, isolate the consistent one-way mirror position `not chi -> chi`,
+  derive `AsIF` from that position plus consistency, and exclude adequate
+  internal recognition under inclusion into a consistent enclosing regulator.
+
+*)
+
+From L002 Require Export L002_00_Premises.
+
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                            EXTERNAL CONSTRUCTION                             │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
+
+(*
+│
+│          L001 evaluation closure constructs an external fixed-point
+│          formula for M-checked derivability.
+│
+*)
+
+Theorem l001_constructs_external_fixed_point :
+  forall (M : RegulatorTheory)
+         (Gamma : Context)
+         Code
+         (E : ClosureEvaluationFrame
+                (regulator_theory_checked_derivable M Gamma)
+                Code),
+    exists chi : Formula,
+      ExternalFixedPoint M Gamma chi.
+Proof.
+  intros M Gamma Code E.
+  exact
+    (negfixp_existence
+       (regulator_theory_checked_derivable M Gamma)
+       Code E).
+Qed.
+
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                             RECOGNITION RE-ENTRY                             │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
+
+(*
+│
+│          The concrete refutation-recognition coding is adequate at
+│          every formula: accepting its claim under `A` already is a
+│          checked derivation of `not A` in that context.
+│
+*)
+
+Theorem refutation_recognition_adequacy :
+  forall (M : RegulatorTheory)
+         (Gamma : Context)
+         (A : Formula),
+    RecognitionAdequacy
+      M Gamma refutation_recognition_claim A.
+Proof.
+  intros M Gamma A Hrecognition.
+  exact Hrecognition.
+Qed.
+
+(*
+│
+│          An accepted adequate recognition certificate yields a
+│          base-context derivation of `not chi` by contradiction under
+│          `chi` followed by deduction.
+│
+*)
+
+Theorem recognition_reenters_regulator :
+  forall (M : RegulatorTheory)
+         (Gamma : Context)
+         (recognition_claim : FixedPointRecognitionCoding)
+         (chi : Formula),
+    RecognitionAdequacy M Gamma recognition_claim chi ->
+    InternalFixedPointRecognition M Gamma recognition_claim chi ->
+    regulator_theory_checked_derivable M Gamma
+      (formula_negation chi).
+Proof.
+  intros M Gamma recognition_claim chi Hadequate
+    [_Hasif Hrecognition].
+  apply assumption_discharge.
+  apply regulator_theory_checked_derivable_mp_lemma with (A := chi).
+  - exact (Hadequate Hrecognition).
+  - exact (assumption_intro M Gamma chi).
+Qed.
+
+(*
+│
+│          Acceptance by the coded recognition regulator re-enters the
+│          embedded theory as a base-context derivation of `not A`:
+│          checker soundness supplies `not A` under `A`, the
+│          assumption supplies `A`, and deduction discharges it.
+│
+*)
+
+Theorem coded_recognition_reenters_regulator :
+  forall (M : RegulatorTheory)
+         (Gamma : Context)
+         (A : Formula),
+    CodedRecognitionAccepted M Gamma A ->
+    regulator_theory_checked_derivable M Gamma
+      (formula_negation A).
+Proof.
+  intros M Gamma A Haccepted.
+  apply assumption_discharge.
+  apply regulator_theory_checked_derivable_mp_lemma with (A := A).
+  - exact (coded_recognition_acceptance_sound M Gamma A Haccepted).
+  - exact (assumption_intro M Gamma A).
+Qed.
+
+(*
+│
+│          Accepted recognition evidence supplies the missing forward
+│          direction; together with the one-way mirror it reconstructs
+│          the full negation fixed point exactly.
+│
+*)
+
+Theorem coded_recognition_completes_external_fixed_point :
+  forall (M : RegulatorTheory)
+         (Gamma : Context)
+         (A : Formula),
+    ExternalMirrorPosition M Gamma A ->
+    CodedRecognitionAccepted M Gamma A ->
+    ExternalFixedPoint M Gamma A.
+Proof.
+  intros M Gamma A Hmirror Haccepted.
+  split.
+  - exact (coded_recognition_acceptance_evidence M Gamma A Haccepted).
+  - exact Hmirror.
+Qed.
+
+(*
+│
+│          A derivation of `not chi` at an external fixed point
+│          reconstructs `chi` and therefore derives `Bot`.
+│
+*)
+
+Theorem external_fixed_point_reentry_collapses :
+  forall (M : RegulatorTheory)
+         (Gamma : Context)
+         (chi : Formula),
+    ExternalFixedPoint M Gamma chi ->
+    regulator_theory_checked_derivable M Gamma
+      (formula_negation chi) ->
+    regulator_theory_checked_derivable M Gamma Bot.
+Proof.
+  intros M Gamma chi [_Hforward Hbackward] Hnegchi.
+  pose proof
+    (regulator_theory_checked_derivable_mp_lemma
+       M Gamma (formula_negation chi) chi
+       Hbackward Hnegchi) as Hchi.
+  exact
+    (regulator_theory_checked_derivable_mp_lemma
+       M Gamma chi Bot Hnegchi Hchi).
+Qed.
+
+(*
+│
+│          In the M001 specialization a full negation fixed point
+│          collapses without an additional branch premise. The forward
+│          direction derives `not chi` constructively by assumption,
+│          MP, and deduction; the backward direction then recovers
+│          `chi`.
+│
+*)
+
+Theorem external_fixed_point_unconditionally_collapses :
+  forall (M : RegulatorTheory)
+         (Gamma : Context)
+         (chi : Formula),
+    ExternalFixedPoint M Gamma chi ->
+    regulator_theory_checked_derivable M Gamma Bot.
+Proof.
+  intros M Gamma chi [Hforward Hbackward].
+  assert (Hnegchi :
+    regulator_theory_checked_derivable M Gamma
+      (formula_negation chi)).
+  {
+    apply assumption_discharge.
+    apply regulator_theory_checked_derivable_mp_lemma with (A := chi).
+    - apply regulator_theory_checked_derivable_mp_lemma with (A := chi).
+      + apply checked_derivable_under_assumption.
+        exact Hforward.
+      + exact (assumption_intro M Gamma chi).
+    - exact (assumption_intro M Gamma chi).
+  }
+  exact
+    (external_fixed_point_reentry_collapses
+       M Gamma chi (conj Hforward Hbackward) Hnegchi).
+Qed.
+
+Theorem external_fixed_point_incompatible_with_mirror_consistency :
+  forall (M : RegulatorTheory)
+         (Gamma : Context)
+         (chi : Formula),
+    ExternalFixedPoint M Gamma chi ->
+    MirrorConsistent M Gamma ->
+    False.
+Proof.
+  intros M Gamma chi Hfixed Hconsistent.
+  apply Hconsistent.
+  exact
+    (external_fixed_point_unconditionally_collapses
+       M Gamma chi Hfixed).
+Qed.
+
+(*
+│
+│          A hypothetical refutation at a one-way mirror position
+│          reconstructs the mirrored formula and collapses the checked
+│          theory.
+│
+*)
+
+Theorem external_mirror_position_reentry_collapses :
+  forall (M : RegulatorTheory)
+         (Gamma : Context)
+         (chi : Formula),
+    ExternalMirrorPosition M Gamma chi ->
+    regulator_theory_checked_derivable M Gamma
+      (formula_negation chi) ->
+    regulator_theory_checked_derivable M Gamma Bot.
+Proof.
+  intros M Gamma chi Hmirror Hnegchi.
+  pose proof
+    (regulator_theory_checked_derivable_mp_lemma
+       M Gamma (formula_negation chi) chi
+       Hmirror Hnegchi) as Hchi.
+  exact
+    (regulator_theory_checked_derivable_mp_lemma
+       M Gamma chi Bot Hnegchi Hchi).
+Qed.
+
+Theorem external_mirror_position_forces_asif :
+  forall (M : RegulatorTheory)
+         (Gamma : Context)
+         (chi : Formula),
+    ExternalMirrorPosition M Gamma chi ->
+    MirrorConsistent M Gamma ->
+    AsIF M Gamma chi.
+Proof.
+  intros M Gamma chi Hmirror Hconsistent Hnegchi.
+  apply Hconsistent.
+  exact
+    (external_mirror_position_reentry_collapses
+       M Gamma chi Hmirror Hnegchi).
+Qed.
+
+(*
+│
+│          Every checked theorem supplies a one-way mirror position: K
+│          lifts an accepted `A` to `not A -> A`. This witnesses that
+│          mirror position is a live proof-theoretic condition rather
+│          than the inconsistent full fixed-point equivalence.
+│
+*)
+
+Theorem checked_derivable_is_external_mirror_position :
+  forall (M : RegulatorTheory)
+         (Gamma : Context)
+         (A : Formula),
+    regulator_theory_checked_derivable M Gamma A ->
+    ExternalMirrorPosition M Gamma A.
+Proof.
+  intros M Gamma A HA.
+  apply regulator_theory_checked_derivable_mp_lemma with (A := A).
+  - apply regulator_theory_axiom_checked_derivable_lemma.
+    apply available_axiom_bool_k_lemma.
+  - exact HA.
+Qed.
+
+(*
+│
+│          A consistent one-way mirror position cannot be accepted by
+│          the coded recognition regulator. Unlike the legacy
+│          formula-valued interface, the claim syntax, finite
+│          instruction type, Boolean acceptance relation, and re-entry
+│          behavior are all concrete.
+│
+*)
+
+Theorem coded_recognition_opacity :
+  forall (M : RegulatorTheory)
+         (Gamma : Context)
+         (chi : Formula),
+    ExternalMirrorPosition M Gamma chi ->
+    MirrorConsistent M Gamma ->
+    ~ CodedInternalFixedPointRecognition M Gamma chi.
+Proof.
+  intros M Gamma chi Hmirror Hconsistent [_Hasif Haccepted].
+  apply Hconsistent.
+  apply external_mirror_position_reentry_collapses with (chi := chi).
+  - exact Hmirror.
+  - exact (coded_recognition_reenters_regulator M Gamma chi Haccepted).
+Qed.
+
+(*
+│
+│          Legacy corollary: the already inconsistent conjunction of a
+│          full fixed point and consistency excludes a checked
+│          refutation certificate. The live theorem below uses only an
+│          external mirror position.
+│
+*)
+
+Theorem external_fixed_point_excludes_checked_refutation_recognition :
+  forall (M : RegulatorTheory)
+         (Gamma : Context)
+         (chi : Formula),
+    ExternalFixedPoint M Gamma chi ->
+    MirrorConsistent M Gamma ->
+    CheckedRefutationRecognitionCertificate M Gamma chi ->
+    False.
+Proof.
+  intros M Gamma chi Hfixed Hconsistent Hcertificate.
+  apply
+    (external_mirror_position_forces_asif
+       M Gamma chi (proj2 Hfixed) Hconsistent).
+  apply regulator_theory_proof_certificate_derivable_lemma.
+  exact Hcertificate.
+Qed.
+
+Theorem external_mirror_position_excludes_checked_refutation_recognition :
+  forall (M : RegulatorTheory)
+         (Gamma : Context)
+         (chi : Formula),
+    ExternalMirrorPosition M Gamma chi ->
+    MirrorConsistent M Gamma ->
+    CheckedRefutationRecognitionCertificate M Gamma chi ->
+    False.
+Proof.
+  intros M Gamma chi Hmirror Hconsistent Hcertificate.
+  apply
+    (external_mirror_position_forces_asif
+       M Gamma chi Hmirror Hconsistent).
+  apply regulator_theory_proof_certificate_derivable_lemma.
+  exact Hcertificate.
+Qed.
+
+(*
+│
+│          M-to-Slambda inclusion transports an M-derivation of `Bot`
+│          outward, so Slambda-consistency implies M-consistency.
+│
+*)
+
+Theorem outer_consistency_implies_mirror_consistency :
+  forall (Slambda M : RegulatorTheory)
+         (Gamma : Context),
+    regulator_theory_included M Slambda ->
+    SLambdaConsistent Slambda Gamma ->
+    MirrorConsistent M Gamma.
+Proof.
+  intros Slambda M Gamma Hincluded Hconsistent Hbot.
+  apply Hconsistent.
+  exact
+    (regulator_theory_checked_derivable_regulator_theory_monotone_lemma
+       M Slambda Gamma Bot Hincluded Hbot).
+Qed.
+
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                                MIRROR OPACITY                                │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
+
+(*
+│
+│          Under inclusion and outer consistency, a one-way mirror
+│          position is assumption-licensed but has no adequate
+│          internal recognition certificate.
+│
+*)
+
+Theorem mirror_opacity :
+  forall (Slambda M : RegulatorTheory)
+         (Gamma : Context)
+         (recognition_claim : FixedPointRecognitionCoding)
+         (chi : Formula),
+    regulator_theory_included M Slambda ->
+    SLambdaConsistent Slambda Gamma ->
+    ExternalMirrorPosition M Gamma chi ->
+    RecognitionAdequacy M Gamma recognition_claim chi ->
+    AssumptionLicensedContent M Gamma chi /\
+    ~ InternalFixedPointRecognition
+        M Gamma recognition_claim chi.
+Proof.
+  intros Slambda M Gamma recognition_claim chi
+    Hincluded Hconsistent Hmirror Hadequate.
+  pose proof
+    (outer_consistency_implies_mirror_consistency
+       Slambda M Gamma Hincluded Hconsistent) as HMconsistent.
+  pose proof
+    (external_mirror_position_forces_asif
+       M Gamma chi Hmirror HMconsistent) as Hasif.
+  split.
+  - exact
+      (licensed_assumption_yields_assumption_licensed_content
+         M Gamma chi Hasif).
+  - intro Hrecognition.
+    apply Hconsistent.
+    apply
+      regulator_theory_checked_derivable_regulator_theory_monotone_lemma
+        with (R := M).
+    + exact Hincluded.
+    + apply external_mirror_position_reentry_collapses with (chi := chi).
+      * exact Hmirror.
+      * exact
+          (recognition_reenters_regulator
+             M Gamma recognition_claim chi
+             Hadequate Hrecognition).
+Qed.
+
+(*
+│
+│          The fixed-regulator wrapper supplies inclusion,
+│          consistency, recognition coding, and adequacy to
+│          `mirror_opacity`.
+│
+*)
+
+Theorem fixed_regulator_mirror_opacity :
+  forall (Slambda M : RegulatorTheory)
+         (Gamma : Context)
+         (S : FixedSymbolicRegulator Slambda M Gamma)
+         (chi : Formula),
+    ExternalMirrorPosition M Gamma chi ->
+    AssumptionLicensedContent M Gamma chi /\
+    ~ InternalFixedPointRecognition
+        M Gamma (fixed_recognition_claim S) chi.
+Proof.
+  intros Slambda M Gamma S chi Hmirror.
+  exact
+    (mirror_opacity
+       Slambda M Gamma (fixed_recognition_claim S) chi
+       (fixed_regulator_inclusion S)
+       (fixed_regulator_consistency S)
+       Hmirror
+       (fixed_recognition_adequacy S chi Hmirror)).
+Qed.
+
+(*
+│
+│          L001 evaluation closure constructs a witness that is
+│          externally fixed, internally non-refutable, and opaque to
+│          adequate recognition.
+│
+*)
+
+Theorem l001_mirror_opacity :
+  forall (Slambda M : RegulatorTheory)
+         (Gamma : Context)
+         (S : FixedSymbolicRegulator Slambda M Gamma)
+         Code
+         (E : ClosureEvaluationFrame
+                (regulator_theory_checked_derivable M Gamma)
+                Code),
+    exists chi : Formula,
+      ExternalFixedPoint M Gamma chi /\
+      AssumptionLicensedContent M Gamma chi /\
+      ~ InternalFixedPointRecognition
+          M Gamma (fixed_recognition_claim S) chi.
+Proof.
+  intros Slambda M Gamma S Code E.
+  destruct (l001_constructs_external_fixed_point M Gamma Code E)
+    as [chi Hfixed].
+  exists chi.
+  split.
+  - exact Hfixed.
+  - exact
+      (fixed_regulator_mirror_opacity
+         Slambda M Gamma S chi (proj2 Hfixed)).
+Qed.

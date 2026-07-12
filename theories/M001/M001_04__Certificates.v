@@ -18,20 +18,15 @@
   provide primitive syntax (`M001_00`), a Boolean checker over
   `RegulatorTheory` (`M001_01`), checked deduction (`M001_02`), and checked
   constructive reductio (`M001_03`). This file packages those checked scripts
-  into reusable proof-certificate and checked-derivability predicates. It
-  does not add a new rule to the object logic; it only changes how
-  already-checked finite proof scripts are carried through later theorem
-  statements.
+  into reusable proof-certificate and checked-derivability predicates while
+  preserving the object logic.
 
-  The central distinction is between a retained certificate and a forgotten
-  certificate. `regulator_theory_proof_certificate R Γ A` stores a concrete
-  finite script together with its checker equation.
-  `regulator_theory_checked_derivable R Γ A` forgets the script into a
-  Prop-level existential. The finite-axiom-set and minimal-profile variants
-  are wrappers around the same Boolean checker interfaces introduced in
-  `M001_01`. This file does not introduce semantic validity, external model
-  theory, modal provability, arithmetic coding, diagonal obstruction, or
-  self-recognition.
+  The central distinction is between a retained and a forgotten certificate.
+  `regulator_theory_proof_certificate R Γ A` stores a concrete finite script
+  together with its checker equation. `regulator_theory_checked_derivable R Γ
+  A` forgets the script into a Prop-level existential. The finite-axiom-set
+  and minimal-profile variants wrap the same Boolean checker interfaces
+  introduced in `M001_01`.
 
 *)
 
@@ -47,13 +42,11 @@ From M001 Require Export M001_03__Falsity.
 
 (*
 │
-│          A `regulator_theory_proof_certificate R Γ A` is a finite
-│          proof script paired with the fact that
-│          `regulator_theory_check_bool` accepts it as a proof of `A`
-│          from context `Γ` under regulator theory `R`. The script
-│          remains extractable and inspectable; this is not a Rocq
-│          proof term of `A`, and no semantic reading is attached to
-│          it.
+│          A `regulator_theory_proof_certificate R Γ A` pairs a finite
+│          proof script with its acceptance by
+│          `regulator_theory_check_bool` as a proof of `A` from `Γ`
+│          under `R`. The certificate remains extractable and
+│          inspectable at the syntactic checker level.
 │
 *)
 
@@ -107,11 +100,9 @@ Definition regulator_theory_proof_certificate_from_checked
 (*
 │
 │          `regulator_theory_checked_derivable` forgets the proof
-│          script into an existential. It says exactly that some
-│          finite script is accepted by the Boolean checker; it is not
-│          semantic entailment. The negative form is the negation of
-│          that existential and likewise has no model-theoretic
-│          content.
+│          script into the existential claim that the Boolean checker
+│          accepts some finite script. Its negative form negates that
+│          same syntactic existence claim.
 │
 *)
 

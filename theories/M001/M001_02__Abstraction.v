@@ -34,15 +34,12 @@
   emits `deduction_mp_lift_block_from`, which uses S to re-derive the MP step
   under the discharged context. An index map records, for each consumed
   source line at position `i`, the output index of the generated line whose
-  formula is `A → φ_i`; this map is what allows source MP references to be
-  replayed in the target proof without rebuilding from scratch. The public
-  exports are the general deduction theorem and its minimal-profile
-  specialization; everything else (`*_block_*`, `DeductionState`,
-  `deduction_transform_*`, `deduction_index_map_verified`, and
-  `deduction_state_verified`) is internal scaffolding consumed only inside
-  this file. This file does not introduce semantic validity, external model
-  theory, modal provability, arithmetic coding, diagonal obstruction, or
-  self-recognition.
+  formula is `A → φ_i`; this map allows source MP references to be replayed
+  in the target proof without rebuilding from scratch. The public exports are
+  the general deduction theorem and its minimal-profile specialization;
+  everything else (`*_block_*`, `DeductionState`, `deduction_transform_*`,
+  `deduction_index_map_verified`, and `deduction_state_verified`) is internal
+  syntactic scaffolding.
 
 *)
 
@@ -60,12 +57,10 @@ From M001 Require Export M001_01__Kernel.
 │
 │          `k_axiom_formula` and `s_axiom_formula` package the
 │          canonical K and S instances as functions on the relevant
-│          formula parameters. We name them so that the Hilbert blocks
-│          below read as small algebraic expressions in K and S rather
-│          than as nested `Imp` trees, and so that the
-│          recognizer-level lemmas
-│          `available_axiom_bool_k_formula_lemma` / `_S_formula` give
-│          one-step rewrites every block-checking proof can rely on.
+│          formula parameters. They give the Hilbert blocks a small
+│          algebraic presentation and support one-step recognizer
+│          rewrites through `available_axiom_bool_k_formula_lemma` /
+│          `_S_formula`.
 │
 *)
 

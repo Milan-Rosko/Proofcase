@@ -20,12 +20,9 @@
   composition, negative precomposition, symbolic regulators, the
   closure/equivalence interface, and evaluation-closure bridges.
 
-  The API remains syntactic and operational. It exposes
-  `regulator_theory_check_bool`, `regulator_theory_checked_derivable`,
-  `regulator_theory_closure`, `SymbolicRegulator`, and
-  `RegulatorEvaluationFrame`; it does not add semantic validity, external
-  model theory, modal provability, arithmetic coding, diagonal obstruction,
-  IO, or self-recognition.
+  The syntactic operational API exposes `regulator_theory_check_bool`,
+  `regulator_theory_checked_derivable`, `regulator_theory_closure`,
+  `SymbolicRegulator`, and `RegulatorEvaluationFrame`.
 
 *)
 
@@ -39,11 +36,10 @@
 
 (*
 │
-│          The public API is the cumulative export of the completed
-│          M001 stack through `M001_09__Evaluation_Closure`. Importers
-│          should depend on this file when they need the operational
-│          regulator-theory surface rather than an individual
-│          construction layer.
+│          The public API cumulatively exports the completed M001
+│          stack through `M001_09__Evaluation_Closure`. Importers can
+│          use this file as the stable operational regulator-theory
+│          surface.
 │
 *)
 
