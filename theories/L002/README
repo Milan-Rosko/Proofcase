@@ -48,6 +48,18 @@
 3 - Intuition
     ---------
 
+    The difficulty of L002 comes from coordinating levels simultaneously:
+
+      - constructive proof theory and checked derivability;
+      - diagonalization inherited from L001;
+      - the distinction between full fixed points and one-way mirror positions;
+      - internal reasoning versus metatheoretic knowledge;
+      - non-refutability versus truth, belief, or acceptance;
+      - self-recognition versus mere participation in a process;
+      - attributed provenance versus actual causal origin;
+      - the boundary between logical necessity and empirical response laws.
+
+
     Let `M` be an embedded theory with context `Gamma`. L002 defines
 
       AsIF M Gamma A :=
