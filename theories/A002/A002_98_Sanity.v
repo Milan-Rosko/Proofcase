@@ -14,10 +14,10 @@
 
   OVERVIEW
 
-  Two minimal effectivity witnesses for the normalized A002 checker. The
-  first checks one K line; the second checks two K lines followed by modus
-  ponens. Both use only inductive formulas, rules, lines, and ordinary lists,
-  so no A001 arithmetic container is materialized.
+  Two minimal effectivity witnesses for the normalized CARRYLESS SEQUENT
+  checker. The first checks one K line; the second checks two K lines
+  followed by modus ponens. Both use only inductive formulas, rules, lines,
+  and ordinary lists, so no A001 arithmetic container is materialized.
 
   These are closed compile-time computations, not an additional theorem
   layer. General K/S/MP correctness, whole-derivation validity, and

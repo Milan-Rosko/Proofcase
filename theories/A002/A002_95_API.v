@@ -14,18 +14,20 @@
 
   OVERVIEW
 
-  Public API surface for A002. A single import exposes arithmetic
-  normalization, target-sensitive inductive verification, the end-to-end
-  certified arithmetic entry point, local and derivation reflection theorems,
-  plus the legacy compatibility verifier, constructors, parsers, Hilbert-rule
-  checkers, certificate agreement surface, and IO dispatcher.
+  Public API surface for A002/CARRYLESS SEQUENT. A single import exposes
+  arithmetic normalization, target-sensitive inductive verification, the
+  end-to-end certified arithmetic entry point, independent certificate
+  replay, local and derivation reflection theorems, plus the legacy
+  compatibility verifier, constructors, parsers, Hilbert-rule checkers, and
+  IO dispatcher.
 
   Downstream logical developments should prefer `NormalizedProof` and
-  `normalized_verifyb_iff`; arithmetic clients should use
-  `A002_Verify_certified`, whose acceptance theorem is
-  `certified_verify_accept_sound`. The legacy arithmetic functions remain
-  public for compatibility; artifact generation and sanity probes are
-  excluded from this stable dependency boundary.
+  `normalized_verifyb_iff`; arithmetic clients should use the canonical
+  `encode_normalized_*` quotations with `A002_Verify_certified`. Soundness is
+  `certified_verify_accept_sound`, and representational completeness is
+  `certified_verify_complete`. The legacy arithmetic functions remain public
+  for compatibility; artifact generation and sanity probes are excluded from
+  this stable dependency boundary.
 
 *)
 

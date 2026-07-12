@@ -5,6 +5,8 @@ val fst : ('a1 * 'a2) -> 'a1
 
 val snd : ('a1 * 'a2) -> 'a2
 
+val length : 'a1 list -> Big_int_Z.big_int
+
 val app : 'a1 list -> 'a1 list -> 'a1 list
 
 val add : Big_int_Z.big_int -> Big_int_Z.big_int -> Big_int_Z.big_int
@@ -22,6 +24,8 @@ module Nat :
   val leb : Big_int_Z.big_int -> Big_int_Z.big_int -> bool
 
   val ltb : Big_int_Z.big_int -> Big_int_Z.big_int -> bool
+
+  val max : Big_int_Z.big_int -> Big_int_Z.big_int -> Big_int_Z.big_int
 
   val even : Big_int_Z.big_int -> bool
 
@@ -150,6 +154,8 @@ val eRR_INDEX_OUT_OF_RANGE : Big_int_Z.big_int
 val eRR_NONCANONICAL_LINE : Big_int_Z.big_int
 
 val eRR_UNKNOWN_RULE : Big_int_Z.big_int
+
+val eRR_NORMALIZED_STEP_REJECTED : Big_int_Z.big_int
 
 val eRR_NONCANONICAL_FORMULA : Big_int_Z.big_int
 
@@ -363,6 +369,12 @@ val normalized_conclusion : normalizedDerivation -> normalizedFormula option
 
 val normalized_verifyb : normalizedDerivation -> normalizedFormula -> bool
 
+val normalized_formula_height : normalizedFormula -> Big_int_Z.big_int
+
+val encode_normalized_formula_raw : normalizedFormula -> Big_int_Z.big_int
+
+val encode_normalized_formula : normalizedFormula -> Big_int_Z.big_int
+
 val normalize_formula_fuel :
   Big_int_Z.big_int -> Big_int_Z.big_int -> normalizedFormula option
 
@@ -370,12 +382,29 @@ val normalize_formula : Big_int_Z.big_int -> normalizedFormula option
 
 val normalize_rule : Big_int_Z.big_int -> normalizedRule option
 
+val encode_normalized_rule : normalizedRule -> Big_int_Z.big_int
+
 val normalize_line : Big_int_Z.big_int -> normalizedLine option
+
+val encode_normalized_line : normalizedLine -> Big_int_Z.big_int
 
 val normalize_lines :
   Big_int_Z.big_int -> Big_int_Z.big_int -> normalizedDerivation option
 
+val encode_normalized_lines : normalizedDerivation -> Big_int_Z.big_int
+
 val normalize_derivation : Big_int_Z.big_int -> normalizedDerivation option
+
+val encode_normalized_derivation : normalizedDerivation -> Big_int_Z.big_int
+
+val normalized_failure_index :
+  normalizedFormula list -> normalizedDerivation -> Big_int_Z.big_int ->
+  Big_int_Z.big_int option
+
+val normalized_rejection : normalizedDerivation -> Big_int_Z.big_int
+
+val certified_payload :
+  Big_int_Z.big_int -> Big_int_Z.big_int -> Big_int_Z.big_int
 
 val a002_Verify_certified :
   Big_int_Z.big_int -> Big_int_Z.big_int -> Big_int_Z.big_int

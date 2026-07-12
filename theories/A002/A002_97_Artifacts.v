@@ -14,17 +14,19 @@
 
   OVERVIEW
 
-  Artifact layer for A002. We record assumption reports for arithmetic
-  compatibility, normalized reflection, target-sensitive verification, and
-  end-to-end certified arithmetic acceptance, then extract the legacy and
-  certified verifier surfaces to OCaml.
+  Artifact layer for A002/CARRYLESS SEQUENT. We record assumption reports for
+  arithmetic compatibility, normalized reflection, target-sensitive
+  verification, and end-to-end certified arithmetic acceptance, then extract
+  the legacy and certified verifier surfaces to OCaml.
 
   The principal audit chain is `normalized_stepb_iff`,
-  `normalized_linesb_iff`, `normalized_verifyb_iff`, and
-  `certified_verify_accept_sound`: local rules, complete line lists,
-  requested conclusions, and arithmetic acceptance respectively. The
-  remaining reports certify legacy arithmetic agreement and accepted-result
-  shape.
+  `normalized_linesb_iff`, `normalized_failure_index_none_iff`,
+  `normalized_verifyb_iff`, `certified_verify_accept_sound`,
+  `certified_verify_complete`, and `certified_certb_iff`: local rules,
+  complete line lists, diagnostic agreement, requested conclusions,
+  arithmetic soundness, arithmetic representational completeness, and
+  independent payload replay respectively. The remaining reports certify
+  legacy arithmetic agreement and accepted-result shape.
 
   Extraction erases proofs while retaining the normalized syntax datatypes
   and Boolean checker. `A002_Verifier` contains constructors, parsers,
@@ -73,11 +75,26 @@ Redirect "theories/A002/_appendix/_assumptions/normalized_stepb_iff"
 Redirect "theories/A002/_appendix/_assumptions/normalized_linesb_iff"
   Print Assumptions normalized_linesb_iff.
 
+Redirect "theories/A002/_appendix/_assumptions/normalized_failure_index_none_iff"
+  Print Assumptions normalized_failure_index_none_iff.
+
 Redirect "theories/A002/_appendix/_assumptions/normalized_verifyb_iff"
   Print Assumptions normalized_verifyb_iff.
 
 Redirect "theories/A002/_appendix/_assumptions/certified_verify_accept_sound"
   Print Assumptions certified_verify_accept_sound.
+
+Redirect "theories/A002/_appendix/_assumptions/certified_verify_complete"
+  Print Assumptions certified_verify_complete.
+
+Redirect "theories/A002/_appendix/_assumptions/certified_verify_accept_payload"
+  Print Assumptions certified_verify_accept_payload.
+
+Redirect "theories/A002/_appendix/_assumptions/certified_certb_iff"
+  Print Assumptions certified_certb_iff.
+
+Redirect "theories/A002/_appendix/_assumptions/certified_generated_cert_checks"
+  Print Assumptions certified_generated_cert_checks.
 
 (*
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -104,9 +121,14 @@ Extraction "theories/A002/_appendix/_artifacts/A002_Verifier"
   A002_Verify A002_Certb A002_Verify_certified A002_Certified_Certb
   NormalizedFormula NormalizedRule NormalizedLine
   normalized_formula_eqb normalized_stepb normalized_linesb
-  normalized_conclusion normalized_verifyb
+  normalized_failure_index normalized_conclusion normalized_verifyb
+  normalized_rejection
   normalize_formula normalize_rule normalize_line
   normalize_lines normalize_derivation
+  normalized_formula_height encode_normalized_formula_raw
+  encode_normalized_formula encode_normalized_rule
+  encode_normalized_line encode_normalized_lines
+  encode_normalized_derivation certified_payload
   code_var code_imp code_line tag_axk tag_axs tag_mp code_derivation
   parse_imp parse_line
   check_axk check_axs check_mp.

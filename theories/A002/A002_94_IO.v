@@ -14,9 +14,9 @@
 
   OVERVIEW
 
-  Extraction-facing IO surface for A002. We provide commands for running the
-  verifier, checking a certificate payload, parsing a formula diagnostic, and
-  parsing a proof line.
+  Extraction-facing IO surface for A002/CARRYLESS SEQUENT. We provide
+  commands for running the verifier, checking a certificate payload, parsing
+  a formula diagnostic, and parsing a proof line.
 
   The IO surface remains arithmetic: verification and parser commands return
   natural-number result codes, while certificate checking returns an

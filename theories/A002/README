@@ -3,8 +3,8 @@
 1 - Summary
     -------
 
-    A002 formalizes an EFFECTIVE HILBERT CERTIFICATE VERIFIER for the
-    implicational fragment with axiom schemas K and S and modus ponens.
+    CARRYLESS SEQUENT is A002's certified checker for closed implicational
+    Hilbert sequents with axiom schemas K and S and modus ponens.
 
     The principal verifier operates on inductive normal forms rather than on
     nested arithmetic container codes:
@@ -18,7 +18,7 @@
       normalized_verifyb : NormalizedDerivation ->
                            NormalizedFormula -> bool
 
-    Two closed reflection theorems identify executable acceptance with the
+    Three closed reflection theorems identify executable acceptance with the
     independent inductive validity judgments:
 
       normalized_stepb_iff :
@@ -38,8 +38,30 @@
       A002_Verify_certified : nat -> nat -> nat
 
     It normalizes the arithmetic derivation and target, requires
-    target-sensitive normalized validity, and only then returns the legacy
-    arithmetic verifier result.
+    target-sensitive normalized validity, and returns a canonical payload
+    binding the accepted derivation code to its target code.
+
+    Certified rejection diagnostics distinguish the failed boundary:
+
+      derivation normalization
+        STAGE_DERIVATION_HEADER, index 0,
+        ERR_NONCANONICAL_DERIVATION
+
+      target normalization
+        STAGE_FORMULA, index 0,
+        ERR_NONCANONICAL_FORMULA
+
+      normalized K/S/MP obligation
+        STAGE_RULE, first failing line index,
+        ERR_NORMALIZED_STEP_REJECTED
+
+      empty normalized derivation
+        STAGE_CONCLUSION, index 0,
+        ERR_EMPTY_DERIVATION
+
+      requested conclusion mismatch
+        STAGE_CONCLUSION, final line index,
+        ERR_BAD_CONCLUSION
 
     Arithmetic inputs are guarded against non-canonical A001 pair codes before
     their decoded components are interpreted as lists, formulas, lines, rules,
@@ -50,11 +72,11 @@
     -----
 
                       ┌──────────────────────────────────┐
-                      │              x                   │
-                      │   └─┴─┴─┴─┴─┴─┴─┴─┴─┴─┘ 7 / 10   │
+                      │                  x               │
+                      │   └─┴─┴─┴─┴─┴─┴─┴─┴─┴─┘ 8 / 10   │
                       └──────────────────────────────────┘
 
-    Evaluation: 7, Solid. The normalized checker is effective, structurally
+    Evaluation: 8, Decent. The normalized checker is effective, structurally
     recursive, documented, extracted, and proved equivalent to inductive K/S/MP
     validity. The arithmetic compatibility verifier remains executable and
     deterministically rejects malformed inputs.
@@ -63,9 +85,9 @@
     facts are closed under the global context. The package is not yet fully
     peer reviewed.
 
-    One boundary remains explicit: certificate checking compares the complete
-    certified verifier result with `accept payload`. It is agreement checking,
-    not an independent decompositional replay of the certificate fields.
+    Certified payload checking is independent of the verifier. It validates
+    canonical payload structure, exact derivation/target binding, arithmetic
+    normalization, and target-sensitive inductive proof validity.
 
 
 3 - Intuition
@@ -143,6 +165,19 @@
         <->
       NormalizedProof lines target.
 
+    Conversely, canonical quotation is complete. Every inductively valid
+    normalized proof is encoded and accepted:
+
+      NormalizedProof lines target
+        ->
+      A002_Verify_certified
+        (encode_normalized_derivation lines)
+        (encode_normalized_formula target)
+      = accept
+        (certified_payload
+          (encode_normalized_derivation lines)
+          (encode_normalized_formula target)).
+
     `NormalizedLines` is defined independently. Its cons constructor requires
     a valid `NormalizedStep` for the head line and recursively validates the
     tail under the prefix extended by the displayed formula. Thus the Boolean
@@ -164,6 +199,13 @@
         normalize_derivation d = Some lines /\
         normalize_formula theta = Some target /\
         NormalizedProof lines target.
+
+    `A002_Verify_certified` does not invoke the legacy `A002_Verify`. It makes
+    one pass to decode the arithmetic representation into inductive syntax and
+    then checks that syntax with `normalized_verifyb`; it does not traverse the
+    large arithmetic representation a second time. Clients already holding
+    inductive syntax call `normalized_verifyb` directly and incur no A001
+    pairing or large-number execution cost.
 
     The older arithmetic surface represents the same kinds of data with A001
     pairing. A line is
@@ -249,14 +291,16 @@
       `NormalizedDerivation`, the structural equality and derivation checkers,
       the independent judgments `NormalizedStep` and `NormalizedLines`, and the
       soundness/completeness theorems packaged as `normalized_stepb_iff`,
-      `normalized_linesb_iff`, and `normalized_verifyb_iff`. Defines arithmetic
-      normalization and the certified arithmetic entry point with its
-      end-to-end soundness theorem.
+      `normalized_linesb_iff`, and `normalized_verifyb_iff`. The diagnostic
+      traversal `normalized_failure_index` agrees with whole-line acceptance by
+      `normalized_failure_index_none_iff`. Defines arithmetic normalization and
+      the certified arithmetic entry point with its end-to-end soundness
+      theorem and stage-specific rejection classifications.
 
     A002_94_IO.v
 
       Arithmetic transport and extraction-facing dispatcher. Defines commands
-      for verification, generated-certificate agreement, formula diagnostics,
+      for certified verification, independent certificate replay, formula diagnostics,
       and line parsing. Provides result/error decoding and compact `BinNums.Z`
       presentation views.
 
@@ -365,8 +409,30 @@
         normalized_verifyb lines target = true <->
         NormalizedProof lines target
 
+      normalized_failure_index_none_iff : forall prefix lines index,
+        normalized_failure_index prefix lines index = None <->
+        normalized_linesb prefix lines = true
+
       certified_verify_accept_sound : forall d theta payload,
         A002_Verify_certified d theta = accept payload ->
+        exists lines target,
+          normalize_derivation d = Some lines /\
+          normalize_formula theta = Some target /\
+          NormalizedProof lines target
+
+      certified_verify_complete : forall lines target,
+        NormalizedProof lines target ->
+        A002_Verify_certified
+          (encode_normalized_derivation lines)
+          (encode_normalized_formula target) =
+        accept
+          (certified_payload
+            (encode_normalized_derivation lines)
+            (encode_normalized_formula target))
+
+      certified_certb_iff : forall d theta payload,
+        A002_Certified_Certb d theta payload = true <->
+        payload = certified_payload d theta /\
         exists lines target,
           normalize_derivation d = Some lines /\
           normalize_formula theta = Some target /\
@@ -385,6 +451,18 @@
       normalize_line       : nat -> option NormalizedLine
       normalize_lines      : nat -> nat -> option NormalizedDerivation
       normalize_derivation : nat -> option NormalizedDerivation
+
+      normalized_failure_index :
+        list NormalizedFormula -> NormalizedDerivation -> nat -> option nat
+      normalized_rejection :
+        NormalizedDerivation -> nat
+
+      encode_normalized_formula    : NormalizedFormula -> nat
+      encode_normalized_rule       : NormalizedRule -> nat
+      encode_normalized_line       : NormalizedLine -> nat
+      encode_normalized_lines      : NormalizedDerivation -> nat
+      encode_normalized_derivation : NormalizedDerivation -> nat
+      certified_payload            : nat -> nat -> nat
 
       accept      : nat -> nat
       reject      : nat -> nat -> nat -> nat
@@ -473,8 +551,13 @@
       check_mp_sound
       normalized_stepb_iff
       normalized_linesb_iff
+      normalized_failure_index_none_iff
       normalized_verifyb_iff
       certified_verify_accept_sound
+      certified_verify_complete
+      certified_verify_accept_payload
+      certified_certb_iff
+      certified_generated_cert_checks
 
     The normalized checker datatypes and functions are included in extracted
     `A002_Verifier.ml`:
@@ -485,12 +568,20 @@
       normalized_formula_eqb
       normalized_stepb
       normalized_linesb
+      normalized_failure_index
       normalized_verifyb
+      normalized_rejection
       normalize_formula
       normalize_rule
       normalize_line
       normalize_lines
       normalize_derivation
+      encode_normalized_formula
+      encode_normalized_rule
+      encode_normalized_line
+      encode_normalized_lines
+      encode_normalized_derivation
+      certified_payload
 
 
 8 - Notes
@@ -506,13 +597,26 @@
 
       encode 0 (encode stage (encode index detail)).
 
-    Accepted arithmetic results use
+    Legacy accepted arithmetic results use
 
       encode 1 (encode n (encode theta (encode certs final_formula))).
 
-    `A002_Certified_Certb` is intentionally conservative but not independent:
-    it runs `A002_Verify_certified d theta` and checks equality with
-    `accept payload`.
+    Certified accepted results use
+
+      accept (certified_payload derivation_code target_code),
+
+    where both codes have passed normalization and target-sensitive inductive
+    verification.
+
+    Certified rejection results retain the same A001-coded error envelope but
+    separate input normalization, first failing rule line, empty derivation,
+    and final-conclusion mismatch. `normalized_failure_index_none_iff` proves
+    that the rule-diagnostic traversal reports no line exactly when the
+    normalized whole-line checker accepts.
+
+    `A002_Certified_Certb` is an independent replay checker. It does not invoke
+    `A002_Verify` or `A002_Verify_certified`; it checks canonical payload
+    binding and reruns only normalization plus the proved structural verifier.
 
     The arithmetic formula recognizer uses
 
@@ -527,3 +631,15 @@
     target-sensitive `NormalizedProof`. The legacy `A002_Verify` remains
     available for compatibility, but the IO dispatcher uses
     `A002_Verify_certified`.
+
+    The certified path does not delegate to that legacy verifier. Arithmetic
+    normalization is the serialization boundary; all proof-rule execution
+    after it is over `NormalizedFormula`, `NormalizedLine`, and ordinary lists.
+
+    `certified_verify_complete` proves the converse for the canonical quotation:
+    every `NormalizedProof` can be serialized by `encode_normalized_derivation`
+    and `encode_normalized_formula`, and that serialization is accepted.
+
+    `certified_certb_iff` characterizes replay exactly: a payload checks if and
+    only if it is the canonical `(derivation_code,target_code)` binding and
+    those codes normalize to a `NormalizedProof`.

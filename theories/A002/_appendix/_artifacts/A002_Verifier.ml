@@ -15,6 +15,12 @@ let fst = function
 let snd = function
 | (_, y) -> y
 
+(** val length : 'a1 list -> Big_int_Z.big_int **)
+
+let rec length = function
+| [] -> Big_int_Z.zero_big_int
+| _ :: l' -> Big_int_Z.succ_big_int (length l')
+
 (** val app : 'a1 list -> 'a1 list -> 'a1 list **)
 
 let rec app l m =
@@ -58,6 +64,21 @@ module Nat =
 
   let ltb n m =
     leb (Big_int_Z.succ_big_int n) m
+
+  (** val max :
+      Big_int_Z.big_int -> Big_int_Z.big_int -> Big_int_Z.big_int **)
+
+  let rec max n m =
+    (fun fO fS n -> if Big_int_Z.sign_big_int n <= 0 then fO ()
+  else fS (Big_int_Z.pred_big_int n))
+      (fun _ -> m)
+      (fun n' ->
+      (fun fO fS n -> if Big_int_Z.sign_big_int n <= 0 then fO ()
+  else fS (Big_int_Z.pred_big_int n))
+        (fun _ -> n)
+        (fun m' -> Big_int_Z.succ_big_int (max n' m'))
+        m)
+      n
 
   (** val even : Big_int_Z.big_int -> bool **)
 
@@ -429,6 +450,16 @@ let eRR_UNKNOWN_RULE =
     (Big_int_Z.succ_big_int (Big_int_Z.succ_big_int (Big_int_Z.succ_big_int
     (Big_int_Z.succ_big_int (Big_int_Z.succ_big_int (Big_int_Z.succ_big_int
     (Big_int_Z.succ_big_int Big_int_Z.zero_big_int))))))))))))
+
+(** val eRR_NORMALIZED_STEP_REJECTED : Big_int_Z.big_int **)
+
+let eRR_NORMALIZED_STEP_REJECTED =
+  Big_int_Z.succ_big_int (Big_int_Z.succ_big_int (Big_int_Z.succ_big_int
+    (Big_int_Z.succ_big_int (Big_int_Z.succ_big_int (Big_int_Z.succ_big_int
+    (Big_int_Z.succ_big_int (Big_int_Z.succ_big_int (Big_int_Z.succ_big_int
+    (Big_int_Z.succ_big_int (Big_int_Z.succ_big_int (Big_int_Z.succ_big_int
+    (Big_int_Z.succ_big_int (Big_int_Z.succ_big_int
+    Big_int_Z.zero_big_int)))))))))))))
 
 (** val eRR_NONCANONICAL_FORMULA : Big_int_Z.big_int **)
 
@@ -1928,6 +1959,29 @@ let normalized_verifyb lines target =
      | Some conclusion -> normalized_formula_eqb conclusion target
      | None -> false)
 
+(** val normalized_formula_height : normalizedFormula -> Big_int_Z.big_int **)
+
+let rec normalized_formula_height = function
+| NFVar _ -> Big_int_Z.zero_big_int
+| NFImp (a, b0) ->
+  Big_int_Z.succ_big_int
+    (Nat.max (normalized_formula_height a) (normalized_formula_height b0))
+
+(** val encode_normalized_formula_raw :
+    normalizedFormula -> Big_int_Z.big_int **)
+
+let rec encode_normalized_formula_raw = function
+| NFVar i -> code_var i
+| NFImp (a, b0) ->
+  code_imp (encode_normalized_formula_raw a)
+    (encode_normalized_formula_raw b0)
+
+(** val encode_normalized_formula : normalizedFormula -> Big_int_Z.big_int **)
+
+let encode_normalized_formula formula =
+  encode (Big_int_Z.succ_big_int (normalized_formula_height formula))
+    (encode_normalized_formula_raw formula)
+
 (** val normalize_formula_fuel :
     Big_int_Z.big_int -> Big_int_Z.big_int -> normalizedFormula option **)
 
@@ -1958,7 +2012,9 @@ let rec normalize_formula_fuel fuel c =
 (** val normalize_formula : Big_int_Z.big_int -> normalizedFormula option **)
 
 let normalize_formula c =
-  normalize_formula_fuel (formula_bound c) c
+  if canonical001b c
+  then normalize_formula_fuel (fst001 c) (snd001 c)
+  else None
 
 (** val normalize_rule : Big_int_Z.big_int -> normalizedRule option **)
 
@@ -1981,6 +2037,13 @@ let normalize_rule tag =
                  else None
   else None
 
+(** val encode_normalized_rule : normalizedRule -> Big_int_Z.big_int **)
+
+let encode_normalized_rule = function
+| NRAxK -> tag_axk
+| NRAxS -> tag_axs
+| NRMP (p, q) -> tag_mp p q
+
 (** val normalize_line : Big_int_Z.big_int -> normalizedLine option **)
 
 let normalize_line ell =
@@ -1994,6 +2057,12 @@ let normalize_line ell =
            | None -> None)
         | None -> None)
   else None
+
+(** val encode_normalized_line : normalizedLine -> Big_int_Z.big_int **)
+
+let encode_normalized_line line =
+  code_line (encode_normalized_rule line.normalized_line_rule)
+    (encode_normalized_formula line.normalized_line_formula)
 
 (** val normalize_lines :
     Big_int_Z.big_int -> Big_int_Z.big_int -> normalizedDerivation option **)
@@ -2018,11 +2087,58 @@ let rec normalize_lines n body =
     else None)
     n
 
+(** val encode_normalized_lines :
+    normalizedDerivation -> Big_int_Z.big_int **)
+
+let rec encode_normalized_lines = function
+| [] -> code_nil
+| line :: rest ->
+  code_cons (encode_normalized_line line) (encode_normalized_lines rest)
+
 (** val normalize_derivation :
     Big_int_Z.big_int -> normalizedDerivation option **)
 
 let normalize_derivation d =
   if canonical001b d then normalize_lines (fst001 d) (snd001 d) else None
+
+(** val encode_normalized_derivation :
+    normalizedDerivation -> Big_int_Z.big_int **)
+
+let encode_normalized_derivation lines =
+  code_derivation (length lines) (encode_normalized_lines lines)
+
+(** val normalized_failure_index :
+    normalizedFormula list -> normalizedDerivation -> Big_int_Z.big_int ->
+    Big_int_Z.big_int option **)
+
+let rec normalized_failure_index prefix lines index =
+  match lines with
+  | [] -> None
+  | line :: rest ->
+    if normalized_stepb prefix line.normalized_line_rule
+         line.normalized_line_formula
+    then normalized_failure_index
+           (app prefix (line.normalized_line_formula :: [])) rest
+           (Big_int_Z.succ_big_int index)
+    else Some index
+
+(** val normalized_rejection : normalizedDerivation -> Big_int_Z.big_int **)
+
+let normalized_rejection lines =
+  match normalized_failure_index [] lines Big_int_Z.zero_big_int with
+  | Some index -> reject sTAGE_RULE index eRR_NORMALIZED_STEP_REJECTED
+  | None ->
+    (match normalized_conclusion lines with
+     | Some _ ->
+       reject sTAGE_CONCLUSION (Nat.pred (length lines)) eRR_BAD_CONCLUSION
+     | None ->
+       reject sTAGE_CONCLUSION Big_int_Z.zero_big_int eRR_EMPTY_DERIVATION)
+
+(** val certified_payload :
+    Big_int_Z.big_int -> Big_int_Z.big_int -> Big_int_Z.big_int **)
+
+let certified_payload =
+  encode
 
 (** val a002_Verify_certified :
     Big_int_Z.big_int -> Big_int_Z.big_int -> Big_int_Z.big_int **)
@@ -2033,11 +2149,10 @@ let a002_Verify_certified d theta =
     (match normalize_formula theta with
      | Some target ->
        if normalized_verifyb lines target
-       then a002_Verify d theta
-       else reject sTAGE_RULE Big_int_Z.zero_big_int eRR_BAD_CONCLUSION
+       then accept (certified_payload d theta)
+       else normalized_rejection lines
      | None ->
-       reject sTAGE_DERIVATION_HEADER Big_int_Z.zero_big_int
-         eRR_NONCANONICAL_DERIVATION)
+       reject sTAGE_FORMULA Big_int_Z.zero_big_int eRR_NONCANONICAL_FORMULA)
   | None ->
     reject sTAGE_DERIVATION_HEADER Big_int_Z.zero_big_int
       eRR_NONCANONICAL_DERIVATION
@@ -2046,4 +2161,12 @@ let a002_Verify_certified d theta =
     Big_int_Z.big_int -> Big_int_Z.big_int -> Big_int_Z.big_int -> bool **)
 
 let a002_Certified_Certb d theta payload =
-  Nat.eqb (a002_Verify_certified d theta) (accept payload)
+  (&&)
+    ((&&) ((&&) (canonical001b payload) (Nat.eqb (fst001 payload) d))
+      (Nat.eqb (snd001 payload) theta))
+    (match normalize_derivation d with
+     | Some lines ->
+       (match normalize_formula theta with
+        | Some target -> normalized_verifyb lines target
+        | None -> false)
+     | None -> false)

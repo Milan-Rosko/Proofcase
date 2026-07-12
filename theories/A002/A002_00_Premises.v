@@ -14,10 +14,10 @@
 
   OVERVIEW
 
-  Arithmetic substrate for A002/EFFECTIVE ARITHMETIC CERTIFICATE VERIFIER. We
-  fix the shared standard-library and A001 pairing environment, then define
-  result conventions, canonical A001 destructuring, tagged lists, and formula
-  syntax used by the executable verifier layers.
+  Arithmetic substrate for A002/CARRYLESS SEQUENT. We fix the shared
+  standard-library and A001 carryless-pairing environment, then define result
+  conventions, canonical A001 destructuring, tagged lists, and formula syntax
+  used by the executable verifier layers.
 
   The verifier surface of A002 is deliberately arithmetic: every structured
   value and checking result is a natural number interpreted through the
@@ -146,12 +146,21 @@ Definition ERR_FUEL_EXHAUSTED : nat := 4.
 Definition ERR_NONCANONICAL_NODE : nat := 5.
 Definition ERR_BAD_TAG : nat := 6.
 Definition ERR_BAD_LIST_TAG : nat := 7.
-Definition ERR_EXPECTED_CONS : nat := 8.
-Definition ERR_EXPECTED_NIL : nat := 9.
 Definition ERR_INDEX_OUT_OF_RANGE : nat := 10.
 Definition ERR_NONCANONICAL_LINE : nat := 11.
-Definition ERR_BAD_LINE_FORMULA : nat := 12.
 Definition ERR_UNKNOWN_RULE : nat := 13.
+
+(*
+│
+│          `ERR_NORMALIZED_STEP_REJECTED` is reserved for a
+│          well-formed normalized line whose K, S, or MP obligation
+│          fails. Its accompanying index is the first failing line,
+│          unlike arithmetic normalization failures which are reported
+│          at their own input stage.
+│
+*)
+
+Definition ERR_NORMALIZED_STEP_REJECTED : nat := 14.
 
 (*
 │
@@ -162,7 +171,6 @@ Definition ERR_UNKNOWN_RULE : nat := 13.
 
 Definition ERR_NONCANONICAL_FORMULA : nat := 20.
 Definition ERR_BAD_FORMULA_TAG : nat := 21.
-Definition ERR_BAD_VAR_PAYLOAD : nat := 22.
 Definition ERR_BAD_IMP_PAYLOAD : nat := 23.
 Definition ERR_NOT_IMP : nat := 24.
 
@@ -208,8 +216,6 @@ Definition ERR_AXS_BAD_C : nat := 72.
 │
 *)
 
-Definition ERR_MP_BAD_P : nat := 90.
-Definition ERR_MP_BAD_Q : nat := 91.
 Definition ERR_MP_P_NOT_LT_J : nat := 92.
 Definition ERR_MP_Q_NOT_LT_J : nat := 93.
 Definition ERR_MP_BAD_LINE_J : nat := 94.

@@ -14,9 +14,10 @@
 
   OVERVIEW
 
-  Hilbert syntax and checker layer for A002-Core. We encode proof lines as
-  A001-canonical pairs of a rule tag and displayed formula, define the fixed
-  K, S, and modus-ponens tags, and implement their total arithmetic checkers.
+  Hilbert syntax and checker layer for CARRYLESS SEQUENT. We encode proof
+  lines as A001-canonical pairs of a rule tag and displayed formula, define
+  the fixed K, S, and modus-ponens tags, and implement their total arithmetic
+  checkers.
 
   Line and tag parsing establishes the arithmetic outer shape before
   rule-specific checking begins. The K and S checkers validate their complete
@@ -87,7 +88,8 @@ Definition line_formula (ell : nat) : nat :=
 
 (*
 │
-│          The fixed A002-Core rule code for the K axiom schema.
+│          The fixed CARRYLESS SEQUENT rule code for the K axiom
+│          schema.
 │
 *)
 
@@ -95,7 +97,8 @@ Definition RULE_AXK : nat := 0.
 
 (*
 │
-│          The fixed A002-Core rule code for the S axiom schema.
+│          The fixed CARRYLESS SEQUENT rule code for the S axiom
+│          schema.
 │
 *)
 
@@ -103,7 +106,7 @@ Definition RULE_AXS : nat := 1.
 
 (*
 │
-│          The fixed A002-Core rule code for modus ponens.
+│          The fixed CARRYLESS SEQUENT rule code for modus ponens.
 │
 *)
 
@@ -178,8 +181,8 @@ Definition rule_payload (tag : nat) : nat :=
 (*
 │
 │          `parse_rule_tag tag` returns `accept (encode rule payload)`
-│          when `tag` is one of the three canonical A002-Core rule
-│          tags.
+│          when `tag` is one of the three canonical CARRYLESS SEQUENT
+│          rule tags.
 │
 *)
 
@@ -223,9 +226,9 @@ Definition parse_rule_tag (tag : nat) : nat :=
 │
 │          `parse_line ell` returns the canonical tag/formula payload
 │          of a line after checking that the line itself is canonical
-│          and its tag is a valid A002-Core rule tag. If tag parsing
-│          fails, the tag parser's encoded diagnostic is carried as
-│          the line parser detail.
+│          and its tag is a valid CARRYLESS SEQUENT rule tag. If tag
+│          parsing fails, the tag parser's encoded diagnostic is
+│          carried as the line parser detail.
 │
 *)
 
@@ -455,16 +458,6 @@ Definition acceptedb (r : nat) : bool :=
 │                                                                              │
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
-
-(*
-│
-│          A successful `parse_line` result carries `encode tag phi`;
-│          this projection extracts the tag from that payload.
-│
-*)
-
-Definition parsed_line_tag (payload : nat) : nat :=
-  fst001 payload.
 
 (*
 │
