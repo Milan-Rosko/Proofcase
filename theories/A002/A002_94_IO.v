@@ -192,11 +192,6 @@ Definition Verify_Diagnostic (d theta : nat) : nat * nat * nat :=
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  The compact view changes presentation only: natural-number payloads are
-  converted to binary integers after the underlying arithmetic command has
-  run. It does not alter validation, normalization, status conventions, or
-  error selection.
-
 (*
 │
 │          `A002_Verified_Z` returns the raw verifier result as a

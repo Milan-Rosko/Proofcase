@@ -150,12 +150,6 @@ Definition verify_line (n body j : nat) : nat :=
 │
 *)
 
-  The loop invariant is operational: indices below `j` have already been
-  checked, and `certs` contains their local certificates in reverse order. If
-  `j = n`, the accumulator is accepted immediately; otherwise one successful
-  line extends the accumulator and advances both the index and the structural
-  recursion.
-
 (*              verify_lines(fuel,n,body,n,certs)=accept(certs).              *)
 
 Fixpoint verify_lines
@@ -226,11 +220,6 @@ Definition final_formula_result (n body : nat) : nat :=
 │          arithmetic error.
 │
 *)
-
-  Verification proceeds in a fixed order: canonical header, exact tagged-list
-  length, non-emptiness, local line loop, final-line retrieval, and target
-  equality. This ordering makes rejection deterministic and assigns every
-  failure to the earliest applicable stage.
 
 (*       A002_Verify(d,θ)=accept(code_final_cert_payload(n,θ,certs,θ))        *)
 (*⇒ d has exact length n>0, every line checks, and its final displayed formula*)
