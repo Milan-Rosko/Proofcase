@@ -14,11 +14,13 @@
 
   OVERVIEW
 
-  Mirror-irrefutability layer for L002. We prove that a full L001 negation
-  fixed point collapses unconditionally after specialization to M001
-  deduction, isolate the consistent one-way mirror position `not chi -> chi`,
-  derive `AsIF` from that position plus consistency, and exclude adequate
-  internal recognition under inclusion into a consistent enclosing regulator.
+  Mirror-irrefutability layer for L002. This file states the central
+  self-reference constraint in two separate forms. The stronger full-frame
+  L001 construction supplies a complete negation fixed point and therefore
+  collapses checked derivability. The live consistent theorems instead take a
+  supplied one-way mirror position `not chi -> chi`: consistency yields
+  `AsIF`, while accepted adequate recognition supplies `chi -> not chi` and
+  thereby reconstructs the collapsing full fixed point.
 
 *)
 
@@ -34,8 +36,11 @@ From L002 Require Export L002_00_Premises.
 
 (*
 │
-│          L001 evaluation closure constructs an external fixed-point
-│          formula for M-checked derivability.
+│          Compatibility route only. The stronger universal L001
+│          evaluation frame constructs a full external fixed-point
+│          formula for M-checked derivability. That full fixed point
+│          collapses after M001 specialization and is not the premise
+│          of the live mirror-irrefutability results below.
 │
 *)
 
@@ -470,9 +475,14 @@ Qed.
 
 (*
 │
-│          L001 evaluation closure constructs a witness that is
-│          externally fixed, internally non-refutable, and opaque to
-│          adequate recognition.
+│          Legacy full-frame wrapper with jointly inconsistent
+│          premises. `E` constructs a full fixed point and therefore
+│          `Bot` in `M`; `fixed_regulator_inclusion S` transports that
+│          derivation into `Slambda`, contradicting
+│          `fixed_regulator_consistency S`. Consequently this theorem
+│          is not a live consistency result and is excluded from
+│          `WITNESS`. Use `fixed_regulator_mirror_opacity` with a
+│          supplied `ExternalMirrorPosition` for the live interface.
 │
 *)
 

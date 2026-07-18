@@ -14,10 +14,16 @@
 
   OVERVIEW
 
-  Public API layer for L002/SYMBOLIC REGULATION. We export the completed
-  theorem chain and name the package contracts for fixed-point
-  irrefutability, regulated assumptions, recognition opacity, recursive
-  mirroring, and conditional attribution.
+  Public API layer for L002/SYMBOLIC REGULATION. The primary contracts expose
+  two related constraints: a full negation fixed point collapses, while at a
+  supplied one-way mirror position consistency yields `AsIF` and excludes
+  successful adequate recognition. Recursive contracts carry the latter
+  obstruction pointwise through every supplied finite mirror depth;
+  finite-state recurrence is a separate operational contract. Attribution,
+  provenance, and externalization are conditional extensions.
+  `conditional_attributional_ambiguity_principle` is exported but is not a
+  conjunct of the certified `WITNESS`, whose attribution contract retains the
+  weaker internal-or-external disjunction.
 
 *)
 

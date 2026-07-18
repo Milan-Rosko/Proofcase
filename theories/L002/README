@@ -3,23 +3,67 @@
 1 - Summary
     -------
 
-    L002 separates two positions that behave differently after specialization
-    to M001. A full L001 negation fixed point `chi <-> not chi` collapses the
-    checked theory unconditionally. The consistent premise for Mirror
-    Unrefutability is instead the one-way `ExternalMirrorPosition`
-    `not chi -> chi`; consistency then makes `chi` internally irrefutable.
+    L002 isolates two related structural limits. Let `M` be a REGULATOR THEORY
+    (M001) in context `Gamma`.
 
-    The package separates this irrefutability from recognition of its source.
-    An adequate internal recognition certificate would reconstruct the
-    counter-position, re-enter the mirror relation, and derive `Bot`.
-    Consistency therefore entails both continuation under the mirrored
-    assumption and opacity of its mirror-position status.
+    (i)   A full negation fixed point, containing both
+          `chi -> formula_negation chi` and
+          `formula_negation chi -> chi`, collapses checked derivability.
 
-    The seed-based Recursive Mirror Lemma extends the result from one external
-    mirror position to every finite iterate of a supplied mirror operation whose
-    position preservation is proved. Attribution and observable
-    externalization are obtained through explicit response laws for a concrete
-    regulator.
+    (ii)  At a supplied one-way `ExternalMirrorPosition`, containing only
+          `formula_negation chi -> chi`, consistency yields non-refutation,
+          while successful adequate recognition would reconstruct the missing
+          direction and re-enter the collapsing full fixed point.
+
+    These are separate constraints. Full fixed-point closure already conflicts
+    with consistency. The minimal live recognition obstruction instead says
+    that a supplied one-way mirror position, consistency, and successful
+    actionable recognition cannot coexist.
+
+    In `ExternalFixedPoint` and `ExternalMirrorPosition`, `External` is
+    interface-relative. The relevant condition is supplied at the
+    metatheoretic boundary of `M`; the word does not assert external causal
+    origin.
+
+    L002 defines
+
+      AsIF M Gamma A :=
+        M cannot derive formula_negation A from Gamma
+
+    `AsIF` is exactly non-refutation. It is not by itself truth, belief,
+    probability, agency, voluntary control, or a global decision. Ordinary
+    context extension separately provides continuation under an assumption:
+
+      UnderAssumption M Gamma A B :=
+        M derives B from A :: Gamma
+
+    L002 packages `AsIF M Gamma A` with ordinary availability of `A` in
+    `A :: Gamma` as `AssumptionLicensedContent`. `AsIF` does not itself produce
+    that context rule.
+
+    The Recursive Mirror Lemma carries the obstruction pointwise to every
+    finite iterate satisfying the supplied adequacy conditions, or from a seed
+    plus a mirror-position preservation law. This is one theorem quantified
+    over every finite depth, not an assertion of actual infinite execution,
+    divergence, stack overflow, crash, dissociation, or physical recursion.
+
+    Reading guardrail. The formal results concern checked derivability,
+    non-refutation, recognition evidence, formula iteration, and explicitly
+    finite state carriers. Connecting them to nontermination, resource failure,
+    psychological behavior, causal provenance, or a real evaluator requires an
+    additional operational or empirical model.
+
+    Attribution is a secondary response layer. Under an explicit ambiguity
+    response law,
+
+      AttributionallyAmbiguous M Gamma internal_attribution
+        external_attribution A
+
+    means that both supplied attribution formulas remain `AsIF`. It is a
+    standoff, not a lean. The theorem is exported by the API but is not a
+    conjunct of certified `WITNESS`, whose attribution contract concludes only
+    an internal-or-external disjunction. One-sided attribution and observable
+    externalization require separate response hypotheses.
 
     A finite operational layer leaves the formula language unrestricted. Its
     logical refinement adds a deterministic transition, a formula observation
@@ -27,9 +71,8 @@
     recognition-opaque. Continued operation constructively yields a repeated
     state and repeated logical observation within the first `N + 1` samples.
     A provenance operational layer assigns an explicit internal/external tag to
-    every state, producing first-class attribution observations. An externally
-    tagged observation with matching logical content satisfies L002's concrete
-    operational externalization relation.
+    every state, producing first-class attribution observations. Those tags
+    record the model's attribution; they do not independently verify origin.
 
 
 2 - State
@@ -48,66 +91,58 @@
 3 - Intuition
     ---------
 
-    The difficulty of L002 comes from coordinating levels simultaneously:
+
+    The difficulty of L002 comes from coordinating several levels without
+    conflating them:
 
       - constructive proof theory and checked derivability;
       - diagonalization inherited from L001;
-      - the distinction between full fixed points and one-way mirror positions;
-      - internal reasoning versus metatheoretic knowledge;
+      - full fixed points versus supplied one-way mirror positions;
+      - specification-level collapse versus operational non-totality;
+      - internal derivability versus metatheoretic knowledge;
       - non-refutability versus truth, belief, or acceptance;
-      - self-recognition versus mere participation in a process;
+      - adequate recognition versus mere participation in a process;
       - attributed provenance versus actual causal origin;
-      - the boundary between logical necessity and empirical response laws.
+      - finite syntactic depth versus finite-state recurrence;
+      - logical necessity versus model-specific response laws.
 
+    In the M001 specialization, a full `ExternalFixedPoint` is incompatible with
+    consistency. The direction `chi -> formula_negation chi` derives the
+    negation constructively using assumption, MP, and deduction. The direction
+    `formula_negation chi -> chi` then recovers `chi`, and MP yields `Bot`.
+    Recognition plays no role in this stronger collapse result.
 
-    Let `M` be an embedded theory with context `Gamma`. L002 defines
-
-      AsIF M Gamma A :=
-        M cannot derive formula_negation A from Gamma
-
-    Thus `AsIF` is the internal form of irrefutability. Continuation under the
-    corresponding assumption is expressed by
-
-      UnderAssumption M Gamma A B :=
-        M derives B from A :: Gamma
-
-    L001 supplies a formula `chi` whose two directions are accepted by `M`:
-
-      chi -> formula_negation chi
-      formula_negation chi -> chi
-
-    In the M001 specialization this full `ExternalFixedPoint` is not compatible
-    with consistency. The forward direction constructively derives
-    `formula_negation chi` using assumption, MP, and deduction; the backward
-    direction recovers `chi`, yielding `Bot`.
-
-    L002 therefore uses only the non-collapsing direction as its live premise:
+    The live consistent results take only the one-way premise:
 
       ExternalMirrorPosition M Gamma chi :=
         M derives formula_negation chi -> chi
 
-    If `M` derived `formula_negation chi`, this mirror direction would recover
-    `chi`, and modus ponens would yield `Bot`. Consistency consequently gives
+    If `M` also derived `formula_negation chi`, this mirror direction would
+    recover `chi`, and the two formulas would yield `Bot`. Consistency therefore
+    gives
 
       AsIF M Gamma chi
 
-    This is the mirror obstruction viewed from within the embedded theory. Full
-    diagonal equivalence remains available only as an explicit collapse result.
+    L002 then combines this non-refutation status with the ordinary checked
+    assumption rule. Continuation under `chi` is not caused by `AsIF`; it is the
+    second, independently available component of `AssumptionLicensedContent`.
 
     The preferred recognition interface is a dedicated first-class object
     language:
 
       recognizes_fixed_point : Formula -> CodedRecognitionClaim
 
-    A `CodedRecognitionCertificate` is a finite instruction carrying an
-    advertised subject and an M001 evidence script. The total L002 recognition
-    checker matches that subject against the claim and checks the missing
-    diagonal direction `A -> formula_negation A` in the base context. A separate
-    executable re-entry transform weakens that evidence under assumption `A`
-    and composes it with the one-line assumption proof to produce
-    `formula_negation A`. Recognition plus the supplied mirror direction
-    therefore reconstructs the full collapsing fixed point. A consistent
-    external mirror position cannot be accepted by the coded regulator.
+    A `CodedRecognitionCertificate` carries an advertised subject and an M001
+    evidence script for `A -> formula_negation A`. The Boolean recognition
+    checker terminates on every supplied finite certificate. This is verifier
+    totality only: it performs neither proof search nor universal certificate
+    generation and is not a total semantic recognition classifier.
+
+    The executable re-entry transform places accepted evidence under assumption
+    `A` and composes it with the one-line assumption proof to derive
+    `formula_negation A`. Combined with the supplied mirror direction, accepted
+    recognition recreates the full collapsing fixed point. A consistent mirror
+    position therefore cannot have successful coded internal recognition.
 
     The older formula-valued interface
 
@@ -119,47 +154,43 @@
     likewise retained as a checker-level compatibility instance.
 
     The older `FixedSymbolicRegulator` remains available only inside the
-    compatibility theorem layer. It and the former L001 full-fixed-point
-    specialization are excluded from the public L002 contracts and from the
-    certified package witness.
+    compatibility theorem layer. In particular, the premises of
+    `l001_mirror_opacity` are jointly inconsistent: its full frame collapses
+    `M`, and inclusion transports that collapse into the enclosing regulator,
+    contradicting its supplied consistency. The wrapper and the former L001
+    full-fixed-point specialization are excluded from the public L002
+    contracts and from the certified package witness.
 
-    The oracle interpretation is structural. A total oracle fails at
-    self-application; symbolic regulation describes the internal continuation
-    at that failure. The resulting paradox is generated by the regulator's own
-    recursive operation. Recognition opacity prevents the regulator from
-    adequately identifying that generative operation as its own. In this
-    precise, internal Rice-like sense, the regulator cannot settle the
-    provenance of the process whose output regulates its continuation.
-    Recursive mirroring records the same obstruction at each finite syntactic
-    depth.
+    The recursive mirror layer shows pointwise that another finite formula
+    iterate does not discharge the obstruction when the required adequacy or
+    preservation premise is supplied. It does not prove that another evaluator
+    is actually constructed or that a concrete computation continues forever.
 
-    Epistemically, consider an evaluative subprocess that asks whether its own
-    operation is controlled by the enclosing regulator. It may continue under
-    internal attribution without deciding that attribution, or respond as
-    though the operation were externally controlled. Adequate certification of
-    internal control would make the subprocess complete with respect to the
-    relevant diagonal behavior of the regulator: it could reconstruct the
-    missing fixed-point direction and thereby contradict consistency in the
-    metatheory. External attribution therefore need not denote external causal
-    origin. It may instead express the unavoidable appearance of externality
-    produced by the regulator's inability to recognize its own generative
-    operation completely.
+    A concrete evaluator may additionally be modeled as attempting total
+    classification of the corresponding diagonal behavior. Under that extra
+    interpretation, restriction, an `unknown` result, evaluator stratification,
+    divergence, timeout, or resource exhaustion are possible ways to realize
+    failure of the total specification without emitting a false binary verdict.
+    L002 neither formalizes such an evaluator nor chooses among those outcomes.
 
-    Symbolic Regulation further distinguishes content from its attributed
-    provenance. Caller-supplied formula codings represent the claims that a
-    content is internally or externally produced. A regulator may leave one
-    attribution irrefutable, or may be unable to refute either attribution:
+    Finite-state operational recurrence is separate. Given an explicitly finite
+    carrier and a total trace into it, a pigeonhole argument repeats a state
+    within the first `N + 1` observations. Logical opacity at the repeated state
+    is already supplied by the `LogicalOperationalLayer`; recurrence does not
+    derive opacity from dynamics.
+
+    Attribution and provenance are applications built above the core
+    constraint. Caller-supplied formula codings may represent claims that a
+    content is internally or externally produced. Under an explicit ambiguity
+    response L002 obtains
 
       AsIF M Gamma (internal_attribution A) /\
       AsIF M Gamma (external_attribution A)
 
-    The latter condition is `AttributionallyAmbiguous`. Mirror opacity supplies
-    failed adequate self-recognition: the paradox is internally generated, but
-    its generating process cannot be adequately recovered as the regulator's
-    own. The transition from that opacity to an external-attribution formula
-    requires an empirical response law. This isolates the Reflexica pattern in
-    which an internally generated obstruction becomes available as though it
-    belonged to an external or completed domain.
+    This is `AttributionallyAmbiguous`: neither attribution is selected,
+    certified, or assigned greater evidential weight. A one-sided attribution
+    theorem requires a one-sided bridge hypothesis. Recognition opacity alone
+    proves no causal provenance claim.
 
 
 4 - Tree
@@ -392,8 +423,9 @@
         `AsIF` entails externalization under an explicit response law
 
       conditional_attributional_ambiguity_principle :
-        both supplied provenance formulas remain irrefutable under an explicit
-        ambiguity response law
+        exported attributional standoff: both supplied provenance formulas
+        remain irrefutable under an explicit ambiguity response law; this
+        theorem is not a conjunct of the certified package witness
 
       fixed_point_certificate_opacity :
         an adequate fixed-point certificate in the regulated position is
@@ -425,15 +457,23 @@
 7 - Notes
     -----
 
-    `AsIF` denotes non-refutability. Its operational role is continuation under
-    an assumption, as provided by the ordinary M001 context rule. Recognition
-    adequacy is an explicit re-entry condition on a supplied coding.
+    Scope reminder: attribution vocabulary records formal codings and
+    operational tags. It does not certify real causal origin; that bridge
+    remains empirical. This guardrail is stated first in the Summary and at the
+    definition sites rather than being introduced only here.
 
-    Recursive depth is finite and syntactic. The implication-reflection mirror
-    is interderivable with its input, so its iteration validates preservation
-    and certificate plumbing but does not by itself create a new semantic
-    perspective. Physical recurrence, temporal persistence, and observable
-    salience require an interpretation of the formal regulator.
+    `AsIF` denotes non-refutability. Ordinary M001 context extension separately
+    supplies derivability under an assumption; L002 packages these two facts in
+    `AssumptionLicensedContent`. Recognition adequacy is an explicit re-entry
+    condition on a supplied coding.
+
+    Recursive mirror persistence is quantified pointwise over every finite
+    syntactic depth. It is distinct from the finite-state recurrence theorem.
+    The implication-reflection mirror is interderivable with its input, so its
+    iteration validates preservation and certificate plumbing but does not by
+    itself create a new semantic perspective. Infinite execution, physical
+    recurrence, temporal persistence, and observable salience require an
+    interpretation of the formal regulator.
 
     “Internal Rice-like obstruction” is the intended structural interpretation
     of recognition opacity. L002 does not invoke or certify Rice's theorem. Its
@@ -443,8 +483,6 @@
 
     Mirror irrefutability and coded recognition opacity are certified logical
     results. `AttributedProvenanceOperationalLayer` records literal operational
-    attribution tags and supplies a concrete externalization relation. The type
-    deliberately does not identify those tags with independently verified
-    origins; connecting an attribution to a real system remains empirical.
-    Legacy formula-valued attribution response laws remain distinct from truth
-    or positive belief.
+    attribution tags and supplies a concrete externalization relation. Legacy
+    formula-valued attribution response laws remain distinct from truth or
+    positive belief.

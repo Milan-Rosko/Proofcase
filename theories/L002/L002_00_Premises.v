@@ -14,11 +14,33 @@
 
   OVERVIEW
 
-  Premise layer for L002/SYMBOLIC REGULATION. We distinguish the collapsing
-  full negation fixed point from the consistent one-way mirror position, then
-  declare internal non-refutability, recognition, regulator,
-  finite-operation, attribution, provenance, and externalization interfaces
-  consumed by the later theorem layers.
+  Premise layer for L002/SYMBOLIC REGULATION. L002 isolates two related
+  constraints on self-referential evaluation. A full negation fixed point
+  collapses checked derivability. Separately, the live consistent results
+  take a supplied one-way mirror position: consistency yields internal
+  non-refutability, while successful adequate recognition reconstructs the
+  missing diagonal direction and re-enters collapse. Later interfaces expose
+  pointwise finite-depth persistence, finite-state operation, and optional
+  attribution, provenance, and externalization responses.
+
+  Constraint reading. At a supplied one-way mirror position, consistency and
+  successful actionable recognition cannot coexist: accepted adequate
+  recognition supplies the missing fixed-point direction and thereby
+  reconstructs collapse. A concrete evaluator may realize a related
+  obstruction by restricting representation or disclosure, returning
+  `unknown`, stratifying evaluators, diverging, or exhausting resources only
+  when an additional operational model connects those behaviors to the
+  proof-theoretic interfaces. L002 itself selects and certifies no such
+  failure mode.
+
+  Scope guardrail. L002 certifies syntactic irrefutability, re-entry
+  obstruction, recognition opacity, pointwise persistence at every supplied
+  finite mirror depth, and recurrence for explicitly finite state carriers.
+  Its vocabulary does not by itself identify truth, belief, agency, causal
+  source, independently verified origin, psychological dissociation,
+  nontermination, or machine failure. Such identifications require a separate
+  model of the concrete system. Formal non-closure alone supports neither a
+  positive nor a negative metaphysical attribution.
 
 *)
 
@@ -44,8 +66,13 @@ Definition RegulatedAssumption : Type :=
 
 (*
 │
-│          `AsIF M Gamma A` means that `M` has no checked derivation
-│          of the object-level negation of `A` from `Gamma`.
+│          `AsIF M Gamma A` means exactly that `M` has no checked
+│          derivation of the object-level negation of `A` from
+│          `Gamma`. It is the non-refutation component of L002's
+│          assumption-licensed continuation status; ordinary context
+│          extension, not `AsIF` itself, supplies derivability under
+│          assumption `A`. It is not by itself truth, belief,
+│          probability, voluntary control, or global commitment.
 │
 *)
 
@@ -225,7 +252,7 @@ Qed.
 (*
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │                                                                              │
-│                        EXTERNAL FIXED-POINT POSITION                         │
+│                 MIRROR POSITION AT THE META/OBJECT BOUNDARY                  │
 │                                                                              │
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
@@ -234,7 +261,10 @@ Qed.
 │
 │          `ExternalFixedPoint M Gamma chi` is L001
 │          negation-fixed-point equivalence specialized to M001
-│          checked derivability.
+│          checked derivability. The legacy word `External` marks that
+│          the fixed-point condition is supplied at the metatheoretic
+│          interface to `M`; it does not assert an external causal
+│          source.
 │
 *)
 
@@ -250,9 +280,12 @@ Definition ExternalFixedPoint
 │
 │          `ExternalMirrorPosition M Gamma chi` retains only the
 │          non-collapsing re-entry direction `not chi -> chi`. Unlike
-│          a full negation fixed point, this premise is compatible in
-│          shape with M001 consistency and is sufficient for the L002
-│          irrefutability argument.
+│          a full negation fixed point, this supplied premise is
+│          compatible in shape with M001 consistency and is sufficient
+│          for the L002 irrefutability argument. Here too `External`
+│          is interface-relative rather than causal: the formal
+│          content is exactly the displayed checked-derivability
+│          condition.
 │
 *)
 
@@ -297,11 +330,17 @@ Definition SLambdaConsistent
 
 (*
 │
-│          `CodedRecognitionClaim` is L002's dedicated recognition
-│          object language. Its constructor carries the M001 formula
-│          syntax being claimed as a negation fixed point; recognition
-│          claims are therefore first-class regulator outputs without
-│          adding constructors to M001 `Formula`.
+│          `CodedRecognitionClaim` is L002's explicitly defined
+│          recognition object language. Its constructor carries the
+│          M001 formula syntax being claimed as a negation fixed
+│          point, making recognition claims first-class regulator
+│          outputs without adding constructors to M001 `Formula`. In
+│          the core obstruction, accepted recognition evidence has one
+│          exact technical role: it supplies `A -> not A`, the missing
+│          diagonal direction, and its executable re-entry under
+│          assumption `A` yields `not A`. The constructor alone
+│          establishes no psychological self-recognition, belief,
+│          agency, or causal provenance.
 │
 *)
 
@@ -344,8 +383,10 @@ Definition coded_recognition_evidence_formula (A : Formula) : Formula :=
 │
 │          The total evidence checker first matches the certificate's
 │          advertised subject against the claim and then runs the
-│          unchanged M001 checker on `A -> not A` in context `A ::
-│          Gamma`.
+│          unchanged M001 checker on `A -> not A` in the base context.
+│          This totality is verification of each supplied finite
+│          certificate; it is not proof search, universal certificate
+│          generation, or a total semantic recognition classifier.
 │
 *)
 
@@ -726,7 +767,29 @@ Arguments operational_state_eq_dec {State} _ _ _.
 Arguments operational_state_at {State} _ _.
 Arguments operational_state_enumerated {State} _ _.
 
+(*
+│
+│          `AttributionCoding` is a caller-supplied formula
+│          transformer. Naming two instances `internal_attribution`
+│          and `external_attribution` stipulates two object-language
+│          codings; the names do not force either coding to track real
+│          causal origin. No bridge from recognition opacity or
+│          non-refutation to actual provenance is built into this
+│          type.
+│
+*)
+
 Definition AttributionCoding : Type := Formula -> Formula.
+
+(*
+│
+│          `AttributionResponse` is an explicit bridge law from base
+│          irrefutability to at least one supplied attribution coding.
+│          It is not derived from mirror opacity and should be read as
+│          an empirical or model-specific response hypothesis when
+│          applied to a real system.
+│
+*)
 
 Definition AttributionResponse
     (M : RegulatorTheory) (Gamma : Context)
@@ -745,6 +808,16 @@ Definition SelectedAttributionResponse
     AsIF M Gamma A ->
     AsIF M Gamma (internal_attribution A) \/
     AsIF M Gamma (external_attribution A).
+
+(*
+│
+│          `AttributionallyAmbiguous` is the attributional standoff
+│          condition: both supplied provenance formulas are
+│          simultaneously `AsIF`. It expresses no preference,
+│          probability shift, or metaphysical lean toward either
+│          attribution.
+│
+*)
 
 Definition AttributionallyAmbiguous
     (M : RegulatorTheory) (Gamma : Context)
@@ -825,9 +898,26 @@ Arguments selected_operational_content_selected
 Arguments selected_operational_attribution_response
   {State M Gamma internal_attribution external_attribution} _.
 
+(*
+│
+│          `Provenance` is an explicitly defined two-tag type for
+│          operational attribution. The constructors encode the labels
+│          `internal` and `external`; they do not certify an
+│          independently verified causal origin.
+│
+*)
+
 Inductive Provenance : Type :=
 | provenance_internal
 | provenance_external.
+
+(*
+│
+│          `CodedAttributionObservation` pairs logical content with
+│          one stipulated provenance tag. Observation of a tag is not
+│          observation of the real origin named by that tag.
+│
+*)
 
 Inductive CodedAttributionObservation : Type :=
 | observes_provenance :

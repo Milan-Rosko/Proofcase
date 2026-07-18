@@ -14,10 +14,14 @@
 
   OVERVIEW
 
-  Recursive-mirror layer for L002. We iterate a formula transformer, specify
-  external fixed-point adequacy and internal non-refutability across all
-  finite depths, and prove recursive irrefutability and recognition opacity
-  for a fixed symbolic regulator.
+  Recursive-mirror layer for L002. We iterate a formula transformer and prove
+  pointwise that the same irrefutability and recognition-opacity obstruction
+  holds at every finite depth satisfying the supplied adequacy conditions, or
+  from a supplied seed plus a position-preservation law. This single
+  all-finite-depth theorem does not assert an actual infinite execution,
+  divergence, stack overflow, crash, finite-state recurrence, or
+  psychological process; those require an operational model connecting
+  formula iteration to concrete dynamics.
 
 *)
 

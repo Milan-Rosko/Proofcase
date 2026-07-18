@@ -14,10 +14,14 @@
 
   OVERVIEW
 
-  Symbolic-regulation consequence layer for L002. We expose oracle
-  irrefutability and recognition opacity as Mirror corollaries, then derive
-  attribution and externalization only through explicit response laws
-  supplied for a concrete system.
+  Symbolic-regulation consequence layer for L002. The primary corollaries
+  expose the self-reference constraint as irrefutability and recognition
+  opacity. Separately, finite operational recurrence is proved only for
+  explicitly finite state carriers by a pigeonhole argument. Attribution and
+  externalization are secondary response layers arising solely through
+  hypotheses supplied for a concrete model. The exported ambiguity theorem
+  gives a conditional standoff, not a preference for external attribution,
+  and is not a conjunct of the certified `WITNESS`.
 
 *)
 
@@ -208,10 +212,13 @@ Qed.
 (*
 │
 │          Legacy structural attribution example: implication
-│          reflection marks one branch and identity marks the other.
-│          It demonstrates formula transport only; the explicit
+│          reflection is named as one branch and identity as the
+│          other. These are stipulated formula codings and demonstrate
+│          transport only; they do not identify real internal or
+│          external causal origin. The explicit
 │          `AttributedProvenanceOperationalLayer` below is the
-│          preferred attribution model.
+│          preferred operational attribution model, subject to the
+│          same origin guardrail.
 │
 *)
 
@@ -556,9 +563,22 @@ Proof.
 Qed.
 
 (*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                            ATTRIBUTIONAL STANDOFF                            │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
+
+(*
 │
-│          A supplied ambiguity response makes both provenance
-│          formulas irrefutable at the external fixed point.
+│          Exported attributional-standoff result. A supplied
+│          ambiguity response makes both provenance formulas
+│          irrefutable at the mirror position. The conclusion is
+│          `AttributionallyAmbiguous`, not a selection of or
+│          evidential lean toward either attribution. This theorem is
+│          exported by the API but is not a conjunct of the certified
+│          `WITNESS`.
 │
 *)
 
@@ -583,11 +603,20 @@ Proof.
 Qed.
 
 (*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                          ONE-SIDED RESPONSE BRIDGES                          │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
+
+(*
 │
-│          Under an opacity response, an internally generated
-│          fixed-point paradox whose generative process is
-│          recognition-opaque leaves its external-attribution formula
-│          irrefutable.
+│          Under an opacity response, a fixed-point position whose
+│          supplied recognition process is opaque leaves its
+│          external-attribution formula irrefutable. This one-sided
+│          conclusion comes from the explicit response premise, not
+│          from opacity by itself.
 │
 *)
 
