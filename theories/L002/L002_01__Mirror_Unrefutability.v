@@ -279,6 +279,155 @@ Proof.
 Qed.
 
 (*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                       WORLD, BRAIN, AND CONTROL CHAIN                        │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
+
+(*
+│
+│          Soundness into a world that rejects `Bot` makes the brain
+│          consistent.
+│
+*)
+
+Theorem world_brain_model_frame_brain_consistent :
+  forall (V : EpistemicWorld)
+         (brain model : RegulatorTheory)
+         (Gamma : Context)
+         (frame : WorldBrainModelFrame V brain model Gamma),
+    SLambdaConsistent brain Gamma.
+Proof.
+  intros V brain model Gamma frame Hbot.
+  apply (frame_world_consistent frame).
+  exact (frame_brain_sound frame Bot Hbot).
+Qed.
+
+(*
+│
+│          Model-to-brain inclusion transports any model contradiction
+│          into the brain and then into the world, so every framed
+│          embedded model is consistent.
+│
+*)
+
+Theorem world_brain_model_frame_model_consistent :
+  forall (V : EpistemicWorld)
+         (brain model : RegulatorTheory)
+         (Gamma : Context)
+         (frame : WorldBrainModelFrame V brain model Gamma),
+    MirrorConsistent model Gamma.
+Proof.
+  intros V brain model Gamma frame Hbot.
+  apply (frame_world_consistent frame).
+  apply (frame_brain_sound frame Bot).
+  exact
+    (regulator_theory_checked_derivable_regulator_theory_monotone_lemma
+       model brain Gamma Bot
+       (frame_model_inclusion frame) Hbot).
+Qed.
+
+(*
+│
+│          A negative answer re-enters through the question's mirror
+│          witness and collapses the model. Consistency therefore
+│          excludes a certified `no`.
+│
+*)
+
+Theorem control_question_no_answer_impossible :
+  forall (M : RegulatorTheory)
+         (Gamma : Context)
+         (question : ControlQuestion M Gamma),
+    MirrorConsistent M Gamma ->
+    ~ ControlAnswersNo M Gamma question.
+Proof.
+  intros M Gamma question Hconsistent Hno.
+  apply Hconsistent.
+  exact
+    (external_mirror_position_reentry_collapses
+       M Gamma (control_question_formula question)
+       (control_question_mirror question) Hno).
+Qed.
+
+(*
+│
+│          Binary completeness is used only at this step. Once the
+│          interface must choose `yes` or `no`, exclusion of the
+│          negative branch forces a positive internal judgment.
+│
+*)
+
+Theorem control_question_binary_decision_forces_yes :
+  forall (M : RegulatorTheory)
+         (Gamma : Context)
+         (question : ControlQuestion M Gamma),
+    MirrorConsistent M Gamma ->
+    BinaryControlDecision M Gamma question ->
+    ControlAnswersYes M Gamma question.
+Proof.
+  intros M Gamma question Hconsistent [Hyes | Hno].
+  - exact Hyes.
+  - exfalso.
+    exact
+      (control_question_no_answer_impossible
+         M Gamma question Hconsistent Hno).
+Qed.
+
+Theorem world_brain_model_binary_control_forces_yes :
+  forall (V : EpistemicWorld)
+         (brain model : RegulatorTheory)
+         (Gamma : Context)
+         (frame : WorldBrainModelFrame V brain model Gamma)
+         (question : ControlQuestion model Gamma),
+    BinaryControlDecision model Gamma question ->
+    ControlAnswersYes model Gamma question.
+Proof.
+  intros V brain model Gamma frame question Hdecision.
+  exact
+    (control_question_binary_decision_forces_yes
+       model Gamma question
+       (world_brain_model_frame_model_consistent
+          V brain model Gamma frame)
+       Hdecision).
+Qed.
+
+(*
+│
+│          If the world refutes the control claim and the model is
+│          additionally world-sound, a total binary answer is
+│          impossible. Relative consistency alone does not assume
+│          model soundness, so an internally forced `yes` may instead
+│          be externally inaccurate.
+│
+*)
+
+Theorem world_sound_binary_control_decision_impossible :
+  forall (V : EpistemicWorld)
+         (brain model : RegulatorTheory)
+         (Gamma : Context)
+         (frame : WorldBrainModelFrame V brain model Gamma)
+         (question : ControlQuestion model Gamma),
+    WorldFormulaConsistent V ->
+    TheorySoundInWorld V model Gamma ->
+    WorldRefutesControlClaim V question ->
+    ~ BinaryControlDecision model Gamma question.
+Proof.
+  intros V brain model Gamma frame question
+    Hworld_consistent Hmodel_sound Hworld_no Hdecision.
+  pose proof
+    (world_brain_model_binary_control_forces_yes
+       V brain model Gamma frame question Hdecision) as Hyes.
+  apply
+    (Hworld_consistent
+       (control_question_formula question)
+       (Hmodel_sound (control_question_formula question) Hyes)
+       Hworld_no).
+Qed.
+
+(*
 │
 │          Every checked theorem supplies a one-way mirror position: K
 │          lifts an accepted `A` to `not A -> A`. This witnesses that
@@ -303,13 +452,29 @@ Qed.
 
 (*
 │
-│          A consistent one-way mirror position cannot be accepted by
+│          A consistent one-way mirror position excludes acceptance by
 │          the coded recognition regulator. Unlike the legacy
 │          formula-valued interface, the claim syntax, finite
 │          instruction type, Boolean acceptance relation, and re-entry
 │          behavior are all concrete.
 │
 *)
+
+Theorem coded_recognition_acceptance_excluded :
+  forall (M : RegulatorTheory)
+         (Gamma : Context)
+         (chi : Formula),
+    ExternalMirrorPosition M Gamma chi ->
+    MirrorConsistent M Gamma ->
+    ~ CodedRecognitionAccepted M Gamma chi.
+Proof.
+  intros M Gamma chi Hmirror Hconsistent Haccepted.
+  pose proof
+    (external_mirror_position_forces_asif
+       M Gamma chi Hmirror Hconsistent) as Hasif.
+  apply Hasif.
+  exact (coded_recognition_reenters_regulator M Gamma chi Haccepted).
+Qed.
 
 Theorem coded_recognition_opacity :
   forall (M : RegulatorTheory)
@@ -319,11 +484,7 @@ Theorem coded_recognition_opacity :
     MirrorConsistent M Gamma ->
     ~ CodedInternalFixedPointRecognition M Gamma chi.
 Proof.
-  intros M Gamma chi Hmirror Hconsistent [_Hasif Haccepted].
-  apply Hconsistent.
-  apply external_mirror_position_reentry_collapses with (chi := chi).
-  - exact Hmirror.
-  - exact (coded_recognition_reenters_regulator M Gamma chi Haccepted).
+  exact coded_recognition_acceptance_excluded.
 Qed.
 
 (*

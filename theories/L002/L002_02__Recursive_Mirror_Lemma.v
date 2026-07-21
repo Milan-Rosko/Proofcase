@@ -26,6 +26,7 @@
 *)
 
 From L002 Require Export L002_01__Mirror_Unrefutability.
+From Stdlib Require Import Lia.
 
 (*
 │
@@ -363,7 +364,7 @@ Theorem coded_recursive_mirror_lemma :
     MirrorConsistent M Gamma ->
     RecursiveMirrorPosition M Gamma mirror_step chi /\
     forall depth : nat,
-      ~ CodedInternalFixedPointRecognition M Gamma
+      ~ CodedRecognitionAccepted M Gamma
           (recursive_mirror_formula depth mirror_step chi).
 Proof.
   intros M Gamma mirror_step chi Hadequate Hconsistent.
@@ -419,7 +420,7 @@ Theorem coded_recursive_mirror_lemma_from_seed :
     MirrorConsistent M Gamma ->
     RecursiveMirrorPosition M Gamma mirror_step chi /\
     forall depth : nat,
-      ~ CodedInternalFixedPointRecognition M Gamma
+      ~ CodedRecognitionAccepted M Gamma
           (recursive_mirror_formula depth mirror_step chi).
 Proof.
   intros M Gamma mirror_step chi Hseed Hpreserves Hconsistent.
@@ -428,4 +429,229 @@ Proof.
       (recursive_mirror_adequacy_from_seed
          M Gamma mirror_step chi Hseed Hpreserves).
   - exact Hconsistent.
+Qed.
+
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                         OPERATIONAL CONTROL RE-ENTRY                         │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
+
+(*
+│
+│          A `RecursiveControlProcess` supplies a total response trace
+│          and soundness bridges for its `yes` and `no` outputs.
+│          Re-entry is an operational tag: at depth `n`, the next
+│          question is definitionally the `(S n)` mirror iterate.
+│
+*)
+
+Record RecursiveControlProcess
+    (M : RegulatorTheory)
+    (Gamma : Context)
+    (mirror_step : Formula -> Formula)
+    (chi : Formula) : Type := {
+  recursive_control_response_at : nat -> ControlResponse;
+  recursive_control_yes_sound :
+    forall depth : nat,
+      recursive_control_response_at depth = control_response_yes ->
+      regulator_theory_checked_derivable M Gamma
+        (recursive_mirror_formula depth mirror_step chi);
+  recursive_control_no_sound :
+    forall depth : nat,
+      recursive_control_response_at depth = control_response_no ->
+      regulator_theory_checked_derivable M Gamma
+        (formula_negation
+           (recursive_mirror_formula depth mirror_step chi))
+}.
+
+Arguments recursive_control_response_at
+  {M Gamma mirror_step chi} _ _.
+Arguments recursive_control_yes_sound
+  {M Gamma mirror_step chi} _ _ _.
+Arguments recursive_control_no_sound
+  {M Gamma mirror_step chi} _ _ _.
+
+Definition ControlAnswersYesAt
+    {M Gamma mirror_step chi}
+    (process : RecursiveControlProcess M Gamma mirror_step chi)
+    (depth : nat) : Prop :=
+  recursive_control_response_at process depth = control_response_yes.
+
+Definition ControlReentersAt
+    {M Gamma mirror_step chi}
+    (process : RecursiveControlProcess M Gamma mirror_step chi)
+    (depth : nat) : Prop :=
+  recursive_control_response_at process depth = control_response_reenter.
+
+Definition EventuallyAnswersYes
+    {M Gamma mirror_step chi}
+    (process : RecursiveControlProcess M Gamma mirror_step chi) : Prop :=
+  exists depth : nat,
+    ControlAnswersYesAt process depth.
+
+Definition ReentersThrough
+    {M Gamma mirror_step chi}
+    (process : RecursiveControlProcess M Gamma mirror_step chi)
+    (fuel : nat) : Prop :=
+  forall depth : nat,
+    depth <= fuel ->
+    ControlReentersAt process depth.
+
+Definition ReentersForever
+    {M Gamma mirror_step chi}
+    (process : RecursiveControlProcess M Gamma mirror_step chi) : Prop :=
+  forall depth : nat,
+    ControlReentersAt process depth.
+
+(*
+│
+│          `ControlOutcomeDecidable` is an additional operational
+│          specification deciding whether an unbounded process ever
+│          answers `yes`. It is not derived from the finite response
+│          alphabet or from proof-theoretic consistency.
+│
+*)
+
+Definition ControlOutcomeDecidable
+    {M Gamma mirror_step chi}
+    (process : RecursiveControlProcess M Gamma mirror_step chi) : Prop :=
+  EventuallyAnswersYes process \/
+  ~ EventuallyAnswersYes process.
+
+(*
+│
+│          Recursive mirror adequacy and model consistency exclude the
+│          negative response at every depth.
+│
+*)
+
+Theorem recursive_control_no_response_impossible :
+  forall (M : RegulatorTheory)
+         (Gamma : Context)
+         (mirror_step : Formula -> Formula)
+         (chi : Formula)
+         (process : RecursiveControlProcess M Gamma mirror_step chi),
+    RecursiveMirrorAdequacy M Gamma mirror_step chi ->
+    MirrorConsistent M Gamma ->
+    forall depth : nat,
+      recursive_control_response_at process depth <>
+      control_response_no.
+Proof.
+  intros M Gamma mirror_step chi process
+    Hadequate Hconsistent depth Hno.
+  pose proof
+    (external_mirror_position_forces_asif
+       M Gamma
+       (recursive_mirror_formula depth mirror_step chi)
+       (Hadequate depth) Hconsistent) as Hasif.
+  apply Hasif.
+  exact (recursive_control_no_sound process depth Hno).
+Qed.
+
+Theorem recursive_control_response_yes_or_reenters :
+  forall (M : RegulatorTheory)
+         (Gamma : Context)
+         (mirror_step : Formula -> Formula)
+         (chi : Formula)
+         (process : RecursiveControlProcess M Gamma mirror_step chi),
+    RecursiveMirrorAdequacy M Gamma mirror_step chi ->
+    MirrorConsistent M Gamma ->
+    forall depth : nat,
+      ControlAnswersYesAt process depth \/
+      ControlReentersAt process depth.
+Proof.
+  intros M Gamma mirror_step chi process
+    Hadequate Hconsistent depth.
+  unfold ControlAnswersYesAt, ControlReentersAt.
+  destruct (recursive_control_response_at process depth) eqn:Hresponse.
+  - left. reflexivity.
+  - exfalso.
+    exact
+      (recursive_control_no_response_impossible
+         M Gamma mirror_step chi process
+         Hadequate Hconsistent depth Hresponse).
+  - right. reflexivity.
+Qed.
+
+(*
+│
+│          Constructive finite form of `yes` or recursion: at every
+│          supplied observation bound, either a positive answer has
+│          appeared within the bound or every stage through the bound
+│          is a re-entry.
+│
+*)
+
+Theorem finite_yes_or_recursive_reentry :
+  forall (M : RegulatorTheory)
+         (Gamma : Context)
+         (mirror_step : Formula -> Formula)
+         (chi : Formula)
+         (process : RecursiveControlProcess M Gamma mirror_step chi),
+    RecursiveMirrorAdequacy M Gamma mirror_step chi ->
+    MirrorConsistent M Gamma ->
+    forall fuel : nat,
+      (exists depth : nat,
+         depth <= fuel /\
+         ControlAnswersYesAt process depth) \/
+      ReentersThrough process fuel.
+Proof.
+  intros M Gamma mirror_step chi process Hadequate Hconsistent fuel.
+  induction fuel as [|fuel IH].
+  - destruct
+      (recursive_control_response_yes_or_reenters
+         M Gamma mirror_step chi process
+         Hadequate Hconsistent O) as [Hyes | Hreenter].
+    + left. exists O. split; [lia | exact Hyes].
+    + right. intros depth Hdepth.
+      assert (depth = O) by lia.
+      subst depth.
+      exact Hreenter.
+  - destruct IH as [[depth [Hdepth Hyes]] | Hthrough].
+    + left. exists depth. split; [lia | exact Hyes].
+    + destruct
+        (recursive_control_response_yes_or_reenters
+           M Gamma mirror_step chi process
+           Hadequate Hconsistent (S fuel)) as [Hyes | Hreenter].
+      * left. exists (S fuel). split; [lia | exact Hyes].
+      * right. intros depth Hdepth.
+        destruct (Nat.eq_dec depth (S fuel)) as [Hequal | Hneq].
+        -- subst depth. exact Hreenter.
+        -- apply Hthrough. lia.
+Qed.
+
+(*
+│
+│          The unbounded disjunction requires the explicit
+│          outcome-decidability bridge. Under that bridge, absence of
+│          an eventual `yes` and pointwise exclusion of `no` force
+│          reflective re-entry at every finite depth.
+│
+*)
+
+Theorem yes_or_recursive_reentry :
+  forall (M : RegulatorTheory)
+         (Gamma : Context)
+         (mirror_step : Formula -> Formula)
+         (chi : Formula)
+         (process : RecursiveControlProcess M Gamma mirror_step chi),
+    RecursiveMirrorAdequacy M Gamma mirror_step chi ->
+    MirrorConsistent M Gamma ->
+    ControlOutcomeDecidable process ->
+    EventuallyAnswersYes process \/
+    ReentersForever process.
+Proof.
+  intros M Gamma mirror_step chi process
+    Hadequate Hconsistent [Heventual | Hnever].
+  - left. exact Heventual.
+  - right. intro depth.
+    destruct
+      (recursive_control_response_yes_or_reenters
+         M Gamma mirror_step chi process
+         Hadequate Hconsistent depth) as [Hyes | Hreenter].
+    + exfalso. apply Hnever. exists depth. exact Hyes.
+    + exact Hreenter.
 Qed.

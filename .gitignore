@@ -65,3 +65,8 @@ Desktop.ini
 # --- Scratch (keep folder, ignore contents) ---
 scratch/*
 !scratch/.gitkeep
+
+# Generated verification and inspection reports
+_tools/Dump/success.txt
+_tools/Dump/print/
+_tools/Dump/analysis/

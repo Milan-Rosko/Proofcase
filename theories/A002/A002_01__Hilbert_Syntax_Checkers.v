@@ -410,6 +410,16 @@ Qed.
 
 (*
 │
+│          Every parser and local checker in this file uses the common
+│          result envelope `encode status payload`. The following
+│          projections and Boolean acceptance test keep downstream
+│          control flow independent of the rule-specific payload
+│          shape.
+│
+*)
+
+(*
+│
 │          `result_status` reads the status component of an A002
 │          arithmetic result. All results built by A002 are canonical
 │          A001 pairs.

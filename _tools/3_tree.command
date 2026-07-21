@@ -26,7 +26,24 @@ EDGES="$OUT_DIR/deps.edges"
 TSORT_OUT="$OUT_DIR/deps.tsort"
 HTML="$OUT_DIR/deps.html"
 
-if ! command -v coqdep >/dev/null 2>&1; then
+COQDEP_BIN="$(command -v coqdep || true)"
+if [[ -z "$COQDEP_BIN" ]] && command -v opam >/dev/null 2>&1; then
+  OPAM_BIN="$(opam var bin --safe 2>/dev/null || true)"
+  [[ -n "$OPAM_BIN" && -x "$OPAM_BIN/coqdep" ]] && COQDEP_BIN="$OPAM_BIN/coqdep"
+fi
+if [[ -z "$COQDEP_BIN" ]]; then
+  for candidate in \
+    "$HOME/.opam/rocq-native/bin/coqdep" \
+    "$HOME/.opam/rocq/bin/coqdep" \
+    "$HOME/.opam/default/bin/coqdep"; do
+    if [[ -x "$candidate" ]]; then
+      COQDEP_BIN="$candidate"
+      break
+    fi
+  done
+fi
+
+if [[ -z "$COQDEP_BIN" ]]; then
   echo "ERROR: coqdep not found in PATH."
   echo "Make sure Rocq/Coq is installed and coqdep is available."
   exit 1
@@ -67,7 +84,7 @@ while IFS= read -r raw || [[ -n "$raw" ]]; do
       echo "ERROR: selected file not found: $abs"
       exit 1
     fi
-    VFILES+=("$abs")
+    VFILES+=("${rel#./}")
   fi
 done <"$SELECT_PATH"
 
@@ -82,18 +99,28 @@ echo "COQPROJECT:        $COQPROJECT"
 echo "OUT_DIR:           $OUT_DIR"
 
 echo "Running coqdep..."
-COQDEP_ARGS=(-f "$COQPROJECT")
+# Read only load-path directives from _CoqProject. Passing `-f` would also add
+# every project source a second time alongside VFILES; on paths containing
+# spaces, coqdep's escaped absolute paths then corrupt the graph parser.
+COQDEP_ARGS=()
+while read -r directive physical logical _rest; do
+  case "$directive" in
+    -Q|-R)
+      COQDEP_ARGS+=("$directive" "$physical" "$logical")
+      ;;
+  esac
+done < "$COQPROJECT"
 NEED_F001_Q=0
 for vf in "${VFILES[@]}"; do
   case "$vf" in
-    "$ROOT"/formalizations/F001/*) NEED_F001_Q=1 ;;
+    formalizations/F001/*) NEED_F001_Q=1 ;;
   esac
 done
 if (( NEED_F001_Q == 1 )) && ! grep -Eq '^[[:space:]]*-Q[[:space:]]+formalizations/F001[[:space:]]+F001([[:space:]]|$)' "$COQPROJECT"; then
   COQDEP_ARGS+=(-Q "$ROOT/formalizations/F001" F001)
 fi
 
-coqdep "${COQDEP_ARGS[@]}" "${VFILES[@]}" > "$DEPS_RAW"
+"$COQDEP_BIN" "${COQDEP_ARGS[@]}" "${VFILES[@]}" > "$DEPS_RAW"
 
 ROOT_LEN=${#ROOT}
 ROOT_LEN=$((ROOT_LEN + 1))

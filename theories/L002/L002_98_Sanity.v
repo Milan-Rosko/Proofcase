@@ -89,7 +89,7 @@ Example sanity_logical_operational_recurrence_shape :
       AsIF M Gamma
         (logical_operational_content L
            (operational_state_at (logical_finite_operation L) earlier)) /\
-      ~ CodedInternalFixedPointRecognition M Gamma
+      ~ CodedRecognitionAccepted M Gamma
           (logical_operational_content L
              (operational_state_at (logical_finite_operation L) earlier)).
 Proof.
@@ -165,7 +165,7 @@ Example sanity_attributed_provenance_operational_recurrence_shape :
            (operational_state_at
               (logical_finite_operation
                  (attributed_provenance_logical_operation L)) earlier)) /\
-      ~ CodedInternalFixedPointRecognition M Gamma
+      ~ CodedRecognitionAccepted M Gamma
           (logical_operational_content (attributed_provenance_logical_operation L)
              (operational_state_at
                 (logical_finite_operation
@@ -280,6 +280,58 @@ Qed.
 
 (*
 │
+│          The world-to-brain soundness and brain-to-model inclusion
+│          frame transports consistency to the embedded model.
+│
+*)
+
+Example sanity_world_brain_model_consistency_shape :
+  forall V brain model Gamma
+         (frame : WorldBrainModelFrame V brain model Gamma),
+    MirrorConsistent model Gamma.
+Proof.
+  exact world_brain_model_frame_model_consistent.
+Qed.
+
+Example sanity_control_no_answer_impossible_shape :
+  forall M Gamma (question : ControlQuestion M Gamma),
+    MirrorConsistent M Gamma ->
+    ~ ControlAnswersNo M Gamma question.
+Proof.
+  exact control_question_no_answer_impossible.
+Qed.
+
+Example sanity_binary_control_forces_yes_shape :
+  forall M Gamma (question : ControlQuestion M Gamma),
+    MirrorConsistent M Gamma ->
+    BinaryControlDecision M Gamma question ->
+    ControlAnswersYes M Gamma question.
+Proof.
+  exact control_question_binary_decision_forces_yes.
+Qed.
+
+(*
+│
+│          A world-refuted control claim conflicts with binary
+│          decision only when model-to-world soundness is supplied in
+│          addition to relative consistency.
+│
+*)
+
+Example sanity_world_sound_binary_control_conflict_shape :
+  forall V brain model Gamma
+         (frame : WorldBrainModelFrame V brain model Gamma)
+         (question : ControlQuestion model Gamma),
+    WorldFormulaConsistent V ->
+    TheorySoundInWorld V model Gamma ->
+    WorldRefutesControlClaim V question ->
+    ~ BinaryControlDecision model Gamma question.
+Proof.
+  exact world_sound_binary_control_decision_impossible.
+Qed.
+
+(*
+│
 │          The concrete recognition claim for `A` is definitionally
 │          its object-level negation.
 │
@@ -362,7 +414,7 @@ Example sanity_coded_recognition_opacity_shape :
   forall M Gamma chi,
     ExternalMirrorPosition M Gamma chi ->
     MirrorConsistent M Gamma ->
-    ~ CodedInternalFixedPointRecognition M Gamma chi.
+    ~ CodedRecognitionAccepted M Gamma chi.
 Proof.
   exact coded_recognition_opacity.
 Qed.
@@ -395,7 +447,7 @@ Example sanity_coded_recursive_mirror_shape :
     MirrorConsistent M Gamma ->
     RecursiveMirrorPosition M Gamma mirror_step chi /\
     forall depth,
-      ~ CodedInternalFixedPointRecognition M Gamma
+      ~ CodedRecognitionAccepted M Gamma
           (recursive_mirror_formula depth mirror_step chi).
 Proof.
   exact coded_recursive_mirror_lemma.
@@ -408,10 +460,52 @@ Example sanity_coded_recursive_mirror_from_seed_shape :
     MirrorConsistent M Gamma ->
     RecursiveMirrorPosition M Gamma mirror_step chi /\
     forall depth,
-      ~ CodedInternalFixedPointRecognition M Gamma
+      ~ CodedRecognitionAccepted M Gamma
           (recursive_mirror_formula depth mirror_step chi).
 Proof.
   exact coded_recursive_mirror_lemma_from_seed.
+Qed.
+
+(*
+│
+│          The constructive bounded control theorem yields a positive
+│          response within the observation bound or re-entry at every
+│          stage through that bound.
+│
+*)
+
+Example sanity_finite_yes_or_recursive_reentry_shape :
+  forall M Gamma mirror_step chi
+         (process : RecursiveControlProcess M Gamma mirror_step chi),
+    RecursiveMirrorAdequacy M Gamma mirror_step chi ->
+    MirrorConsistent M Gamma ->
+    forall fuel,
+      (exists depth,
+         depth <= fuel /\
+         ControlAnswersYesAt process depth) \/
+      ReentersThrough process fuel.
+Proof.
+  exact finite_yes_or_recursive_reentry.
+Qed.
+
+(*
+│
+│          The unbounded control theorem exposes the additional
+│          outcome-decidability premise needed for eventual `yes` or
+│          perpetual finite-depth re-entry.
+│
+*)
+
+Example sanity_yes_or_recursive_reentry_shape :
+  forall M Gamma mirror_step chi
+         (process : RecursiveControlProcess M Gamma mirror_step chi),
+    RecursiveMirrorAdequacy M Gamma mirror_step chi ->
+    MirrorConsistent M Gamma ->
+    ControlOutcomeDecidable process ->
+    EventuallyAnswersYes process \/
+    ReentersForever process.
+Proof.
+  exact yes_or_recursive_reentry.
 Qed.
 
 (*

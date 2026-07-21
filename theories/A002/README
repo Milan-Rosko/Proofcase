@@ -182,18 +182,18 @@
 
       A002_Verify_certified   : nat -> nat -> nat                           (02)
       A002_Certified_Certb    : nat -> nat -> nat -> bool                   (02)
-      normalize_formula      : nat -> option NormalizedFormula              (02)
-      normalize_derivation   : nat -> option NormalizedDerivation           (02)
-      encode_normalized_formula : NormalizedFormula -> nat                  (02)
-      encode_normalized_derivation : NormalizedDerivation -> nat            (02)
-      certified_payload      : nat -> nat -> nat                            (02)
-      canonical001b          : nat -> bool                                  (00)
+      normalize_formula      : nat -> option NormalizedFormula             (02)
+      normalize_derivation   : nat -> option NormalizedDerivation          (02)
+      encode_normalized_formula : NormalizedFormula -> nat                 (02)
+      encode_normalized_derivation : NormalizedDerivation -> nat           (02)
+      certified_payload      : nat -> nat -> nat                           (02)
+      canonical001b          : nat -> bool                                 (00)
 
     Dispatcher and inspection:
 
-      A002_IO_Query, A002_IO_Result                                         (94)
-      A002_IO          : A002_IO_Query -> A002_IO_Result                    (94)
-      A002_IO_Z        : A002_IO_Query -> A002_IO_Result_Z                  (94)
+      A002_IO_Query, A002_IO_Result                                        (94)
+      A002_IO          : A002_IO_Query -> A002_IO_Result                   (94)
+      A002_IO_Z        : A002_IO_Query -> A002_IO_Result_Z                 (94)
 
     Certified theorems:
 

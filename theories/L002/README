@@ -20,6 +20,14 @@
     that a supplied one-way mirror position, consistency, and successful
     actionable recognition cannot coexist.
 
+    The world/brain/model interface states the relative-consistency chain
+    explicitly. An `EpistemicWorld V` interprets formulas, a brain theory is
+    sound into a world rejecting `Bot`, and the embedded model is included in
+    the brain. Hence brain consistency transports inward to model consistency.
+    A `ControlQuestion` packages the formula read as “I am in control” together
+    with its required mirror witness; the self-referential reading is not
+    inferred from an arbitrary formula alone.
+
     In `ExternalFixedPoint` and `ExternalMirrorPosition`, `External` is
     interface-relative. The relevant condition is supplied at the
     metatheoretic boundary of `M`; the word does not assert external causal
@@ -140,9 +148,17 @@
 
     The executable re-entry transform places accepted evidence under assumption
     `A` and composes it with the one-line assumption proof to derive
-    `formula_negation A`. Combined with the supplied mirror direction, accepted
-    recognition recreates the full collapsing fixed point. A consistent mirror
-    position therefore cannot have successful coded internal recognition.
+    `formula_negation A`. `CodedInternalFixedPointRecognition` is consequently a
+    compatibility name for acceptance alone; it is not conjoined with `AsIF`.
+    At a consistent mirror position, consistency first derives `AsIF`, and
+    accepted evidence derives its forbidden negation. Thus the live theorem
+    excludes `CodedRecognitionAccepted` directly.
+
+    For a witnessed control question, a checked “no” is exactly the excluded
+    negation branch. If the model is additionally required to make a binary
+    decision, the remaining internal answer is “yes.” This does not make the
+    answer true in `V`: if `V` refutes the control claim and the model is also
+    world-sound, the binary specification itself is impossible.
 
     The older formula-valued interface
 
@@ -163,8 +179,11 @@
 
     The recursive mirror layer shows pointwise that another finite formula
     iterate does not discharge the obstruction when the required adequacy or
-    preservation premise is supplied. It does not prove that another evaluator
-    is actually constructed or that a concrete computation continues forever.
+    preservation premise is supplied. `RecursiveControlProcess` adds explicit
+    `yes`, `no`, and `reenter` responses. Adequacy and consistency exclude `no`
+    at every depth. Constructively, every finite observation bound contains a
+    `yes` or consists entirely of re-entry; the unbounded “eventual yes or
+    reenter forever” disjunction requires `ControlOutcomeDecidable` explicitly.
 
     A concrete evaluator may additionally be modeled as attempting total
     classification of the corresponding diagonal behavior. Under that extra
@@ -221,8 +240,9 @@
     L002_00_Premises.v
 
       All semantic carriers and interfaces: `AsIF`, mirror positions,
-      consistency, recognition, fixed regulators, finite operation,
-      attribution, provenance, and externalization.
+      consistency, world/brain/model soundness, witnessed control questions,
+      recognition, fixed regulators, finite operation, attribution, provenance,
+      and externalization.
 
     L002_01__Mirror_Unrefutability.v
 
@@ -232,7 +252,9 @@
     L002_02__Recursive_Mirror_Lemma.v
 
       Finite iteration of a formula-level mirror operation, with
-      irrefutability and recognition opacity at every adequate iterate.
+      irrefutability and recognition opacity at every adequate iterate, plus
+      the operational yes/no/re-entry process and its bounded and unbounded
+      control outcomes.
 
     L002_03__Symbolic_Regulation.v
 
@@ -251,11 +273,6 @@
     L002_98_Sanity.v
 
       Compile-time probes for the public API.
-
-    task.md
-
-      Empirical hypotheses for the behavior of concrete fixed regulators.
-
 
 6 - API
     ---
@@ -292,6 +309,22 @@
       external_mirror_position_forces_asif                                  (01)
       checked_derivable_is_external_mirror_position                         (01)
 
+    World, brain, model, and control:
+
+      EpistemicWorld                                                        (00)
+      WorldConsistent / WorldFormulaConsistent                              (00)
+      TheorySoundInWorld                                                    (00)
+      WorldBrainModelFrame                                                  (00)
+      ControlQuestion                                                       (00)
+      ControlAnswersYes / ControlAnswersNo                                  (00)
+      BinaryControlDecision                                                 (00)
+      WorldRefutesControlClaim                                              (00)
+      world_brain_model_frame_model_consistent                              (01)
+      control_question_no_answer_impossible                                 (01)
+      control_question_binary_decision_forces_yes                           (01)
+      world_brain_model_binary_control_forces_yes                           (01)
+      world_sound_binary_control_decision_impossible                        (01)
+
     Recognition and re-entry:
 
       CodedRecognitionClaim                                                 (00)
@@ -318,6 +351,7 @@
       recognition_reenters_regulator                                        (01)
       coded_recognition_reenters_regulator                                  (01)
       coded_recognition_completes_external_fixed_point                      (01)
+      coded_recognition_acceptance_excluded                                 (01)
       coded_recognition_opacity                                             (01)
       external_fixed_point_reentry_collapses                                (01)
       refutation_recognition_adequacy                                       (01)
@@ -339,6 +373,14 @@
       recursive_mirror_lemma_from_seed                                      (02)
       coded_recursive_mirror_lemma                                          (02)
       coded_recursive_mirror_lemma_from_seed                                (02)
+      ControlResponse / RecursiveControlProcess                             (00/02)
+      ControlAnswersYesAt / ControlReentersAt                               (02)
+      EventuallyAnswersYes / ReentersThrough / ReentersForever              (02)
+      ControlOutcomeDecidable                                               (02)
+      recursive_control_no_response_impossible                              (02)
+      recursive_control_response_yes_or_reenters                            (02)
+      finite_yes_or_recursive_reentry                                       (02)
+      yes_or_recursive_reentry                                              (02)
 
     Conditional principles:
 
@@ -410,6 +452,14 @@
         the preferred coded all-depth opacity results, respectively from an
         adequate family and from a seed plus a position-preserving mirror step
 
+      control_question_binary_decision_forces_yes :
+        a consistent witnessed mirror question cannot answer no, so a supplied
+        binary decision necessarily answers yes
+
+      finite_yes_or_recursive_reentry / yes_or_recursive_reentry :
+        bounded constructive and explicitly outcome-decidable unbounded forms
+        of the “yes or reflective recursion” result
+
       logical_operational_recurrence /
       attributed_provenance_operational_recurrence :
         finite recurrence repeats regulated logical content and its concrete
@@ -464,8 +514,10 @@
 
     `AsIF` denotes non-refutability. Ordinary M001 context extension separately
     supplies derivability under an assumption; L002 packages these two facts in
-    `AssumptionLicensedContent`. Recognition adequacy is an explicit re-entry
-    condition on a supplied coding.
+    `AssumptionLicensedContent`. Coded recognition acceptance remains separate
+    from `AsIF`; mirror consistency derives the latter and thereby excludes the
+    former. Recognition adequacy is an explicit re-entry condition on the
+    legacy formula-valued coding.
 
     Recursive mirror persistence is quantified pointwise over every finite
     syntactic depth. It is distinct from the finite-state recurrence theorem.

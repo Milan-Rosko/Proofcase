@@ -82,7 +82,7 @@ Definition CODED_RECOGNITION_OPACITY_CONTRACT : Prop :=
          (chi : Formula),
     ExternalMirrorPosition M Gamma chi ->
     MirrorConsistent M Gamma ->
-    ~ CodedInternalFixedPointRecognition M Gamma chi.
+    ~ CodedRecognitionAccepted M Gamma chi.
 
 Definition CODED_RECOGNITION_EVIDENCE_SPECIFICATION_CONTRACT : Prop :=
   forall (M : RegulatorTheory)
@@ -115,7 +115,7 @@ Definition CODED_RECURSIVE_MIRROR_CONTRACT : Prop :=
     MirrorConsistent M Gamma ->
     RecursiveMirrorPosition M Gamma mirror_step chi /\
     forall depth : nat,
-      ~ CodedInternalFixedPointRecognition M Gamma
+      ~ CodedRecognitionAccepted M Gamma
           (recursive_mirror_formula depth mirror_step chi).
 
 Definition CODED_SEED_RECURSIVE_MIRROR_CONTRACT : Prop :=
@@ -128,7 +128,7 @@ Definition CODED_SEED_RECURSIVE_MIRROR_CONTRACT : Prop :=
     MirrorConsistent M Gamma ->
     RecursiveMirrorPosition M Gamma mirror_step chi /\
     forall depth : nat,
-      ~ CodedInternalFixedPointRecognition M Gamma
+      ~ CodedRecognitionAccepted M Gamma
           (recursive_mirror_formula depth mirror_step chi).
 
 (*
@@ -208,7 +208,7 @@ Definition LOGICAL_OPERATIONAL_RECURRENCE_CONTRACT : Prop :=
       AsIF M Gamma
         (logical_operational_content L
            (operational_state_at (logical_finite_operation L) earlier)) /\
-      ~ CodedInternalFixedPointRecognition M Gamma
+      ~ CodedRecognitionAccepted M Gamma
           (logical_operational_content L
              (operational_state_at
                 (logical_finite_operation L) earlier)).
@@ -229,7 +229,7 @@ Definition ATTRIBUTED_PROVENANCE_OPERATIONAL_RECURRENCE_CONTRACT : Prop :=
            (operational_state_at
               (logical_finite_operation
                  (attributed_provenance_logical_operation L)) earlier)) /\
-      ~ CodedInternalFixedPointRecognition M Gamma
+      ~ CodedRecognitionAccepted M Gamma
           (logical_operational_content (attributed_provenance_logical_operation L)
              (operational_state_at
                 (logical_finite_operation
@@ -267,7 +267,7 @@ Definition PRINCIPLES_OF_SYMBOLIC_REGULATION_CONTRACT : Prop :=
           (chi : Formula),
       ExternalMirrorPosition M Gamma chi ->
       MirrorConsistent M Gamma ->
-      ~ CodedInternalFixedPointRecognition M Gamma chi) /\
+      ~ CodedRecognitionAccepted M Gamma chi) /\
   (forall (M : RegulatorTheory)
           (Gamma : Context)
           (mirror_step : Formula -> Formula)
@@ -277,9 +277,81 @@ Definition PRINCIPLES_OF_SYMBOLIC_REGULATION_CONTRACT : Prop :=
       forall depth : nat,
         AsIF M Gamma
           (recursive_mirror_formula depth mirror_step chi) /\
-        ~ CodedInternalFixedPointRecognition M Gamma
+        ~ CodedRecognitionAccepted M Gamma
             (recursive_mirror_formula depth mirror_step chi)) /\
   CONCRETE_EXTERNALIZATION_CONTRACT.
+
+(*
+│
+│          The control-question specification collects the metaphor's
+│          explicit bridges: world-to-brain soundness, brain-to-model
+│          inclusion, a witnessed mirror question, binary decision,
+│          and operational `yes`, `no`, or re-entry behavior. The
+│          unbounded `yes`-or-recursion conclusion retains its
+│          outcome-decidability premise.
+│
+*)
+
+Record CONTROL_QUESTION_SPECIFICATION_CONTRACT : Prop := {
+  certified_world_brain_model_consistency :
+    forall (V : EpistemicWorld)
+           (brain model : RegulatorTheory)
+           (Gamma : Context)
+           (frame : WorldBrainModelFrame V brain model Gamma),
+      MirrorConsistent model Gamma;
+
+  certified_control_no_answer_impossible :
+    forall (M : RegulatorTheory)
+           (Gamma : Context)
+           (question : ControlQuestion M Gamma),
+      MirrorConsistent M Gamma ->
+      ~ ControlAnswersNo M Gamma question;
+
+  certified_binary_control_forces_yes :
+    forall (M : RegulatorTheory)
+           (Gamma : Context)
+           (question : ControlQuestion M Gamma),
+      MirrorConsistent M Gamma ->
+      BinaryControlDecision M Gamma question ->
+      ControlAnswersYes M Gamma question;
+
+  certified_world_sound_binary_control_conflict :
+    forall (V : EpistemicWorld)
+           (brain model : RegulatorTheory)
+           (Gamma : Context)
+           (frame : WorldBrainModelFrame V brain model Gamma)
+           (question : ControlQuestion model Gamma),
+      WorldFormulaConsistent V ->
+      TheorySoundInWorld V model Gamma ->
+      WorldRefutesControlClaim V question ->
+      ~ BinaryControlDecision model Gamma question;
+
+  certified_finite_yes_or_recursive_reentry :
+    forall (M : RegulatorTheory)
+           (Gamma : Context)
+           (mirror_step : Formula -> Formula)
+           (chi : Formula)
+           (process : RecursiveControlProcess M Gamma mirror_step chi),
+      RecursiveMirrorAdequacy M Gamma mirror_step chi ->
+      MirrorConsistent M Gamma ->
+      forall fuel : nat,
+        (exists depth : nat,
+           depth <= fuel /\
+           ControlAnswersYesAt process depth) \/
+        ReentersThrough process fuel;
+
+  certified_yes_or_recursive_reentry :
+    forall (M : RegulatorTheory)
+           (Gamma : Context)
+           (mirror_step : Formula -> Formula)
+           (chi : Formula)
+           (process : RecursiveControlProcess M Gamma mirror_step chi),
+      RecursiveMirrorAdequacy M Gamma mirror_step chi ->
+      MirrorConsistent M Gamma ->
+      ControlOutcomeDecidable process ->
+      EventuallyAnswersYes process \/
+      ReentersForever process
+}.
 
 (*
 │
@@ -329,7 +401,8 @@ Definition SYMBOLIC_REGULATION_CONTRACT : Prop :=
   CONCRETE_EXTERNALIZATION_CONTRACT /\
   CONDITIONAL_ATTRIBUTION_CONTRACT /\
   PRINCIPLES_OF_SYMBOLIC_REGULATION_CONTRACT /\
-  CONDITIONAL_EXTERNALIZATION_CONTRACT.
+  CONDITIONAL_EXTERNALIZATION_CONTRACT /\
+  CONTROL_QUESTION_SPECIFICATION_CONTRACT.
 
 (*
 │

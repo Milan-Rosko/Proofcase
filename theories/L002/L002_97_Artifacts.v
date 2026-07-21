@@ -63,7 +63,7 @@ Qed.
 Theorem certified_coded_recognition_opacity_contract :
   CODED_RECOGNITION_OPACITY_CONTRACT.
 Proof.
-  exact coded_recognition_opacity.
+  exact coded_recognition_acceptance_excluded.
 Qed.
 
 Theorem certified_coded_recognition_evidence_specification_contract :
@@ -183,6 +183,26 @@ Qed.
 
 (*
 │
+│          Certification endpoint for the world, brain, embedded
+│          model, witnessed control question, and recursive response
+│          specification.
+│
+*)
+
+Theorem certified_control_question_specification_contract :
+  CONTROL_QUESTION_SPECIFICATION_CONTRACT.
+Proof.
+  constructor.
+  - exact world_brain_model_frame_model_consistent.
+  - exact control_question_no_answer_impossible.
+  - exact control_question_binary_decision_forces_yes.
+  - exact world_sound_binary_control_decision_impossible.
+  - exact finite_yes_or_recursive_reentry.
+  - exact yes_or_recursive_reentry.
+Qed.
+
+(*
+│
 │          The certified package contract is the conjunction of the
 │          subordinate endpoints.
 │
@@ -220,7 +240,9 @@ Proof.
                                              ------ exact certified_conditional_attribution_contract.
                                              ------ split.
                                                     +++++++ exact certified_principles_of_symbolic_regulation_contract.
-                                                    +++++++ exact certified_conditional_externalization_contract.
+                                                    +++++++ split.
+                                                            { exact certified_conditional_externalization_contract. }
+                                                            { exact certified_control_question_specification_contract. }
 Qed.
 
 (*

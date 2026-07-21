@@ -187,7 +187,7 @@ Theorem logical_operational_recurrence :
       AsIF M Gamma
         (logical_operational_content L
            (operational_state_at (logical_finite_operation L) earlier)) /\
-      ~ CodedInternalFixedPointRecognition M Gamma
+      ~ CodedRecognitionAccepted M Gamma
           (logical_operational_content L
              (operational_state_at
                 (logical_finite_operation L) earlier)).
@@ -390,7 +390,7 @@ Theorem attributed_provenance_operational_recurrence :
            (operational_state_at
               (logical_finite_operation
                  (attributed_provenance_logical_operation L)) earlier)) /\
-      ~ CodedInternalFixedPointRecognition M Gamma
+      ~ CodedRecognitionAccepted M Gamma
           (logical_operational_content (attributed_provenance_logical_operation L)
              (operational_state_at
                 (logical_finite_operation
@@ -725,7 +725,7 @@ Theorem coded_fixed_point_certificate_opacity :
          (chi : Formula),
     ExternalMirrorPosition M Gamma chi ->
     MirrorConsistent M Gamma ->
-    ~ CodedInternalFixedPointRecognition M Gamma chi.
+    ~ CodedRecognitionAccepted M Gamma chi.
 Proof.
   exact coded_recognition_opacity.
 Qed.

@@ -19,6 +19,18 @@
   at the regulator level. All Aporetic and status vocabulary is built above
   that public boundary.
 
+  Substrate comparison. The primitive diagonal hypothesis used by
+  `curry_fixp_existence` and `eval_bottom_negfixp` is
+  `ClosureEvaluationFrameForGoal C Code ev G`: it asks for a name only for
+  the single behavior `x ↦ ev x x → G`. This is a goal-restricted
+  representability fragment, not Lawvere-style weak point-surjectivity for
+  every `Code -> Formula` behavior. It also assumes none of the
+  arithmetization, substitution representability, provability predicates, or
+  semantic truth machinery associated with Gödelian diagonal lemmas.
+  `ClosureEvaluationFrame` is the deliberately stronger universal interface;
+  it supplies the goal frame as an adapter and separately supports the
+  package's universal fixed-point theorem and full-frame corollaries.
+
 *)
 
 From M001 Require Export M001_95_API.
@@ -318,10 +330,22 @@ Qed.
 
 (*
 │
-│          `ClosureEvaluationFrame C Code` is the generic syntactic
-│          evaluation interface for the closure theorem. It supplies
-│          coded formulas and closure-level completeness up to
-│          `ClosureEquiv`.
+│          The minimal Curry-like aporetic construction below consumes
+│          the goal-specific fragment `ClosureEvaluationFrameForGoal`.
+│          The universal record is presented first as the inherited
+│          stronger interface, which also supports a separate generic
+│          fixed-point theorem.
+│
+*)
+
+(*
+│
+│          `ClosureEvaluationFrame C Code` is the stronger universal
+│          syntactic evaluation interface. It supplies a name, up to
+│          `ClosureEquiv`, for every formula-valued behavior over
+│          codes. It is sufficient for `ClosureEvaluationFrameForGoal`
+│          but is not required by the minimal goal-specific
+│          construction.
 │
 *)
 
@@ -346,11 +370,11 @@ Arguments cevaluation_complete {C Code} _ _.
 
 (*
 │
-│          `ClosureEvaluationFrameForGoal C Code ev G` is the minimal
-│          evaluation-completeness fragment needed for the Curry fixed
-│          point at goal `G`. It requires a code for the single
-│          diagonal behavior `x ↦ ev x x → G`, not a universal name
-│          for every behavior.
+│          `ClosureEvaluationFrameForGoal C Code ev G` is the live,
+│          minimal evaluation-completeness fragment needed for the
+│          Curry-like aporetic fixed point at goal `G`. It requires a
+│          code for the single diagonal behavior `x ↦ ev x x → G`, not
+│          a universal name for every behavior.
 │
 *)
 

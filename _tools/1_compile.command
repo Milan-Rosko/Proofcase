@@ -144,16 +144,16 @@ RSYNC_CACHE_PROTECT=(
 if command -v rsync >/dev/null 2>&1; then
   mkdir -p "${SHADOW}/theories"
   if [ "${CACHE}" = "1" ]; then
-    rsync -a --delete "${RSYNC_CACHE_PROTECT[@]}" "${ROOT}/theories/" "${SHADOW}/theories/" >/dev/null 2>&1 || true
+    rsync -a --delete "${RSYNC_CACHE_PROTECT[@]}" "${ROOT}/theories/" "${SHADOW}/theories/" >/dev/null
   else
-    rsync -a --delete "${ROOT}/theories/" "${SHADOW}/theories/" >/dev/null 2>&1 || true
+    rsync -a --delete "${ROOT}/theories/" "${SHADOW}/theories/" >/dev/null
   fi
   if [[ -d "${ROOT}/formalizations" ]]; then
     mkdir -p "${SHADOW}/formalizations"
     if [ "${CACHE}" = "1" ]; then
-      rsync -a --delete "${RSYNC_CACHE_PROTECT[@]}" "${ROOT}/formalizations/" "${SHADOW}/formalizations/" >/dev/null 2>&1 || true
+      rsync -a --delete "${RSYNC_CACHE_PROTECT[@]}" "${ROOT}/formalizations/" "${SHADOW}/formalizations/" >/dev/null
     else
-      rsync -a --delete "${ROOT}/formalizations/" "${SHADOW}/formalizations/" >/dev/null 2>&1 || true
+      rsync -a --delete "${ROOT}/formalizations/" "${SHADOW}/formalizations/" >/dev/null
     fi
   fi
 else
@@ -195,7 +195,8 @@ rm -rf \
   "output/theories/L001/_appendix/_artifacts" \
   "output/theories/L001/_appendix/_assumptions" \
   "output/theories/L001/_appendix/_assumptions_classical" \
-  "output/theories/L001/_appendix/_assumptions_constructive"
+  "output/theories/L001/_appendix/_assumptions_constructive" \
+  "output/theories/L002/_appendix/_assumptions"
 
 # -----------------------------------------------------------------------------
 # Build
@@ -296,7 +297,7 @@ fi
 # -----------------------------------------------------------------------------
 # Constructive L001 assumption-report guard
 # -----------------------------------------------------------------------------
-L001_CONSTRUCTIVE_ASSUMPTIONS="output/theories/L001/_appendix/_assumptions_constructive"
+L001_CONSTRUCTIVE_ASSUMPTIONS="output/theories/L001/_appendix/_assumptions"
 L001_ARTIFACT_SOURCE="${SHADOW}/theories/L001/L001_97_Artifacts.v"
 L001_REQUIRED_CONSTRUCTIVE_REPORTS=(
   "certified_aporetic_lemma_contract"
@@ -342,6 +343,58 @@ if [[ "${L001_ASSUMPTION_GUARD_ENABLED}" = "1" ]]; then
     -e "classic" \
     "${L001_CONSTRUCTIVE_ASSUMPTIONS}" | tee -a "${BUILD_LOG}"; then
     echo "Constructive L001 assumption reports contain forbidden classical or axiom dependencies." | tee -a "${BUILD_LOG}"
+    exit 1
+  fi
+fi
+
+# -----------------------------------------------------------------------------
+# Constructive L002 assumption-report guard
+# -----------------------------------------------------------------------------
+L002_CONSTRUCTIVE_ASSUMPTIONS="output/theories/L002/_appendix/_assumptions"
+L002_ARTIFACT_SOURCE="${SHADOW}/theories/L002/L002_97_Artifacts.v"
+L002_REQUIRED_CONSTRUCTIVE_REPORTS=(
+  "mirror_lemma_qed"
+  "recursive_mirror_lemma_qed"
+  "symbolic_regulation_qed"
+)
+L002_ASSUMPTION_GUARD_ENABLED=0
+if grep -Eq '(^|[[:space:]])theories/L002/L002_97_Artifacts\.v([[:space:]]|$)' "${COQPROJECT_SHADOW}"; then
+  L002_ASSUMPTION_GUARD_ENABLED=1
+fi
+
+symbolic_regulation_assumption_reports_present() {
+  for report in "${L002_REQUIRED_CONSTRUCTIVE_REPORTS[@]}"; do
+    if [[ ! -s "${L002_CONSTRUCTIVE_ASSUMPTIONS}/${report}.out" ]]; then
+      return 1
+    fi
+  done
+  return 0
+}
+
+if [[ "${L002_ASSUMPTION_GUARD_ENABLED}" = "1" ]]; then
+  if ! symbolic_regulation_assumption_reports_present; then
+    if [[ -f "${L002_ARTIFACT_SOURCE}" ]]; then
+      touch "${L002_ARTIFACT_SOURCE}"
+      "${MAKE_BIN}" -f Makefile.coq -j "${JOBS}" \
+        "theories/L002/L002_97_Artifacts.vo" | tee -a "${BUILD_LOG}"
+    fi
+  fi
+
+  for report in "${L002_REQUIRED_CONSTRUCTIVE_REPORTS[@]}"; do
+    if [[ ! -s "${L002_CONSTRUCTIVE_ASSUMPTIONS}/${report}.out" ]]; then
+      echo "Missing or empty constructive L002 assumption report: ${L002_CONSTRUCTIVE_ASSUMPTIONS}/${report}.out" | tee -a "${BUILD_LOG}"
+      exit 1
+    fi
+  done
+
+  if grep -R \
+    -e "^Axioms:" \
+    -e "ClassicalEpsilon" \
+    -e "constructive_indefinite_description" \
+    -e "excluded_middle" \
+    -e "classic" \
+    "${L002_CONSTRUCTIVE_ASSUMPTIONS}" | tee -a "${BUILD_LOG}"; then
+    echo "Constructive L002 assumption reports contain forbidden classical or axiom dependencies." | tee -a "${BUILD_LOG}"
     exit 1
   fi
 fi

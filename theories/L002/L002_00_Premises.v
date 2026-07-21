@@ -323,6 +323,132 @@ Definition SLambdaConsistent
 (*
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │                                                                              │
+│                       WORLD, BRAIN, MODEL, AND CONTROL                       │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
+
+(*
+│
+│          An `EpistemicWorld` is an external interpretation of M001
+│          formulas. No semantic law is built into the carrier: bottom
+│          rejection, formula consistency, and theory soundness are
+│          supplied separately so that applications must expose every
+│          bridge premise.
+│
+*)
+
+Definition EpistemicWorld : Type :=
+  Formula -> Prop.
+
+Definition WorldConsistent
+    (V : EpistemicWorld) : Prop :=
+  ~ V Bot.
+
+Definition WorldFormulaConsistent
+    (V : EpistemicWorld) : Prop :=
+  forall A : Formula,
+    V A ->
+    V (formula_negation A) ->
+    False.
+
+Definition TheorySoundInWorld
+    (V : EpistemicWorld)
+    (T : RegulatorTheory)
+    (Gamma : Context) : Prop :=
+  forall A : Formula,
+    regulator_theory_checked_derivable T Gamma A ->
+    V A.
+
+(*
+│
+│          `WorldBrainModelFrame V brain model Gamma` makes the
+│          relative-consistency chain explicit. The brain is sound in
+│          a world rejecting `Bot`, and every model derivation is
+│          available to the brain through regulator inclusion. The
+│          frame does not assume that the embedded model is
+│          independently sound in the world.
+│
+*)
+
+Record WorldBrainModelFrame
+    (V : EpistemicWorld)
+    (brain model : RegulatorTheory)
+    (Gamma : Context) : Type := {
+  frame_world_consistent : WorldConsistent V;
+  frame_brain_sound : TheorySoundInWorld V brain Gamma;
+  frame_model_inclusion : regulator_theory_included model brain
+}.
+
+Arguments frame_world_consistent {V brain model Gamma} _.
+Arguments frame_brain_sound {V brain model Gamma} _ _ _.
+Arguments frame_model_inclusion {V brain model Gamma} _.
+
+(*
+│
+│          A `ControlQuestion` packages the formula read as “I am in
+│          control” together with its explicit one-way mirror witness
+│          `not C -> C`. The self-referential or causal reading is
+│          therefore not inferred from an arbitrary formula alone.
+│
+*)
+
+Record ControlQuestion
+    (M : RegulatorTheory)
+    (Gamma : Context) : Type := {
+  control_question_formula : Formula;
+  control_question_mirror :
+    ExternalMirrorPosition M Gamma control_question_formula
+}.
+
+Arguments control_question_formula {M Gamma} _.
+Arguments control_question_mirror {M Gamma} _.
+
+Definition ControlAnswersYes
+    (M : RegulatorTheory)
+    (Gamma : Context)
+    (question : ControlQuestion M Gamma) : Prop :=
+  regulator_theory_checked_derivable
+    M Gamma (control_question_formula question).
+
+Definition ControlAnswersNo
+    (M : RegulatorTheory)
+    (Gamma : Context)
+    (question : ControlQuestion M Gamma) : Prop :=
+  regulator_theory_checked_derivable
+    M Gamma (formula_negation (control_question_formula question)).
+
+Definition BinaryControlDecision
+    (M : RegulatorTheory)
+    (Gamma : Context)
+    (question : ControlQuestion M Gamma) : Prop :=
+  ControlAnswersYes M Gamma question \/
+  ControlAnswersNo M Gamma question.
+
+Definition WorldRefutesControlClaim
+    (V : EpistemicWorld)
+    {M : RegulatorTheory}
+    {Gamma : Context}
+    (question : ControlQuestion M Gamma) : Prop :=
+  V (formula_negation (control_question_formula question)).
+
+(*
+│
+│          The operational control-response alphabet distinguishes a
+│          positive answer, a negative answer, and reflective
+│          re-entry. File 02 connects these tags to recursive mirror
+│          formulas.
+│
+*)
+
+Inductive ControlResponse : Type :=
+| control_response_yes
+| control_response_no
+| control_response_reenter.
+
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
 │                           RECOGNITION AND RE-ENTRY                           │
 │                                                                              │
 └──────────────────────────────────────────────────────────────────────────────┘
@@ -618,9 +744,13 @@ Qed.
 
 (*
 │
-│          Coded internal recognition combines the fixed point's
-│          `AsIF` status with acceptance of its first-class
-│          recognition claim by the dedicated L002 regulator.
+│          `CodedInternalFixedPointRecognition` is retained as a
+│          compatibility name for acceptance by the first-class coded
+│          recognition regulator. `AsIF` is deliberately not conjoined
+│          here: accepted evidence yields `not A`, while `AsIF` denies
+│          such a checked derivation. Keeping the two predicates
+│          separate makes mirror consistency responsible for the
+│          opacity theorem.
 │
 *)
 
@@ -628,7 +758,6 @@ Definition CodedInternalFixedPointRecognition
     (M : RegulatorTheory)
     (Gamma : Context)
     (A : Formula) : Prop :=
-  AsIF M Gamma A /\
   CodedRecognitionAccepted M Gamma A.
 
 (*
@@ -860,7 +989,7 @@ Record LogicalOperationalLayer
            (operational_state_at logical_finite_operation time));
   logical_operational_content_opaque :
     forall time : nat,
-      ~ CodedInternalFixedPointRecognition M Gamma
+      ~ CodedRecognitionAccepted M Gamma
           (logical_operational_content
              (operational_state_at logical_finite_operation time))
 }.

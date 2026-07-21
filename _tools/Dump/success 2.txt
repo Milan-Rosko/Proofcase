@@ -1,0 +1,164 @@
+(successful 'makefile' run.) 
+
+ . . . . . . . . .....*************************.                           
+. . . . . ... ..... ....***************************.                       
+ . . . . . . . . . . .. ... .. ... .....**************                     
+. . . . . .. .. .. .....********************************                   
+ . . . . ... ..... ......********************************                  
+. . . . . . . . . . .. .... .... ....*********************                 
+ . . . . . . ... .... .....**********************   *******                
+. . . . . . . .  .... ....*********************************.               
+ . . . . .. .. ..... ....***********************************               
+. . . ... ... ..... .....***********************************               
+ . . . .. ... ..... .....***********************************               
+. . . . .. ... ..... .....******************          *****                
+ . . . . .. ... ..... .....***************              ***                
+. . . . . .. ... ..... .....************                 *                 
+ . . . . . .. ... ..... .....*********                                     
+. . . . . . .. ... ..... ......******                                      
+ . . . . . . ... ........ .......**                                        
+---------------------------------------------------------------------------
+
+                    Date (UTC): 2026-07-21T17:24:39Z,
+
+                   Rocq version: The Rocq Prover, version 9.0.1
+              _CoqProject source: root
+                _CoqProject path: /Users/wuksh/Library/Mobile Documents/com~apple~CloudDocs/__Argosy/005_Github/Proofcase/_CoqProject
+                   Method: isolated shadow, scratch folder (cold sync)
+                   Build jobs: 12
+
+---------------------------------------------------------------------------
+
+Axioms:
+
+---------------------------------------------------------------------------
+
+_CoqProject file contents:
+
+=== BEGIN ===
+
+   # root settings 
+    
+   -docroot proofcase 
+   -arg -w 
+   -arg -abstract-large-number 
+   -arg -output-directory 
+   -arg output 
+   -arg -native-compiler 
+   -arg ondemand 
+    
+   # Algorithmic Contribution: CARRYLESS PAIRING 
+    
+   -Q theories/A001 A001 
+    
+   	theories/A001/A001_00_Premises.v 
+   	theories/A001/A001_02__Base_Fibonacci.v 
+   	theories/A001/A001_03__Zeckendorf_Correctness.v 
+   	theories/A001/A001_04__Carryless_Bands.v 
+   	theories/A001/A001_05__Pair_Unpair_Correct.v 
+   	theories/A001/A001_94_IO.v 
+   	theories/A001/A001_95_API.v 
+   	theories/A001/A001_97_Artifacts.v 
+    
+   # Algorithmic Contribution: CARRYLESS SEQUENT 
+    
+   -Q theories/A002 A002 
+    
+   	theories/A002/A002_00_Premises.v 
+   	theories/A002/A002_01__Hilbert_Syntax_Checkers.v 
+   	theories/A002/A002_02__Normalization.v 
+   	theories/A002/A002_94_IO.v 
+   	theories/A002/A002_95_API.v 
+   	theories/A002/A002_97_Artifacts.v 
+   	theories/A002/A002_98_Sanity.v 
+    
+   # Model Contribution: CONSTRUCTIVE REGULATOR THEORY 
+    
+   -Q theories/M001 M001 
+    
+   	theories/M001/M001_00_Premises.v 
+   	theories/M001/M001_01__Kernel.v 
+   	theories/M001/M001_02__Abstraction.v 
+   	theories/M001/M001_03__Falsity.v 
+   	theories/M001/M001_04__Certificates.v 
+   	theories/M001/M001_05__Application.v 
+   	theories/M001/M001_06__Syntactic_Adequacy.v 
+   	theories/M001/M001_07__Obstruction.v 
+   	theories/M001/M001_08__Regulation.v 
+   	theories/M001/M001_09__Evaluation_Closure.v 
+   	theories/M001/M001_95_API.v 
+   	theories/M001/M001_97_Artifacts.v 
+   	theories/M001/M001_98_Sanity.v 
+    
+   # Logic Contribution: APORETIC LEMMA 
+    
+   -Q theories/L001 L001 
+    
+   	theories/L001/L001_00_Premises.v 
+   	theories/L001/L001_01__Aporetic_Lemma.v 
+   	theories/L001/L001_02__Aporetic_Obstruction.v 
+   	theories/L001/L001_95_API.v 
+   	theories/L001/L001_97_Artifacts.v 
+    
+   # Logic Contribution: SYMBOLIC REGULATION 
+    
+   -Q theories/L002 L002 
+    
+   	theories/L002/L002_00_Premises.v 
+   	theories/L002/L002_01__Mirror_Unrefutability.v 
+   	theories/L002/L002_02__Recursive_Mirror_Lemma.v 
+   	theories/L002/L002_03__Symbolic_Regulation.v 
+   	theories/L002/L002_95_API.v 
+   	theories/L002/L002_97_Artifacts.v 
+   	theories/L002/L002_98_Sanity.v 
+
+=== END ===
+
+---------------------------------------------------------------------------
+
+Hash(es) (Short SHA-256) of 40 Files:
+
+---------------------------------------------------------------------------
+   4r7SdBI74+z4fz8DHZSzrX8tDh2gZFNOO4DTsuUNm2g=
+   mEQNzjVL3Lle4phkeh74bvvt2xpV1HTuyeriRsVLsCw=
+   iv9ZR0qGByMzMCfb7mNPwcQggUnfsFTLoOn3u28Mt2I=
+   +MHZSkVPg6TZgmI8uW14PJP2r9Df7kGS142S3Xeqc3w=
+   AT46VvjHUf98yC1HneqcAdUjxNAd6JHGAp2mkcyyHDM=
+   xLNIiMNUl9PvvNa8aJWxUIHBu6z7iEdZg1R+1b74EHA=
+   AkFKXWKn7qXh+ee30lJKBFc/huuEYOZ8QhyoNQ4t8Jw=
+   Vb92Z8+1HXA25w1Lmyhhrs77lC0oEaZlb2ro8rjtKAM=
+   b3yoEqGG7V/8u+F75NNW0pl1aMfzatFCYsz5xpjLbjk=
+   2L6HKJhHiMFu++YXh4Yc9Dijufx4RmRN+ztHoT1RjGw=
+   kq7ri6p4DjKR/fsd9asJftxkTaPJlWmqlCK3qJ6fMYQ=
+   JP2aTaIohpAZFRTmOvwzTZV93l/NcWYGMM/oH8iqAs4=
+   LyOD/zHwSZ9PuT/csEM8yaDxdEXIu/+XFQVOnPAD67Y=
+   DHaR2BRWPq4Uu0+IOfK5liQ9CNxmDnnSHZ4ujY7WmGQ=
+   LeXBF/d/JuPPlYoKbaGoPxhFqrt3Go7fXUs6j9FUY3o=
+   Q1B4P7OafjEpkig/rRyt6CUmaF04Jppl+P5erVof1UQ=
+   PtcR6GQBp9mT1DIeRWdI2o5OuInA3aevpNK4QmVwoyU=
+   KDr05WJ4fAY2Wf1QoYSbePKvIPgK2K1s61zt+0p/w/0=
+   TqviLx2u5Fvn2xW6WCrAi23z8qMVVKOSW77XQzRZ98Y=
+   PSRkZpZtcpXsxJoYIMc8C37jBS08o0E+O9+zn+0sXqU=
+   Za/1DLAomGQjDvdO1NtjdqWcCx8xvLtJYV7BU4AqAkg=
+   ThSg1XKUjkd0MSclzE2gyUC4SDp0pnKyUw0iGleNemY=
+   OwpxSv59vSuWw+GTrSoUqw0eycwNYEgdePIEEEHmcTI=
+   LQUGbcvWnSBtOsd+c6qFVvATIVAAz65enT+a8gJ1J3s=
+   6zJqMu6abB3x/IeI0XQonr1qgdlyuf9Qyg/jkzDapzw=
+   bIMUKBjo2QEaqsMOIDnNdNIKFvRHE4EFmWeeOSljac4=
+   hZ+nP9CiE5FPTha6P56G+8duZNWQV+k6WA2DtGcofXs=
+   Ml4wOK8SD1ZO5lj8mlHpp0ptuQJEThfjAD+tfm/uzbI=
+   fVqplqd6Cv8CDNcRIi2cOnXKUvYOiCq23vPkcJuAl0U=
+   bIix53yNYbwGBQuLhUbaokuK4Kp2zADDO8FpZT/V7YM=
+   tynoygal3UYU4zdLL3PsGvIsu1/6Rfokn37jx1Ql7Mw=
+   IW+FAaVyTyDrSjgEK8P7dk4QNfkUmZ7rHKDPr0emy/E=
+   wI2QvPr86Jbp+1IJu4AkthjZiiRi5kad//21smsbAe8=
+   CF4cnnTLPf1CpLTqftuzUwGZKQp7UkF5DVAcK2N+YLg=
+   DKt2VKl2/16iV+PbyIJpi9X28HFq2Y+nlOeSqWxCWas=
+   OHGpfP4nF4C47Z0951vo8oAnHsKl+96t1j7vDBeG8J4=
+   xKO7WW9Iuo0VsKhL5IERiw3iNn51S/s+nwhZAy0cW3k=
+   TADSCjA2WCWao5/Pb9FPKHUXcrYADSD9EHCh/FOUn6w=
+   qFv7IH2i68ikD/NGZ5vJ+ys6V0IWFpt44oEc8ZPqFhw=
+   TcIT4eUiopul83I9xecYwo31TIXpwtY/lMABLh1HB8A=
+
+------------------------
+

@@ -10,6 +10,15 @@
     excluded middle in Rocq, and does not introduce semantic truth, arithmetic
     provability, modal machinery, or a new checker.
 
+    Substrate note. The minimal diagonal theorem uses only
+    `ClosureEvaluationFrameForGoal`: one code for the single behavior
+    `x ↦ ev x x → G` at a chosen goal. It does not require Lawvere-style weak
+    point-surjectivity over every behavior, and it does not require Gödel
+    numbering, substitution representability, a provability predicate, or an
+    arithmetic diagonal lemma. The universal `ClosureEvaluationFrame` is a
+    stronger interface used both to obtain the goal frame and by the package's
+    separate universal fixed-point theorem and full-frame corollaries.
+
 
 2 - State
     -----
@@ -35,8 +44,12 @@
       ClosureEquiv C A B =
         C (Imp A B) /\ C (Imp B A)
 
-    Evaluation closure produces a formula equivalent, inside the closure, to
-    its own object-level negation:
+    The minimal diagonal-production premise is goal restricted:
+
+      ClosureEvaluationFrameForGoal C Code ev Bot
+
+    It produces a formula equivalent, inside the closure, to its own
+    object-level negation:
 
       exists B, NegationFixedPointFor C B
 
@@ -74,13 +87,13 @@
     interface as a fixed-point engine, then adds explicit closure-level
     hypotheses that turn the fixed point into a collapse or obstruction.
 
-    Full evaluation closure names every formula-valued behavior over codes up
-    to closure equivalence. The weaker goal-frame form names only the one
-    behavior needed for a chosen goal:
+    The minimal goal frame names only the one behavior needed for a chosen
+    goal:
 
       x ↦ Imp (ev x x) G
 
-    Running the representing code on itself yields a Curry fixed point:
+    Running the representing code on itself yields a Curry-like aporetic fixed
+    point:
 
       B ≃_C (Imp B G)
 
@@ -155,7 +168,7 @@
 
     L001_01__Aporetic_Lemma.v
 
-      Proves the Curry-style fixed-point factorization, the branch-collapse
+      Proves the Curry-like aporetic fixed-point factorization, the branch-collapse
       lemmas, the generic excluded-middle and decision collapses, and the M001
       regulator specialization `aporetic_lemma`.
 
@@ -264,7 +277,21 @@
     M001; L001 contributes certified fixed-point, collapse, obstruction, and
     contract endpoints.
 
-    The most compact reading of the main result is:
+    The minimal fixed-point reading is:
+
+      ClosureEvaluationFrameForGoal C Code ev Bot
+        ==> exists B, NegationFixedPointFor C B
+
+    The local obstruction then reads:
+
+      NegationFixedPointFor C B
+      ClosureLocalExcludedMiddle C B
+      ClosureModusPonens C
+      ClosureConsistent C
+        ==> False
+
+    The familiar full-frame/decision statement is a stronger package
+    corollary:
 
       ClosureEvaluationFrame C Code
       ClosureModusPonens C
