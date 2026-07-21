@@ -14,17 +14,11 @@
 
   OVERVIEW
 
-  L001_02 is the obstruction boundary of the Aporetic fixed-point theorem.
-  The first theorem is the local obstruction: a supplied closure-equivalence
-  negation fixed point, local bivalence at that fixed point, modus ponens,
-  and consistency are incompatible. Full evaluation frames enter only later
-  as corollaries that produce the fixed point.
+  Obstruction layer: consistency rejects the bottom produced from a negation
+  fixed point, modus ponens, and a local accepted branch.
 
-  The file is intentionally layered. We first state the generic closure
-  obstruction, then specialize it to the regulator closure induced by an M001
-  axiom set. The yes branch becomes obstructed because it supplies a total
-  regulator decision. The no branch is treated separately: only an additional
-  double-negation bridge can turn a refutation into an obstruction.
+  The generic result is followed by M001 regulator, yes-status, and optional
+  double-negation no-status forms.
 
 *)
 
@@ -67,12 +61,8 @@ Definition RegulatorClosureConsistent
 
 (*
 │
-│          Core local obstruction. The collapse theorem supplies `C
-│          Bot` from a supplied negation fixed point and the single
-│          local branch datum at that fixed point; the consistency
-│          boundary turns that accepted bottom formula into `False`.
-│          No evaluation frame or global excluded-middle schema is
-│          used here.
+│          The local branch collapse yields `C Bot`; consistency turns
+│          it into `False`.
 │
 *)
 
@@ -171,14 +161,9 @@ Qed.
 
 (*
 │
-│          `closure_acceptance_undecidable_theorem` names the
-│          obstruction as undecidability of the closure acceptance
-│          set. Under consistency, modus ponens, and evaluation
-│          completeness, no total Boolean classifier can decide
-│          whether a formula is accepted by `C`; such a classifier
-│          would induce closure-level excluded middle and hence
-│          contradiction. This is the abstract Rice-style form of the
-│          theorem.
+│          Closure-acceptance undecidability: evaluation, modus
+│          ponens, and consistency exclude a total Boolean decision
+│          certified internally by `C A` or `C (¬A)`.
 │
 *)
 
@@ -250,9 +235,10 @@ Qed.
 
 (*
 │
-│          A total regulator decision is stronger than regulator-level
-│          excluded middle. Therefore a negation fixed point and
-│          consistency already obstruct such a decision.
+│          A total regulator positive/negative accepted-branch
+│          classifier carries more data than regulator-level
+│          excluded-middle completeness. Therefore a negation fixed
+│          point and consistency already obstruct such a classifier.
 │
 *)
 
@@ -311,10 +297,11 @@ Qed.
 
 (*
 │
-│          The decision obstruction is the Boolean version of the
-│          previous theorem. The decision is first collapsed to
-│          `RegulatorClosure Bot`, and the consistency hypothesis is
-│          used only after that collapse has been obtained.
+│          The accepted-branch-classifier obstruction is the Boolean
+│          version of the previous theorem. The classifier first
+│          yields `RegulatorClosure Bot`, and the consistency
+│          hypothesis is used only after that collapse has been
+│          obtained.
 │
 *)
 
@@ -346,11 +333,8 @@ Qed.
 
 (*
 │
-│          The yes-status branch is obstructed when accepting the
-│          status formula provides a total regulator decision. Once
-│          the status formula is accepted, `YesBranchDecides` converts
-│          that acceptance into a decision, and the decision
-│          obstruction applies.
+│          The yes-status branch is obstructed when its acceptance
+│          supplies `RegulatorDecision`.
 │
 *)
 
@@ -489,11 +473,8 @@ Definition always_false_regulator_refutation
 
 (*
 │
-│          The always-false refutation classifier is constructively
-│          realizable even under regulator consistency. The witness is
-│          independent of consistency and never invokes the diagonal
-│          formula. Thus the decision obstruction cannot be weakened
-│          to a refutation-only obstruction.
+│          The always-false refutation witness shows that the decision
+│          obstruction does not extend to refutation-only classifiers.
 │
 *)
 

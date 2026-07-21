@@ -3,90 +3,37 @@
 1 - Summary
     -------
 
-    L002 formalizes a mirror obstruction over M001 checked derivability.
-    For a regulator `M`, context `Gamma`, and formula `chi`, it separates:
+    L002 formalizes a mirror obstruction over M001 checked derivability. It
+    separates:
 
       - a full negation fixed point, which derives `Bot`; and
-      - a one-way mirror position `formula_negation chi -> chi`, which is
-        compatible with consistency but excludes adequate recognition.
+      - a one-way mirror `formula_negation chi -> chi`, where consistency gives
+        non-refutability and excludes the missing coded direction.
 
-    The live core is:
+    The minimal live core is:
 
       ExternalMirrorPosition M Gamma chi /\
-      MirrorConsistent M Gamma
+      MirrorLocallyConsistent M Gamma chi
 
       implies
 
       AsIF M Gamma chi /\
       ~ CodedRecognitionAccepted M Gamma chi.
 
-    Here `AsIF` means only that `M` has no checked derivation of
-    `formula_negation chi`. It is not truth, belief, agency, or control.
-    Acceptance is kept separate: accepted coded evidence re-enters `M` as a
-    derivation of the negation that `AsIF` excludes.
+    Global `MirrorConsistent` implies the local premise and remains available
+    through compatibility corollaries.
 
-    The world/brain/model layer makes relative consistency explicit. A
-    `WorldBrainModelFrame` derives brain consistency from world soundness and
-    transports it to model consistency through
-    `ModelConsistentRelativeToBrain`. Model-to-world soundness remains a
-    separate premise.
+    `AsIF` means only that `M` has no checked derivation of `¬chi`.
+    `CodedRecognitionAccepted` is equivalent to checked derivability of the
+    missing direction `chi -> ¬chi`.
 
-    A `ControlQuestion` packages a formula with its mirror witness. A
-    consistent model cannot return the explicit negative verdict. If a binary
-    decision is required, the remaining internal verdict is positive. If the
-    world refutes that verdict and the model is world-sound, the binary
-    specification is impossible.
-
-    `RecursiveControlProcess` adds `yes`, `no`, and `reenter` responses over
-    finite mirror iterates. Consistency excludes `no` at every depth. For each
-    finite bound, either `yes` occurs within the bound or every stage through
-    it is re-entry. The unbounded disjunction requires the explicit
-    `ControlOutcomeDecidable` premise.
+    `L002_CORE_CONTRACT` contains the minimal goal-frame bridge, local mirror
+    and coded-recognition results, and pointwise-local finite-depth transport.
+    Relative-consistency, response, recurrence, attribution, and
+    externalization remain separately certified optional interfaces.
 
 
-2 - Theorem Shape
-    -------------
-
-    Full fixed point:
-
-      ExternalFixedPoint M Gamma chi
-        -> regulator_theory_checked_derivable M Gamma Bot
-
-    Live mirror:
-
-      ExternalMirrorPosition M Gamma chi
-        -> MirrorConsistent M Gamma
-        -> AsIF M Gamma chi
-
-      ExternalMirrorPosition M Gamma chi
-        -> MirrorConsistent M Gamma
-        -> ~ CodedRecognitionAccepted M Gamma chi
-
-    Control question:
-
-      MirrorConsistent M Gamma
-        -> ~ ControlAnswersNo M Gamma question
-
-      MirrorConsistent M Gamma
-        -> BinaryControlDecision M Gamma question
-        -> ControlAnswersYes M Gamma question
-
-    Recursive control:
-
-      forall fuel,
-        (exists depth,
-           depth <= fuel /\ ControlAnswersYesAt process depth) \/
-        ReentersThrough process fuel
-
-      ControlOutcomeDecidable process
-        -> EventuallyAnswersYes process \/ ReentersForever process
-
-    The first recursive statement is constructive. The second exposes the
-    additional decision premise needed to pass from every finite bound to one
-    unbounded disjunction.
-
-
-3 - State
+2 - State
     -----
 
                       ┌──────────────────────────────────┐
@@ -94,28 +41,96 @@
                       │   └─┴─┴─┴─┴─┴─┴─┴─┴─┴─┘ 7 / 10   │
                       └──────────────────────────────────┘
 
-    Evaluation: 7, Serviceable. Mechanized and documented; recognition,
-    response, and world interfaces remain abstract pending concrete regulator
-    instances. Not peer reviewed.
+    Evaluation: 7, Serviceable. Mechanized and documented. Optional response
+    interfaces remain abstract. Not peer reviewed.
 
 
-4 - Files
+3 - Intuition
+    ---------
+
+    L002 distinguishes two related but unequal positions.
+
+    First, the L001 bottom-goal frame constructs a full negation fixed point:
+
+      ClosureEvaluationFrameForGoal ... Bot
+        -> exists chi, ExternalFixedPoint M Gamma chi
+
+      ExternalFixedPoint M Gamma chi
+        -> regulator_theory_checked_derivable M Gamma Bot
+
+    Thus the L001 construction marks the collapsing boundary. It does not
+    construct the live L002 position.
+
+    The live position retains only the direction `¬chi -> chi`. If `chi` and
+    `¬chi` cannot both be checked at that formula, a checked refutation would
+    reconstruct `chi` and violate local consistency:
+
+      ExternalMirrorPosition M Gamma chi
+        -> MirrorLocallyConsistent M Gamma chi
+        -> AsIF M Gamma chi
+
+    Coded recognition accepts exactly when the missing direction
+    `chi -> ¬chi` has checked evidence. Acceptance would therefore complete the
+    full fixed point, so the same local premise excludes it:
+
+      ExternalMirrorPosition M Gamma chi
+        -> MirrorLocallyConsistent M Gamma chi
+        -> ~ CodedRecognitionAccepted M Gamma chi
+
+    Global `MirrorConsistent` supplies local consistency at every formula and
+    yields the retained compatibility forms of both theorems.
+
+    At finite recursive depth, the same reasoning is pointwise:
+
+      RecursiveMirrorAdequacy M Gamma mirror_step chi
+        -> RecursiveMirrorLocallyConsistent M Gamma mirror_step chi
+        -> RecursiveMirrorPosition M Gamma mirror_step chi /\
+           forall depth,
+             ~ CodedRecognitionAccepted M Gamma
+                 (recursive_mirror_formula depth mirror_step chi)
+
+    No unbounded formula, semantic fixed point, or infinite execution is
+    constructed. The response, recurrence, attribution, and externalization
+    layers are separate interfaces built over this finite theorem core.
+
+
+4 - Tree
+    ----
+
+    M001_95_API
+     ▼
+    L001_95_API
+     ▼
+    L002_00_Premises
+     ▼
+    L002_01__Mirror_Unrefutability
+     ▼
+    L002_02__Recursive_Mirror_Lemma
+     ▼
+    L002_03__Symbolic_Regulation
+     ▼
+    L002_95_API
+     ▼
+    L002_97_Artifacts
+     ▼
+    L002_98_Sanity
+
+
+5 - Files
     -----
 
     L002_00_Premises.v
 
-      Core vocabulary: `AsIF`, mirror positions, recognition certificates,
-      world/brain/model frames, control questions, and operational interfaces.
+      Core mirror and recognition vocabulary plus optional interfaces.
 
     L002_01__Mirror_Unrefutability.v
 
-      Full-fixed-point collapse, live mirror irrefutability, recognition
-      exclusion, and the world/brain/model control chain.
+      Goal-frame construction, fixed-point collapse, mirror irrefutability,
+      coded recognition exclusion, and relative-consistency corollaries.
 
     L002_02__Recursive_Mirror_Lemma.v
 
-      Finite mirror iteration and the bounded and unbounded
-      `yes`-or-reentry results.
+      Finite mirror iteration and optional response-trace classification.
 
     L002_03__Symbolic_Regulation.v
 
@@ -135,34 +150,25 @@
       Compile-time probes of the public surface.
 
 
-5 - Public Surface
-    --------------
+6 - API
+    ---
 
     Import the API with:
 
       From L002 Require Import L002_95_API.
 
-    Core assumptions and mirror:
+    Core mirror:
 
+      L002_CORE_CONTRACT, CORE_WITNESS
       AsIF
-      AssumptionLicensedContent
       ExternalFixedPoint
       ExternalMirrorPosition
       MirrorConsistent
+      MirrorLocallyConsistent
+      l001_goal_frame_constructs_external_fixed_point
       external_fixed_point_unconditionally_collapses
+      external_mirror_position_forces_asif_local
       external_mirror_position_forces_asif
-
-    World, model, and control:
-
-      EpistemicWorld
-      TheorySoundInWorld
-      ModelConsistentRelativeToBrain
-      WorldBrainModelFrame
-      ControlQuestion
-      BinaryControlDecision
-      control_question_negative_answer_impossible
-      control_question_binary_decision_forces_yes
-      world_sound_binary_control_decision_impossible
 
     Recognition:
 
@@ -170,47 +176,56 @@
       CodedRecognitionCertificate
       CodedRecognitionAccepted
       coded_recognition_acceptance_iff_evidence
+      coded_recognition_acceptance_excluded_local
       coded_recognition_acceptance_excluded
 
-    Recursive control:
+    Recursive core:
 
       recursive_mirror_formula
       RecursiveMirrorAdequacy
+      RecursiveMirrorLocallyConsistent
+      recursive_mirror_irrefutability_local
+      coded_recursive_mirror_lemma_local
+      coded_recursive_mirror_lemma
+      coded_recursive_mirror_lemma_from_seed
+
+    Legacy optional interfaces:
+
+      WorldBrainModelFrame
+      ControlQuestion
       RecursiveControlProcess
       ControlOutcomeDecidable
-      finite_yes_or_recursive_reentry
-      yes_or_recursive_reentry
-
-    Operational applications:
-
       finite_operational_recurrence
-      logical_operational_recurrence
-      attributed_provenance_operational_recurrence
-      conditional_attributional_ambiguity_principle
       conditional_externalization_principle
 
     Certified endpoints:
 
+      l002_core_qed
       mirror_lemma_qed
       recursive_mirror_lemma_qed
       symbolic_regulation_qed
 
-    The three endpoint assumption reports are stored under
+    `l002_core_qed` is primary. `symbolic_regulation_qed` retains the legacy
+    broad bundle. Assumption reports are redirected under
     `_appendix/_assumptions`.
 
 
-6 - Scope
+7 - Notes
     -----
 
-    `External` marks a metatheoretically supplied condition; it does not assert
-    external causal origin. Attribution tags and response laws likewise record
-    formal codings, not verified provenance.
+    `External` means metatheoretically supplied. In particular, the one-way
+    mirror is not produced by the collapsing L001 full-fixed-point theorem.
 
-    `recursive_mirror_formula` is a structurally recursive definition of finite
-    iteration. It is neither a Rocq axiom nor a claim of physical or infinite
-    execution.
+    `MirrorLocallyConsistent` is the formula-local consistency premise used by
+    the core proofs. `MirrorConsistent` is stronger and supplies the legacy
+    global forms.
 
-    L002 proves results about checked derivability, finite certificates,
-    formula iteration, and explicitly modeled response traces. Claims about
-    nontermination, resource exhaustion, psychology, causal control, or real
-    evaluators require additional operational or empirical bridges.
+    Recursive formulas are finite iterates. Response constructors are tags,
+    and attribution labels are formal codings. L002 establishes no
+    interpretation beyond the declared interfaces.
+
+    `CORE_WITNESS` is the primary theorem-core endpoint. The legacy `WITNESS`
+    preserves a parallel broad contract; it is not definitionally the core
+    conjoined with optional interfaces.
+
+    Assumption reports are redirected under `_appendix/_assumptions/`.

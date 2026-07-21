@@ -14,33 +14,17 @@
 
   OVERVIEW
 
-  Premise layer for L002/SYMBOLIC REGULATION. L002 isolates two related
-  constraints on self-referential evaluation. A full negation fixed point
-  collapses checked derivability. Separately, the live consistent results
-  take a supplied one-way mirror position: consistency yields internal
-  non-refutability, while successful adequate recognition reconstructs the
-  missing diagonal direction and re-enters collapse. Later interfaces expose
-  pointwise finite-depth persistence, finite-state operation, and optional
-  attribution, provenance, and externalization responses.
+  Premise layer for L002. A full negation fixed point collapses M001
+  derivability; a one-way mirror position is instead compatible with
+  consistency and excludes the missing recognized direction.
 
-  Constraint reading. At a supplied one-way mirror position, consistency and
-  successful actionable recognition cannot coexist: accepted adequate
-  recognition supplies the missing fixed-point direction and thereby
-  reconstructs collapse. A concrete evaluator may realize a related
-  obstruction by restricting representation or disclosure, returning
-  `unknown`, stratifying evaluators, diverging, or exhausting resources only
-  when an additional operational model connects those behaviors to the
-  proof-theoretic interfaces. L002 itself selects and certifies no such
-  failure mode.
+  The live core is proof-theoretic: mirror plus consistency yields `AsIF`,
+  while accepted coded recognition reconstructs the full fixed point.
+  Recursive and operational layers are explicit transports of this core.
 
-  Scope guardrail. L002 certifies syntactic irrefutability, re-entry
-  obstruction, recognition opacity, pointwise persistence at every supplied
-  finite mirror depth, and recurrence for explicitly finite state carriers.
-  Its vocabulary does not by itself identify truth, belief, agency, causal
-  source, independently verified origin, psychological dissociation,
-  nontermination, or machine failure. Such identifications require a separate
-  model of the concrete system. Formal non-closure alone supports neither a
-  positive nor a negative metaphysical attribution.
+  All conclusions concern checked derivability, finite certificates, formula
+  iteration, and declared response relations. Applications supply any further
+  interpretation.
 
 *)
 
@@ -67,12 +51,7 @@ Definition RegulatedAssumption : Type :=
 (*
 │
 │          `AsIF M Gamma A` means exactly that `M` has no checked
-│          derivation of the object-level negation of `A` from
-│          `Gamma`. It is the non-refutation component of L002's
-│          assumption-licensed continuation status; ordinary context
-│          extension, not `AsIF` itself, supplies derivability under
-│          assumption `A`. It is not by itself truth, belief,
-│          probability, voluntary control, or global commitment.
+│          derivation of `¬A` from `Gamma`.
 │
 *)
 
@@ -310,6 +289,22 @@ Definition MirrorConsistent
 
 (*
 │
+│          `MirrorLocallyConsistent M Gamma chi` excludes simultaneous
+│          checked derivability of `chi` and `¬chi`. It is the minimal
+│          consistency premise for mirror irrefutability.
+│
+*)
+
+Definition MirrorLocallyConsistent
+    (M : RegulatorTheory)
+    (Gamma : Context)
+    (chi : Formula) : Prop :=
+  regulator_theory_checked_derivable M Gamma chi ->
+  regulator_theory_checked_derivable M Gamma (formula_negation chi) ->
+  False.
+
+(*
+│
 │          `SLambdaConsistent Slambda Gamma` is the corresponding
 │          consistency predicate for the enclosing regulator.
 │
@@ -323,18 +318,16 @@ Definition SLambdaConsistent
 (*
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │                                                                              │
-│                       WORLD, BRAIN, MODEL, AND CONTROL                       │
+│            OPTIONAL RELATIVE-CONSISTENCY AND RESPONSE INTERFACES             │
 │                                                                              │
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
 (*
 │
-│          An `EpistemicWorld` is an external interpretation of M001
-│          formulas. No semantic law is built into the carrier: bottom
+│          `EpistemicWorld` is a predicate on formulas. Bottom
 │          rejection, formula consistency, and theory soundness are
-│          supplied separately so that applications must expose every
-│          bridge premise.
+│          separate premises.
 │
 *)
 
@@ -368,13 +361,10 @@ Definition ModelConsistentRelativeToBrain
 
 (*
 │
-│          `WorldBrainModelFrame V brain model Gamma` makes the
-│          relative-consistency chain explicit. The brain is sound in
-│          a world rejecting `Bot`, and model consistency follows from
-│          brain consistency through a dedicated bottom-level bridge.
-│          The frame deliberately does not transport every model
-│          theorem into the brain or assume that the embedded model is
-│          independently sound in the world.
+│          Legacy-named optional frame: soundness yields consistency
+│          of `brain`, and the explicit relative-consistency premise
+│          transports it to `model`. No general theorem transport is
+│          assumed.
 │
 *)
 
@@ -394,10 +384,8 @@ Arguments frame_model_relative_consistency {V brain model Gamma} _ _.
 
 (*
 │
-│          A `ControlQuestion` packages the formula read as “I am in
-│          control” together with its explicit one-way mirror witness
-│          `not C -> C`. The self-referential or causal reading is
-│          therefore not inferred from an arbitrary formula alone.
+│          A `ControlQuestion` packages a distinguished formula with
+│          its one-way mirror witness `¬C → C`.
 │
 *)
 
@@ -464,17 +452,9 @@ Inductive ControlResponse : Type :=
 
 (*
 │
-│          `CodedRecognitionClaim` is L002's explicitly defined
-│          recognition object language. Its constructor carries the
-│          M001 formula syntax being claimed as a negation fixed
-│          point, making recognition claims first-class regulator
-│          outputs without adding constructors to M001 `Formula`. In
-│          the core obstruction, accepted recognition evidence has one
-│          exact technical role: it supplies `A -> not A`, the missing
-│          diagonal direction, and its executable re-entry under
-│          assumption `A` yields `not A`. The constructor alone
-│          establishes no psychological self-recognition, belief,
-│          agency, or causal provenance.
+│          `CodedRecognitionClaim` makes the formula claimed as a
+│          negation fixed point a first-class regulator output.
+│          Accepted evidence supplies the missing direction `A → ¬A`.
 │
 *)
 
@@ -824,8 +804,10 @@ Definition RecognitionAdequacy
 
 (*
 │
-│          Internal fixed-point recognition combines `AsIF chi` with
-│          acceptance of its recognition certificate under `chi`.
+│          Legacy interface: `InternalFixedPointRecognition` conjoins
+│          `AsIF chi` with assumption-relative recognition. Under
+│          `RecognitionAdequacy` these components are incompatible;
+│          the coded interface above is the canonical live definition.
 │
 *)
 
@@ -920,11 +902,9 @@ Definition AttributionCoding : Type := Formula -> Formula.
 
 (*
 │
-│          `AttributionResponse` is an explicit bridge law from base
-│          irrefutability to at least one supplied attribution coding.
-│          It is not derived from mirror opacity and should be read as
-│          an empirical or model-specific response hypothesis when
-│          applied to a real system.
+│          `AttributionResponse` is an additional bridge law from base
+│          irrefutability to one of two supplied codings. It is not
+│          derived from mirror opacity.
 │
 *)
 
@@ -948,11 +928,8 @@ Definition SelectedAttributionResponse
 
 (*
 │
-│          `AttributionallyAmbiguous` is the attributional standoff
-│          condition: both supplied provenance formulas are
-│          simultaneously `AsIF`. It expresses no preference,
-│          probability shift, or metaphysical lean toward either
-│          attribution.
+│          `AttributionallyAmbiguous` means that both supplied
+│          attribution formulas are `AsIF`.
 │
 *)
 

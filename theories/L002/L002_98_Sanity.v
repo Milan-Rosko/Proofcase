@@ -104,8 +104,8 @@ Qed.
 (*
 │
 │          The concrete implication-reflection coding supplies a
-│          selected attribution response without an empirical response
-│          hypothesis.
+│          selected attribution response without an additional
+│          response premise.
 │
 *)
 
@@ -280,9 +280,8 @@ Qed.
 
 (*
 │
-│          World-to-brain soundness and the explicit
-│          relative-consistency bridge transport consistency to the
-│          embedded model.
+│          Soundness and the explicit relative-consistency premise
+│          transport consistency through the optional frame.
 │
 *)
 
@@ -661,8 +660,8 @@ Qed.
 
 (*
 │
-│          Finite perpetuity pairs irrefutability and recognition
-│          opacity at each adequate recursive depth.
+│          Legacy all-depth wrapper for irrefutability and recognition
+│          opacity.
 │
 *)
 
@@ -684,8 +683,7 @@ Qed.
 
 (*
 │
-│          The paradox-of-the-external surface retains the empirical
-│          opacity-response premise.
+│          Legacy conditional external-attribution wrapper.
 │
 *)
 

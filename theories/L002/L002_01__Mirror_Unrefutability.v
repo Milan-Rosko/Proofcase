@@ -14,13 +14,10 @@
 
   OVERVIEW
 
-  Mirror-irrefutability layer for L002. This file states the central
-  self-reference constraint in two separate forms. The stronger full-frame
-  L001 construction supplies a complete negation fixed point and therefore
-  collapses checked derivability. The live consistent theorems instead take a
-  supplied one-way mirror position `not chi -> chi`: consistency yields
-  `AsIF`, while accepted adequate recognition supplies `chi -> not chi` and
-  thereby reconstructs the collapsing full fixed point.
+  Mirror-irrefutability layer. A bottom goal frame produces a collapsing full
+  fixed point; the live theorem instead combines a one-way mirror with local
+  or global consistency. Coded recognition supplies the missing fixed-point
+  direction.
 
 *)
 
@@ -36,11 +33,33 @@ From L002 Require Export L002_00_Premises.
 
 (*
 │
-│          Compatibility route only. The stronger universal L001
-│          evaluation frame constructs a full external fixed-point
-│          formula for M-checked derivability. That full fixed point
-│          collapses after M001 specialization and is not the premise
-│          of the live mirror-irrefutability results below.
+│          The minimal L001 bottom goal frame constructs a full
+│          external fixed point for M001 checked derivability.
+│
+*)
+
+Theorem l001_goal_frame_constructs_external_fixed_point :
+  forall (M : RegulatorTheory)
+         (Gamma : Context)
+         Code
+         (ev : Code -> Code -> Formula),
+    ClosureEvaluationFrameForGoal
+      (regulator_theory_checked_derivable M Gamma)
+      Code ev Bot ->
+    exists chi : Formula,
+      ExternalFixedPoint M Gamma chi.
+Proof.
+  intros M Gamma Code ev Hgoal.
+  exact
+    (eval_bottom_negfixp
+       (regulator_theory_checked_derivable M Gamma)
+       Code ev Hgoal).
+Qed.
+
+(*
+│
+│          Compatibility corollary: a universal L001 frame supplies
+│          the bottom goal frame.
 │
 *)
 
@@ -56,9 +75,11 @@ Theorem l001_constructs_external_fixed_point :
 Proof.
   intros M Gamma Code E.
   exact
-    (negfixp_existence
-       (regulator_theory_checked_derivable M Gamma)
-       Code E).
+    (l001_goal_frame_constructs_external_fixed_point
+       M Gamma Code (ceval_apply E)
+       (eval_full_to_eval_bottom
+          (regulator_theory_checked_derivable M Gamma)
+          Code E)).
 Qed.
 
 (*
@@ -112,6 +133,30 @@ Proof.
   apply regulator_theory_checked_derivable_mp_lemma with (A := chi).
   - exact (Hadequate Hrecognition).
   - exact (assumption_intro M Gamma chi).
+Qed.
+
+(*
+│
+│          Adequacy alone excludes the legacy recognition package
+│          because it already contains `AsIF`; no mirror or
+│          consistency premise is needed for this compatibility
+│          result.
+│
+*)
+
+Theorem recognition_adequacy_excludes_legacy_internal_recognition :
+  forall (M : RegulatorTheory)
+         (Gamma : Context)
+         (recognition_claim : FixedPointRecognitionCoding)
+         (chi : Formula),
+    RecognitionAdequacy M Gamma recognition_claim chi ->
+    ~ InternalFixedPointRecognition M Gamma recognition_claim chi.
+Proof.
+  intros M Gamma recognition_claim chi Hadequate Hrecognition.
+  apply (proj1 Hrecognition).
+  exact
+    (recognition_reenters_regulator
+       M Gamma recognition_claim chi Hadequate Hrecognition).
 Qed.
 
 (*
@@ -263,6 +308,50 @@ Proof.
        M Gamma chi Bot Hnegchi Hchi).
 Qed.
 
+(*
+│
+│          Global mirror consistency implies local consistency at
+│          every formula.
+│
+*)
+
+Theorem mirror_consistency_implies_local_consistency :
+  forall (M : RegulatorTheory)
+         (Gamma : Context)
+         (chi : Formula),
+    MirrorConsistent M Gamma ->
+    MirrorLocallyConsistent M Gamma chi.
+Proof.
+  intros M Gamma chi Hconsistent Hchi Hnegchi.
+  apply Hconsistent.
+  exact
+    (regulator_theory_checked_derivable_mp_lemma
+       M Gamma chi Bot Hnegchi Hchi).
+Qed.
+
+(*
+│
+│          A one-way mirror plus local consistency is the minimal
+│          irrefutability theorem.
+│
+*)
+
+Theorem external_mirror_position_forces_asif_local :
+  forall (M : RegulatorTheory)
+         (Gamma : Context)
+         (chi : Formula),
+    ExternalMirrorPosition M Gamma chi ->
+    MirrorLocallyConsistent M Gamma chi ->
+    AsIF M Gamma chi.
+Proof.
+  intros M Gamma chi Hmirror Hlocal Hnegchi.
+  exact
+    (Hlocal
+       (regulator_theory_checked_derivable_mp_lemma
+          M Gamma (formula_negation chi) chi Hmirror Hnegchi)
+       Hnegchi).
+Qed.
+
 Theorem external_mirror_position_forces_asif :
   forall (M : RegulatorTheory)
          (Gamma : Context)
@@ -271,25 +360,26 @@ Theorem external_mirror_position_forces_asif :
     MirrorConsistent M Gamma ->
     AsIF M Gamma chi.
 Proof.
-  intros M Gamma chi Hmirror Hconsistent Hnegchi.
-  apply Hconsistent.
+  intros M Gamma chi Hmirror Hconsistent.
   exact
-    (external_mirror_position_reentry_collapses
-       M Gamma chi Hmirror Hnegchi).
+    (external_mirror_position_forces_asif_local
+       M Gamma chi Hmirror
+       (mirror_consistency_implies_local_consistency
+          M Gamma chi Hconsistent)).
 Qed.
 
 (*
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │                                                                              │
-│                       WORLD, BRAIN, AND CONTROL CHAIN                        │
+│            OPTIONAL RELATIVE-CONSISTENCY AND RESPONSE COROLLARIES            │
 │                                                                              │
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
 (*
 │
-│          Soundness into a world that rejects `Bot` makes the brain
-│          consistent.
+│          Soundness into a bottom-rejecting predicate yields
+│          consistency of the intermediate theory.
 │
 *)
 
@@ -307,8 +397,8 @@ Qed.
 
 (*
 │
-│          The explicit relative-consistency bridge transports brain
-│          consistency inward to the embedded model.
+│          The explicit relative-consistency premise transports
+│          consistency to the target theory.
 │
 *)
 
@@ -468,11 +558,30 @@ Qed.
 
 (*
 │
-│          A consistent one-way mirror position excludes acceptance by
-│          the coded recognition regulator. Unlike the legacy
-│          formula-valued interface, the claim syntax, finite
-│          instruction type, Boolean acceptance relation, and re-entry
-│          behavior are all concrete.
+│          A locally consistent one-way mirror excludes coded
+│          recognition acceptance.
+│
+*)
+
+Theorem coded_recognition_acceptance_excluded_local :
+  forall (M : RegulatorTheory)
+         (Gamma : Context)
+         (chi : Formula),
+    ExternalMirrorPosition M Gamma chi ->
+    MirrorLocallyConsistent M Gamma chi ->
+    ~ CodedRecognitionAccepted M Gamma chi.
+Proof.
+  intros M Gamma chi Hmirror Hlocal Haccepted.
+  apply
+    (external_mirror_position_forces_asif_local
+       M Gamma chi Hmirror Hlocal).
+  exact (coded_recognition_reenters_regulator M Gamma chi Haccepted).
+Qed.
+
+(*
+│
+│          The global-consistency form is a compatibility corollary of
+│          the local theorem.
 │
 *)
 
@@ -484,12 +593,12 @@ Theorem coded_recognition_acceptance_excluded :
     MirrorConsistent M Gamma ->
     ~ CodedRecognitionAccepted M Gamma chi.
 Proof.
-  intros M Gamma chi Hmirror Hconsistent Haccepted.
-  pose proof
-    (external_mirror_position_forces_asif
-       M Gamma chi Hmirror Hconsistent) as Hasif.
-  apply Hasif.
-  exact (coded_recognition_reenters_regulator M Gamma chi Haccepted).
+  intros M Gamma chi Hmirror Hconsistent.
+  exact
+    (coded_recognition_acceptance_excluded_local
+       M Gamma chi Hmirror
+       (mirror_consistency_implies_local_consistency
+          M Gamma chi Hconsistent)).
 Qed.
 
 Theorem coded_recognition_opacity :
@@ -608,18 +717,9 @@ Proof.
   - exact
       (licensed_assumption_yields_assumption_licensed_content
          M Gamma chi Hasif).
-  - intro Hrecognition.
-    apply Hconsistent.
-    apply
-      regulator_theory_checked_derivable_regulator_theory_monotone_lemma
-        with (R := M).
-    + exact Hincluded.
-    + apply external_mirror_position_reentry_collapses with (chi := chi).
-      * exact Hmirror.
-      * exact
-          (recognition_reenters_regulator
-             M Gamma recognition_claim chi
-             Hadequate Hrecognition).
+  - exact
+      (recognition_adequacy_excludes_legacy_internal_recognition
+         M Gamma recognition_claim chi Hadequate).
 Qed.
 
 (*

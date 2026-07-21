@@ -14,22 +14,16 @@
 
   OVERVIEW
 
-  L001 begins at the frozen M001 evaluation API and interprets its regulated
-  evaluation fixed-point engine as a statement about excluded-middle status
-  at the regulator level. All Aporetic and status vocabulary is built above
-  that public boundary.
+  L001 uses M001 syntax and regulator adapters, but its generic `C : Formula
+  -> Prop` has only the properties explicitly assumed by each theorem.
 
-  Substrate comparison. The primitive diagonal hypothesis used by
-  `curry_fixp_existence` and `eval_bottom_negfixp` is
-  `ClosureEvaluationFrameForGoal C Code ev G`: it asks for a name only for
-  the single behavior `x ↦ ev x x → G`. This is a goal-restricted
-  representability fragment, not Lawvere-style weak point-surjectivity for
-  every `Code -> Formula` behavior. It also assumes none of the
-  arithmetization, substitution representability, provability predicates, or
-  semantic truth machinery associated with Gödelian diagonal lemmas.
-  `ClosureEvaluationFrame` is the deliberately stronger universal interface;
-  it supplies the goal frame as an adapter and separately supports the
-  package's universal fixed-point theorem and full-frame corollaries.
+  The live source theorem uses the goal frame naming only `x ↦ ev x x → G`;
+  the paper's stronger universal frame remains an adapter and corollary
+  interface.
+
+  `ClosureExcludedMiddle` and `ClosureDecision` classify acceptance of `A`
+  versus `¬A`; the Boolean form carries internal evidence on either verdict.
+  See the README for the undecidability and Lawvere/Curry reading.
 
 *)
 
@@ -45,14 +39,9 @@ From M001 Require Export M001_95_API.
 
 (*
 │
-│          A regulator that lacks a proof of excluded middle remains
-│          constructively silent. Deciding its status reifies the
-│          question into behavior. In the first formal branch,
-│          regulated evaluation closure yields a formula `B`
-│          equivalent under regulator derivability to its own
-│          negation. A total regulator decision must classify `B`;
-│          either classification derives `Bot`. Consistency enters
-│          later, when that collapse becomes an obstruction.
+│          Goal evaluation yields `B ≃_C ¬B`; a local accepted branch
+│          activates modus ponens, and consistency rejects the
+│          resulting `C Bot`.
 │
 *)
 
@@ -66,13 +55,9 @@ From M001 Require Export M001_95_API.
 
 (*
 │
-│          `ClosureEquiv C A B` is equivalence inside the closure
-│          predicate, consisting of the two accepted object-level
-│          implications `A → B` and `B → A`. The closure layer below
-│          requires a constructive predicate `C : Formula -> Prop`,
-│          this implication-induced equivalence, evaluation
-│          completeness up to that equivalence, and modus ponens
-│          closure when collapse is extracted.
+│          `ClosureEquiv C A B` consists exactly of the two accepted
+│          implications `A → B` and `B → A`; further laws require
+│          explicit premises.
 │
 *)
 
@@ -104,11 +89,9 @@ Qed.
 
 (*
 │
-│          `ClosureExcludedMiddle C` is object-level excluded-middle
-│          status inside the closure predicate: every formula is
-│          accepted by `C` or its object-level negation is accepted by
-│          `C`. The local obstruction below uses the single instance
-│          `ClosureLocalExcludedMiddle C B`.
+│          `ClosureExcludedMiddle C` supplies the Rocq-level branch `C
+│          A \/ C (¬A)` for every formula; it is not an
+│          object-language disjunction.
 │
 *)
 
@@ -121,9 +104,8 @@ Definition ClosureExcludedMiddle
 
 (*
 │
-│          `ClosureModusPonens C` closes the formula-indexed predicate
-│          under object-level modus ponens by transporting accepted
-│          implications and antecedents to accepted consequents.
+│          `ClosureModusPonens C` is top-level detachment only; it
+│          neither introduces nor discharges assumptions.
 │
 *)
 
@@ -263,10 +245,10 @@ Qed.
 
 (*
 │
-│          `ClosureDecision C` is a total Boolean status classifier.
-│          The true branch certifies `C A`; the false branch certifies
-│          `C (¬A)`. This is stronger than `ClosureExcludedMiddle C`,
-│          which supplies only a Prop-level disjunction.
+│          `ClosureDecision C` gives a Boolean verdict certified by `C
+│          A` or `C (¬A)`. Under consistency and modus ponens the
+│          negative certificate entails `~ C A`, while retaining the
+│          internal branch evidence used by the collapse.
 │
 *)
 
@@ -330,22 +312,16 @@ Qed.
 
 (*
 │
-│          The minimal Curry-like aporetic construction below consumes
-│          the goal-specific fragment `ClosureEvaluationFrameForGoal`.
-│          The universal record is presented first as the inherited
-│          stronger interface, which also supports a separate generic
-│          fixed-point theorem.
+│          The live construction uses the goal-specific frame; the
+│          universal frame remains the paper-facing interface and
+│          supplies it by an adapter.
 │
 *)
 
 (*
 │
-│          `ClosureEvaluationFrame C Code` is the stronger universal
-│          syntactic evaluation interface. It supplies a name, up to
-│          `ClosureEquiv`, for every formula-valued behavior over
-│          codes. It is sufficient for `ClosureEvaluationFrameForGoal`
-│          but is not required by the minimal goal-specific
-│          construction.
+│          `ClosureEvaluationFrame` names every formula-valued coded
+│          behavior up to `ClosureEquiv`.
 │
 *)
 
@@ -370,11 +346,8 @@ Arguments cevaluation_complete {C Code} _ _.
 
 (*
 │
-│          `ClosureEvaluationFrameForGoal C Code ev G` is the live,
-│          minimal evaluation-completeness fragment needed for the
-│          Curry-like aporetic fixed point at goal `G`. It requires a
-│          code for the single diagonal behavior `x ↦ ev x x → G`, not
-│          a universal name for every behavior.
+│          `ClosureEvaluationFrameForGoal` names only `x ↦ ev x x →
+│          G`, the behavior used by the live diagonal theorem.
 │
 *)
 
@@ -678,12 +651,8 @@ Definition RegulatorClosureExcludedMiddle
 
 (*
 │
-│          `RegulatorDecision` is a total Boolean classifier for the
-│          M001 regulator instance. The true branch certifies
-│          `RegulatorClosure profile T Gamma A`; the false branch
-│          certifies `RegulatorClosure profile T Gamma (¬A)`. This is
-│          stronger than `RegulatorClosureExcludedMiddle`, which
-│          supplies only a Prop-level disjunction.
+│          `RegulatorDecision` specializes the internally witnessed
+│          Boolean decision to `RegulatorClosure`.
 │
 *)
 
@@ -799,11 +768,8 @@ Definition regulator_decision_as_closure_decision
 
 (*
 │
-│          `YesBranchDecides` reads acceptance of a presented
-│          excluded-middle-status formula as the existence of a total
-│          regulator decision. The yes-branch obstruction theorems
-│          take this conversion as a hypothesis, so the collapse
-│          argument never needs to construct the decision itself.
+│          `YesBranchDecides` converts acceptance of the status
+│          formula into a total regulator decision.
 │
 *)
 
@@ -820,12 +786,8 @@ Definition YesBranchDecides
 
 (*
 │
-│          `RegulatorRefutation` is the negative-side classifier: a
-│          true Boolean result certifies acceptance of an object-level
-│          negation by `RegulatorClosure`. No false-branch
-│          completeness is asserted, so this is genuinely weaker than
-│          `RegulatorDecision`; the refutation-non-collapse witness in
-│          `L001_02` exhibits the constructive separation.
+│          `RegulatorRefutation` certifies negation only on true
+│          results and is therefore weaker than `RegulatorDecision`.
 │
 *)
 

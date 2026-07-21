@@ -14,19 +14,13 @@
 
   OVERVIEW
 
-  Recursive-mirror layer for L002. We iterate a formula transformer and prove
-  pointwise that the same irrefutability and recognition-opacity obstruction
-  holds at every finite depth satisfying the supplied adequacy conditions, or
-  from a supplied seed plus a position-preservation law. This single
-  all-finite-depth theorem does not assert an actual infinite execution,
-  divergence, stack overflow, crash, finite-state recurrence, or
-  psychological process; those require an operational model connecting
-  formula iteration to concrete dynamics.
+  Finite recursive-mirror layer. Pointwise mirror adequacy, or a seed plus
+  preservation, transports irrefutability and coded-recognition opacity to
+  every finite iterate.
 
 *)
 
 From L002 Require Export L002_01__Mirror_Unrefutability.
-From Stdlib Require Import Lia.
 
 (*
 │
@@ -230,6 +224,22 @@ Definition RecursiveMirrorPosition
 
 (*
 │
+│          Pointwise local consistency is the minimal consistency
+│          premise for recursive irrefutability.
+│
+*)
+
+Definition RecursiveMirrorLocallyConsistent
+    (M : RegulatorTheory)
+    (Gamma : Context)
+    (mirror_step : Formula -> Formula)
+    (chi : Formula) : Prop :=
+  forall depth : nat,
+    MirrorLocallyConsistent M Gamma
+      (recursive_mirror_formula depth mirror_step chi).
+
+(*
+│
 │          The zero-depth recursive mirror is the seed formula.
 │
 *)
@@ -282,8 +292,32 @@ Qed.
 
 (*
 │
-│          Adequacy and M-consistency make every finite mirror iterate
-│          internally non-refutable.
+│          Pointwise mirror adequacy and pointwise local consistency
+│          yield recursive irrefutability.
+│
+*)
+
+Theorem recursive_mirror_irrefutability_local :
+  forall (M : RegulatorTheory)
+         (Gamma : Context)
+         (mirror_step : Formula -> Formula)
+         (chi : Formula),
+    RecursiveMirrorAdequacy M Gamma mirror_step chi ->
+    RecursiveMirrorLocallyConsistent M Gamma mirror_step chi ->
+    RecursiveMirrorPosition M Gamma mirror_step chi.
+Proof.
+  intros M Gamma mirror_step chi Hadequate Hlocal depth.
+  exact
+    (external_mirror_position_forces_asif_local
+       M Gamma
+       (recursive_mirror_formula depth mirror_step chi)
+       (Hadequate depth)
+       (Hlocal depth)).
+Qed.
+
+(*
+│
+│          Global consistency supplies pointwise local consistency.
 │
 *)
 
@@ -296,13 +330,15 @@ Theorem recursive_mirror_irrefutability :
     MirrorConsistent M Gamma ->
     RecursiveMirrorPosition M Gamma mirror_step chi.
 Proof.
-  intros M Gamma mirror_step chi Hadequate Hconsistent depth.
+  intros M Gamma mirror_step chi Hadequate Hconsistent.
   exact
-    (external_mirror_position_forces_asif
-       M Gamma
-       (recursive_mirror_formula depth mirror_step chi)
-       (Hadequate depth)
-       Hconsistent).
+    (recursive_mirror_irrefutability_local
+       M Gamma mirror_step chi Hadequate
+       (fun depth =>
+          mirror_consistency_implies_local_consistency
+            M Gamma
+            (recursive_mirror_formula depth mirror_step chi)
+            Hconsistent)).
 Qed.
 
 (*
@@ -348,10 +384,40 @@ Qed.
 
 (*
 │
-│          The coded Recursive Mirror Lemma uses only M-consistency
-│          and the concrete recognition regulator; no legacy
-│          formula-valued recognition coding or enclosing
-│          fixed-regulator record is required.
+│          The minimal coded recursive theorem uses pointwise local
+│          consistency.
+│
+*)
+
+Theorem coded_recursive_mirror_lemma_local :
+  forall (M : RegulatorTheory)
+         (Gamma : Context)
+         (mirror_step : Formula -> Formula)
+         (chi : Formula),
+    RecursiveMirrorAdequacy M Gamma mirror_step chi ->
+    RecursiveMirrorLocallyConsistent M Gamma mirror_step chi ->
+    RecursiveMirrorPosition M Gamma mirror_step chi /\
+    forall depth : nat,
+      ~ CodedRecognitionAccepted M Gamma
+          (recursive_mirror_formula depth mirror_step chi).
+Proof.
+  intros M Gamma mirror_step chi Hadequate Hlocal.
+  split.
+  - exact
+      (recursive_mirror_irrefutability_local
+         M Gamma mirror_step chi Hadequate Hlocal).
+  - intro depth.
+    exact
+      (coded_recognition_acceptance_excluded_local
+         M Gamma
+         (recursive_mirror_formula depth mirror_step chi)
+         (Hadequate depth) (Hlocal depth)).
+Qed.
+
+(*
+│
+│          The global-consistency form is retained as a compatibility
+│          corollary.
 │
 *)
 
@@ -368,16 +434,14 @@ Theorem coded_recursive_mirror_lemma :
           (recursive_mirror_formula depth mirror_step chi).
 Proof.
   intros M Gamma mirror_step chi Hadequate Hconsistent.
-  split.
-  - exact
-      (recursive_mirror_irrefutability
-         M Gamma mirror_step chi Hadequate Hconsistent).
-  - intro depth.
-    exact
-      (coded_recognition_opacity
-         M Gamma
-         (recursive_mirror_formula depth mirror_step chi)
-         (Hadequate depth) Hconsistent).
+  exact
+    (coded_recursive_mirror_lemma_local
+       M Gamma mirror_step chi Hadequate
+       (fun depth =>
+          mirror_consistency_implies_local_consistency
+            M Gamma
+            (recursive_mirror_formula depth mirror_step chi)
+            Hconsistent)).
 Qed.
 
 (*
@@ -441,10 +505,11 @@ Qed.
 
 (*
 │
-│          A `RecursiveControlProcess` supplies a total response trace
-│          and soundness bridges for its `yes` and `no` outputs.
-│          Re-entry is an operational tag: at depth `n`, the next
-│          question is definitionally the `(S n)` mirror iterate.
+│          A `RecursiveControlProcess` is a total response trace with
+│          sound `yes` and `no` tags. The classification theorems use
+│          negative soundness; positive soundness is exposed
+│          separately below. `reenter` is only a tag and carries no
+│          transition premise.
 │
 *)
 
@@ -479,6 +544,22 @@ Definition ControlAnswersYesAt
     (process : RecursiveControlProcess M Gamma mirror_step chi)
     (depth : nat) : Prop :=
   recursive_control_response_at process depth = control_response_yes.
+
+Theorem recursive_control_yes_response_derivable :
+  forall (M : RegulatorTheory)
+         (Gamma : Context)
+         (mirror_step : Formula -> Formula)
+         (chi : Formula)
+         (process : RecursiveControlProcess M Gamma mirror_step chi)
+         (depth : nat),
+    ControlAnswersYesAt process depth ->
+    regulator_theory_checked_derivable M Gamma
+      (recursive_mirror_formula depth mirror_step chi).
+Proof.
+  intros M Gamma mirror_step chi process depth Hyes.
+  unfold ControlAnswersYesAt in Hyes.
+  exact (recursive_control_yes_sound process depth Hyes).
+Qed.
 
 Definition ControlReentersAt
     {M Gamma mirror_step chi}
@@ -629,22 +710,28 @@ Proof.
       (recursive_control_response_yes_or_reenters
          M Gamma mirror_step chi process
          Hadequate Hconsistent O) as [Hyes | Hreenter].
-    + left. exists O. split; [lia | exact Hyes].
+    + left. exists O. split.
+      * apply le_n.
+      * exact Hyes.
     + right. intros depth Hdepth.
-      assert (depth = O) by lia.
-      subst depth.
-      exact Hreenter.
+      destruct depth as [|depth].
+      * exact Hreenter.
+      * inversion Hdepth.
   - destruct IH as [[depth [Hdepth Hyes]] | Hthrough].
-    + left. exists depth. split; [lia | exact Hyes].
+    + left. exists depth. split.
+      * apply le_S. exact Hdepth.
+      * exact Hyes.
     + destruct
         (recursive_control_response_yes_or_reenters
            M Gamma mirror_step chi process
            Hadequate Hconsistent (S fuel)) as [Hyes | Hreenter].
-      * left. exists (S fuel). split; [lia | exact Hyes].
+      * left. exists (S fuel). split.
+        -- apply le_n.
+        -- exact Hyes.
       * right. intros depth Hdepth.
-        destruct (Nat.eq_dec depth (S fuel)) as [Hequal | Hneq].
-        -- subst depth. exact Hreenter.
-        -- apply Hthrough. lia.
+        inversion Hdepth; subst.
+        -- exact Hreenter.
+        -- apply Hthrough. assumption.
 Qed.
 
 (*

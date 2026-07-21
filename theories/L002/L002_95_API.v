@@ -14,16 +14,9 @@
 
   OVERVIEW
 
-  Public API layer for L002/SYMBOLIC REGULATION. The primary contracts expose
-  two related constraints: a full negation fixed point collapses, while at a
-  supplied one-way mirror position consistency yields `AsIF` and excludes
-  successful adequate recognition. Recursive contracts carry the latter
-  obstruction pointwise through every supplied finite mirror depth;
-  finite-state recurrence is a separate operational contract. Attribution,
-  provenance, and externalization are conditional extensions.
-  `conditional_attributional_ambiguity_principle` is exported but is not a
-  conjunct of the certified `WITNESS`, whose attribution contract retains the
-  weaker internal-or-external disjunction.
+  Public API for L002. `L002_CORE_CONTRACT` contains the minimal fixed-point,
+  mirror, coded-recognition, and finite-depth results. The legacy `WITNESS`
+  preserves the earlier broad operational and response-law contract.
 
 *)
 
@@ -43,6 +36,25 @@ Definition ASIF_FROM_EXTERNAL_MIRROR_POSITION_CONTRACT : Prop :=
     ExternalMirrorPosition M Gamma chi ->
     MirrorConsistent M Gamma ->
     AsIF M Gamma chi.
+
+Definition LOCAL_MIRROR_IRREFUTABILITY_CONTRACT : Prop :=
+  forall (M : RegulatorTheory)
+         (Gamma : Context)
+         (chi : Formula),
+    ExternalMirrorPosition M Gamma chi ->
+    MirrorLocallyConsistent M Gamma chi ->
+    AsIF M Gamma chi.
+
+Definition GOAL_FRAME_EXTERNAL_FIXED_POINT_CONTRACT : Prop :=
+  forall (M : RegulatorTheory)
+         (Gamma : Context)
+         Code
+         (ev : Code -> Code -> Formula),
+    ClosureEvaluationFrameForGoal
+      (regulator_theory_checked_derivable M Gamma)
+      Code ev Bot ->
+    exists chi : Formula,
+      ExternalFixedPoint M Gamma chi.
 
 Definition FULL_FIXED_POINT_COLLAPSE_CONTRACT : Prop :=
   forall (M : RegulatorTheory)
@@ -84,6 +96,14 @@ Definition CODED_RECOGNITION_OPACITY_CONTRACT : Prop :=
     MirrorConsistent M Gamma ->
     ~ CodedRecognitionAccepted M Gamma chi.
 
+Definition LOCAL_CODED_RECOGNITION_OPACITY_CONTRACT : Prop :=
+  forall (M : RegulatorTheory)
+         (Gamma : Context)
+         (chi : Formula),
+    ExternalMirrorPosition M Gamma chi ->
+    MirrorLocallyConsistent M Gamma chi ->
+    ~ CodedRecognitionAccepted M Gamma chi.
+
 Definition CODED_RECOGNITION_EVIDENCE_SPECIFICATION_CONTRACT : Prop :=
   forall (M : RegulatorTheory)
          (Gamma : Context)
@@ -113,6 +133,18 @@ Definition CODED_RECURSIVE_MIRROR_CONTRACT : Prop :=
          (chi : Formula),
     RecursiveMirrorAdequacy M Gamma mirror_step chi ->
     MirrorConsistent M Gamma ->
+    RecursiveMirrorPosition M Gamma mirror_step chi /\
+    forall depth : nat,
+      ~ CodedRecognitionAccepted M Gamma
+          (recursive_mirror_formula depth mirror_step chi).
+
+Definition LOCAL_CODED_RECURSIVE_MIRROR_CONTRACT : Prop :=
+  forall (M : RegulatorTheory)
+         (Gamma : Context)
+         (mirror_step : Formula -> Formula)
+         (chi : Formula),
+    RecursiveMirrorAdequacy M Gamma mirror_step chi ->
+    RecursiveMirrorLocallyConsistent M Gamma mirror_step chi ->
     RecursiveMirrorPosition M Gamma mirror_step chi /\
     forall depth : nat,
       ~ CodedRecognitionAccepted M Gamma
@@ -283,13 +315,10 @@ Definition PRINCIPLES_OF_SYMBOLIC_REGULATION_CONTRACT : Prop :=
 
 (*
 │
-│          The control-question specification collects the metaphor's
-│          explicit bridges: world-to-brain soundness, model
-│          consistency relative to brain consistency, a witnessed
-│          mirror question, binary decision, and operational `yes`,
-│          `no`, or re-entry behavior. The unbounded
-│          `yes`-or-recursion conclusion retains its
-│          outcome-decidability premise.
+│          Optional specification bundling relative consistency,
+│          witnessed mirror questions, and response traces. The
+│          unbounded conclusion retains its outcome-decidability
+│          premise.
 │
 *)
 
@@ -382,8 +411,27 @@ Definition RECURSIVE_MIRROR_LEMMA_CONTRACT : Prop :=
 
 (*
 │
-│          The package contract conjoins the certified L002 theorem
-│          surfaces.
+│          Primary theorem-core contract. Optional attribution,
+│          provenance, externalization, and response specifications
+│          are deliberately excluded.
+│
+*)
+
+Definition L002_CORE_CONTRACT : Prop :=
+  GOAL_FRAME_EXTERNAL_FIXED_POINT_CONTRACT /\
+  FULL_FIXED_POINT_COLLAPSE_CONTRACT /\
+  LOCAL_MIRROR_IRREFUTABILITY_CONTRACT /\
+  LOCAL_CODED_RECOGNITION_OPACITY_CONTRACT /\
+  CODED_RECOGNITION_EVIDENCE_SPECIFICATION_CONTRACT /\
+  LOCAL_CODED_RECURSIVE_MIRROR_CONTRACT.
+
+Definition CORE_WITNESS : Prop :=
+  L002_CORE_CONTRACT.
+
+(*
+│
+│          Legacy broad contract over global mirror results and
+│          optional operational and response-law surfaces.
 │
 *)
 
@@ -407,8 +455,8 @@ Definition SYMBOLIC_REGULATION_CONTRACT : Prop :=
 
 (*
 │
-│          `WITNESS` is the stable package spelling of
-│          `SYMBOLIC_REGULATION_CONTRACT`.
+│          Compatibility alias for the legacy broad contract. New
+│          clients should prefer `CORE_WITNESS` for the theorem core.
 │
 *)
 

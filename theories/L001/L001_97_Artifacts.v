@@ -14,18 +14,11 @@
 
   OVERVIEW
 
-  Certification and artifact boundary for L001. This file packages the
-  already proved fixed-point, collapse, and obstruction theorems into the
-  named contract endpoints exported from `L001_95_API`, then redirects `Print
-  Assumptions` for the terminal contract and the named witness. L001 has no
-  computational extraction surface of its own; executable checking and proof
-  transformers remain in M001. The meaningful L001 artifact is the assumption
-  report for the public lemma endpoints.
+  Certification boundary: packages the public contracts and emits assumption
+  reports. Executable artifacts remain in M001.
 
-  The final exported obstruction is deliberately reductio-shaped: if a sound
-  total function decides the closure-acceptance problem in the presence of
-  evaluation closure, modus-ponens closure, and consistency, then
-  contradiction; therefore no such function exists under those hypotheses.
+  The exported undecidability endpoint excludes a total Boolean decision
+  whose verdicts are certified by `C A` or `C (¬A)`.
 
 *)
 
@@ -114,9 +107,9 @@ Qed.
 
 (*
 │
-│          Generic decision obstruction. The decision function first
-│          produces collapse to `C Bot`; consistency then discharges
-│          the contradiction.
+│          Generic accepted-branch-classifier obstruction. The Boolean
+│          classifier first produces collapse to `C Bot`; consistency
+│          then discharges the contradiction.
 │
 *)
 
@@ -142,9 +135,8 @@ Qed.
 
 (*
 │
-│          Equivalence/ad-absurdum impossibility. A negation fixed
-│          point plus a sound decision produces `C Bot`; consistency
-│          converts that into `False`.
+│          A negation fixed point plus a closure decision contradicts
+│          consistency.
 │
 *)
 
@@ -171,9 +163,10 @@ Qed.
 
 (*
 │
-│          Existential decider impossibility. If some sound Boolean
-│          decision function exists, destruct it and apply the generic
-│          decision obstruction.
+│          Existential accepted-branch classifier impossibility under
+│          the stable decider name. If such a Boolean classifier
+│          exists, destruct it and apply the generic decision
+│          obstruction.
 │
 *)
 

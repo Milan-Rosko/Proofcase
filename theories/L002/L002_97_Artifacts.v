@@ -14,9 +14,8 @@
 
   OVERVIEW
 
-  Artifact layer for L002/SYMBOLIC REGULATION. We certify the public
-  contracts, assemble the package witness, and redirect assumption reports
-  for the citation theorems and terminal endpoint.
+  Artifact layer for L002. Certifies the primary core and the broad
+  compatibility bundle, then redirects their assumption reports.
 
 *)
 
@@ -32,6 +31,18 @@ Theorem certified_asif_from_external_mirror_position_contract :
   ASIF_FROM_EXTERNAL_MIRROR_POSITION_CONTRACT.
 Proof.
   exact external_mirror_position_forces_asif.
+Qed.
+
+Theorem certified_local_mirror_irrefutability_contract :
+  LOCAL_MIRROR_IRREFUTABILITY_CONTRACT.
+Proof.
+  exact external_mirror_position_forces_asif_local.
+Qed.
+
+Theorem certified_goal_frame_external_fixed_point_contract :
+  GOAL_FRAME_EXTERNAL_FIXED_POINT_CONTRACT.
+Proof.
+  exact l001_goal_frame_constructs_external_fixed_point.
 Qed.
 
 Theorem certified_full_fixed_point_collapse_contract :
@@ -66,6 +77,12 @@ Proof.
   exact coded_recognition_acceptance_excluded.
 Qed.
 
+Theorem certified_local_coded_recognition_opacity_contract :
+  LOCAL_CODED_RECOGNITION_OPACITY_CONTRACT.
+Proof.
+  exact coded_recognition_acceptance_excluded_local.
+Qed.
+
 Theorem certified_coded_recognition_evidence_specification_contract :
   CODED_RECOGNITION_EVIDENCE_SPECIFICATION_CONTRACT.
 Proof.
@@ -94,6 +111,12 @@ Theorem certified_coded_recursive_mirror_contract :
   CODED_RECURSIVE_MIRROR_CONTRACT.
 Proof.
   exact coded_recursive_mirror_lemma.
+Qed.
+
+Theorem certified_local_coded_recursive_mirror_contract :
+  LOCAL_CODED_RECURSIVE_MIRROR_CONTRACT.
+Proof.
+  exact coded_recursive_mirror_lemma_local.
 Qed.
 
 Theorem certified_coded_seed_recursive_mirror_contract :
@@ -183,9 +206,8 @@ Qed.
 
 (*
 │
-│          Certification endpoint for the world, brain, embedded
-│          model, witnessed control question, and recursive response
-│          specification.
+│          Certification endpoint for the optional
+│          relative-consistency and response specification.
 │
 *)
 
@@ -203,8 +225,8 @@ Qed.
 
 (*
 │
-│          The certified package contract is the conjunction of the
-│          subordinate endpoints.
+│          The legacy broad contract conjoins its global and optional
+│          endpoints.
 │
 *)
 
@@ -284,8 +306,31 @@ Qed.
 
 (*
 │
-│          `symbolic_regulation_qed` is the terminal package witness
-│          theorem.
+│          Primary certified endpoint for the L002 theorem core.
+│
+*)
+
+Theorem l002_core_qed :
+  CORE_WITNESS.
+Proof.
+  unfold CORE_WITNESS, L002_CORE_CONTRACT.
+  split.
+  - exact certified_goal_frame_external_fixed_point_contract.
+  - split.
+    + exact certified_full_fixed_point_collapse_contract.
+    + split.
+      * exact certified_local_mirror_irrefutability_contract.
+      * split.
+        -- exact certified_local_coded_recognition_opacity_contract.
+        -- split.
+           ++ exact certified_coded_recognition_evidence_specification_contract.
+           ++ exact certified_local_coded_recursive_mirror_contract.
+Qed.
+
+(*
+│
+│          Broad compatibility endpoint; new clients should prefer
+│          `l002_core_qed`.
 │
 *)
 
@@ -297,11 +342,13 @@ Qed.
 
 (*
 │
-│          Assumption reporting is intentionally compact: one endpoint
-│          for Mirror, one for recursive Mirror, and one for the
-│          complete Symbolic Regulation package.
+│          Assumption reports cover the primary core, its two compact
+│          components, and the broad compatibility package.
 │
 *)
+
+Redirect "theories/L002/_appendix/_assumptions/l002_core_qed"
+  Print Assumptions l002_core_qed.
 
 Redirect "theories/L002/_appendix/_assumptions/mirror_lemma_qed"
   Print Assumptions mirror_lemma_qed.

@@ -14,14 +14,9 @@
 
   OVERVIEW
 
-  Symbolic-regulation consequence layer for L002. The primary corollaries
-  expose the self-reference constraint as irrefutability and recognition
-  opacity. Separately, finite operational recurrence is proved only for
-  explicitly finite state carriers by a pigeonhole argument. Attribution and
-  externalization are secondary response layers arising solely through
-  hypotheses supplied for a concrete model. The exported ambiguity theorem
-  gives a conditional standoff, not a preference for external attribution,
-  and is not a conjunct of the certified `WITNESS`.
+  Optional consequence layer: finite-state recurrence plus conditional
+  attribution, provenance, and externalization transports. The coded mirror
+  theorems remain the L002 core.
 
 *)
 
@@ -731,10 +726,17 @@ Proof.
 Qed.
 
 (*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                         LEGACY INTERPRETIVE ALIASES                          │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
+
+(*
 │
-│          Fixed-point incomprehensibility is the exclusion of
-│          adequate internal recognition of the regulator's own
-│          externally identified generative position.
+│          Compatibility wrapper for the legacy
+│          `InternalFixedPointRecognition` interface.
 │
 *)
 
@@ -752,10 +754,8 @@ Qed.
 
 (*
 │
-│          Compatibility alias for the earlier interpretive name. The
-│          certified conclusion is fixed-point certificate opacity;
-│          broader incomprehensibility requires a concrete semantic
-│          recognition representation.
+│          Legacy name for `fixed_point_certificate_opacity`; no
+│          broader conclusion is added.
 │
 *)
 
@@ -773,8 +773,8 @@ Qed.
 
 (*
 │
-│          Finite perpetuity of ignorance pairs `AsIF` with
-│          recognition opacity at every adequate finite mirror depth.
+│          Legacy name for all-finite-depth `AsIF` plus legacy
+│          recognition opacity.
 │
 *)
 
@@ -806,10 +806,8 @@ Qed.
 
 (*
 │
-│          The paradox of the external is the conditional
-│          stabilization of external provenance for an internally
-│          generated fixed-point paradox whose generating process is
-│          recognition-opaque.
+│          Legacy name for conditional external-attribution transport
+│          through `OpacityExternalAttributionResponse`.
 │
 *)
 

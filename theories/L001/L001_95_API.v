@@ -14,17 +14,15 @@
 
   OVERVIEW
 
-  Public API surface for L001. This file exports the complete Aporetic
-  closure layer, then names the package-level contract that the artifact
-  boundary certifies. Downstream packages should import this file when they
-  need the stable vocabulary and propositions, and `L001_97_Artifacts` when
-  they need the certified contract endpoints and assumption reports.
+  Public L001 vocabulary and package contracts. Import `L001_97_Artifacts`
+  only for certified endpoints and assumption reports.
 
-  The API is intentionally expressed at the generic closure level first. The
-  M001 regulator instance remains available through the exported lower files,
-  but the mathematical core is the closure predicate `Formula -> Prop`,
-  closure equivalence, evaluation closure, negation fixed points, collapse,
-  and consistency obstruction.
+  `ClosureTheory` is a bare formula predicate; regulator instances and all
+  closure properties remain explicit.
+
+  The live endpoint is goal-restricted. `ClosureDecision` gives internally
+  certified positive or negative acceptance; the README fixes the
+  corresponding undecidability convention.
 
 *)
 
@@ -74,9 +72,8 @@ Definition ClosureLocalLEM
 
 (*
 │
-│          A closure decider is precisely a sound Boolean decision
-│          record for the closure. The record contains the function
-│          `Formula -> bool` and branch soundness proofs.
+│          Stable API alias for the internally witnessed Boolean
+│          acceptance decision.
 │
 *)
 
@@ -86,11 +83,7 @@ Definition ClosureDecider
 
 (*
 │
-│          Propositional existential form of decider availability.
-│          This is the shape used by the exported impossibility
-│          statement: if such a function exists under the evaluation
-│          and consistency hypotheses, the closure collapses by
-│          reductio.
+│          Propositional existence of a closure decider.
 │
 *)
 
@@ -231,9 +224,10 @@ Definition APORETIC_EXCLUDED_MIDDLE_OBSTRUCTION_CONTRACT : Prop :=
 
 (*
 │
-│          A sound Boolean decider is stronger than closure-level
-│          excluded middle, so it also collapses the closure to bottom
-│          under evaluation closure.
+│          A Boolean positive/negative accepted-branch classifier
+│          supplies closure-level excluded-middle completeness, so it
+│          also collapses the closure to bottom under evaluation
+│          closure.
 │
 *)
 
@@ -251,7 +245,8 @@ Definition APORETIC_DECISION_COLLAPSE_CONTRACT : Prop :=
 │
 │          The decision-obstruction contract is the ad absurdum form:
 │          under evaluation closure, modus-ponens closure, and
-│          consistency, a sound total Boolean decider cannot exist.
+│          consistency, a total Boolean positive/negative
+│          accepted-branch classifier cannot exist.
 │
 *)
 
@@ -267,9 +262,10 @@ Definition APORETIC_DECISION_OBSTRUCTION_CONTRACT : Prop :=
 │
 │          Equivalence/ad-absurdum endpoint. Once a formula `B` is
 │          equivalent inside the closure to `formula_negation B`, any
-│          sound decision of that closure contradicts consistency.
-│          This statement isolates the final reductio step from the
-│          evaluation machinery that produces `B`.
+│          total Boolean positive/negative accepted-branch classifier
+│          contradicts consistency. This statement isolates the final
+│          reductio step from the evaluation machinery that produces
+│          `B`.
 │
 *)
 
@@ -283,10 +279,11 @@ Definition APORETIC_EQUIVALENCE_AD_ABSURDUM_IMPOSSIBILITY_CONTRACT : Prop :=
 
 (*
 │
-│          Decider-existence endpoint. If some function decides the
-│          closure by providing a sound Boolean decision record, then
-│          no such function exists under the evaluation, modus-ponens
-│          closure, and consistency hypotheses.
+│          Classifier-existence endpoint under the stable `Decider`
+│          name. If some function provides the Boolean
+│          positive/negative accepted-branch record, then no such
+│          function exists under the evaluation, modus-ponens closure,
+│          and consistency hypotheses.
 │
 *)
 

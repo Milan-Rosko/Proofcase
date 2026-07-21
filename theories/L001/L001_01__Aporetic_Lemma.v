@@ -14,11 +14,11 @@
 
   OVERVIEW
 
-  Local collapse and diagonal-production layer for L001. The primitive
-  collapse theorem consumes a supplied closure-equivalence negation fixed
-  point and the single local branch datum at that formula. Goal-specific and
-  full evaluation frames appear only afterward as sufficient ways to produce
-  the fixed point.
+  Fixed-point and collapse layer. A goal frame produces `B ≃_C (B → G)`;
+  primitive closure needs an accepted branch to derive `C G`.
+
+  L002 obtains unconditional Curry collapse only after specializing to M001's
+  richer assumption and deduction structure.
 
 *)
 
@@ -34,11 +34,8 @@ From L001 Require Export L001_00_Premises.
 
 (*
 │
-│          `CurryFixedPointFor C G B` says that `B` is a Curry-style
-│          fixed point of the goal formula `G` inside the closure: `B`
-│          and `B → G` imply each other under `C`. The negation fixed
-│          point is the special case `G := Bot`, since
-│          `formula_negation B = Imp B Bot`.
+│          `CurryFixedPointFor C G B` abbreviates `B ≃_C (B → G)`; `G
+│          := Bot` gives the negation fixed point.
 │
 *)
 
@@ -51,11 +48,8 @@ Definition CurryFixedPointFor
 
 (*
 │
-│          Existence of the Curry fixed point at any goal `G` requires
-│          only the goal-specific evaluation frame `EvC_G`. The frame
-│          names the single behavior `x ↦ ev(x,x) → G`; running that
-│          name on itself produces a `B` equivalent, under `C`, to `B
-│          → G`.
+│          Self-applying the code supplied by `EvC_G` produces `B ≃_C
+│          (B → G)`.
 │
 *)
 
@@ -151,11 +145,8 @@ Qed.
 
 (*
 │
-│          Paper endpoint: the goal-restricted anti-diagonal
-│          production principle at bottom produces a
-│          closure-equivalence negation fixed point. This is the
-│          diagonal-production theorem used before any full-frame
-│          corollary.
+│          Minimal endpoint: the bottom goal frame produces a negation
+│          fixed point.
 │
 *)
 
@@ -173,9 +164,9 @@ Qed.
 
 (*
 │
-│          Paper endpoint: a full closure evaluation frame is
-│          sufficient for the goal-restricted anti-diagonal production
-│          principle at bottom.
+│          Paper-facing adapter endpoint: a full closure evaluation
+│          frame is sufficient for the current goal-restricted
+│          anti-diagonal production principle at bottom.
 │
 *)
 
@@ -367,9 +358,11 @@ Qed.
 
 (*
 │
-│          `negfixp_lem_collapse` obtains the object-level branch
-│          disjunction from `ClosureExcludedMiddle C` and routes it
-│          through the explicit branch-collapse adapter.
+│          `negfixp_lem_collapse` obtains the Rocq-level disjunction
+│          between the two accepted object-language branches from
+│          `ClosureExcludedMiddle C` and routes it through the
+│          explicit branch-collapse adapter. No object-language
+│          disjunction connective is present.
 │
 *)
 
@@ -530,6 +523,13 @@ Qed.
 
 (*
 │
+│          The regulator specialization below uses only M001's closure
+│          modus-ponens lemma.
+│
+*)
+
+(*
+│
 │          `RegulatorNegationFixedPoint` is the M001 specialization of
 │          the generic negation fixed-point predicate. It abbreviates
 │          `NegationFixedPointFor` at the closure predicate
@@ -674,12 +674,8 @@ Qed.
 
 (*
 │
-│          Regulated evaluation closure supplies `B
-│          ≃_{RegulatorClosure} formula_negation B`. A total regulator
-│          decision then supplies the relevant branch, so the fixed
-│          point collapses to `RegulatorClosure Bot`. This is the
-│          Aporetic Lemma's first formal branch; nontriviality is
-│          deliberately absent.
+│          Regulated evaluation supplies the fixed point and
+│          `RegulatorDecision` supplies the collapsing branch.
 │
 *)
 
