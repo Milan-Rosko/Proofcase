@@ -280,8 +280,9 @@ Qed.
 
 (*
 │
-│          The world-to-brain soundness and brain-to-model inclusion
-│          frame transports consistency to the embedded model.
+│          World-to-brain soundness and the explicit
+│          relative-consistency bridge transport consistency to the
+│          embedded model.
 │
 *)
 
@@ -293,12 +294,12 @@ Proof.
   exact world_brain_model_frame_model_consistent.
 Qed.
 
-Example sanity_control_no_answer_impossible_shape :
+Example sanity_control_negative_answer_impossible_shape :
   forall M Gamma (question : ControlQuestion M Gamma),
     MirrorConsistent M Gamma ->
     ~ ControlAnswersNo M Gamma question.
 Proof.
-  exact control_question_no_answer_impossible.
+  exact control_question_negative_answer_impossible.
 Qed.
 
 Example sanity_binary_control_forces_yes_shape :

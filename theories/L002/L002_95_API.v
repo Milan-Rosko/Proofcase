@@ -284,10 +284,11 @@ Definition PRINCIPLES_OF_SYMBOLIC_REGULATION_CONTRACT : Prop :=
 (*
 │
 │          The control-question specification collects the metaphor's
-│          explicit bridges: world-to-brain soundness, brain-to-model
-│          inclusion, a witnessed mirror question, binary decision,
-│          and operational `yes`, `no`, or re-entry behavior. The
-│          unbounded `yes`-or-recursion conclusion retains its
+│          explicit bridges: world-to-brain soundness, model
+│          consistency relative to brain consistency, a witnessed
+│          mirror question, binary decision, and operational `yes`,
+│          `no`, or re-entry behavior. The unbounded
+│          `yes`-or-recursion conclusion retains its
 │          outcome-decidability premise.
 │
 *)
@@ -300,7 +301,7 @@ Record CONTROL_QUESTION_SPECIFICATION_CONTRACT : Prop := {
            (frame : WorldBrainModelFrame V brain model Gamma),
       MirrorConsistent model Gamma;
 
-  certified_control_no_answer_impossible :
+  certified_control_negative_answer_impossible :
     forall (M : RegulatorTheory)
            (Gamma : Context)
            (question : ControlQuestion M Gamma),

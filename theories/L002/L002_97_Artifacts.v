@@ -194,7 +194,7 @@ Theorem certified_control_question_specification_contract :
 Proof.
   constructor.
   - exact world_brain_model_frame_model_consistent.
-  - exact control_question_no_answer_impossible.
+  - exact control_question_negative_answer_impossible.
   - exact control_question_binary_decision_forces_yes.
   - exact world_sound_binary_control_decision_impossible.
   - exact finite_yes_or_recursive_reentry.

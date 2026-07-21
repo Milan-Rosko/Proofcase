@@ -360,13 +360,20 @@ Definition TheorySoundInWorld
     regulator_theory_checked_derivable T Gamma A ->
     V A.
 
+Definition ModelConsistentRelativeToBrain
+    (model brain : RegulatorTheory)
+    (Gamma : Context) : Prop :=
+  SLambdaConsistent brain Gamma ->
+  MirrorConsistent model Gamma.
+
 (*
 │
 │          `WorldBrainModelFrame V brain model Gamma` makes the
 │          relative-consistency chain explicit. The brain is sound in
-│          a world rejecting `Bot`, and every model derivation is
-│          available to the brain through regulator inclusion. The
-│          frame does not assume that the embedded model is
+│          a world rejecting `Bot`, and model consistency follows from
+│          brain consistency through a dedicated bottom-level bridge.
+│          The frame deliberately does not transport every model
+│          theorem into the brain or assume that the embedded model is
 │          independently sound in the world.
 │
 *)
@@ -377,12 +384,13 @@ Record WorldBrainModelFrame
     (Gamma : Context) : Type := {
   frame_world_consistent : WorldConsistent V;
   frame_brain_sound : TheorySoundInWorld V brain Gamma;
-  frame_model_inclusion : regulator_theory_included model brain
+  frame_model_relative_consistency :
+    ModelConsistentRelativeToBrain model brain Gamma
 }.
 
 Arguments frame_world_consistent {V brain model Gamma} _.
 Arguments frame_brain_sound {V brain model Gamma} _ _ _.
-Arguments frame_model_inclusion {V brain model Gamma} _.
+Arguments frame_model_relative_consistency {V brain model Gamma} _ _.
 
 (*
 │

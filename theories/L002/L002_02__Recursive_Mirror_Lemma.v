@@ -528,7 +528,7 @@ Definition ControlOutcomeDecidable
 │
 *)
 
-Theorem recursive_control_no_response_impossible :
+Theorem recursive_control_negative_response_impossible :
   forall (M : RegulatorTheory)
          (Gamma : Context)
          (mirror_step : Formula -> Formula)
@@ -551,6 +551,30 @@ Proof.
   exact (recursive_control_no_sound process depth Hno).
 Qed.
 
+(*
+│
+│          Compatibility spelling for
+│          `recursive_control_negative_response_impossible`; `no`
+│          refers to the explicit negative constructor rather than to
+│          a missing response.
+│
+*)
+
+Theorem recursive_control_no_response_impossible :
+  forall (M : RegulatorTheory)
+         (Gamma : Context)
+         (mirror_step : Formula -> Formula)
+         (chi : Formula)
+         (process : RecursiveControlProcess M Gamma mirror_step chi),
+    RecursiveMirrorAdequacy M Gamma mirror_step chi ->
+    MirrorConsistent M Gamma ->
+    forall depth : nat,
+      recursive_control_response_at process depth <>
+      control_response_no.
+Proof.
+  exact recursive_control_negative_response_impossible.
+Qed.
+
 Theorem recursive_control_response_yes_or_reenters :
   forall (M : RegulatorTheory)
          (Gamma : Context)
@@ -570,7 +594,7 @@ Proof.
   - left. reflexivity.
   - exfalso.
     exact
-      (recursive_control_no_response_impossible
+      (recursive_control_negative_response_impossible
          M Gamma mirror_step chi process
          Hadequate Hconsistent depth Hresponse).
   - right. reflexivity.

@@ -307,9 +307,8 @@ Qed.
 
 (*
 │
-│          Model-to-brain inclusion transports any model contradiction
-│          into the brain and then into the world, so every framed
-│          embedded model is consistent.
+│          The explicit relative-consistency bridge transports brain
+│          consistency inward to the embedded model.
 │
 *)
 
@@ -320,13 +319,11 @@ Theorem world_brain_model_frame_model_consistent :
          (frame : WorldBrainModelFrame V brain model Gamma),
     MirrorConsistent model Gamma.
 Proof.
-  intros V brain model Gamma frame Hbot.
-  apply (frame_world_consistent frame).
-  apply (frame_brain_sound frame Bot).
+  intros V brain model Gamma frame.
   exact
-    (regulator_theory_checked_derivable_regulator_theory_monotone_lemma
-       model brain Gamma Bot
-       (frame_model_inclusion frame) Hbot).
+    (frame_model_relative_consistency frame
+       (world_brain_model_frame_brain_consistent
+          V brain model Gamma frame)).
 Qed.
 
 (*
@@ -337,7 +334,7 @@ Qed.
 │
 *)
 
-Theorem control_question_no_answer_impossible :
+Theorem control_question_negative_answer_impossible :
   forall (M : RegulatorTheory)
          (Gamma : Context)
          (question : ControlQuestion M Gamma),
@@ -350,6 +347,25 @@ Proof.
     (external_mirror_position_reentry_collapses
        M Gamma (control_question_formula question)
        (control_question_mirror question) Hno).
+Qed.
+
+(*
+│
+│          Compatibility spelling for
+│          `control_question_negative_answer_impossible`; here `no`
+│          denotes the explicit negative verdict, not absence of an
+│          answer.
+│
+*)
+
+Theorem control_question_no_answer_impossible :
+  forall (M : RegulatorTheory)
+         (Gamma : Context)
+         (question : ControlQuestion M Gamma),
+    MirrorConsistent M Gamma ->
+    ~ ControlAnswersNo M Gamma question.
+Proof.
+  exact control_question_negative_answer_impossible.
 Qed.
 
 (*
@@ -372,7 +388,7 @@ Proof.
   - exact Hyes.
   - exfalso.
     exact
-      (control_question_no_answer_impossible
+      (control_question_negative_answer_impossible
          M Gamma question Hconsistent Hno).
 Qed.
 
