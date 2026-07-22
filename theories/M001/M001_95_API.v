@@ -17,7 +17,8 @@
   Public operational API surface for M001. Importing this file exports
   primitive syntax, Boolean checking, deduction and reductio transforms,
   checked and inductive derivability, MP composition, structural
-  monotonicity, and the minimal symbolic-regulator vocabulary used by L002.
+  monotonicity, and the symbolic-regulator acceptance and release vocabulary
+  used by L002.
 
   Evaluation frames, regulator-instruction reification, symbolic worlds, and
   closure adapters are deliberately outside this API.
@@ -35,14 +36,14 @@
 (*
 │
 │          The public API cumulatively exports the retained M001 stack
-│          through the minimal symbolic-regulator vocabulary.
+│          through the symbolic-regulator release gate.
 │
 *)
 
 (*    M001_API ≔ Syntax ⊕ Checker ⊕ Deduction ⊕ Reductio ⊕ Derivability ⊕     *)
-(*         Composition ⊕ Adequacy ⊕ Monotonicity ⊕ SymbolicRegulator          *)
+(*    Composition ⊕ Adequacy ⊕ Monotonicity ⊕ SymbolicRegulator ⊕ Release     *)
 
-From M001 Require Export M001_08__Regulation.
+From M001 Require Export M001_09__Regulated_Execution.
 
 (*
 ┌──────────────────────────────────────────────────────────────────────────────┐

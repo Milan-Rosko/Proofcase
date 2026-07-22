@@ -26,9 +26,11 @@
     `AsIF` means only that `M` has no checked derivation of `¬chi`.
     `CodedRecognitionAccepted` is equivalent both to checked derivability of
     the advertised evidence `chi -> ¬chi` and, by K plus re-entry, to checked
-    derivability of `¬chi` itself. Thus coded recognition is a finite
-    certificate surface for refutability; the one-way mirror supplies the
-    opposite direction `¬chi -> chi`.
+    derivability of `¬chi` itself. It is also equivalent to the existence of a
+    finite certificate that causes M001's generic gate to release the
+    advertised first-class recognition claim. Thus coded recognition is a
+    finite certificate surface for refutability; the one-way mirror supplies
+    the opposite direction `¬chi -> chi`.
 
     `L002_CORE_CONTRACT` contains the minimal goal-frame bridge, local mirror
     and coded-recognition results, and pointwise-local finite-depth transport.
@@ -47,8 +49,10 @@
 
     `AsIF M Gamma chi` means only that `M` has no checked derivation of `¬chi`.
     Coded recognition is exactly checked refutability, presented through a
-    finite certificate interface. Mirror consistency and local consistency are
-    explicit hypotheses, not established semantics for a concrete model.
+    finite certificate interface and the M001 release gate. Release is pure
+    symbolic gating, not an environmental action. Mirror consistency and local
+    consistency are explicit hypotheses, not established semantics for a
+    concrete model.
 
     Recursive formulas are finite iterates indexed by `nat`. Response values,
     attribution labels, provenance tags, and externalization relations have
@@ -120,23 +124,27 @@
 5 - Dependency Tree
     ---------------
 
-    M001_95_API
-     ▼
-    L001_95_API
-     ▼
-    L002_00_Premises
-     ▼
-    L002_01__Mirror_Unrefutability
-     ▼
-    L002_02__Recursive_Mirror_Lemma
-     ▼
-    L002_03__Symbolic_Regulation
-     ▼
-    L002_95_API
-     ▼
-    L002_97_Artifacts
-     ▼
-    L002_98_Sanity
+    M001_95_API ─────┐
+                     ├─▶ L002_00_Premises
+    L001_95_API ─────┘
+                              │
+                              ▼
+                     L002_01__Mirror_Unrefutability
+                              │
+                              ▼
+                     L002_02__Recursive_Mirror_Lemma
+                              │
+                              ▼
+                     L002_03__Symbolic_Regulation
+                              │
+                              ▼
+                     L002_95_API
+                              │
+                              ▼
+                     L002_97_Artifacts
+                              │
+                              ▼
+                     L002_98_Sanity
 
 
 6 - File Guide
@@ -200,10 +208,14 @@
       CodedRecognitionClaim
       CodedRecognitionCertificate
       CodedRecognitionAccepted
+      coded_recognition_release
+      coded_recognition_release_acceptance_iff
+      coded_recognition_acceptance_iff_release
       coded_recognition_acceptance_iff_evidence
       coded_recognition_acceptance_iff_refutation
       coded_recognition_acceptance_excluded_local
       coded_recognition_acceptance_excluded
+      CODED_RECOGNITION_RELEASE_SPECIFICATION_CONTRACT
       CODED_RECOGNITION_REFUTATION_SPECIFICATION_CONTRACT
 
     Recursive core:

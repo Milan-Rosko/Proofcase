@@ -394,6 +394,17 @@ Proof.
   exact coded_recognition_acceptance_iff_evidence.
 Qed.
 
+Example sanity_coded_recognition_release_specification :
+  forall M Gamma A,
+    CodedRecognitionAccepted M Gamma A <->
+    exists certificate : CodedRecognitionCertificate,
+      coded_recognition_release
+        M Gamma certificate (recognizes_fixed_point A) =
+      Some (recognizes_fixed_point A).
+Proof.
+  exact coded_recognition_acceptance_iff_release.
+Qed.
+
 Example sanity_coded_recognition_refutation_specification :
   forall M Gamma A,
     CodedRecognitionAccepted M Gamma A <->

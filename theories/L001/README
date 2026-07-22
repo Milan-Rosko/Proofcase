@@ -4,7 +4,7 @@
     -------
 
     L001 proves a local diagonal obstruction over M001's closed implication and
-    falsity syntax.  Its generic acceptance predicate
+    falsity syntax. Its generic acceptance predicate
 
       C : Formula -> Prop
 
@@ -19,36 +19,114 @@
     A goal-restricted evaluation premise can produce the diagonal, but no
     universal evaluation frame is part of L001.
 
-    Derived public theorems expose the same argument more precisely.  They
+    Derived public theorems expose the same argument more precisely. They
     allow an arbitrary goal `G`, require only the fixed-point direction used
     by the selected branch, isolate the three local detachment instances, and
     show that consistency excludes both sides at a negation fixed point.
     These strengthenings do not add clauses to the six-contract aggregate.
 
 
-2 - Classification boundary
-    -----------------------
+2 - Reading Contract
+    ----------------
 
-    `ClosureSignedClassification C` certifies one of the two internal branches:
+    L001 is parametric in `C : Formula -> Prop`. The name "closure" does not
+    silently supply modus ponens, consistency, excluded middle, reflection,
+    proof search, decidability, or a semantic interpretation. Every property
+    used by a theorem appears as an explicit premise.
+
+    `ClosureSignedClassification C` certifies one of two internal branches:
 
       true  -> C A
-      false -> C (not A)
+      false -> C (formula_negation A)
 
-    `ClosureMembershipDecision C` instead decides membership in `C`.  Turning
-    non-membership into `C (not A)` requires the explicit premise
+    `ClosureMembershipDecision C` instead decides membership in `C`. Turning
+    non-membership into `C (formula_negation A)` requires the separate premise
     `ClosureRefutationComplete C`.
 
     Negative-only refutation has no condition on a false verdict, so the
     always-false function inhabits it for every `C`.
 
+    `ClosureEvaluationFrameForGoal C Code ev G` is goal-restricted. It
+    represents only the anti-diagonal behavior needed for the selected `G`;
+    it is not a universal evaluation structure. L001 does not construct such
+    a frame for M001 checked derivability.
 
-3 - Files
+
+3 - State
     -----
+
+                      ┌──────────────────────────────────┐
+                      │                x                 │
+                      │   └─┴─┴─┴─┴─┴─┴─┴─┴─┴─┘ 7 / 10   │
+                      └──────────────────────────────────┘
+
+    Evaluation: 7, Serviceable. Mechanized, documented, and reduced to six
+    explicit contracts. The proof is constructive and assumption-local. Not
+    peer reviewed.
+
+
+4 - Intuition
+    ---------
+
+    A negation fixed point is not a syntactic equality. It is the pair of
+    accepted implications
+
+      C (Imp B (formula_negation B))
+      C (Imp (formula_negation B) B).
+
+    If the regulator also supplies the local branch
+
+      C B \/ C (formula_negation B),
+
+    then either branch can be detached through the corresponding fixed-point
+    direction. The result is acceptance of both `B` and its negation, followed
+    by acceptance of `Bot`.
+
+      fixed-point implications + one local branch
+                         │
+                         ▼
+              local_branch_collapse
+                         │
+                         ▼
+                       C Bot
+
+    Consistency excludes that conclusion, so both local branches are absent
+    at the fixed point. Global closure-level excluded middle is obstructed
+    because it would supply this one forbidden instance.
+
+    The branchwise theorem is sharper: for an arbitrary goal `G`, it names
+    only the three detachment instances needed by the proof and uses only the
+    fixed-point direction aligned with the selected branch.
+
+    Signed classification supplies the forbidden local branch directly.
+    Membership decision supplies it only with refutation completeness.
+    Negative-only refutation supplies no such branch and is always inhabited.
+
+
+5 - Dependency Tree
+    ---------------
+
+    M001_00_Premises
+     ▼
+    L001_00_Premises
+     ▼
+    L001_01__Aporetic_Lemma
+     ▼
+    L001_02__Aporetic_Obstruction
+     ▼
+    L001_95_API
+     ▼
+    L001_97_Artifacts
+
+
+6 - File Guide
+    ----------
 
     L001_00_Premises.v
 
-      The vocabulary required by the six contracts, including the local
-      detachment instance used by the derived collapse theorems.
+      Abstract closure vocabulary, negation fixed points, global and local
+      detachment, consistency, classification interfaces, and the
+      goal-restricted evaluation frame.
 
     L001_01__Aporetic_Lemma.v
 
@@ -62,22 +140,28 @@
 
     L001_95_API.v
 
-      The six canonical contracts and their aggregate.
+      Stable public API and the six canonical contracts `LOCAL_COLLAPSE`,
+      `LOCAL_OBSTRUCTION`, `NEGATION_DIAGONAL`, `SIGNED_OBSTRUCTION`,
+      `MEMBERSHIP_OBSTRUCTION`, and `REFUTATION_INHABITED`.
 
     L001_97_Artifacts.v
 
-      The single certified aggregate `l001_contract_qed` and its assumption
-      report.
+      Certifies `L001_CONTRACT` as `l001_contract_qed` and redirects its
+      assumption report.
+
+    _appendix/_assumptions/
+
+      Redirected `Print Assumptions` output for `l001_contract_qed`.
 
 
-4 - Public API
+7 - Public API
     ----------
 
-    Stable import:
+    The stable downstream import is:
 
-      From L001 Require Import L001_95_API.
+      `From L001 Require Import L001_95_API.`
 
-    Vocabulary:
+    Closure vocabulary:
 
       ClosureTheory
       ClosureEquiv
@@ -106,7 +190,7 @@
       local_membership_obstruction
       closure_refutation_inhabited
 
-    Contracts:
+    Certified contracts:
 
       LOCAL_COLLAPSE
       LOCAL_OBSTRUCTION
@@ -121,12 +205,18 @@
       l001_contract_qed
 
 
-5 - Boundary
-    --------
+8 - Notes
+    -----
+
+    L001 imports only `M001_00_Premises`. It depends on M001's primitive
+    formula syntax, not on the checker, proof transformations, symbolic
+    regulator, or release gate.
 
     L001 contains no full-frame compatibility layer, global-LEM wrapper,
     regulator specialization, status branch, Curry-labelled restatement,
-    decision/decider alias, or legacy contract surface.  M001 remains the
-    syntactic checker substrate.  The derived strengthening endpoints do not
-    enlarge `L001_CONTRACT`.  L002 consumes only L001's goal-restricted frame
-    and negation-fixed-point vocabulary.
+    decision/decider alias, or legacy contract surface. Derived strengthening
+    endpoints do not enlarge `L001_CONTRACT`.
+
+    L002 consumes L001's goal-restricted frame and negation-fixed-point
+    vocabulary. It separately specializes those notions to M001 checked
+    derivability and develops the one-way mirror and coded-recognition layer.

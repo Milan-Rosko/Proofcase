@@ -114,6 +114,24 @@ Definition CODED_RECOGNITION_EVIDENCE_SPECIFICATION_CONTRACT : Prop :=
 
 (*
 │
+│          Operational specification: coded recognition is accepted
+│          exactly when some finite certificate causes the M001 gate
+│          to release the advertised first-class recognition claim.
+│
+*)
+
+Definition CODED_RECOGNITION_RELEASE_SPECIFICATION_CONTRACT : Prop :=
+  forall (M : RegulatorTheory)
+         (Gamma : Context)
+         (A : Formula),
+    CodedRecognitionAccepted M Gamma A <->
+    exists certificate : CodedRecognitionCertificate,
+      coded_recognition_release
+        M Gamma certificate (recognizes_fixed_point A) =
+      Some (recognizes_fixed_point A).
+
+(*
+│
 │          Stronger explanatory specification: in M001, K makes the
 │          coded evidence `A -> not A` equivalent at the derivability
 │          level to `not A` itself. This precision contract is

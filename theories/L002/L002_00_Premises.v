@@ -514,8 +514,8 @@ Definition coded_recognition_certificate_check_bool
   | recognizes_fixed_point A =>
       formula_eq_bool
         certificate.(coded_recognition_certificate_subject) A &&
-      regulator_theory_check_bool
-        M Gamma
+      symbolic_regulator_accepts_bool
+        (regulator_theory_symbolic_regulator M Gamma)
         certificate.(coded_recognition_evidence_script)
         (coded_recognition_evidence_formula A)
   end.
@@ -566,6 +566,61 @@ Definition CodedRecognitionAccepted
   symbolic_regulator_derivable
     (coded_recognition_regulator M Gamma)
     (recognizes_fixed_point A).
+
+(*
+│
+│          The generic M001 release gate gives coded recognition a
+│          literal operational reading: an accepted certificate
+│          releases its proposed first-class recognition claim, while
+│          a rejected certificate releases nothing.
+│
+*)
+
+Definition coded_recognition_release
+    (M : RegulatorTheory)
+    (Gamma : Context)
+    (certificate : CodedRecognitionCertificate)
+    (claim : CodedRecognitionClaim)
+    : option CodedRecognitionClaim :=
+  symbolic_regulator_release
+    (coded_recognition_regulator M Gamma)
+    certificate
+    claim.
+
+Theorem coded_recognition_release_acceptance_iff :
+  forall (M : RegulatorTheory)
+         (Gamma : Context)
+         (certificate : CodedRecognitionCertificate)
+         (claim : CodedRecognitionClaim),
+    coded_recognition_release M Gamma certificate claim = Some claim <->
+    coded_recognition_certificate_check_bool
+      M Gamma certificate claim = true.
+Proof.
+  intros M Gamma certificate claim.
+  unfold coded_recognition_release.
+  exact
+    (symbolic_regulator_release_acceptance_iff
+       (coded_recognition_regulator M Gamma)
+       certificate claim).
+Qed.
+
+Theorem coded_recognition_acceptance_iff_release :
+  forall (M : RegulatorTheory)
+         (Gamma : Context)
+         (A : Formula),
+    CodedRecognitionAccepted M Gamma A <->
+    exists certificate : CodedRecognitionCertificate,
+      coded_recognition_release
+        M Gamma certificate (recognizes_fixed_point A) =
+      Some (recognizes_fixed_point A).
+Proof.
+  intros M Gamma A.
+  unfold CodedRecognitionAccepted, coded_recognition_release.
+  exact
+    (symbolic_regulator_derivable_release_iff
+       (coded_recognition_regulator M Gamma)
+       (recognizes_fixed_point A)).
+Qed.
 
 (*
 │

@@ -3,218 +3,329 @@
 1 - Summary
     -------
 
-    M001 is a constructive, checker-first proof system for the closed
-    implication/falsity language
+    M001 formalizes CONSTRUCTIVE REGULATOR THEORY: a certified checker for
+    finite proofs in the closed implication/falsity language
 
-      A, B ::= Bot | Imp A B
+      A, B ::= Bot | Imp A B.
 
-    It provides finite contexts and proof scripts, functional and finite-data
-    axiom sources, a total Boolean checker, executable MP/deduction/reductio
-    transformations, and a proof that checked derivability agrees with the
-    corresponding inductive closure.
+    The checker, proof transformations, and symbolic release layer are tied
+    together by two exact correspondences:
 
-    M001 is entirely syntactic. It contains no truth predicate, semantic
-    evaluator, model structure, proof search, quotation, self-application, or
-    fixed-point principle.
+      - `regulator_theory_syntactic_adequacy_lemma`
+          checked derivability <-> inductive derivability
+
+      - `regulator_theory_symbolic_regulator_release_iff`
+          checked derivability <-> release by some finite proof instruction
 
 
-2 - Reading Boundary
+2 - Reading Contract
     ----------------
+
+    M001 verifies supplied finite proof scripts; it does not search for proofs.
+    A regulator theory contains a logical profile and a Boolean axiom-membership
+    function. A context supplies temporary assumptions and is not part of the
+    theory.
 
     `Formula` has only `Bot` and `Imp`. Object-language negation is the
     abbreviation
 
       formula_negation A = Imp A Bot.
 
-    `AxiomSet` is a caller-supplied Boolean membership function and need not
-    have a finite enumeration. `FiniteAxiomSet` stores a literal formula list
-    for applications whose theory description must itself be finite data.
+    `regulator_theory_check_bool R Gamma p A = true` means that every line of
+    `p` checks in `R` under `Gamma` and that the final line is exactly `A`.
+    Acceptance establishes syntactic derivability, not semantic truth in an
+    external model.
 
-    A `RegulatorTheory` combines a logical profile with an `AxiomSet`.
-    Contexts hold temporary assumptions and are not part of the theory.
+    `symbolic_regulator_release S i b` is a pure Boolean gate. It returns
+    `Some b` exactly when instruction `i` is accepted for output `b`, and
+    returns `None` otherwise. It does not synthesize `b`, perform side effects,
+    or provide an actuator, environment, dynamics, quotation, self-application,
+    or fixed-point principle. Applications interpret or execute released
+    outputs.
 
-    A proof is a finite list of formula/justification pairs. Justifications
-    are assumptions, available axioms, or MP references into the already
-    checked prefix. The central judgement is
-
-      regulator_theory_check_bool R Gamma p A = true.
-
-    It means that every line of `p` checks and the final line is exactly `A`.
-    The checker performs validation, not proof search.
-
-
-3 - Ground-Truth Contract
-    ---------------------
-
-    The canonical specification is in the repository-level `contracts.txt`.
-    M001 exposes five contracts in dependency order:
-
-      SYNTAX
-        No finite formula is syntactically equal to its own negation.
-
-      ADEQUACY
-        Checked derivability and inductive derivability coincide.
-
-      DEDUCTION
-        The executable deduction transform preserves checking.
-
-      REDUCTIO
-        Checked contradiction under A :: Gamma transforms into checked
-        object-language negation under Gamma.
-
-      STRUCTURE
-        Checked scripts are closed under executable MP composition and remain
-        checked under context and regulator-theory enlargement.
-
-      M001_CONTRACT
-        The conjunction of the five contracts above.
-
-    `m001_contract_qed` certifies the aggregate. The build checks its generated
-    assumption report for undeclared or classical dependencies.
+    `AxiomSet` is a caller-supplied Boolean function and need not have a finite
+    enumeration. `FiniteAxiomSet` is the separate literal-list interface for
+    clients whose theory description must itself be finite data.
 
 
-4 - Operational Core
-    ----------------
+3 - State
+    -----
 
-    The retained executable functions are
+                      ┌──────────────────────────────────┐
+                      │                x                 │
+                      │   └─┴─┴─┴─┴─┴─┴─┴─┴─┴─┘ 7 / 10   │
+                      └──────────────────────────────────┘
 
-      regulator_theory_check_bool
-      finite_axiom_set_check_bool
-      regulator_theory_mp_compose
-      regulator_theory_deduction_transform
-      regulator_theory_reductio_transform
+    Evaluation: 7, Serviceable. Mechanized, documented, and extracted. The
+    checker and transformations are constructive. The release layer is small
+    and intentionally pure. Not peer reviewed.
 
-    Deduction compiles a proof of `B` under `A :: Gamma` into a proof of
-    `Imp A B` under `Gamma`. Reductio is deduction specialized to conclusion
-    `Bot`; it is constructive negation introduction, not classical reductio or
-    double-negation elimination.
 
-    The extraction starts only from these five roots. Rocq automatically
-    retains their computational dependencies in
+4 - Intuition
+    ---------
 
-      _appendix/_artifacts/M001_checker.{ml,mli}
+    A proof is a finite list of formulas annotated by one of three
+    justifications:
+
+      Assumption:  A occurs in Gamma
+      Axiom:       A is K, S, optional EFQ, or accepted by the axiom source
+      MP i j:      earlier lines contain C and C -> A, in either reference order
+
+    The checker reads the script from left to right. MP references are resolved
+    only against the already checked prefix, and the last formula must equal the
+    requested output.
+
+      R, Gamma, proof p, formula A
+
+                    │
+                    ▼
+
+      regulator_theory_check_bool ── true ──▶ checked derivation of A
+
+    Checked derivability forgets the concrete script existentially. The
+    independent inductive judgment has assumption, axiom, and MP constructors,
+    and syntactic adequacy proves the two presentations equivalent:
+
+      regulator_theory_checked_derivable R Gamma A
+        <->
+      regulator_theory_inductive_derivable R Gamma A.
+
+    The canonical proof regulator packages the same machine through the generic
+    symbolic-regulator interface:
+
+      instruction = Proof
+      output      = Formula
+      acceptance  = regulator_theory_check_bool R Gamma.
+
+    The release gate converts its Boolean verdict into an output protocol:
+
+      proof p, output A
+             │
+             ▼
+      symbolic_regulator_release
+             │
+             ├── accepted ──▶ Some A
+             `── rejected ──▶ None
+
+    Therefore a formula is checked derivable exactly when some finite proof
+    instruction releases it. A listener may consume `Some A`, but that listener
+    and any external behavior remain outside M001.
+
+    Three verified transformations operate on accepted scripts. MP composition
+    joins proofs of `A -> B` and `A`; deduction compiles a proof of `B` under
+    `A :: Gamma` into a proof of `A -> B` under `Gamma`; reductio specializes
+    deduction to `B = Bot`. The last operation is constructive negation
+    introduction, not classical reductio or double-negation elimination.
 
 
 5 - Dependency Tree
     ---------------
 
     Stdlib
-     |
-    M001_00_Premises           syntax and finite proof data
-     |
-    M001_01__Kernel            Boolean checker
-     |
-    M001_02__Abstraction       deduction transform
-     |
-    M001_03__Falsity           reductio transform
-     |
-    M001_04__Certificates      certificate and derivability vocabulary
-     |
-    M001_05__Application       MP composition
-     |
+     ▼
+    M001_00_Premises
+     ▼
+    M001_01__Kernel
+     ▼
+    M001_02__Abstraction
+     ▼
+    M001_03__Falsity
+     ▼
+    M001_04__Certificates
+     ▼
+    M001_05__Application
+     ▼
     M001_06__Syntactic_Adequacy
-     |
-    M001_07__Monotonicity      context/theory monotonicity
-     |
-    M001_08__Regulation        minimal symbolic-regulator vocabulary
-     |
+     ▼
+    M001_07__Monotonicity
+     ▼
+    M001_08__Regulation
+     ▼
+    M001_09__Regulated_Execution
+     ▼
     M001_95_API
-     |-- M001_97_Artifacts
-     `-- M001_98_Sanity
+     ▼
+    M001_97_Artifacts
+     ▼
+    M001_98_Sanity
 
 
 6 - File Guide
     ----------
 
     M001_00_Premises.v
-      Formula syntax, negation, contexts, axiom sources, logical profiles,
-      regulator theories, and proof-script grammar.
+
+      Closed `Bot`/`Imp` syntax, contexts, functional and finite axiom sources,
+      logical profiles, regulator theories, and finite proof-script grammar.
 
     M001_01__Kernel.v
-      Formula equality and size, context membership, K/S/optional-EFQ
-      recognition, proof-line checking, full script checking, and the finite
-      axiom-set checker.
+
+      Structural formula equality and size, context membership, K/S/optional
+      EFQ recognition, proof-line validation, the total script checker, and the
+      finite-axiom-set checker.
 
     M001_02__Abstraction.v
-      Executable deduction and its checker-level correctness theorem. Most of
-      this file is the invariant proof for the generated index map and script.
+
+      Executable deduction transformation and its checker-level correctness
+      theorem. The internal index map connects source lines to generated proof
+      blocks.
 
     M001_03__Falsity.v
-      The executable reductio specialization and its correctness theorem.
+
+      Executable reductio specialization: checked `Bot` under `A :: Gamma`
+      becomes checked `A -> Bot` under `Gamma`.
 
     M001_04__Certificates.v
-      A retained proof-certificate subtype, existential checked derivability,
-      and the derivability-level deduction lift.
+
+      Retained proof-certificate subtype, existential checked derivability, and
+      the derivability-level deduction lift.
 
     M001_05__Application.v
-      Proof-script shifting, executable MP composition, checked MP closure,
-      and one-line assumption/axiom derivability.
+
+      Script shifting, executable MP composition, checked MP closure, and
+      one-line assumption and axiom derivations.
 
     M001_06__Syntactic_Adequacy.v
-      The inductive closure and one checked/inductive adequacy theorem.
+
+      Independent inductive derivability and its exact equivalence with
+      existential Boolean-checked derivability.
 
     M001_07__Monotonicity.v
-      Context and regulator-theory monotonicity, both at the concrete-script
-      and existential checked-derivability levels.
+
+      Context and regulator-theory inclusion, with preservation theorems for
+      concrete checked scripts and existential derivability.
 
     M001_08__Regulation.v
-      `SymbolicRegulator`, its paper-facing alias `S_λ`, and existential
-      Boolean acceptance. These definitions are retained because L002 uses
-      them directly.
+
+      Frozen `SymbolicRegulator` interface: output type, instruction type,
+      Boolean acceptance function, alias `S_λ`, and existential acceptance.
+
+    M001_09__Regulated_Execution.v
+
+      Canonical proof-regulator instance, pure accepted-output release gate, and
+      bridges among Boolean acceptance, release, symbolic derivability, and
+      checked derivability.
 
     M001_95_API.v
-      Stable public import and the five canonical contract definitions.
+
+      Stable package API and the five canonical contracts `SYNTAX`, `ADEQUACY`,
+      `DEDUCTION`, `REDUCTIO`, and `STRUCTURE`.
 
     M001_97_Artifacts.v
-      Aggregate certification, assumption report, and OCaml extraction.
+
+      Certifies `M001_CONTRACT`, redirects its assumption report, and extracts
+      the five proof-machine roots to `M001_checker.{ml,mli}`.
 
     M001_98_Sanity.v
-      One small compile-time probe for each retained operation and contract
-      family.
+
+      Closed probes for syntax, checking, transformations, adequacy,
+      monotonicity, canonical symbolic regulation, and release.
+
+    _appendix/_artifacts/
+
+      Extracted OCaml: `M001_checker.{ml,mli}`. Extraction remains restricted to
+      the checker, finite checker, MP composition, deduction, and reductio.
+
+    _appendix/_assumptions/
+
+      Redirected `Print Assumptions` output for `m001_contract_qed`.
 
 
 7 - Public API
     ----------
 
-    Operational clients import
+    The stable downstream import is:
 
-      From M001 Require Import M001_95_API.
+      `From M001 Require Import M001_95_API.`
 
-    The stable vocabulary includes
+    Public surface by use case:
 
-      Formula, Bot, Imp, formula_negation
-      Context, ctx_extend
-      AxiomSet, FiniteAxiomSet
-      RegulatorLogicProfile, RegulatorTheory
-      Justification, ProofLine, Proof
-      regulator_theory_checked_derivable
-      regulator_theory_inductive_derivable
-      context_included, regulator_theory_included
-      SymbolicRegulator, S_λ, symbolic_regulator_derivable
+    Syntax and theories:
 
-    The stable proof endpoints are
+      Formula, Bot, Imp, formula_negation                                   (00)
+      Context, ctx_extend                                                   (00)
+      AxiomSet, FiniteAxiomSet                                              (00)
+      RegulatorLogicProfile, RegulatorTheory                                (00)
+      Justification, ProofLine, Proof                                       (00)
 
-      formula_not_self_negation
-      regulator_theory_syntactic_adequacy_lemma
-      regulator_theory_deduction_checked
-      regulator_theory_reductio_checked
-      regulator_theory_mp_compose_checked_lemma
-      regulator_theory_check_bool_context_monotone_lemma
-      regulator_theory_check_bool_regulator_theory_monotone_lemma
-      m001_contract_qed
+    Executable checking and transformation:
 
-    L001 imports only M001's primitive syntax. L002 imports `M001_95_API`
-    explicitly for the operational checker and structural results.
+      regulator_theory_check_bool :
+        RegulatorTheory -> Context -> Proof -> Formula -> bool              (01)
+      finite_axiom_set_check_bool :
+        RegulatorLogicProfile -> FiniteAxiomSet ->
+        Context -> Proof -> Formula -> bool                                 (01)
+      regulator_theory_deduction_transform : Formula -> Proof -> Proof      (02)
+      regulator_theory_reductio_transform : Formula -> Proof -> Proof       (03)
+      regulator_theory_mp_compose : Formula -> Proof -> Proof -> Proof      (05)
+
+    Derivability and structure:
+
+      regulator_theory_proof_certificate                                    (04)
+      regulator_theory_checked_derivable                                    (04)
+      regulator_theory_inductive_derivable                                  (06)
+      context_included, regulator_theory_included                           (07)
+
+    Symbolic regulation and release:
+
+      SymbolicRegulator, S_λ                                                (08)
+      symbolic_regulator_derivable                                          (08)
+      regulator_theory_symbolic_regulator :
+        RegulatorTheory -> Context -> S_λ                                   (09)
+      symbolic_regulator_release : forall S,
+        symbolic_regulator_instruction S ->
+        symbolic_regulator_output S ->
+        option (symbolic_regulator_output S)                                (09)
+
+    Certified contracts:
+
+      SYNTAX, ADEQUACY, DEDUCTION, REDUCTIO, STRUCTURE                      (95)
+      M001_CONTRACT                                                         (95)
+      m001_contract_qed                                                     (97)
+
+    Principal theorems:
+
+      formula_not_self_negation : forall A,
+        A <> formula_negation A
+
+      regulator_theory_syntactic_adequacy_lemma : forall R Gamma A,
+        regulator_theory_checked_derivable R Gamma A <->
+        regulator_theory_inductive_derivable R Gamma A
+
+      regulator_theory_deduction_checked : forall R Gamma A B p,
+        regulator_theory_check_bool R (ctx_extend A Gamma) p B = true ->
+        regulator_theory_check_bool R Gamma
+          (regulator_theory_deduction_transform A p) (Imp A B) = true
+
+      regulator_theory_reductio_checked : forall R Gamma A p,
+        regulator_theory_check_bool R (ctx_extend A Gamma) p Bot = true ->
+        regulator_theory_check_bool R Gamma
+          (regulator_theory_reductio_transform A p)
+          (formula_negation A) = true
+
+      symbolic_regulator_release_acceptance_iff : forall S i b,
+        symbolic_regulator_release S i b = Some b <->
+        symbolic_regulator_accepts_bool S i b = true
+
+      regulator_theory_symbolic_regulator_release_iff : forall R Gamma A,
+        regulator_theory_checked_derivable R Gamma A <->
+        exists p,
+          symbolic_regulator_release
+            (regulator_theory_symbolic_regulator R Gamma) p A = Some A
 
 
-8 - Deliberate Exclusions
-    ---------------------
+8 - Notes
+    -----
 
-    M001 no longer carries evaluation frames, regulator-instruction
-    reification, regulated components or worlds, closure/equivalence adapters,
-    negative-precomposition restatements, a reductio-certificate hierarchy,
-    dedicated minimal-profile wrappers, or diagnostic proof-length helpers.
+    The five-contract aggregate is unchanged by the release layer. Release is a
+    derived executable view of the frozen Boolean acceptance interface, not a
+    new logical rule.
 
-    These exclusions do not weaken the five contracts or the executable
-    checker. They remove alternate presentations of results already expressed
-    by the retained checker, transformations, and structural theorems.
+    L001 imports only `M001_00_Premises` and therefore does not depend on the
+    checker or release layers. L002 imports `M001_95_API`, packages coded
+    recognition as a symbolic regulator, and uses the release gate to expose
+    accepted recognition claims without changing their proof-theoretic meaning.
+
+    M001 contains no evaluation frame, world model, closure-equivalence adapter,
+    causal provenance, listener side effect, or output synthesis. Such
+    interpretations belong to downstream developments.

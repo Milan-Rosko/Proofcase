@@ -91,6 +91,20 @@ Qed.
 
 (*
 │
+│          Additive operational endpoint: coded recognition is exactly
+│          the existence of a certificate that releases its claim
+│          through the M001 gate.
+│
+*)
+
+Theorem certified_coded_recognition_release_specification_contract :
+  CODED_RECOGNITION_RELEASE_SPECIFICATION_CONTRACT.
+Proof.
+  exact coded_recognition_acceptance_iff_release.
+Qed.
+
+(*
+│
 │          Additive precision endpoint: coded recognition is exactly
 │          checked refutability. It is certified separately so
 │          existing aggregate contract shapes remain stable.

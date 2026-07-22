@@ -100,14 +100,14 @@
 5 - Dependency Tree
     ---------------
 
-                         Stdlib
-                        /      \
-                       ▼        ▼
-                     A001     M001
-                       ▼        ▼
-                     A002     L001
+                          Stdlib
+                        ┌───┴───┐
+                        ▼       ▼
+                       A001    M001
+                        ▼       ▼
+                       A002    L001
                                 ▼
-                              L002
+                               L002
 
     A001/A002 form the arithmetic and serialized-checker branch. M001/L001/L002
     form the regulator, fixed-point, and mirror branch. No dependency currently

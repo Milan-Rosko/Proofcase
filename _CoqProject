@@ -46,6 +46,7 @@
 	theories/M001/M001_06__Syntactic_Adequacy.v
 	theories/M001/M001_07__Monotonicity.v
 	theories/M001/M001_08__Regulation.v
+	theories/M001/M001_09__Regulated_Execution.v
 	theories/M001/M001_95_API.v
 	theories/M001/M001_97_Artifacts.v
 	theories/M001/M001_98_Sanity.v

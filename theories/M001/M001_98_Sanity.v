@@ -210,13 +210,8 @@ Qed.
 *)
 
 Definition sanity_symbolic_regulator : S_λ :=
-  {|
-    symbolic_regulator_output := Formula;
-    symbolic_regulator_instruction := Proof;
-    symbolic_regulator_accepts_bool :=
-      regulator_theory_check_bool
-        sanity_theory (cons sanity_A nil)
-  |}.
+  regulator_theory_symbolic_regulator
+    sanity_theory (cons sanity_A nil).
 
 Example sanity_symbolic_acceptance :
   symbolic_regulator_derivable sanity_symbolic_regulator sanity_A.
@@ -224,4 +219,27 @@ Proof.
   exists (sanity_assumption sanity_A).
   vm_compute.
   reflexivity.
+Qed.
+
+Example sanity_symbolic_release :
+  symbolic_regulator_release
+    sanity_symbolic_regulator
+    (sanity_assumption sanity_A)
+    sanity_A = Some sanity_A.
+Proof.
+  apply symbolic_regulator_release_complete.
+  vm_compute.
+  reflexivity.
+Qed.
+
+Example sanity_symbolic_release_bridge :
+  regulator_theory_checked_derivable
+    sanity_theory (cons sanity_A nil) sanity_A <->
+  exists p : Proof,
+    symbolic_regulator_release
+      sanity_symbolic_regulator p sanity_A = Some sanity_A.
+Proof.
+  exact
+    (regulator_theory_symbolic_regulator_release_iff
+       sanity_theory (cons sanity_A nil) sanity_A).
 Qed.
