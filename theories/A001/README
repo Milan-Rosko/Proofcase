@@ -12,7 +12,25 @@
       - `encode_injective : encode a b = encode a' b' -> a = a' /\ b = b'`
 
 
-2 - State
+2 - Reading Contract
+    ----------------
+
+    `encode` and `decode` are total functions on natural numbers. The certified
+    roundtrip is directional:
+
+      decode (encode a b) = (a, b).
+
+    It follows that `encode` is injective. It does not state that every natural
+    number is already a canonical code. For an arbitrary `n`, `encode` applied
+    after `decode` selects the canonical representative of the decoded pair;
+    non-image codes may therefore change after one normalization step.
+
+    All headline claims are arithmetic and constructive. The extracted OCaml
+    programs implement the proved functions, while the Python companion is an
+    empirical client and is not part of the certified theory.
+
+
+3 - State
     -----
 
                       ┌──────────────────────────────────┐
@@ -24,7 +42,7 @@
     tactics and prose might not be optimal. Not fully peer reviewed.
 
 
-3 - Intuition
+4 - Intuition
     ---------
 
     We pair 42 with 1337 constructively and injectively, using only addition and
@@ -111,8 +129,8 @@
     single application of `encode ∘ decode`.
 
 
-4 - Tree
-    ----
+5 - Dependency Tree
+    ---------------
 
     Stdlib
      ▼
@@ -133,8 +151,8 @@
     A001_97_Artifacts
 
 
-5 - Files
-    -----
+6 - File Guide
+    ----------
 
     A001_00_Premises.v
 
@@ -201,10 +219,10 @@
       OCaml surface. Not part of the certified development.
 
 
-6 - API
-    ---
+7 - Public API
+    ----------
 
-    The public theorem surface is exposed by
+    The stable downstream import is:
 
       `From A001 Require Import A001_95_API.`
 
@@ -241,7 +259,7 @@
         encode a b = encode a' b' -> a = a' /\ b = b'
 
 
-7 - Notes
+8 - Notes
     -----
 
     The `*_Z` views render compact decimal integers, which is convenient for

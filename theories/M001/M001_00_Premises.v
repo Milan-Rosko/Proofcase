@@ -14,26 +14,15 @@
 
   OVERVIEW
 
-  CONSTRUCTIVE REGULATOR THEORY is a finite, syntactic, object theory for
-  regulators governed by symbolic logic. Above this premise file we develop a
-  closed implicational/falsity object language, finite proof scripts with
-  first-class instructions, a total Boolean checker, executable deduction and
-  constructive-reductio transformers, certified MP composition, syntactic
-  adequacy of checked and inductive derivability, negative precomposition,
-  the symbolic-regulator presentation, and the checker/regulator unfolding
-  theorems that connect the regulator vocabulary back to
-  `regulator_theory_check_bool`. Everything M001 ships is operational in this
-  sense; semantic interpretation, model theory, and modal provability are
-  explicitly outside the package.
+  Primitive syntax and finite checker data for M001. The object language
+  contains only falsity and implication; contexts and proof scripts are
+  finite lists; a regulator theory contains a logical profile and a Boolean
+  axiom-membership function. There is no semantic interpretation, proof
+  search, world structure, or evaluation machinery in this layer.
 
-  The trusted base of M001 is intentionally narrow. We import `Bool.Bool`,
-  `Lists.List`, and `Arith_base` from the standard library, and open
-  `ListNotations` so that finite proof scripts read cleanly throughout. The
-  checker is a Boolean function on finite lists of natural-number-indexed
-  proof lines, the deduction transformer is a structural recursion on the
-  same data, and the certificate verifiers are point-free Boolean
-  conjunctions. This constructive syntactic scope fixes the package's trust
-  boundary.
+  The trusted data boundary uses standard Booleans, lists, and natural-number
+  indices. Later files define the total checker and the executable proof
+  transformations over exactly these values.
 
 *)
 
@@ -100,6 +89,17 @@ Inductive Formula : Type :=
 
 (*
 │
+│          Object-language negation is implication to the primitive
+│          falsity formula. It belongs to the syntax boundary because
+│          no checker, theory, or proof object is needed to state it.
+│
+*)
+
+Definition formula_negation (A : Formula) : Formula :=
+  Imp A Bot.
+
+(*
+│
 │          A context is a literal finite list of formulas. Later
 │          checker layers preserve its order and multiplicity.
 │
@@ -108,8 +108,6 @@ Inductive Formula : Type :=
 (*      Gamma ::= [] | A :: Gamma and ctx_extend(A,Gamma) := A :: Gamma       *)
 
 Definition Context := list Formula.
-
-Definition ctx_empty : Context := nil.
 
 Definition ctx_extend (A : Formula) (Gamma : Context) : Context :=
   cons A Gamma.
@@ -126,9 +124,6 @@ Record AxiomSet : Type := {
   axiom_set_contains_bool : Formula -> bool
 }.
 
-Definition axiom_set_empty : AxiomSet :=
-  {| axiom_set_contains_bool := fun _ => false |}.
-
 (*
 │
 │          A `FiniteAxiomSet` is the certificate-facing counterpart of
@@ -142,9 +137,6 @@ Definition axiom_set_empty : AxiomSet :=
 Record FiniteAxiomSet : Type := {
   finite_axiom_set_formulas : list Formula
 }.
-
-Definition finite_axiom_set_empty : FiniteAxiomSet :=
-  {| finite_axiom_set_formulas := nil |}.
 
 (*
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -170,7 +162,7 @@ Inductive RegulatorLogicProfile : Type :=
 (*
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │                                                                              │
-│                   REGULATOR THEORY AND BOOLEAN ENVIRONMENT                   │
+│                               REGULATOR THEORY                               │
 │                                                                              │
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
@@ -194,39 +186,6 @@ Definition regulator_theory_with_axiom_set
     (T : AxiomSet) : RegulatorTheory :=
   {| regulator_theory_profile := profile;
      regulator_theory_axiom_set := T |}.
-
-Definition regulator_theory_empty_minimal : RegulatorTheory :=
-  regulator_theory_with_axiom_set
-    regulator_profile_minimal
-    axiom_set_empty.
-
-Definition regulator_theory_empty_with_efq : RegulatorTheory :=
-  regulator_theory_with_axiom_set
-    regulator_profile_with_efq
-    axiom_set_empty.
-
-(*
-│
-│          A `BooleanEnvironment` is the minimal ambient wrapper for
-│          regulator theories whose visible interface is Boolean. It
-│          collects the regulator theories that a later ambient layer
-│          may expose; contexts separately hold temporary assumptions,
-│          while axiom sets answer formula-availability queries.
-│
-*)
-
-Record BooleanEnvironment : Type := {
-  boolean_environment_regulator_theories : list RegulatorTheory
-}.
-
-Definition boolean_environment_empty : BooleanEnvironment :=
-  {| boolean_environment_regulator_theories := nil |}.
-
-Definition boolean_environment_extend_regulator_theory
-    (R : RegulatorTheory)
-    (E : BooleanEnvironment) : BooleanEnvironment :=
-  {| boolean_environment_regulator_theories :=
-       cons R E.(boolean_environment_regulator_theories) |}.
 
 (*
 ┌──────────────────────────────────────────────────────────────────────────────┐

@@ -83,16 +83,6 @@ Definition proof_script_shift
     (p : Proof) : Proof :=
   map (proof_script_shift_line offset) p.
 
-Lemma proof_script_shift_line_formula_lemma :
-  forall offset line,
-    line_formula (proof_script_shift_line offset line) =
-    line_formula line.
-Proof.
-  intros offset line.
-  destruct line.
-  reflexivity.
-Qed.
-
 Lemma proof_script_shift_length_lemma :
   forall offset p,
     length (proof_script_shift offset p) = length p.
@@ -130,38 +120,6 @@ Proof.
       simpl.
       apply IH.
       exact Hnth.
-Qed.
-
-Lemma nth_formula_proof_script_shift_inv_lemma :
-  forall offset p i F,
-    nth_formula (proof_script_shift offset p) i = Some F ->
-    nth_formula p i = Some F.
-Proof.
-  intros offset p.
-  induction p as [|line p IH]; intros i F Hnth.
-  - destruct i; discriminate Hnth.
-  - destruct i as [|i'].
-    + simpl in Hnth.
-      simpl.
-      exact Hnth.
-    + simpl in Hnth.
-      simpl.
-      apply IH.
-      exact Hnth.
-Qed.
-
-Lemma last_formula_proof_script_shift_lemma :
-  forall offset p,
-    last_formula (proof_script_shift offset p) = last_formula p.
-Proof.
-  intros offset p.
-  induction p as [|line p IH].
-  - reflexivity.
-  - destruct p as [|line' p'].
-    + simpl.
-      reflexivity.
-    + simpl.
-      exact IH.
 Qed.
 
 Lemma nth_formula_app_shifted_lemma :
@@ -346,16 +304,6 @@ Definition regulator_theory_mp_compose
         (offset + proof_script_last_index p_arg))
       nil.
 
-Lemma last_formula_some_nonempty_lemma :
-  forall p F,
-    last_formula p = Some F ->
-    p <> nil.
-Proof.
-  intros p F Hlast Hnil.
-  subst p.
-  discriminate Hlast.
-Qed.
-
 Lemma last_formula_some_last_index_lemma :
   forall p F,
     last_formula p = Some F ->
@@ -373,19 +321,6 @@ Proof.
       fold (proof_script_last_index (cons line' p')).
       apply IH.
       exact Hlast.
-Qed.
-
-Lemma nth_formula_shifted_last_lemma :
-  forall p offset F,
-    last_formula p = Some F ->
-    nth_formula
-      (proof_script_shift offset p)
-      (proof_script_last_index p) = Some F.
-Proof.
-  intros p offset F Hlast.
-  apply nth_formula_proof_script_shift_lemma.
-  apply last_formula_some_last_index_lemma.
-  exact Hlast.
 Qed.
 
 Lemma nth_formula_app_shifted_last_lemma :
@@ -527,21 +462,6 @@ Proof.
   reflexivity.
 Qed.
 
-Lemma regulator_theory_mp_compose_minimal_checked_lemma :
-  forall T Gamma A B p_imp p_arg,
-    regulator_theory_check_minimal_bool T Gamma p_imp (Imp A B) = true ->
-    regulator_theory_check_minimal_bool T Gamma p_arg A = true ->
-    regulator_theory_check_minimal_bool T Gamma
-      (regulator_theory_mp_compose B p_imp p_arg)
-      B = true.
-Proof.
-  intros T Gamma A B p_imp p_arg Himp Harg.
-  unfold regulator_theory_check_minimal_bool in *.
-  exact (regulator_theory_mp_compose_checked_lemma
-    (regulator_theory_with_axiom_set regulator_profile_minimal T)
-    Gamma A B p_imp p_arg Himp Harg).
-Qed.
-
 (*
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │                                                                              │
@@ -574,28 +494,6 @@ Proof.
   destruct Harg as [p_arg Hp_arg].
   exists (regulator_theory_mp_compose B p_imp p_arg).
   apply regulator_theory_mp_compose_checked_lemma with (A := A);
-    assumption.
-Qed.
-
-(*
-│
-│          The minimal-profile MP lemma is the same closure statement
-│          through `regulator_theory_check_minimal_bool`; no EFQ
-│          instance is introduced by the proof-script composition.
-│
-*)
-
-Lemma regulator_theory_minimal_checked_derivable_mp_lemma :
-  forall T Gamma A B,
-    regulator_theory_minimal_checked_derivable T Gamma (Imp A B) ->
-    regulator_theory_minimal_checked_derivable T Gamma A ->
-    regulator_theory_minimal_checked_derivable T Gamma B.
-Proof.
-  intros T Gamma A B Himp Harg.
-  destruct Himp as [p_imp Hp_imp].
-  destruct Harg as [p_arg Hp_arg].
-  exists (regulator_theory_mp_compose B p_imp p_arg).
-  apply regulator_theory_mp_compose_minimal_checked_lemma with (A := A);
     assumption.
 Qed.
 
@@ -637,44 +535,6 @@ Proof.
   intros R Gamma A Haxiom.
   exists (cons (pl_axiom A) nil).
   unfold regulator_theory_check_bool,
-    proof_script_check_from_bool,
-    proof_line_valid_bool,
-    pl_axiom.
-  simpl.
-  rewrite Haxiom.
-  rewrite formula_eq_bool_refl_lemma.
-  reflexivity.
-Qed.
-
-Lemma regulator_theory_minimal_assumption_checked_derivable_lemma :
-  forall T Gamma A,
-    ctx_mem_bool A Gamma = true ->
-    regulator_theory_minimal_checked_derivable T Gamma A.
-Proof.
-  intros T Gamma A Hmem.
-  exists (cons (pl_assumption A) nil).
-  unfold regulator_theory_check_minimal_bool,
-    regulator_theory_check_bool,
-    proof_script_check_from_bool,
-    proof_line_valid_bool,
-    pl_assumption.
-  simpl.
-  rewrite Hmem.
-  rewrite formula_eq_bool_refl_lemma.
-  reflexivity.
-Qed.
-
-Lemma regulator_theory_minimal_axiom_checked_derivable_lemma :
-  forall T Gamma A,
-    available_axiom_bool
-      (regulator_theory_with_axiom_set regulator_profile_minimal T)
-      A = true ->
-    regulator_theory_minimal_checked_derivable T Gamma A.
-Proof.
-  intros T Gamma A Haxiom.
-  exists (cons (pl_axiom A) nil).
-  unfold regulator_theory_check_minimal_bool,
-    regulator_theory_check_bool,
     proof_script_check_from_bool,
     proof_line_valid_bool,
     pl_axiom.

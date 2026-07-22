@@ -15,31 +15,18 @@
   OVERVIEW
 
   Checked deduction abstraction for regulator theories. `M001_00_Premises`
-  supplies the primitive vocabulary (`Formula`, `Context`, `RegulatorTheory`,
-  and `Proof`), and `M001_01__Kernel` supplies the Boolean checker over that
-  vocabulary. This file proves the first abstraction principle above the
-  checker: a checked proof script for `B` under `A :: Γ` can be compiled into
-  a checked proof script for `A → B` under `Γ`. The compilation is a
-  computable function on finite proof scripts; no semantic notion of validity
-  is used at any stage. The primary user-facing theorem is
-  `regulator_theory_deduction_checked`;
-  `regulator_theory_deduction_minimal_checked` is the EFQ-free
-  specialization.
+  supplies the primitive vocabulary and `M001_01__Kernel` supplies its
+  Boolean checker. This file compiles a checked script for `B` under `A :: Γ`
+  into a checked script for `A → B` under `Γ`. The compilation is a total
+  function on finite scripts and uses no semantic notion of validity.
 
   The construction is line-local and switches on the source line's
-  `Justification`. A `J_Assumption` line whose formula equals the discharged
-  hypothesis `A` emits `deduction_identity_block_from`, proving `A → A`; an
-  inherited `J_Assumption` line emits `deduction_assumption_lift_block_from`;
-  a `J_Axiom` line emits `deduction_axiom_lift_block_from`; and a `J_MP` line
-  emits `deduction_mp_lift_block_from`, which uses S to re-derive the MP step
-  under the discharged context. An index map records, for each consumed
-  source line at position `i`, the output index of the generated line whose
-  formula is `A → φ_i`; this map allows source MP references to be replayed
-  in the target proof without rebuilding from scratch. The public exports are
-  the general deduction theorem and its minimal-profile specialization;
-  everything else (`*_block_*`, `DeductionState`, `deduction_transform_*`,
-  `deduction_index_map_verified`, and `deduction_state_verified`) is internal
-  syntactic scaffolding.
+  `Justification`. It emits one checked template for the discharged
+  assumption, inherited assumptions, axioms, or MP. An index map records the
+  transformed output position of each consumed source line so that MP
+  references can be replayed in the target script. The public result is the
+  general executable deduction theorem; the block templates, state,
+  dispatcher, and verified index map are its internal syntactic scaffolding.
 
 *)
 
@@ -1339,32 +1326,4 @@ Proof.
   rewrite Hlast.
   rewrite formula_eq_bool_refl_lemma.
   reflexivity.
-Qed.
-
-(*
-│
-│          `regulator_theory_deduction_minimal_checked` is the
-│          EFQ-free specialisation of
-│          `regulator_theory_deduction_checked`. The transformer is
-│          regulator-profile uniform; the K/S blocks contain no EFQ;
-│          so the specialisation is immediate through
-│          `regulator_theory_check_minimal_bool`. We expose it as a
-│          named theorem because later layers often state EFQ-free
-│          facts directly against the minimal checker; those layers
-│          should chain through this checked minimal form rather than
-│          restating the proof.
-│
-*)
-
-(* T; A::Γ ⊢check_min[p] B ⇒ T; Γ ⊢check_min[deduction_transform(A,p)] A → B  *)
-
-Theorem regulator_theory_deduction_minimal_checked :
-  forall T Gamma A B p,
-    regulator_theory_check_minimal_bool T (ctx_extend A Gamma) p B = true ->
-    regulator_theory_check_minimal_bool T Gamma (regulator_theory_deduction_transform A p) (Imp A B) = true.
-Proof.
-  intros T Gamma A B p Hcheck.
-  exact (regulator_theory_deduction_checked
-    (regulator_theory_with_axiom_set regulator_profile_minimal T)
-    Gamma A B p Hcheck).
 Qed.

@@ -19,6 +19,8 @@ val length : 'a1 list -> nat
 
 val app : 'a1 list -> 'a1 list -> 'a1 list
 
+val pred : nat -> nat
+
 val add : nat -> nat -> nat
 
 module Nat :
@@ -28,6 +30,8 @@ module Nat :
   val ltb : nat -> nat -> bool
  end
 
+val map : ('a1 -> 'a2) -> 'a1 list -> 'a2 list
+
 val nth_error : 'a1 list -> nat -> 'a1 option
 
 type formula =
@@ -35,8 +39,6 @@ type formula =
 | Imp of formula * formula
 
 type context = formula list
-
-val ctx_extend : formula -> context -> context
 
 type axiomSet =
   formula -> bool
@@ -102,9 +104,6 @@ val mp_valid_bool : proofLine list -> nat -> nat -> formula -> bool
 val proof_line_valid_bool :
   regulatorTheory -> context -> proofLine list -> proofLine -> bool
 
-val proof_line_check_bool :
-  regulatorTheory -> context -> proofLine list -> proofLine -> bool
-
 val proof_script_check_from_bool :
   regulatorTheory -> context -> proofLine list -> proofLine list -> bool
 
@@ -117,9 +116,6 @@ val finite_axiom_set_to_regulator_theory :
 val finite_axiom_set_check_bool :
   regulatorLogicProfile -> finiteAxiomSet -> context -> proof -> formula ->
   bool
-
-val regulator_theory_check_minimal_bool :
-  axiomSet -> context -> proof -> formula -> bool
 
 val k_axiom_formula : formula -> formula -> formula
 
@@ -170,65 +166,16 @@ val deduction_transform_lines :
 
 val regulator_theory_deduction_transform : formula -> proof -> proof
 
-val formula_negation : formula -> formula
-
 val regulator_theory_reductio_transform : formula -> proof -> proof
 
-type computedReductioCertificate = { computed_reductio_assumption : formula;
-                                     computed_reductio_contradiction_proof : 
-                                     proof }
+val proof_script_shift_index : nat -> nat -> nat
 
-val computed_reductio_certificate_proof : computedReductioCertificate -> proof
+val proof_script_shift_justification : nat -> justification -> justification
 
-val make_computed_reductio_certificate :
-  formula -> proof -> computedReductioCertificate
+val proof_script_shift_line : nat -> proofLine -> proofLine
 
-type pairedReductioCertificate = { paired_reductio_assumption : formula;
-                                   paired_reductio_contradiction_proof : 
-                                   proof; paired_reductio_proof : proof }
+val proof_script_shift : nat -> proof -> proof
 
-val computed_reductio_certificate_check_bool :
-  regulatorTheory -> context -> computedReductioCertificate -> bool
+val proof_script_last_index : proof -> nat
 
-val paired_reductio_certificate_check_bool :
-  regulatorTheory -> context -> pairedReductioCertificate -> bool
-
-type rawReductioCertificate = { raw_reductio_profile : regulatorLogicProfile;
-                                raw_reductio_axiom_set : finiteAxiomSet;
-                                raw_reductio_context : context;
-                                raw_reductio_assumption : formula;
-                                raw_reductio_contradiction_proof : proof;
-                                raw_reductio_proof : proof }
-
-val raw_reductio_regulator_theory : rawReductioCertificate -> regulatorTheory
-
-val raw_to_paired_reductio_certificate :
-  rawReductioCertificate -> pairedReductioCertificate
-
-val raw_reductio_certificate_check_bool : rawReductioCertificate -> bool
-
-val make_raw_reductio_certificate :
-  regulatorLogicProfile -> finiteAxiomSet -> context -> formula -> proof ->
-  rawReductioCertificate
-
-type regulatorInstruction =
-| Regulator_instruction_assumption of formula
-| Regulator_instruction_axiom of formula
-| Regulator_instruction_mp of nat * nat * formula
-
-val regulator_instruction_output : regulatorInstruction -> formula
-
-val regulator_instruction_to_line : regulatorInstruction -> proofLine
-
-val proof_line_to_regulator_instruction : proofLine -> regulatorInstruction
-
-val regulator_instruction_valid_bool :
-  regulatorTheory -> context -> proofLine list -> regulatorInstruction ->
-  formula -> bool
-
-val regulator_theory_regulates_bool :
-  regulatorTheory -> context -> proof -> formula -> bool
-
-val finite_axiom_set_regulates_bool :
-  regulatorLogicProfile -> finiteAxiomSet -> context -> proof -> formula ->
-  bool
+val regulator_theory_mp_compose : formula -> proof -> proof -> proof

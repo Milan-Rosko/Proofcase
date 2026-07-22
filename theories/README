@@ -4,84 +4,159 @@
     --------
 
     This directory contains the formal theory packages of Proofcase Export.
+    Packages are named by contribution class and a three-digit sequence number.
+    The current tree has two independent dependency branches:
 
-    A##  Algorithmic contributions: algorithms and effective methods.
+      arithmetic serialization:  A001 -> A002
+      regulator metatheory:       M001 -> L001 -> L002
 
-    L##  Lemmatic contributions: lemmas, theorems, reductions, metatheorems,
-         separations, and reusable formal gadgets.
+    Each package is a sequential Rocq development with a stable API boundary,
+    an explicit reading contract, and late-stage certification or extraction
+    files. Package READMEs distinguish literal formal content from optional
+    interpretation.
 
-    M##  Model contributions: full formal models, logics, proof theories,
-         metatheories, and self-contained formal systems.
 
-    P##  Problem-solving contributions: achieved proofs of named open problems,
-         conjectures, challenges, or externally specified mathematical targets.
+2 - Package Classes
+    ---------------
 
-    S##  Semantic support packages: semantics, interpretations, realizability
-         translations, models of problem meaning, and interfaces explaining how
-         an external statement is represented inside a formal development.
+    A###  Algorithmic contributions: certified algorithms, checkers, and
+          effective methods.
 
-2 - Canonicals
-    ----------
+    L###  Lemmatic contributions: lemmas, theorems, reductions,
+          metatheorems, separations, and reusable formal constructions.
 
-    Each theory package is presented as a sequential formal development. The
-    early files introduce premises, definitions, and implementation lemmas; the
-    later files expose theorem interfaces, examples, and generated artifacts.
+    M###  Model contributions: formal models, logics, proof theories,
+          metatheories, and self-contained formal systems.
 
-    The following file roles are reserved for package-level boundaries:
+    P###  Problem-solving contributions: proofs of named open problems,
+          conjectures, challenges, or externally specified targets.
 
-      00_Premises       Shared imports, vocabulary, and neutral definitions.
+    S###  Semantic support packages: semantics, interpretations,
+          realizability translations, and bridges explaining how external
+          statements are represented inside a formal development.
+
+    A class describes the package's principal contribution, not every file it
+    may contain. Not every reserved class is currently instantiated.
+
+
+3 - Package README Contract
+    -----------------------
+
+    Every package README follows the same section order:
+
+      1  Summary          Headline construction and primary theorems.
+      2  Reading Contract Literal meanings, assumptions, and excluded readings.
+      3  State            Current evaluation and review status.
+      4  Intuition        Informal explanation of the construction.
+      5  Dependency Tree  Import order within and across packages.
+      6  File Guide       Responsibility of every source and appendix area.
+      7  Public API       Stable import and principal exported names.
+      8  Notes            Operational guidance and remaining boundaries.
+
+    The Reading Contract is normative: interpretive language elsewhere in a
+    package must be read through the definitions and limitations stated there.
+
+
+4 - Canonical File Roles
+    --------------------
+
+    Packages are ordered by dependency. These names are reserved for common
+    boundaries; not every package contains every role.
+
+      00_Premises       Shared imports, primitive vocabulary, and neutral
+                        definitions.
+
+      01--90            Mathematical or computational development in dependency
+                        order.
+
       91_Multiplexing/  Obligations and exports controlled by a switch.
-      92_Constructor    Construction of payloads from theorem surface.
-      93_Construct/     Concrete export-facing payload.
-      94_IO             Effective Input/Output.
-      95_API            Stable import surface for other packages.
-      96_QED            Final theorem closure for the package and reports.
-      97_Artifacts      Ocaml artifact extraction commands.
-      98_Sanity         Local consistency and smoke checks.
-      98_Sanity/        Local consistency and smoke checks for a payload.
+
+      92_Constructor    Construction of export payloads from theorem surfaces.
+
+      93_Construct/     Concrete export-facing payloads.
+
+      94_IO             Effective input/output and dispatcher surfaces.
+
+      95_API            Stable import surface for downstream packages.
+
+      96_QED            Optional legacy final theorem closure.
+
+      97_Artifacts      Certified package endpoints, assumption reports, and/or
+                        extraction commands. Artifact responsibilities are
+                        listed precisely in each package README.
+
+      98_Sanity         Compile-time probes, closed computations, and smoke
+                        checks.
+
+      98_Sanity/        Payload-specific smoke checks.
+
       99_Exposition     Examples and demonstrations.
 
-    Note that not every package contains every boundary file.
-
-    File order follows proof dependency and computational cost. Expensive
-    artifact generation is isolated near the end of a package, after the
-    mathematical theorem surface it reports on.
+    Expensive or write-producing artifact generation belongs after the stable
+    theorem surface. Downstream theories should normally import `95_API`, not
+    artifact or sanity files.
 
 
-3 - Index
-    -----
+5 - Dependency Tree
+    ---------------
 
-    A001
+                         Stdlib
+                        /      \
+                       ▼        ▼
+                     A001     M001
+                       ▼        ▼
+                     A002     L001
+                                ▼
+                              L002
 
-      CARRYLESS PAIRING
+    A001/A002 form the arithmetic and serialized-checker branch. M001/L001/L002
+    form the regulator, fixed-point, and mirror branch. No dependency currently
+    crosses between these branches.
 
-      Certified pairing and unpairing of natural numbers using the Fibonacci
-      base.
 
-    A002
+6 - Package Index
+    -------------
 
-      CARRYLESS SEQUENT
+    A001  CARRYLESS PAIRING
 
-      Certified verification of closed implicational Hilbert sequents, with
-      normalized proof checking and A001 carryless arithmetic serialization.
+      Certified injective pairing and total decoding of natural numbers using
+      disjoint bands in Zeckendorf/Fibonacci support.
 
-    M001
+    A002  CARRYLESS SEQUENT
 
-      REGULATOR THEORY
+      Certified verification of normalized implicational Hilbert derivations,
+      with A001-based natural-number serialization.
 
-      A constructive framework for finite, syntactic, Boolean-checkable
-      derivability between objects.
+    M001  CONSTRUCTIVE REGULATOR THEORY
 
-    L001
+      Finite-certificate checking and proof transformation for a closed
+      implication/falsity Hilbert system, together with abstract closure and
+      evaluation interfaces.
 
-      APORETIC FIXED POINT
+    L001  APORETIC LEMMA
 
-      A constructive fixed-point, collapse, and obstruction layer over the
-      M001 regulator substrate.
+      Constructive fixed-point, branch-collapse, and consistency-obstruction
+      results over generic and M001 closure predicates.
 
-    L002
+    L002  SYMBOLIC REGULATION
 
-      SYMBOLIC REGULATION
+      Separation of collapsing full fixed points from consistency-relative
+      one-way mirror positions, with finite recursive transport and optional
+      operational interfaces.
 
-      A constructive mirror obstruction for consistent embedded models, with
-      witnessed control questions and finite `yes`-or-reentry behavior.
+
+7 - Import and Artifact Policy
+    --------------------------
+
+    Stable downstream imports use the package API:
+
+      From A001 Require Import A001_95_API.
+      From A002 Require Import A002_95_API.
+      From M001 Require Import M001_95_API.
+      From L001 Require Import L001_95_API.
+      From L002 Require Import L002_95_API.
+
+    `_appendix/_assumptions/` contains redirected assumption reports.
+    `_appendix/_artifacts/` contains extracted or generated deliverables.
+    Package READMEs identify empirical companions and other non-certified files
+    explicitly.

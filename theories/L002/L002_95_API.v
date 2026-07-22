@@ -114,6 +114,24 @@ Definition CODED_RECOGNITION_EVIDENCE_SPECIFICATION_CONTRACT : Prop :=
 
 (*
 │
+│          Stronger explanatory specification: in M001, K makes the
+│          coded evidence `A -> not A` equivalent at the derivability
+│          level to `not A` itself. This precision contract is
+│          additive and does not change the shape of the legacy
+│          aggregate witnesses.
+│
+*)
+
+Definition CODED_RECOGNITION_REFUTATION_SPECIFICATION_CONTRACT : Prop :=
+  forall (M : RegulatorTheory)
+         (Gamma : Context)
+         (A : Formula),
+    CodedRecognitionAccepted M Gamma A <->
+    regulator_theory_checked_derivable M Gamma
+      (formula_negation A).
+
+(*
+│
 │          The regulated-assumption contract packages every `AsIF`
 │          formula as explicitly assumption-licensed content.
 │

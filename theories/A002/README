@@ -12,7 +12,25 @@
       - `certified_verify_accept_sound`: arithmetic acceptance implies validity
 
 
-2 - State
+2 - Reading Contract
+    ----------------
+
+    A002 verifies supplied finite derivations; it does not search for proofs.
+    `NormalizedProof` is a syntactic K/S/MP judgment, and checker acceptance
+    establishes that judgment rather than semantic validity in an external
+    model.
+
+    The normalized layer is the mathematical core. The natural-number layer is
+    a serialization boundary built on A001 pairing. Canonicality guards ensure
+    that only arithmetic codes which re-encode exactly are interpreted as
+    syntax. Total A001 decoding alone is never treated as evidence that an
+    arbitrary natural number was a canonical formula or derivation code.
+
+    Formula variables are inert natural-number labels. There is no context,
+    assumption rule, semantic valuation, or proof-search procedure in A002.
+
+
+3 - State
     -----
 
                       ┌──────────────────────────────────┐
@@ -24,7 +42,7 @@
     tactics and prose are not optimal. Not peer reviewed.
 
 
-3 - Intuition
+4 - Intuition
     ---------
 
     A normalized derivation is a list of formulas annotated with one of three
@@ -43,8 +61,10 @@
     formula must equal the requested target.
 
       lines, target
+
            │
            ▼
+           
       normalized_verifyb ── true ──▶ NormalizedProof lines target
 
     This correspondence is exact:
@@ -68,8 +88,8 @@
     quotation accepted by `A002_Verify_certified`.
 
 
-4 - Tree
-    ----
+5 - Dependency Tree
+    ---------------
 
     Stdlib
      ▼
@@ -90,8 +110,8 @@
     A002_98_Sanity
 
 
-5 - Files
-    -----
+6 - File Guide
+    ----------
 
     A002_00_Premises.v
 
@@ -138,10 +158,10 @@
       Redirected `Print Assumptions` output for the public theorem surface.
 
 
-6 - API
-    ---
+7 - Public API
+    ----------
 
-    The public theorem surface is exposed by
+    The stable downstream import is:
 
       `From A002 Require Import A002_95_API.`
 
@@ -182,18 +202,18 @@
 
       A002_Verify_certified   : nat -> nat -> nat                           (02)
       A002_Certified_Certb    : nat -> nat -> nat -> bool                   (02)
-      normalize_formula      : nat -> option NormalizedFormula             (02)
-      normalize_derivation   : nat -> option NormalizedDerivation          (02)
-      encode_normalized_formula : NormalizedFormula -> nat                 (02)
-      encode_normalized_derivation : NormalizedDerivation -> nat           (02)
-      certified_payload      : nat -> nat -> nat                           (02)
-      canonical001b          : nat -> bool                                 (00)
+      normalize_formula      : nat -> option NormalizedFormula              (02)
+      normalize_derivation   : nat -> option NormalizedDerivation           (02)
+      encode_normalized_formula : NormalizedFormula -> nat                  (02)
+      encode_normalized_derivation : NormalizedDerivation -> nat            (02)
+      certified_payload      : nat -> nat -> nat                            (02)
+      canonical001b          : nat -> bool                                  (00)
 
     Dispatcher and inspection:
 
-      A002_IO_Query, A002_IO_Result                                        (94)
-      A002_IO          : A002_IO_Query -> A002_IO_Result                   (94)
-      A002_IO_Z        : A002_IO_Query -> A002_IO_Result_Z                 (94)
+      A002_IO_Query, A002_IO_Result                                         (94)
+      A002_IO          : A002_IO_Query -> A002_IO_Result                    (94)
+      A002_IO_Z        : A002_IO_Query -> A002_IO_Result_Z                  (94)
 
     Certified theorems:
 
@@ -218,7 +238,7 @@
             (encode_normalized_derivation lines)
             (encode_normalized_formula target))
 
-7 - Notes
+8 - Notes
     -----
 
     The normalized layer is the preferred checking surface: formulas and lists

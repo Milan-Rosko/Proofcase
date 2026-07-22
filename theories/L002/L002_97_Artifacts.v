@@ -91,6 +91,20 @@ Qed.
 
 (*
 │
+│          Additive precision endpoint: coded recognition is exactly
+│          checked refutability. It is certified separately so
+│          existing aggregate contract shapes remain stable.
+│
+*)
+
+Theorem certified_coded_recognition_refutation_specification_contract :
+  CODED_RECOGNITION_REFUTATION_SPECIFICATION_CONTRACT.
+Proof.
+  exact coded_recognition_acceptance_iff_refutation.
+Qed.
+
+(*
+│
 │          Certification endpoint for regulated assumptions.
 │
 *)

@@ -3,8 +3,8 @@
 1 - Summary
     -------
 
-    L002 formalizes a mirror obstruction over M001 checked derivability. It
-    separates:
+    L002 formalizes SYMBOLIC REGULATION: a mirror obstruction over M001 checked
+    derivability. It separates:
 
       - a full negation fixed point, which derives `Bot`; and
       - a one-way mirror `formula_negation chi -> chi`, where consistency gives
@@ -24,8 +24,11 @@
     through compatibility corollaries.
 
     `AsIF` means only that `M` has no checked derivation of `¬chi`.
-    `CodedRecognitionAccepted` is equivalent to checked derivability of the
-    missing direction `chi -> ¬chi`.
+    `CodedRecognitionAccepted` is equivalent both to checked derivability of
+    the advertised evidence `chi -> ¬chi` and, by K plus re-entry, to checked
+    derivability of `¬chi` itself. Thus coded recognition is a finite
+    certificate surface for refutability; the one-way mirror supplies the
+    opposite direction `¬chi -> chi`.
 
     `L002_CORE_CONTRACT` contains the minimal goal-frame bridge, local mirror
     and coded-recognition results, and pointwise-local finite-depth transport.
@@ -33,7 +36,27 @@
     externalization remain separately certified optional interfaces.
 
 
-2 - State
+2 - Reading Contract
+    ----------------
+
+    `External` means metatheoretically supplied, not externally caused.
+    `ExternalMirrorPosition M Gamma chi` is exactly checked derivability of the
+    one-way implication `¬chi -> chi`. L002 does not construct this live
+    position from L001: L001 supplies the stronger two-way fixed point, which
+    collapses M001 derivability to `Bot`.
+
+    `AsIF M Gamma chi` means only that `M` has no checked derivation of `¬chi`.
+    Coded recognition is exactly checked refutability, presented through a
+    finite certificate interface. Mirror consistency and local consistency are
+    explicit hypotheses, not established semantics for a concrete model.
+
+    Recursive formulas are finite iterates indexed by `nat`. Response values,
+    attribution labels, provenance tags, and externalization relations have
+    only the behavior required by their declared interfaces; no causal,
+    epistemic, or infinite-execution interpretation is implicit.
+
+
+3 - State
     -----
 
                       ┌──────────────────────────────────┐
@@ -45,7 +68,7 @@
     interfaces remain abstract. Not peer reviewed.
 
 
-3 - Intuition
+4 - Intuition
     ---------
 
     L002 distinguishes two related but unequal positions.
@@ -94,8 +117,8 @@
     layers are separate interfaces built over this finite theorem core.
 
 
-4 - Tree
-    ----
+5 - Dependency Tree
+    ---------------
 
     M001_95_API
      ▼
@@ -116,8 +139,8 @@
     L002_98_Sanity
 
 
-5 - Files
-    -----
+6 - File Guide
+    ----------
 
     L002_00_Premises.v
 
@@ -150,12 +173,14 @@
       Compile-time probes of the public surface.
 
 
-6 - API
-    ---
+7 - Public API
+    ----------
 
-    Import the API with:
+    The stable downstream import is:
 
-      From L002 Require Import L002_95_API.
+      `From L002 Require Import L002_95_API.`
+
+    Public surface by use case:
 
     Core mirror:
 
@@ -176,8 +201,10 @@
       CodedRecognitionCertificate
       CodedRecognitionAccepted
       coded_recognition_acceptance_iff_evidence
+      coded_recognition_acceptance_iff_refutation
       coded_recognition_acceptance_excluded_local
       coded_recognition_acceptance_excluded
+      CODED_RECOGNITION_REFUTATION_SPECIFICATION_CONTRACT
 
     Recursive core:
 
@@ -210,11 +237,15 @@
     `_appendix/_assumptions`.
 
 
-7 - Notes
+8 - Notes
     -----
 
     `External` means metatheoretically supplied. In particular, the one-way
     mirror is not produced by the collapsing L001 full-fixed-point theorem.
+
+    `Recognition` in the coded core has the exact proof-theoretic meaning
+    exposed by `coded_recognition_acceptance_iff_refutation`; no independent
+    epistemic interpretation is added by the name.
 
     `MirrorLocallyConsistent` is the formula-local consistency premise used by
     the core proofs. `MirrorConsistent` is stronger and supplies the legacy

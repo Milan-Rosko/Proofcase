@@ -28,6 +28,12 @@ let rec app l m =
   | Nil -> m
   | Cons (a, l1) -> Cons (a, (app l1 m))
 
+(** val pred : nat -> nat **)
+
+let pred n = match n with
+| O -> n
+| S u -> u
+
 (** val add : nat -> nat -> nat **)
 
 let rec add n m =
@@ -52,6 +58,12 @@ module Nat =
     leb (S n) m
  end
 
+(** val map : ('a1 -> 'a2) -> 'a1 list -> 'a2 list **)
+
+let rec map f = function
+| Nil -> Nil
+| Cons (a, l0) -> Cons ((f a), (map f l0))
+
 (** val nth_error : 'a1 list -> nat -> 'a1 option **)
 
 let rec nth_error l = function
@@ -67,11 +79,6 @@ type formula =
 | Imp of formula * formula
 
 type context = formula list
-
-(** val ctx_extend : formula -> context -> context **)
-
-let ctx_extend a gamma =
-  Cons (a, gamma)
 
 type axiomSet =
   formula -> bool
@@ -283,12 +290,6 @@ let proof_line_valid_bool r gamma prefix line =
       | True -> mp_valid_bool prefix i j phi
       | False -> False))
 
-(** val proof_line_check_bool :
-    regulatorTheory -> context -> proofLine list -> proofLine -> bool **)
-
-let proof_line_check_bool =
-  proof_line_valid_bool
-
 (** val proof_script_check_from_bool :
     regulatorTheory -> context -> proofLine list -> proofLine list -> bool **)
 
@@ -324,13 +325,6 @@ let finite_axiom_set_to_regulator_theory profile t =
 let finite_axiom_set_check_bool profile t gamma p a =
   regulator_theory_check_bool
     (finite_axiom_set_to_regulator_theory profile t) gamma p a
-
-(** val regulator_theory_check_minimal_bool :
-    axiomSet -> context -> proof -> formula -> bool **)
-
-let regulator_theory_check_minimal_bool t gamma p a =
-  regulator_theory_check_bool
-    (regulator_theory_with_axiom_set Regulator_profile_minimal t) gamma p a
 
 (** val k_axiom_formula : formula -> formula -> formula **)
 
@@ -487,161 +481,47 @@ let rec deduction_transform_lines a source_prefix todo st =
 let regulator_theory_deduction_transform a p =
   (deduction_transform_lines a Nil p deduction_state_empty).deduction_state_output
 
-(** val formula_negation : formula -> formula **)
-
-let formula_negation a =
-  Imp (a, Bot)
-
 (** val regulator_theory_reductio_transform : formula -> proof -> proof **)
 
 let regulator_theory_reductio_transform =
   regulator_theory_deduction_transform
 
-type computedReductioCertificate = { computed_reductio_assumption : formula;
-                                     computed_reductio_contradiction_proof : 
-                                     proof }
+(** val proof_script_shift_index : nat -> nat -> nat **)
 
-(** val computed_reductio_certificate_proof :
-    computedReductioCertificate -> proof **)
+let proof_script_shift_index =
+  add
 
-let computed_reductio_certificate_proof c =
-  regulator_theory_reductio_transform c.computed_reductio_assumption
-    c.computed_reductio_contradiction_proof
+(** val proof_script_shift_justification :
+    nat -> justification -> justification **)
 
-(** val make_computed_reductio_certificate :
-    formula -> proof -> computedReductioCertificate **)
+let proof_script_shift_justification offset = function
+| J_MP (i, k) ->
+  J_MP ((proof_script_shift_index offset i),
+    (proof_script_shift_index offset k))
+| x -> x
 
-let make_computed_reductio_certificate a p =
-  { computed_reductio_assumption = a; computed_reductio_contradiction_proof =
-    p }
+(** val proof_script_shift_line : nat -> proofLine -> proofLine **)
 
-type pairedReductioCertificate = { paired_reductio_assumption : formula;
-                                   paired_reductio_contradiction_proof : 
-                                   proof; paired_reductio_proof : proof }
+let proof_script_shift_line offset line =
+  { line_formula = line.line_formula; line_justification =
+    (proof_script_shift_justification offset line.line_justification) }
 
-(** val computed_reductio_certificate_check_bool :
-    regulatorTheory -> context -> computedReductioCertificate -> bool **)
+(** val proof_script_shift : nat -> proof -> proof **)
 
-let computed_reductio_certificate_check_bool r gamma c =
-  let a = c.computed_reductio_assumption in
-  let p = c.computed_reductio_contradiction_proof in
-  (match regulator_theory_check_bool r (ctx_extend a gamma) p Bot with
-   | True ->
-     regulator_theory_check_bool r gamma
-       (computed_reductio_certificate_proof c) (formula_negation a)
-   | False -> False)
+let proof_script_shift offset p =
+  map (proof_script_shift_line offset) p
 
-(** val paired_reductio_certificate_check_bool :
-    regulatorTheory -> context -> pairedReductioCertificate -> bool **)
+(** val proof_script_last_index : proof -> nat **)
 
-let paired_reductio_certificate_check_bool r gamma c =
-  let a = c.paired_reductio_assumption in
-  (match regulator_theory_check_bool r (ctx_extend a gamma)
-           c.paired_reductio_contradiction_proof Bot with
-   | True ->
-     regulator_theory_check_bool r gamma c.paired_reductio_proof
-       (formula_negation a)
-   | False -> False)
+let proof_script_last_index p =
+  pred (length p)
 
-type rawReductioCertificate = { raw_reductio_profile : regulatorLogicProfile;
-                                raw_reductio_axiom_set : finiteAxiomSet;
-                                raw_reductio_context : context;
-                                raw_reductio_assumption : formula;
-                                raw_reductio_contradiction_proof : proof;
-                                raw_reductio_proof : proof }
+(** val regulator_theory_mp_compose : formula -> proof -> proof -> proof **)
 
-(** val raw_reductio_regulator_theory :
-    rawReductioCertificate -> regulatorTheory **)
-
-let raw_reductio_regulator_theory c =
-  finite_axiom_set_to_regulator_theory c.raw_reductio_profile
-    c.raw_reductio_axiom_set
-
-(** val raw_to_paired_reductio_certificate :
-    rawReductioCertificate -> pairedReductioCertificate **)
-
-let raw_to_paired_reductio_certificate c =
-  { paired_reductio_assumption = c.raw_reductio_assumption;
-    paired_reductio_contradiction_proof = c.raw_reductio_contradiction_proof;
-    paired_reductio_proof = c.raw_reductio_proof }
-
-(** val raw_reductio_certificate_check_bool :
-    rawReductioCertificate -> bool **)
-
-let raw_reductio_certificate_check_bool c =
-  paired_reductio_certificate_check_bool (raw_reductio_regulator_theory c)
-    c.raw_reductio_context (raw_to_paired_reductio_certificate c)
-
-(** val make_raw_reductio_certificate :
-    regulatorLogicProfile -> finiteAxiomSet -> context -> formula -> proof ->
-    rawReductioCertificate **)
-
-let make_raw_reductio_certificate profile fT gamma a p =
-  { raw_reductio_profile = profile; raw_reductio_axiom_set = fT;
-    raw_reductio_context = gamma; raw_reductio_assumption = a;
-    raw_reductio_contradiction_proof = p; raw_reductio_proof =
-    (regulator_theory_reductio_transform a p) }
-
-type regulatorInstruction =
-| Regulator_instruction_assumption of formula
-| Regulator_instruction_axiom of formula
-| Regulator_instruction_mp of nat * nat * formula
-
-(** val regulator_instruction_output : regulatorInstruction -> formula **)
-
-let regulator_instruction_output = function
-| Regulator_instruction_assumption a -> a
-| Regulator_instruction_axiom a -> a
-| Regulator_instruction_mp (_, _, b) -> b
-
-(** val regulator_instruction_to_line : regulatorInstruction -> proofLine **)
-
-let regulator_instruction_to_line = function
-| Regulator_instruction_assumption a -> pl_assumption a
-| Regulator_instruction_axiom a -> pl_axiom a
-| Regulator_instruction_mp (i, j, b) -> pl_mp b i j
-
-(** val proof_line_to_regulator_instruction :
-    proofLine -> regulatorInstruction **)
-
-let proof_line_to_regulator_instruction line =
-  match line.line_justification with
-  | J_Assumption -> Regulator_instruction_assumption line.line_formula
-  | J_Axiom -> Regulator_instruction_axiom line.line_formula
-  | J_MP (i, j) -> Regulator_instruction_mp (i, j, line.line_formula)
-
-(** val regulator_instruction_valid_bool :
-    regulatorTheory -> context -> proofLine list -> regulatorInstruction ->
-    formula -> bool **)
-
-let regulator_instruction_valid_bool r gamma prefix instr b =
-  match instr with
-  | Regulator_instruction_assumption a ->
-    (match formula_eq_bool a b with
-     | True -> ctx_mem_bool a gamma
-     | False -> False)
-  | Regulator_instruction_axiom a ->
-    (match formula_eq_bool a b with
-     | True -> available_axiom_bool r a
-     | False -> False)
-  | Regulator_instruction_mp (i, j, a) ->
-    (match match match formula_eq_bool a b with
-                 | True -> Nat.ltb i (length prefix)
-                 | False -> False with
-           | True -> Nat.ltb j (length prefix)
-           | False -> False with
-     | True -> mp_valid_bool prefix i j a
-     | False -> False)
-
-(** val regulator_theory_regulates_bool :
-    regulatorTheory -> context -> proof -> formula -> bool **)
-
-let regulator_theory_regulates_bool =
-  regulator_theory_check_bool
-
-(** val finite_axiom_set_regulates_bool :
-    regulatorLogicProfile -> finiteAxiomSet -> context -> proof -> formula ->
-    bool **)
-
-let finite_axiom_set_regulates_bool =
-  finite_axiom_set_check_bool
+let regulator_theory_mp_compose b p_imp p_arg =
+  let offset = length p_imp in
+  let shifted_arg = proof_script_shift offset p_arg in
+  app (app p_imp shifted_arg) (Cons
+    ((pl_mp b (proof_script_last_index p_imp)
+       (add offset (proof_script_last_index p_arg))),
+    Nil))

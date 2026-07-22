@@ -14,15 +14,11 @@
 
   OVERVIEW
 
-  Public L001 vocabulary and package contracts. Import `L001_97_Artifacts`
-  only for certified endpoints and assumption reports.
-
-  `ClosureTheory` is a bare formula predicate; regulator instances and all
-  closure properties remain explicit.
-
-  The live endpoint is goal-restricted. `ClosureDecision` gives internally
-  certified positive or negative acceptance; the README fixes the
-  corresponding undecidability convention.
+  The six canonical L001 contracts together with the derived goal-relative,
+  branchwise, local-detachment, and fixed-point-gap endpoints. The
+  strengthenings remain ordinary public theorems and do not enlarge the
+  aggregate contract. This API contains no legacy contract names, full-frame
+  wrappers, regulator restatements, or duplicate decision surfaces.
 
 *)
 
@@ -31,39 +27,36 @@ From L001 Require Export L001_02__Aporetic_Obstruction.
 (*
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │                                                                              │
-│                            PUBLIC CLOSURE ALIASES                            │
+│                              DERIVED ENDPOINTS                               │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
+
+  The cumulative export above exposes `closure_modus_ponens_detachment_at`,
+  `branchwise_goal_relative_collapse`, `goal_relative_branch_collapse`, and
+  `fixedpoint_gap`. They refine the local-collapse dependency boundary
+  without adding clauses to `L001_CONTRACT`.
+
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                              PUBLIC VOCABULARY                               │
 │                                                                              │
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
 (*
 │
-│          A closure theory is a formula-indexed predicate. This alias
-│          is only a stable public spelling for the existing primitive
-│          shape.
+│          A closure theory is only a formula-indexed proposition.
 │
 *)
 
 Definition ClosureTheory : Type := Formula -> Prop.
 
-(*
-│
-│          Stable public spelling for a closure-level negation fixed
-│          point.
-│
-*)
-
 Definition ClosureNegationFixedPoint
     (C : ClosureTheory)
     (B : Formula) : Prop :=
   NegationFixedPointFor C B.
-
-(*
-│
-│          Stable public spelling for local internal bivalence at a
-│          fixed formula.
-│
-*)
 
 Definition ClosureLocalLEM
     (C : ClosureTheory)
@@ -71,45 +64,21 @@ Definition ClosureLocalLEM
   ClosureLocalExcludedMiddle C B.
 
 (*
-│
-│          Stable API alias for the internally witnessed Boolean
-│          acceptance decision.
-│
-*)
-
-Definition ClosureDecider
-    (C : ClosureTheory) : Type :=
-  ClosureDecision C.
-
-(*
-│
-│          Propositional existence of a closure decider.
-│
-*)
-
-Definition ClosureDeciderExists
-    (C : ClosureTheory) : Prop :=
-  exists D : ClosureDecider C,
-    True.
-
-(*
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │                                                                              │
-│                               PUBLIC CONTRACT                                │
+│                                  CONTRACTS                                   │
 │                                                                              │
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
 (*
 │
-│          Core local collapse contract. A supplied
-│          closure-equivalence negation fixed point and local internal
-│          bivalence at that formula collapse to accepted bottom under
-│          modus ponens.
+│          The local branch and fixed-point data collapse to accepted
+│          bottom.
 │
 *)
 
-Definition APORETIC_LOCAL_BRANCH_COLLAPSE_CONTRACT : Prop :=
+Definition LOCAL_COLLAPSE : Prop :=
   forall (C : ClosureTheory) (B : Formula),
     ClosureModusPonens C ->
     ClosureNegationFixedPoint C B ->
@@ -118,12 +87,11 @@ Definition APORETIC_LOCAL_BRANCH_COLLAPSE_CONTRACT : Prop :=
 
 (*
 │
-│          Core local obstruction contract. Consistency turns the
-│          local branch collapse into contradiction.
+│          Consistency turns the local collapse into contradiction.
 │
 *)
 
-Definition APORETIC_CORE_DIAGONAL_OBSTRUCTION_CONTRACT : Prop :=
+Definition LOCAL_OBSTRUCTION : Prop :=
   forall (C : ClosureTheory) (B : Formula),
     ClosureModusPonens C ->
     ClosureConsistent C ->
@@ -133,13 +101,12 @@ Definition APORETIC_CORE_DIAGONAL_OBSTRUCTION_CONTRACT : Prop :=
 
 (*
 │
-│          Goal-restricted anti-diagonal production contract. The
-│          bottom goal frame is enough to produce the local diagonal
-│          datum.
+│          The bottom goal frame supplies the required negation fixed
+│          point.
 │
 *)
 
-Definition APORETIC_EVAL_BOTTOM_NEGFIXP_CONTRACT : Prop :=
+Definition NEGATION_DIAGONAL : Prop :=
   forall (C : ClosureTheory) Code
          (ev : Code -> Code -> Formula),
     ClosureEvaluationFrameForGoal C Code ev Bot ->
@@ -148,286 +115,57 @@ Definition APORETIC_EVAL_BOTTOM_NEGFIXP_CONTRACT : Prop :=
 
 (*
 │
-│          Full-frame-to-goal-frame contract. Full evaluation is only
-│          a sufficient route to the bottom goal frame.
+│          A signed classifier is incompatible with a consistent
+│          closure at a supplied negation fixed point.
 │
 *)
 
-Definition APORETIC_EVAL_FULL_TO_EVAL_BOTTOM_CONTRACT : Prop :=
-  forall (C : ClosureTheory) Code
-         (E : ClosureEvaluationFrame C Code),
-    ClosureEvaluationFrameForGoal C Code (ceval_apply E) Bot.
-
-(*
-│
-│          Evaluation closure supplies a formula equivalent, inside
-│          the closure predicate, to its own object-level negation.
-│          This is retained as a corollary-level compatibility
-│          contract.
-│
-*)
-
-Definition APORETIC_FIXED_POINT_CONTRACT : Prop :=
-  forall (C : ClosureTheory) Code
-         (E : ClosureEvaluationFrame C Code),
-    exists B : Formula,
-      ClosureNegationFixedPoint C B.
-
-(*
-│
-│          Full-frame obstruction corollary: full evaluation and
-│          global excluded middle recover the local configuration and
-│          hence contradict consistency.
-│
-*)
-
-Definition APORETIC_FULL_FRAME_OBSTRUCTION_COROLLARY_CONTRACT : Prop :=
-  forall (C : ClosureTheory) Code
-         (E : ClosureEvaluationFrame C Code),
-    ClosureConsistent C ->
-    ClosureModusPonens C ->
-    ClosureExcludedMiddle C ->
-    False.
-
-(*
-│
-│          Evaluation closure plus closure-level excluded middle
-│          collapses to bottom inside the same closure predicate. This
-│          is retained as a corollary-level compatibility contract.
-│
-*)
-
-Definition APORETIC_EXCLUDED_MIDDLE_COLLAPSE_CONTRACT : Prop :=
-  forall (C : ClosureTheory) Code
-         (E : ClosureEvaluationFrame C Code),
-    ClosureModusPonens C ->
-    ClosureExcludedMiddle C ->
-    exists B : Formula,
-      ClosureNegationFixedPoint C B /\
-      (C B \/ C (formula_negation B)) /\
-      C Bot.
-
-(*
-│
-│          If the same closure is externally consistent, closure-level
-│          excluded middle is impossible under evaluation closure.
-│
-*)
-
-Definition APORETIC_EXCLUDED_MIDDLE_OBSTRUCTION_CONTRACT : Prop :=
-  forall (C : ClosureTheory) Code
-         (E : ClosureEvaluationFrame C Code),
-    ClosureConsistent C ->
-    ClosureModusPonens C ->
-    ClosureExcludedMiddle C ->
-    False.
-
-(*
-│
-│          A Boolean positive/negative accepted-branch classifier
-│          supplies closure-level excluded-middle completeness, so it
-│          also collapses the closure to bottom under evaluation
-│          closure.
-│
-*)
-
-Definition APORETIC_DECISION_COLLAPSE_CONTRACT : Prop :=
-  forall (C : ClosureTheory) Code
-         (E : ClosureEvaluationFrame C Code),
-    ClosureModusPonens C ->
-    ClosureDecision C ->
-    exists B : Formula,
-      ClosureNegationFixedPoint C B /\
-      (C B \/ C (formula_negation B)) /\
-      C Bot.
-
-(*
-│
-│          The decision-obstruction contract is the ad absurdum form:
-│          under evaluation closure, modus-ponens closure, and
-│          consistency, a total Boolean positive/negative
-│          accepted-branch classifier cannot exist.
-│
-*)
-
-Definition APORETIC_DECISION_OBSTRUCTION_CONTRACT : Prop :=
-  forall (C : ClosureTheory) Code
-         (E : ClosureEvaluationFrame C Code),
-    ClosureConsistent C ->
-    ClosureModusPonens C ->
-    ClosureDecision C ->
-    False.
-
-(*
-│
-│          Equivalence/ad-absurdum endpoint. Once a formula `B` is
-│          equivalent inside the closure to `formula_negation B`, any
-│          total Boolean positive/negative accepted-branch classifier
-│          contradicts consistency. This statement isolates the final
-│          reductio step from the evaluation machinery that produces
-│          `B`.
-│
-*)
-
-Definition APORETIC_EQUIVALENCE_AD_ABSURDUM_IMPOSSIBILITY_CONTRACT : Prop :=
+Definition SIGNED_OBSTRUCTION : Prop :=
   forall (C : ClosureTheory) (B : Formula),
     ClosureConsistent C ->
     ClosureModusPonens C ->
     ClosureNegationFixedPoint C B ->
-    ClosureDecision C ->
+    ClosureSignedClassification C ->
     False.
 
 (*
 │
-│          Classifier-existence endpoint under the stable `Decider`
-│          name. If some function provides the Boolean
-│          positive/negative accepted-branch record, then no such
-│          function exists under the evaluation, modus-ponens closure,
-│          and consistency hypotheses.
+│          The corresponding membership obstruction keeps refutation
+│          completeness explicit.
 │
 *)
 
-Definition APORETIC_DECIDER_IMPOSSIBILITY_CONTRACT : Prop :=
-  forall (C : ClosureTheory) Code
-         (E : ClosureEvaluationFrame C Code),
-    ClosureConsistent C ->
-    ClosureModusPonens C ->
-    ClosureDeciderExists C ->
-    False.
-
-(*
-│
-│          Complete package contract certified by `L001_97_Artifacts`.
-│
-*)
-
-Definition APORETIC_LEMMA_CONTRACT : Prop :=
-  APORETIC_LOCAL_BRANCH_COLLAPSE_CONTRACT /\
-  APORETIC_CORE_DIAGONAL_OBSTRUCTION_CONTRACT /\
-  APORETIC_EVAL_BOTTOM_NEGFIXP_CONTRACT /\
-  APORETIC_EVAL_FULL_TO_EVAL_BOTTOM_CONTRACT /\
-  APORETIC_FULL_FRAME_OBSTRUCTION_COROLLARY_CONTRACT /\
-  APORETIC_FIXED_POINT_CONTRACT /\
-  APORETIC_EXCLUDED_MIDDLE_COLLAPSE_CONTRACT /\
-  APORETIC_EXCLUDED_MIDDLE_OBSTRUCTION_CONTRACT /\
-  APORETIC_DECISION_COLLAPSE_CONTRACT /\
-  APORETIC_DECISION_OBSTRUCTION_CONTRACT /\
-  APORETIC_EQUIVALENCE_AD_ABSURDUM_IMPOSSIBILITY_CONTRACT /\
-  APORETIC_DECIDER_IMPOSSIBILITY_CONTRACT.
-
-Definition WITNESS : Prop :=
-  APORETIC_LEMMA_CONTRACT.
-
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                                                              │
-│                            CONTRADICTION SURFACE                             │
-│                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
-*)
-
-(*
-│
-│          Stable contradiction-shaped surface for the L001 reductio
-│          endpoints. Each lemma is a one-line `exact` referring to
-│          the underlying obstruction theorem in
-│          `L001_02__Aporetic_Obstruction`; no new mathematics is
-│          introduced. Names follow the pattern
-│          `*_contradiction_from_*`.
-│
-*)
-
-Theorem aporetic_contradiction_from_excluded_middle :
-  forall (C : ClosureTheory) Code
-         (E : ClosureEvaluationFrame C Code),
-    ClosureConsistent C ->
-    ClosureModusPonens C ->
-    ClosureExcludedMiddle C ->
-    False.
-Proof.
-  exact aporetic_obstruction.
-Qed.
-
-Theorem aporetic_contradiction_from_decision :
-  forall (C : ClosureTheory) Code
-         (E : ClosureEvaluationFrame C Code),
-    ClosureConsistent C ->
-    ClosureModusPonens C ->
-    ClosureDecision C ->
-    False.
-Proof.
-  intros C Code E Hcons Hmp D.
-  exact
-    (aporetic_contradiction_from_excluded_middle
-       C Code E Hcons Hmp
-       (decision_to_lem C D)).
-Qed.
-
-Theorem aporetic_contradiction_from_decider :
-  forall (C : ClosureTheory) Code
-         (E : ClosureEvaluationFrame C Code),
-    ClosureConsistent C ->
-    ClosureModusPonens C ->
-    ClosureDeciderExists C ->
-    False.
-Proof.
-  intros C Code E Hcons Hmp [D _].
-  exact (aporetic_contradiction_from_decision C Code E Hcons Hmp D).
-Qed.
-
-Theorem aporetic_contradiction_from_neg_fixed_point :
+Definition MEMBERSHIP_OBSTRUCTION : Prop :=
   forall (C : ClosureTheory) (B : Formula),
     ClosureConsistent C ->
     ClosureModusPonens C ->
     ClosureNegationFixedPoint C B ->
-    ClosureDecision C ->
+    ClosureRefutationComplete C ->
+    ClosureMembershipDecision C ->
     False.
-Proof.
-  intros C B Hcons Hmp Hfix D.
-  exact
-    (negfixp_obstructs_lem
-       C B Hcons Hmp Hfix
-       (decision_to_lem C D)).
-Qed.
 
-Theorem regulator_contradiction_from_excluded_middle :
-  forall profile T Gamma Code
-         (E : RegulatorClosureEvaluationFrame profile T Gamma Code),
-    RegulatorClosureConsistent profile T Gamma ->
-    RegulatorClosureExcludedMiddle profile T Gamma ->
-    False.
-Proof.
-  exact regulator_aporetic_obstruction.
-Qed.
+(*
+│
+│          Negative-only refutation remains inhabited unconditionally.
+│
+*)
 
-Theorem regulator_contradiction_from_decision :
-  forall profile T Gamma Code
-         (E : RegulatorClosureEvaluationFrame profile T Gamma Code),
-    RegulatorClosureConsistent profile T Gamma ->
-    RegulatorDecision profile T Gamma ->
-    False.
-Proof.
-  exact regulator_decision_obstruction.
-Qed.
+Definition REFUTATION_INHABITED : Prop :=
+  forall C : ClosureTheory,
+    exists r : Formula -> bool,
+      (forall A, r A = false) /\
+      (forall A, r A = true -> C (formula_negation A)).
 
-Theorem regulator_contradiction_from_neg_fixed_point :
-  forall profile T Gamma B,
-    RegulatorClosureConsistent profile T Gamma ->
-    RegulatorNegationFixedPoint profile T Gamma B ->
-    RegulatorDecision profile T Gamma ->
-    False.
-Proof.
-  exact negfixp_obstructs_regulator_decision.
-Qed.
+(*
+│
+│          The aggregate contains the six contracts in proof order.
+│
+*)
 
-Theorem regulator_contradiction_from_aporetic_status_yes :
-  forall profile T Gamma Code
-         (E : RegulatorClosureEvaluationFrame profile T Gamma Code)
-         (excluded_middle_status : Formula),
-    RegulatorClosureConsistent profile T Gamma ->
-    YesBranchDecides profile T Gamma excluded_middle_status ->
-    RegulatorClosure profile T Gamma excluded_middle_status ->
-    False.
-Proof.
-  exact aporetic_status_yes_obstructed_lemma.
-Qed.
+Definition L001_CONTRACT : Prop :=
+  LOCAL_COLLAPSE /\
+  LOCAL_OBSTRUCTION /\
+  NEGATION_DIAGONAL /\
+  SIGNED_OBSTRUCTION /\
+  MEMBERSHIP_OBSTRUCTION /\
+  REFUTATION_INHABITED.

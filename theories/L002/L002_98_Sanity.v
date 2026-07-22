@@ -394,6 +394,15 @@ Proof.
   exact coded_recognition_acceptance_iff_evidence.
 Qed.
 
+Example sanity_coded_recognition_refutation_specification :
+  forall M Gamma A,
+    CodedRecognitionAccepted M Gamma A <->
+    regulator_theory_checked_derivable M Gamma
+      (formula_negation A).
+Proof.
+  exact coded_recognition_acceptance_iff_refutation.
+Qed.
+
 Example sanity_recognition_completes_fixed_point_shape :
   forall M Gamma A,
     ExternalMirrorPosition M Gamma A ->

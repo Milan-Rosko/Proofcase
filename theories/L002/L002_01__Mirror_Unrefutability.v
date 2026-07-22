@@ -57,32 +57,6 @@ Proof.
 Qed.
 
 (*
-│
-│          Compatibility corollary: a universal L001 frame supplies
-│          the bottom goal frame.
-│
-*)
-
-Theorem l001_constructs_external_fixed_point :
-  forall (M : RegulatorTheory)
-         (Gamma : Context)
-         Code
-         (E : ClosureEvaluationFrame
-                (regulator_theory_checked_derivable M Gamma)
-                Code),
-    exists chi : Formula,
-      ExternalFixedPoint M Gamma chi.
-Proof.
-  intros M Gamma Code E.
-  exact
-    (l001_goal_frame_constructs_external_fixed_point
-       M Gamma Code (ceval_apply E)
-       (eval_full_to_eval_bottom
-          (regulator_theory_checked_derivable M Gamma)
-          Code E)).
-Qed.
-
-(*
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │                                                                              │
 │                             RECOGNITION RE-ENTRY                             │
@@ -181,6 +155,39 @@ Proof.
   apply regulator_theory_checked_derivable_mp_lemma with (A := A).
   - exact (coded_recognition_acceptance_sound M Gamma A Haccepted).
   - exact (assumption_intro M Gamma A).
+Qed.
+
+(*
+│
+│          Exact recognition/refutation specification. The forward
+│          direction is checked re-entry. Conversely, K lifts any
+│          checked refutation `not A` to the advertised evidence
+│          formula `A -> not A`, which the coded recognition regulator
+│          accepts. Thus coded recognition adds a finite certificate
+│          surface but no stronger proposition than checked
+│          refutability.
+│
+*)
+
+Theorem coded_recognition_acceptance_iff_refutation :
+  forall (M : RegulatorTheory)
+         (Gamma : Context)
+         (A : Formula),
+    CodedRecognitionAccepted M Gamma A <->
+    regulator_theory_checked_derivable M Gamma
+      (formula_negation A).
+Proof.
+  intros M Gamma A.
+  split.
+  - exact (coded_recognition_reenters_regulator M Gamma A).
+  - intro Hrefutation.
+    apply coded_recognition_evidence_acceptance_complete.
+    apply regulator_theory_checked_derivable_mp_lemma
+      with (A := formula_negation A).
+    + unfold coded_recognition_evidence_formula.
+      apply regulator_theory_axiom_checked_derivable_lemma.
+      apply available_axiom_bool_k_lemma.
+    + exact Hrefutation.
 Qed.
 
 (*
@@ -748,42 +755,4 @@ Proof.
        (fixed_regulator_consistency S)
        Hmirror
        (fixed_recognition_adequacy S chi Hmirror)).
-Qed.
-
-(*
-│
-│          Legacy full-frame wrapper with jointly inconsistent
-│          premises. `E` constructs a full fixed point and therefore
-│          `Bot` in `M`; `fixed_regulator_inclusion S` transports that
-│          derivation into `Slambda`, contradicting
-│          `fixed_regulator_consistency S`. Consequently this theorem
-│          is not a live consistency result and is excluded from
-│          `WITNESS`. Use `fixed_regulator_mirror_opacity` with a
-│          supplied `ExternalMirrorPosition` for the live interface.
-│
-*)
-
-Theorem l001_mirror_opacity :
-  forall (Slambda M : RegulatorTheory)
-         (Gamma : Context)
-         (S : FixedSymbolicRegulator Slambda M Gamma)
-         Code
-         (E : ClosureEvaluationFrame
-                (regulator_theory_checked_derivable M Gamma)
-                Code),
-    exists chi : Formula,
-      ExternalFixedPoint M Gamma chi /\
-      AssumptionLicensedContent M Gamma chi /\
-      ~ InternalFixedPointRecognition
-          M Gamma (fixed_recognition_claim S) chi.
-Proof.
-  intros Slambda M Gamma S Code E.
-  destruct (l001_constructs_external_fixed_point M Gamma Code E)
-    as [chi Hfixed].
-  exists chi.
-  split.
-  - exact Hfixed.
-  - exact
-      (fixed_regulator_mirror_opacity
-         Slambda M Gamma S chi (proj2 Hfixed)).
 Qed.

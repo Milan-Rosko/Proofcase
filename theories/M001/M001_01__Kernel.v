@@ -14,17 +14,12 @@
 
   OVERVIEW
 
-  We compute over the closed implicational-falsity object syntax, finite-list
-  contexts, axiom-set interfaces (`AxiomSet` functional and `FiniteAxiomSet`
-  finite-data), logical profiles, regulator theories, Boolean environments,
-  and finite proof-script grammar declared before . This adds the Boolean
-  equality, membership, axiom-schema recognition, MP validation, and total
-  proof checker that certify those primitive objects. Everything in this
-  layer is syntactic and certificate-first: formulas are finite trees,
-  contexts are finite lists, proofs are finite scripts, and checking is
-  Boolean computation that terminates on every input. The checker performs no
-  proof search, no semantic validation, no unification, and no normalization
-  beyond the explicit Boolean checks defined here.
+  We compute over the closed implicational-falsity syntax, finite-list
+  contexts, functional and finite-data axiom sets, logical profiles,
+  regulator theories, and finite proof scripts declared in `M001_00`. This
+  layer adds structural equality, membership, axiom recognition, MP
+  validation, and the total Boolean checker. It performs no proof search,
+  semantic validation, unification, or implicit normalization.
 
   Every later component is stated as a property of
   `regulator_theory_check_bool` over the `Formula`, `Context`,
@@ -35,6 +30,8 @@
 *)
 
 From M001 Require Export M001_00_Premises.
+
+From Stdlib Require Import Lia.
 
 (*
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -65,17 +62,9 @@ Fixpoint formula_eq_bool (A B : Formula) : bool :=
 
 (*
 │
-│          The four `formula_eq_bool_*` lemmas package the Boolean
-│          form into a Prop-level specification. `_refl` is the
-│          reflexivity rewrite hook used by every
-│          `apply`-then-`reflexivity` proof in this file, `_true` is
-│          the canonical primary direction (Boolean equation to
-│          syntactic equality) and is what every downstream `apply
-│          formula_eq_bool_true_lemma in _` step in `M001_02` and
-│          `M001_08` actually consumes, `_complete` is the converse
-│          needed when a downstream proof has already rewritten to
-│          syntactic equality and wants the Boolean back, and `_spec`
-│          packages both directions for `setoid_rewrite`-style use.
+│          The two retained equality lemmas are exactly the rewrite
+│          hooks used later: reflexivity and soundness from Boolean
+│          equality to formula equality.
 │
 *)
 
@@ -110,28 +99,10 @@ Proof.
       * discriminate H.
 Qed.
 
-Lemma formula_eq_bool_complete_lemma :
-  forall A B, A = B -> formula_eq_bool A B = true.
-Proof.
-  intros A B H.
-  subst.
-  apply formula_eq_bool_refl_lemma.
-Qed.
-
-Lemma formula_eq_bool_spec_lemma :
-  forall A B, formula_eq_bool A B = true <-> A = B.
-Proof.
-  intros A B.
-  split.
-  - apply formula_eq_bool_true_lemma.
-  - apply formula_eq_bool_complete_lemma.
-Qed.
-
 (*
 │
-│          `formula_size` is a positive syntactic tree size used as a
-│          structural recursion measure and certificate-reporting
-│          field. Later results depend on positivity alone.
+│          `formula_size` supplies the strict size comparison used by
+│          the syntax contract.
 │
 *)
 
@@ -145,22 +116,22 @@ Fixpoint formula_size (A : Formula) : nat :=
 
 (*
 │
-│          Strict positivity is the only fact about `formula_size`
-│          that the rest of the development relies on, so we record it
-│          explicitly and never reason about the precise value.
+│          A finite formula cannot be syntactically identical to its
+│          own object-language negation: the latter has strictly
+│          larger tree size. Later fixed-point claims therefore use
+│          accepted mutual implication rather than formula equality.
 │
 *)
 
-Lemma formula_size_positive_lemma :
-  forall A, 0 < formula_size A.
+Theorem formula_not_self_negation :
+  forall A : Formula,
+    A <> formula_negation A.
 Proof.
-  destruct A as [|B C]; simpl.
-  - constructor.
-  - apply le_n_S.
-    induction (formula_size B + formula_size C) as [|n IH].
-    + constructor.
-    + constructor.
-      exact IH.
+  intros A Heq.
+  pose proof (f_equal formula_size Heq) as Hsize.
+  unfold formula_negation in Hsize.
+  simpl in Hsize.
+  lia.
 Qed.
 
 (*
@@ -222,16 +193,6 @@ Proof.
         exact Hin.
 Qed.
 
-Lemma ctx_mem_bool_spec_lemma :
-  forall A Gamma,
-    ctx_mem_bool A Gamma = true <-> In A Gamma.
-Proof.
-  intros A Gamma.
-  split.
-  - apply ctx_mem_bool_sound_lemma.
-  - apply ctx_mem_bool_complete_lemma.
-Qed.
-
 (*
 │
 │          The three `ctx_extend` lemmas record the elementary list
@@ -268,22 +229,6 @@ Proof.
   - exact Hmem.
 Qed.
 
-Lemma ctx_extend_in_inv_lemma :
-  forall A B Gamma,
-    In A (ctx_extend B Gamma) ->
-    A = B \/ In A Gamma.
-Proof.
-  intros A B Gamma Hin.
-  unfold ctx_extend in Hin.
-  simpl in Hin.
-  destruct Hin as [Hhead | Htail].
-  - left.
-    symmetry.
-    exact Hhead.
-  - right.
-    exact Htail.
-Qed.
-
 (*
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │                                                                              │
@@ -294,16 +239,10 @@ Qed.
 
 (*
 │
-│          `finite_axiom_set_formulas` is the projection accessor, and
-│          `finite_axiom_set_contains_bool` is the Boolean membership
-│          test on that list. We also expose paired
-│          soundness/completeness lemmas bridging Boolean membership
-│          and `In`-form list membership, plus
-│          `finite_axiom_set_to_axiom_set_unfold_lemma` so downstream
-│          proofs can step from the
-│          `axiom_set_contains_bool`-of-the-bridged-axiom-set form
-│          directly to `finite_axiom_set_contains_bool` without
-│          manually unfolding two records.
+│          `finite_axiom_set_contains_bool` applies the ordinary
+│          context membership computation to the stored formula list.
+│          The bridge packages that computation as the functional
+│          `AxiomSet` expected by a regulator theory.
 │
 *)
 
@@ -315,36 +254,8 @@ Definition finite_axiom_set_contains_bool
     (A : Formula) : bool :=
   ctx_mem_bool A FT.(finite_axiom_set_formulas).
 
-Lemma finite_axiom_set_contains_bool_sound_lemma :
-  forall FT A,
-    finite_axiom_set_contains_bool FT A = true ->
-    In A (finite_axiom_set_formulas FT).
-Proof.
-  intros FT A H.
-  apply ctx_mem_bool_sound_lemma.
-  exact H.
-Qed.
-
-Lemma finite_axiom_set_contains_bool_complete_lemma :
-  forall FT A,
-    In A (finite_axiom_set_formulas FT) ->
-    finite_axiom_set_contains_bool FT A = true.
-Proof.
-  intros FT A H.
-  apply ctx_mem_bool_complete_lemma.
-  exact H.
-Qed.
-
 Definition finite_axiom_set_to_axiom_set (FT : FiniteAxiomSet) : AxiomSet :=
   {| axiom_set_contains_bool := finite_axiom_set_contains_bool FT |}.
-
-Lemma finite_axiom_set_to_axiom_set_unfold_lemma :
-  forall FT A,
-    axiom_set_contains_bool (finite_axiom_set_to_axiom_set FT) A =
-    finite_axiom_set_contains_bool FT A.
-Proof.
-  reflexivity.
-Qed.
 
 (*
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -529,14 +440,6 @@ Definition efq_axiom_bool (phi : Formula) : bool :=
   | Imp Bot _ => true
   | _ => false
   end.
-
-Lemma efq_axiom_bool_example_lemma :
-  forall A,
-    efq_axiom_bool (Imp Bot A) = true.
-Proof.
-  intro A.
-  reflexivity.
-Qed.
 
 (*      available_axiom_bool(R, φ) ≔ logical_axiom_bool(profile_R, φ) ∨       *)
 (*                               axiom_set_R(φ)                               *)
@@ -917,9 +820,7 @@ Qed.
 │          additionally requires the script to end with the claimed
 │          conclusion. `proof_line_valid_bool R Gamma prefix line =
 │          true` means `line` is syntactically valid relative to the
-│          already accepted prefix and regulator theory `R`;
-│          `proof_line_check_bool` is the same line-level predicate
-│          under the checker-facing name.
+│          already accepted prefix and regulator theory `R`.
 │          `proof_script_check_from_bool R Gamma prefix p = true`
 │          means every line of `p` is valid relative to the
 │          accumulated accepted prefix, in proof order.
@@ -927,11 +828,7 @@ Qed.
 │          is a valid finite proof script in regulator theory `R` and
 │          the last formula of `p` is syntactically equal to `A`;
 │          empty scripts are rejected because they have no last
-│          formula. The whole judgement is therefore a Boolean
-│          function of finite data: `regulator_theory_check_bool` is
-│          total, decidable by computation, and serves as the trusted
-│          certificate predicate that every later layer is stated
-│          against.
+│          formula.
 │
 *)
 
@@ -952,32 +849,8 @@ Definition proof_line_valid_bool
       mp_valid_bool prefix i j phi
   end.
 
-(*
-│
-│          `proof_line_check_bool` is the public-facing name for
-│          `proof_line_valid_bool`: same Boolean function, separate
-│          name. We expose both because `proof_line_valid_bool` is the
-│          kernel-internal predicate (used implicitly inside
-│          `proof_script_check_from_bool`), while
-│          `proof_line_check_bool` is the regulator-facing alias that
-│          the symbolic-regulator layer consumes when it lifts a
-│          `RegulatorInstruction` to a single-line checker fact.
-│          Keeping the two names lets the kernel proofs and the
-│          regulator-instance proofs each use the spelling that reads
-│          best in their own setting, without `unfold`-stepping
-│          between them.
-│
-*)
-
 (*regulator_theory_check_bool : RegulatorTheory → Context → Proof → Formula → *)
 (*                                    bool                                    *)
-
-Definition proof_line_check_bool
-    (R : RegulatorTheory)
-    (Gamma : Context)
-    (prefix : list ProofLine)
-    (line : ProofLine) : bool :=
-  proof_line_valid_bool R Gamma prefix line.
 
 Fixpoint proof_script_check_from_bool
     (R : RegulatorTheory)
@@ -1041,38 +914,6 @@ Definition finite_axiom_set_check_bool
     (A : Formula) : bool :=
   regulator_theory_check_bool
     (finite_axiom_set_to_regulator_theory profile T)
-    Gamma p A.
-
-Lemma finite_axiom_set_check_unfold_lemma :
-  forall profile T Gamma p A,
-    finite_axiom_set_check_bool profile T Gamma p A =
-    regulator_theory_check_bool
-      (finite_axiom_set_to_regulator_theory profile T)
-      Gamma p A.
-Proof.
-  reflexivity.
-Qed.
-
-(*
-│
-│          `regulator_theory_check_minimal_bool` is the EFQ-free
-│          specialisation. We expose it as a separate name because
-│          several downstream theorem statements (including the
-│          `*_minimal` series above this evaluator) are stated
-│          directly against it, and naming the specialisation keeps
-│          those statements free of an explicit profile parameter.
-│
-*)
-
-(* T; Γ ⊢check_min[p] A ≔ regulator_theory_check_minimal_bool(T,Γ,p,A) = true *)
-
-Definition regulator_theory_check_minimal_bool
-    (T : AxiomSet)
-    (Gamma : Context)
-    (p : Proof)
-    (A : Formula) : bool :=
-  regulator_theory_check_bool
-    (regulator_theory_with_axiom_set regulator_profile_minimal T)
     Gamma p A.
 
 (*

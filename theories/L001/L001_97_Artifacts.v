@@ -14,11 +14,9 @@
 
   OVERVIEW
 
-  Certification boundary: packages the public contracts and emits assumption
-  reports. Executable artifacts remain in M001.
-
-  The exported undecidability endpoint excludes a total Boolean decision
-  whose verdicts are certified by `C A` or `C (¬A)`.
+  Certification boundary for the six canonical L001 contracts. Derived
+  corollaries remain in the public API but do not enlarge the certified
+  contract surface.
 
 *)
 
@@ -27,211 +25,30 @@ From L001 Require Export L001_95_API.
 (*
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │                                                                              │
-│                         CERTIFIED CONTRACT ENDPOINTS                         │
+│                              CERTIFIED CONTRACT                              │
 │                                                                              │
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-Theorem certified_aporetic_local_branch_collapse_contract :
-  APORETIC_LOCAL_BRANCH_COLLAPSE_CONTRACT.
-Proof.
-  intros C B Hmp Hfix Hlocal.
-  exact (local_branch_collapse C B Hmp Hfix Hlocal).
-Qed.
-
-Theorem certified_aporetic_core_diagonal_obstruction_contract :
-  APORETIC_CORE_DIAGONAL_OBSTRUCTION_CONTRACT.
-Proof.
-  intros C B Hmp Hcons Hfix Hlocal.
-  exact (core_diagonal_obstruction C B Hmp Hcons Hfix Hlocal).
-Qed.
-
-Theorem certified_aporetic_eval_bottom_negfixp_contract :
-  APORETIC_EVAL_BOTTOM_NEGFIXP_CONTRACT.
-Proof.
-  intros C Code ev Hbottom.
-  exact (eval_bottom_negfixp C Code ev Hbottom).
-Qed.
-
-Theorem certified_aporetic_eval_full_to_eval_bottom_contract :
-  APORETIC_EVAL_FULL_TO_EVAL_BOTTOM_CONTRACT.
-Proof.
-  intros C Code E.
-  exact (eval_full_to_eval_bottom C Code E).
-Qed.
-
-Theorem certified_aporetic_full_frame_obstruction_corollary_contract :
-  APORETIC_FULL_FRAME_OBSTRUCTION_COROLLARY_CONTRACT.
-Proof.
-  intros C Code E Hcons Hmp Hlem.
-  exact
-    (full_frame_obstruction_corollary
-       C Code E Hcons Hmp Hlem).
-Qed.
-
-Theorem certified_aporetic_fixed_point_contract :
-  APORETIC_FIXED_POINT_CONTRACT.
-Proof.
-  intros C Code E.
-  destruct
-    (eval_bottom_negfixp
-       C Code (ceval_apply E)
-       (eval_full_to_eval_bottom C Code E))
-    as [B Hfix].
-  exists B.
-  exact Hfix.
-Qed.
-
-Theorem certified_aporetic_excluded_middle_collapse_contract :
-  APORETIC_EXCLUDED_MIDDLE_COLLAPSE_CONTRACT.
-Proof.
-  intros C Code E Hmp Hlem.
-  exact (lem_collapse C Code E Hmp Hlem).
-Qed.
-
-Theorem certified_aporetic_excluded_middle_obstruction_contract :
-  APORETIC_EXCLUDED_MIDDLE_OBSTRUCTION_CONTRACT.
-Proof.
-  intros C Code E Hcons Hmp Hlem.
-  exact
-    (aporetic_obstruction
-       C Code E Hcons Hmp Hlem).
-Qed.
-
-Theorem certified_aporetic_decision_collapse_contract :
-  APORETIC_DECISION_COLLAPSE_CONTRACT.
-Proof.
-  intros C Code E Hmp D.
-  exact (decision_collapse C Code E Hmp D).
-Qed.
-
-(*
-│
-│          Generic accepted-branch-classifier obstruction. The Boolean
-│          classifier first produces collapse to `C Bot`; consistency
-│          then discharges the contradiction.
-│
-*)
-
-Theorem closure_evaluation_decision_obstructed_lemma :
-  forall (C : ClosureTheory) Code
-         (E : ClosureEvaluationFrame C Code),
-    ClosureConsistent C ->
-    ClosureModusPonens C ->
-    ClosureDecision C ->
-    False.
-Proof.
-  intros C Code E Hcons Hmp D.
-  destruct (decision_collapse C Code E Hmp D)
-    as [_ [_ [_ Hbot]]].
-  exact (Hcons Hbot).
-Qed.
-
-Theorem certified_aporetic_decision_obstruction_contract :
-  APORETIC_DECISION_OBSTRUCTION_CONTRACT.
-Proof.
-  exact closure_evaluation_decision_obstructed_lemma.
-Qed.
-
-(*
-│
-│          A negation fixed point plus a closure decision contradicts
-│          consistency.
-│
-*)
-
-Theorem equivalence_ad_absurdum_impossibility_lemma :
-  forall (C : ClosureTheory) (B : Formula),
-    ClosureConsistent C ->
-    ClosureModusPonens C ->
-    ClosureNegationFixedPoint C B ->
-    ClosureDecision C ->
-    False.
-Proof.
-  intros C B Hcons Hmp Hfix D.
-  exact
-    (negfixp_obstructs_lem
-       C B Hcons Hmp Hfix
-       (decision_to_lem C D)).
-Qed.
-
-Theorem certified_aporetic_equivalence_ad_absurdum_impossibility_contract :
-  APORETIC_EQUIVALENCE_AD_ABSURDUM_IMPOSSIBILITY_CONTRACT.
-Proof.
-  exact equivalence_ad_absurdum_impossibility_lemma.
-Qed.
-
-(*
-│
-│          Existential accepted-branch classifier impossibility under
-│          the stable decider name. If such a Boolean classifier
-│          exists, destruct it and apply the generic decision
-│          obstruction.
-│
-*)
-
-Theorem closure_decider_impossible_lemma :
-  forall (C : ClosureTheory) Code
-         (E : ClosureEvaluationFrame C Code),
-    ClosureConsistent C ->
-    ClosureModusPonens C ->
-    ClosureDeciderExists C ->
-    False.
-Proof.
-  intros C Code E Hcons Hmp [D _].
-  exact (closure_evaluation_decision_obstructed_lemma C Code E Hcons Hmp D).
-Qed.
-
-Theorem certified_aporetic_decider_impossibility_contract :
-  APORETIC_DECIDER_IMPOSSIBILITY_CONTRACT.
-Proof.
-  exact closure_decider_impossible_lemma.
-Qed.
-
-Theorem certified_aporetic_lemma_contract :
-  APORETIC_LEMMA_CONTRACT.
+Theorem l001_contract_qed :
+  L001_CONTRACT.
 Proof.
   repeat split.
-  - exact certified_aporetic_local_branch_collapse_contract.
-  - exact certified_aporetic_core_diagonal_obstruction_contract.
-  - exact certified_aporetic_eval_bottom_negfixp_contract.
-  - exact certified_aporetic_eval_full_to_eval_bottom_contract.
-  - exact certified_aporetic_full_frame_obstruction_corollary_contract.
-  - exact certified_aporetic_fixed_point_contract.
-  - exact certified_aporetic_excluded_middle_collapse_contract.
-  - exact certified_aporetic_excluded_middle_obstruction_contract.
-  - exact certified_aporetic_decision_collapse_contract.
-  - exact certified_aporetic_decision_obstruction_contract.
-  - exact certified_aporetic_equivalence_ad_absurdum_impossibility_contract.
-  - exact certified_aporetic_decider_impossibility_contract.
-Qed.
-
-Theorem aporetic_lemma_qed :
-  WITNESS.
-Proof.
-  exact certified_aporetic_lemma_contract.
+  - exact local_branch_collapse.
+  - exact core_diagonal_obstruction.
+  - exact eval_bottom_negfixp.
+  - exact local_signed_obstruction.
+  - exact local_membership_obstruction.
+  - exact closure_refutation_inhabited.
 Qed.
 
 (*
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │                                                                              │
-│                         ASSUMPTION REPORT ARTIFACTS                          │
+│                              ASSUMPTION REPORT                               │
 │                                                                              │
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-(*
-│
-│          Terminal endpoints only. The lemma contract is the
-│          conjunction of all subordinate contract endpoints; the
-│          named witness is the public entry point. Intermediate
-│          `certified_aporetic_*_contract` reports inherit their
-│          assumption profile from the conjunction.
-│
-*)
-
-Redirect "theories/L001/_appendix/_assumptions/certified_aporetic_lemma_contract"
-  Print Assumptions certified_aporetic_lemma_contract.
-
-Redirect "theories/L001/_appendix/_assumptions/aporetic_lemma_qed"
-  Print Assumptions aporetic_lemma_qed.
+Redirect "theories/L001/_appendix/_assumptions/l001_contract_qed"
+  Print Assumptions l001_contract_qed.

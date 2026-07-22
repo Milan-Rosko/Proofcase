@@ -3,233 +3,130 @@
 1 - Summary
     -------
 
-    L001 formalizes the APORETIC LEMMA: a constructive fixed-point, collapse,
-    and obstruction layer over M001 syntax. Its generic core uses a primitive
-    acceptance predicate
+    L001 proves a local diagonal obstruction over M001's closed implication and
+    falsity syntax.  Its generic acceptance predicate
 
       C : Formula -> Prop
 
-    with only the properties stated by each theorem. M001 supplies `Formula`,
-    implication, negation, and regulator adapters; it gives generic `C` no
-    implicit assumption, deduction, cut, weakening, or substitution rule.
+    has only the properties explicitly supplied to each theorem.
 
-    The live diagonal theorem uses `ClosureEvaluationFrameForGoal`, which names
-    only `x ↦ ev x x → G` for a chosen goal. This weakens the paper's headline
-    full-frame hypothesis and strengthens the source theorem. The universal
-    `ClosureEvaluationFrame` remains available for compatibility and general
-    fixed-point corollaries.
+    The proof has two independent inputs:
 
-    L001 is syntactic and constructive. It adds no truth predicate,
-    arithmetization, modal machinery, computation model, or checker.
+      diagonal:     B ~=_C not B
+      local branch: C B \/ C (not B)
 
+    Modus ponens turns these into `C Bot`; consistency then yields `False`.
+    A goal-restricted evaluation premise can produce the diagonal, but no
+    universal evaluation frame is part of L001.
 
-2 - Reading Contract
-    ----------------
-
-    `C : Formula -> Prop` is only an acceptance predicate. In particular,
-
-      C (Imp A B) /\ C (Imp B A)
-
-    is the complete content of `ClosureEquiv C A B`; it adds no equality,
-    congruence, or substitution principle.
-
-    A negation fixed point supplies only
-
-      C (Imp B (formula_negation B))
-      C (Imp (formula_negation B) B).
-
-    Modus ponens cannot use them until a local branch
-
-      C B \/ C (formula_negation B)
-
-    supplies an antecedent. The proof ledger is therefore:
-
-      goal evaluation:  produces B ≃_C ¬B
-      local branch:      supplies C B or C (¬B)
-      modus ponens:      propagates the selected branch to C Bot
-      consistency:       converts C Bot to False
-
-    `ClosureExcludedMiddle C` means `forall A, C A \/ C (¬A)`, not classical
-    excluded middle in Rocq. `ClosureDecision C` is its Boolean,
-    internally-witnessed form: true certifies `C A`, false certifies `C (¬A)`.
-    Under consistency and modus ponens, the latter entails `~ C A` while
-    retaining the stronger internal evidence used by the collapse. L001 calls
-    the obstruction to such total classification closure-acceptance
-    undecidability; recursion-theoretic readings need an additional model.
-
-    The construction is Lawvere-shaped but goal-restricted, and Curry-shaped
-    but branch-driven. Unlike ordinary Curry reasoning, primitive `C` cannot
-    introduce and discharge assumptions. L002 obtains the unconditional Curry
-    collapse only after specializing to richer M001 derivability.
+    Derived public theorems expose the same argument more precisely.  They
+    allow an arbitrary goal `G`, require only the fixed-point direction used
+    by the selected branch, isolate the three local detachment instances, and
+    show that consistency excludes both sides at a negation fixed point.
+    These strengthenings do not add clauses to the six-contract aggregate.
 
 
-3 - State
+2 - Classification boundary
+    -----------------------
+
+    `ClosureSignedClassification C` certifies one of the two internal branches:
+
+      true  -> C A
+      false -> C (not A)
+
+    `ClosureMembershipDecision C` instead decides membership in `C`.  Turning
+    non-membership into `C (not A)` requires the explicit premise
+    `ClosureRefutationComplete C`.
+
+    Negative-only refutation has no condition on a false verdict, so the
+    always-false function inhabits it for every `C`.
+
+
+3 - Files
     -----
 
-                      ┌──────────────────────────────────┐
-                      │                x                 │
-                      │   └─┴─┴─┴─┴─┴─┴─┴─┴─┴─┘ 7 / 10   │
-                      └──────────────────────────────────┘
+    L001_00_Premises.v
 
-    Evaluation: 7, Serviceable. Effective, mechanized, documented. Proof tactics
-    and prose are not optimal. Not peer reviewed.
+      The vocabulary required by the six contracts, including the local
+      detachment instance used by the derived collapse theorems.
+
+    L001_01__Aporetic_Lemma.v
+
+      Goal-restricted diagonal production, branchwise and goal-relative
+      collapse, and the retained local branch collapse.
+
+    L001_02__Aporetic_Obstruction.v
+
+      Fixed-point gap, local obstruction, signed and membership obstructions,
+      and generic refutation inhabitation.
+
+    L001_95_API.v
+
+      The six canonical contracts and their aggregate.
+
+    L001_97_Artifacts.v
+
+      The single certified aggregate `l001_contract_qed` and its assumption
+      report.
 
 
-4 - Intuition
-    ---------
-
-    The theorem has three layers:
-
-      fixed point:   goal evaluation gives B ≃_C ¬B
-      collapse:      C B \/ C (¬B), with modus ponens, gives C Bot
-      obstruction:   consistency turns C Bot into False
-
-    In either branch, one fixed-point implication produces the other accepted
-    antecedent, after which `¬B = B → Bot` yields bottom. Excluded-middle
-    completeness or `ClosureDecision` supplies the branch at the diagonal
-    formula; this is the LEM-shaped self-classification step.
-
-    M001 instantiates `C` as `RegulatorClosure profile T Gamma` and supplies its
-    modus-ponens closure lemma. A refutation-only classifier remains weaker:
-    L001 exhibits an always-false witness and requires an explicit
-    double-negation bridge for the no-status obstruction.
+4 - Public API
+    ----------
 
     Stable import:
 
       From L001 Require Import L001_95_API.
 
+    Vocabulary:
 
-5 - Tree
-    ----
+      ClosureTheory
+      ClosureEquiv
+      ClosureModusPonens
+      ClosureDetachmentAt
+      ClosureConsistent
+      NegationFixedPointFor
+      ClosureNegationFixedPoint
+      ClosureLocalExcludedMiddle
+      ClosureLocalLEM
+      ClosureSignedClassification
+      ClosureMembershipDecision
+      ClosureRefutationComplete
+      ClosureEvaluationFrameForGoal
 
-    M001_95_API
-     ▼
-    L001_00_Premises
-     ▼
-    L001_01__Aporetic_Lemma
-     ▼
-    L001_02__Aporetic_Obstruction
-     ▼
-    L001_95_API
-     ▼
-    L001_97_Artifacts
+    Proof endpoints:
 
+      eval_bottom_negfixp
+      closure_modus_ponens_detachment_at
+      branchwise_goal_relative_collapse
+      goal_relative_branch_collapse
+      local_branch_collapse
+      fixedpoint_gap
+      core_diagonal_obstruction
+      local_signed_obstruction
+      local_membership_obstruction
+      closure_refutation_inhabited
 
-6 - Files
-    -----
+    Contracts:
 
-    L001_00_Premises.v
+      LOCAL_COLLAPSE
+      LOCAL_OBSTRUCTION
+      NEGATION_DIAGONAL
+      SIGNED_OBSTRUCTION
+      MEMBERSHIP_OBSTRUCTION
+      REFUTATION_INHABITED
+      L001_CONTRACT
 
-      Generic closure, decision, evaluation-frame, regulator-adapter,
-      refutation, and double-negation vocabulary.
+    Certified endpoint:
 
-    L001_01__Aporetic_Lemma.v
-
-      Fixed-point construction, branch collapse, and the M001 specialization
-      `aporetic_lemma`.
-
-    L001_02__Aporetic_Obstruction.v
-
-      Generic and regulator obstruction theorems, status branches, and the
-      refutation-only non-collapse witness.
-
-    L001_95_API.v
-
-      Public closure aliases, named contract propositions, and
-      contradiction-shaped API endpoints.
-
-    L001_97_Artifacts.v
-
-      Certified contract endpoints and assumption-report hooks for
-      `certified_aporetic_lemma_contract` and `aporetic_lemma_qed`.
-
-    _appendix/_assumptions/
-
-      Redirect target for the L001 assumption reports.
+      l001_contract_qed
 
 
-7 - API
-    ---
+5 - Boundary
+    --------
 
-    The public theorem surface is exposed by
-
-      `From L001 Require Import L001_95_API.`
-
-    Public surface by use case:
-
-    Closure vocabulary:
-
-      ClosureTheory                                                         (95)
-      ClosureEquiv                                                          (00)
-      ClosureExcludedMiddle                                                 (00)
-      ClosureModusPonens                                                    (00)
-      ClosureConsistent                                                     (00)
-      ClosureDecision                                                       (00)
-      ClosureDecider, ClosureDeciderExists                                  (95)
-      ClosureEvaluationFrame                                                (00)
-      ClosureEvaluationFrameForGoal                                         (00)
-      ClosureImplicationCongruence                                          (00)
-      ClosureDiagonalRep, ClosureGoalImpRep                                 (00)
-
-    Fixed points and collapse:
-
-      NegationFixedPointFor                                                 (00)
-      ClosureNegationFixedPoint                                             (95)
-      CurryFixedPointFor                                                    (01)
-      generic_fixp_existence                                                (00)
-      negfixp_existence                                                     (00)
-      curry_fixp_existence                                                  (01)
-      lem_collapse                                                          (01)
-      decision_collapse                                                     (01)
-
-    Regulator instance:
-
-      RegulatorClosure                                                      (00)
-      RegulatorClosureEvaluationFrame                                       (00)
-      RegulatorClosureExcludedMiddle                                        (00)
-      RegulatorClosureConsistent                                            (02)
-      RegulatorDecision                                                     (00)
-      RegulatorRefutation                                                   (00)
-      RegulatorDoubleNegationBridge                                         (00)
-      RegulatorNegationFixedPoint                                           (01)
-      YesBranchDecides                                                      (00)
-
-    Obstruction endpoints:
-
-      aporetic_obstruction                                                  (02)
-      closure_acceptance_undecidable_theorem                                (02)
-      regulator_aporetic_obstruction                                        (02)
-      regulator_decision_obstruction                                        (02)
-      aporetic_status_yes_obstructed_lemma                                  (02)
-      aporetic_status_no_blocked_by_double_negation_lemma                   (02)
-      refutation_not_obstructed                                             (02)
-
-    Public contracts:
-
-      APORETIC_LOCAL_BRANCH_COLLAPSE_CONTRACT                               (95)
-      APORETIC_CORE_DIAGONAL_OBSTRUCTION_CONTRACT                           (95)
-      APORETIC_EVAL_BOTTOM_NEGFIXP_CONTRACT                                 (95)
-      APORETIC_EVAL_FULL_TO_EVAL_BOTTOM_CONTRACT                            (95)
-      APORETIC_FULL_FRAME_OBSTRUCTION_COROLLARY_CONTRACT                    (95)
-      APORETIC_FIXED_POINT_CONTRACT                                         (95)
-      APORETIC_EXCLUDED_MIDDLE_COLLAPSE_CONTRACT                            (95)
-      APORETIC_EXCLUDED_MIDDLE_OBSTRUCTION_CONTRACT                         (95)
-      APORETIC_DECISION_COLLAPSE_CONTRACT                                   (95)
-      APORETIC_DECISION_OBSTRUCTION_CONTRACT                                (95)
-      APORETIC_EQUIVALENCE_AD_ABSURDUM_IMPOSSIBILITY_CONTRACT               (95)
-      APORETIC_DECIDER_IMPOSSIBILITY_CONTRACT                               (95)
-      APORETIC_LEMMA_CONTRACT                                               (95)
-      WITNESS                                                               (95)
-
-    Certified endpoints:
-
-      certified_aporetic_lemma_contract                                     (97)
-      aporetic_lemma_qed                                                    (97)
-
-
-8 - Notes
-    -----
-
-    L001 adds no executable component; M001 remains the checker substrate. The
-    live theorem uses the goal frame, while `ClosureEvaluationFrame` supplies it
-    through an adapter and supports the paper-facing full-frame corollaries.
+    L001 contains no full-frame compatibility layer, global-LEM wrapper,
+    regulator specialization, status branch, Curry-labelled restatement,
+    decision/decider alias, or legacy contract surface.  M001 remains the
+    syntactic checker substrate.  The derived strengthening endpoints do not
+    enlarge `L001_CONTRACT`.  L002 consumes only L001's goal-restricted frame
+    and negation-fixed-point vocabulary.
