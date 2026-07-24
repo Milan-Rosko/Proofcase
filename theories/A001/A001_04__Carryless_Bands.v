@@ -1,18 +1,35 @@
-(*@file@*)
+(*A001_04__Carryless_Bands.v*)
 
-(*@head.start@*)
-(*@copyright@*)
-(*@doc.proofcase@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                      Author and Copyright remark. Author(s): │
+│                ╭╮╮╮─╮                Milan Rosko  https://www.milanrosko.com │
+│                ││││╭╯                Licence. This file is distributed under │
+│                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
+│                                      visit https://www.mozilla.org/en-US/MPL │
+└──────────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                     Proofcase / A001_04__Carryless_Bands                     │
+└──────────────────────────────────────────────────────────────────────────────┘
 
-(*@doc.header@[[Overview]]@*)
+  OVERVIEW
 
-(*@doc.pl@[[Carryless band layer for A001. We establish that the even and odd Fibonacci-support bands are separated, remain Zeckendorf-valid under concatenation, and can be recovered from the canonical support of a paired code.]]@*)
+  Carryless band layer for A001. We establish that the even and odd
+  Fibonacci-support bands are separated, remain Zeckendorf-valid under
+  concatenation, and can be recovered from the canonical support of a paired
+  code.
 
-(*@head.end@*)
+*)
 
 From A001 Require Export A001_03__Zeckendorf_Correctness.
 
-(*@section@[[EVEN AND ODD BAND SEPARATION]]@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                         EVEN AND ODD BAND SEPARATION                         │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
 
 Lemma two_S : forall n, two (S n) = S (S (two n)).
 Proof.
@@ -167,7 +184,13 @@ Proof.
   - apply IH. exact Htail.
 Qed.
 
-(*@inline@[[The next block transports Zeckendorf admissibility through the even and odd embedding maps that together define the pairing support.]]@*)
+(*
+│
+│          The next block transports Zeckendorf admissibility through
+│          the even and odd embedding maps that together define the
+│          pairing support.
+│
+*)
 
 Lemma even_band_valid :
   forall x, zeck_valid (even_band base_params x).
@@ -195,7 +218,7 @@ Proof.
     + apply all_ge_2_map_odd. exact Hge.
 Qed.
 
-(*@unicodemath@[[∀ x e, e ∈ even_band(x) ⇒ e < B(x).]]@*)
+(*                    ∀ x e, e ∈ even_band(x) ⇒ e < B(x).                     *)
 
 Lemma even_band_lt_B :
   forall x e, In e (even_band base_params x) -> e < B base_params x.
@@ -215,7 +238,7 @@ Proof.
     lia.
 Qed.
 
-(*@unicodemath@[[∀ x y o, o ∈ odd_band(x, y) ⇒ B(x) + 1 ≤ o.]]@*)
+(*                ∀ x y o, o ∈ odd_band(x, y) ⇒ B(x) + 1 ≤ o.                 *)
 
 Lemma odd_band_ge_B1 :
   forall x y o, In o (odd_band base_params x y) -> S (B base_params x) <= o.
@@ -236,7 +259,13 @@ Proof.
     lia.
 Qed.
 
-(*@inline@[[The odd band lies strictly above the even band: every odd-band index dominates every even-band index attached to the same left coordinate.]]@*)
+(*
+│
+│          The odd band lies strictly above the even band: every
+│          odd-band index dominates every even-band index attached to
+│          the same left coordinate.
+│
+*)
 
 Lemma odd_band_gt_even_band :
   forall x y o e,
@@ -320,7 +349,14 @@ Proof.
       apply Hcross; simpl; auto.
 Qed.
 
-(*@inline@[[`odd_even_concat_valid` is the structural compatibility lemma for pairing: the two bands remain sufficiently separated that their concatenation is again a valid Zeckendorf support.]]@*)
+(*
+│
+│          `odd_even_concat_valid` is the structural compatibility
+│          lemma for pairing: the two bands remain sufficiently
+│          separated that their concatenation is again a valid
+│          Zeckendorf support.
+│
+*)
 
 Lemma odd_even_concat_valid :
   forall x y,
@@ -351,9 +387,14 @@ Proof.
   lia.
 Qed.
 
-(*@inline@[[The carryless code therefore admits a canonical odd/even support decomposition.]]@*)
+(*
+│
+│          The carryless code therefore admits a canonical odd/even
+│          support decomposition.
+│
+*)
 
-(*@unicodemath@[[Z0(pair(x, y)) = odd_band(x, y) ⧺ even_band(x).]]@*)
+(*              Z0(pair(x, y)) = odd_band(x, y) ⧺ even_band(x).               *)
 
 Theorem Z0_pair_is_concat :
   forall x y,
@@ -366,7 +407,13 @@ Proof.
   apply odd_even_concat_valid.
 Qed.
 
-(*@section@[[SUPPORT SPLITTING]]@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                              SUPPORT SPLITTING                               │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
 
 Lemma even_band_even :
   forall x k,
@@ -455,9 +502,14 @@ Proof.
     simpl; auto.
 Qed.
 
-(*@inline@[[The final filtering corollaries recover both pairing bands directly from the canonical support of a paired code.]]@*)
+(*
+│
+│          The final filtering corollaries recover both pairing bands
+│          directly from the canonical support of a paired code.
+│
+*)
 
-(*@unicodemath@[[∀ x y, { e ∈ Z0(pair(x, y)) ∣ 2 ∣ e } = even_band(x).]]@*)
+(*           ∀ x y, { e ∈ Z0(pair(x, y)) ∣ 2 ∣ e } = even_band(x).            *)
 
 Corollary Z0_even_split :
   forall x y,
@@ -474,7 +526,8 @@ Proof.
     + rewrite Hodd_nil, Heven_id. reflexivity.
 Qed.
 
-(*@unicodemath@[[∀ x y, { k ∈ Z0(pair(x, y)) ∣ 2 ∤ k ∧ B(x) + 1 ≤ k }]][[= odd_band(x, y).]]@*)
+(*            ∀ x y, { k ∈ Z0(pair(x, y)) ∣ 2 ∤ k ∧ B(x) + 1 ≤ k }            *)
+(*                             = odd_band(x, y).                              *)
 
 Corollary Z0_odd_split :
   forall x y,

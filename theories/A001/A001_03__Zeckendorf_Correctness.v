@@ -1,18 +1,34 @@
-(*@file@*)
+(*A001_03__Zeckendorf_Correctness.v*)
 
-(*@head.start@*)
-(*@copyright@*)
-(*@doc.proofcase@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                      Author and Copyright remark. Author(s): │
+│                ╭╮╮╮─╮                Milan Rosko  https://www.milanrosko.com │
+│                ││││╭╯                Licence. This file is distributed under │
+│                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
+│                                      visit https://www.mozilla.org/en-US/MPL │
+└──────────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                 Proofcase / A001_03__Zeckendorf_Correctness                  │
+└──────────────────────────────────────────────────────────────────────────────┘
 
-(*@doc.header@[[Overview]]@*)
+  OVERVIEW
 
-(*@doc.pl@[[Greedy Zeckendorf correctness layer for A001. We establish that the concrete support extractor `Z0` produces valid supports whose Fibonacci sum is the original input, and that valid supports are canonical.]]@*)
+  Greedy Zeckendorf correctness layer for A001. We establish that the
+  concrete support extractor `Z0` produces valid supports whose Fibonacci sum
+  is the original input, and that valid supports are canonical.
 
-(*@head.end@*)
+*)
 
 From A001 Require Export A001_02__Base_Fibonacci.
 
-(*@section@[[GREEDY ZECKENDORF CORRECTNESS]]@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                        GREEDY ZECKENDORF CORRECTNESS                         │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
 
 Fixpoint all_le (m : nat) (xs : list nat) : Prop :=
   match xs with
@@ -48,7 +64,16 @@ Proof.
   - simpl. split; [lia | exact Hge].
 Qed.
 
-(*@inline@[[`greedy_inv` states the correctness invariant for the greedy descent: the support `xs` together with the leftover `rem'` reconstructs `rem`; `xs` is a valid Zeckendorf support bounded by the current admissible index; the base case `k ≤ 1` forces `xs = []`; and the next-Fibonacci threshold is preserved across the step.]]@*)
+(*
+│
+│          `greedy_inv` states the correctness invariant for the
+│          greedy descent: the support `xs` together with the leftover
+│          `rem'` reconstructs `rem`; `xs` is a valid Zeckendorf
+│          support bounded by the current admissible index; the base
+│          case `k ≤ 1` forces `xs = []`; and the next-Fibonacci
+│          threshold is preserved across the step.
+│
+*)
 
 Definition greedy_inv k rem prev_taken xs rem' :=
   sum_fib xs + rem' = rem /\
@@ -71,9 +96,17 @@ Proof.
   exact Hle.
 Qed.
 
-(*@inline@[[`zeck_greedy_down_correct_core` is the main recursive correctness lemma. It shows that every branch of the greedy descent yields a support/remainder pair satisfying the invariant `greedy_inv`.]]@*)
+(*
+│
+│          `zeck_greedy_down_correct_core` is the main recursive
+│          correctness lemma. It shows that every branch of the greedy
+│          descent yields a support/remainder pair satisfying the
+│          invariant `greedy_inv`.
+│
+*)
 
-(*@unicodemath@[[zeck_greedy_down(k, rem, prev) = (xs, rem')]][[⇒ greedy_inv(k, rem, prev, xs, rem').]]@*)
+(*                zeck_greedy_down(k, rem, prev) = (xs, rem')                 *)
+(*                   ⇒ greedy_inv(k, rem, prev, xs, rem').                    *)
 
 Lemma zeck_greedy_down_correct_core :
   forall k rem prev_taken xs rem',
@@ -197,7 +230,13 @@ Proof.
   exact H.
 Qed.
 
-(*@inline@[[`zeck_greedy_down_correct` presents the greedy-descent correctness theorem in the direct form used to derive the Zeckendorf support results.]]@*)
+(*
+│
+│          `zeck_greedy_down_correct` presents the greedy-descent
+│          correctness theorem in the direct form used to derive the
+│          Zeckendorf support results.
+│
+*)
 
 Theorem zeck_greedy_down_correct :
   forall k rem prev xs rem',
@@ -220,7 +259,13 @@ Proof.
            ++ exact H.
 Qed.
 
-(*@inline@[[Specializing the greedy invariant at the cutoff `r0(n)` shows that the residual remainder already lies strictly below the next admissible Fibonacci threshold.]]@*)
+(*
+│
+│          Specializing the greedy invariant at the cutoff `r0(n)`
+│          shows that the residual remainder already lies strictly
+│          below the next admissible Fibonacci threshold.
+│
+*)
 
 Lemma greedy_top_bound :
   forall n xs rem',
@@ -235,7 +280,13 @@ Proof.
   apply r0_upper_S.
 Qed.
 
-(*@inline@[[Whenever the greedy support begins with index `S(S(k))`, the Fibonacci sum of its prefix remains strictly below the next Fibonacci value.]]@*)
+(*
+│
+│          Whenever the greedy support begins with index `S(S(k))`,
+│          the Fibonacci sum of its prefix remains strictly below the
+│          next Fibonacci value.
+│
+*)
 
 Lemma sum_fib_prefix_lt_next :
   forall k rem xs rem',
@@ -338,9 +389,15 @@ Proof.
   apply r0_upper_S.
 Qed.
 
-(*@inline@[[`Z0_sound` is the basic adequacy theorem for the concrete support extractor: evaluating the greedy support through `sum_fib` recovers the original number.]]@*)
+(*
+│
+│          `Z0_sound` is the basic adequacy theorem for the concrete
+│          support extractor: evaluating the greedy support through
+│          `sum_fib` recovers the original number.
+│
+*)
 
-(*@unicodemath@[[∀ n, Σ_F(Z0(n)) = n.]]@*)
+(*                            ∀ n, Σ_F(Z0(n)) = n.                            *)
 
 Theorem Z0_sound : forall n, sum_fib (Z0 n) = n.
 Proof.
@@ -356,9 +413,15 @@ Proof.
   exact Hsum.
 Qed.
 
-(*@inline@[[`Z0_valid` complements `Z0_sound`: the extractor produces a canonical admissible support, not merely one whose sum is correct.]]@*)
+(*
+│
+│          `Z0_valid` complements `Z0_sound`: the extractor produces a
+│          canonical admissible support, not merely one whose sum is
+│          correct.
+│
+*)
 
-(*@unicodemath@[[∀ n, zeck_valid(Z0(n)).]]@*)
+(*                          ∀ n, zeck_valid(Z0(n)).                           *)
 
 Theorem Z0_valid : forall n, zeck_valid (Z0 n).
 Proof.
@@ -370,7 +433,13 @@ Proof.
   exact Hvalid.
 Qed.
 
-(*@section@[[SUPPORT UNIQUENESS]]@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                              SUPPORT UNIQUENESS                              │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
 
 Lemma sum_fib_ge_head :
   forall k xs, sum_fib (k :: xs) >= fib k.
@@ -483,9 +552,16 @@ Proof.
   - apply fib_monotone_le. lia.
 Qed.
 
-(*@inline@[[`Zeckendorf_unique_core` is the canonicality theorem for valid supports: equality of Fibonacci sums forces equality of the supports themselves.]]@*)
+(*
+│
+│          `Zeckendorf_unique_core` is the canonicality theorem for
+│          valid supports: equality of Fibonacci sums forces equality
+│          of the supports themselves.
+│
+*)
 
-(*@unicodemath@[[zeck_valid(xs) ∧ zeck_valid(ys) ∧ Σ_F(xs) = Σ_F(ys)]][[⇒ xs = ys.]]@*)
+(*            zeck_valid(xs) ∧ zeck_valid(ys) ∧ Σ_F(xs) = Σ_F(ys)             *)
+(*                                 ⇒ xs = ys.                                 *)
 
 Lemma Zeckendorf_unique_core :
   forall xs ys,
@@ -532,9 +608,14 @@ Proof.
         -- simpl in Heq. lia.
 Qed.
 
-(*@inline@[[`Z0_of_sum_fib` is the converse of `Z0_sound`: every valid support is a fixed point of the extractor.]]@*)
+(*
+│
+│          `Z0_of_sum_fib` is the converse of `Z0_sound`: every valid
+│          support is a fixed point of the extractor.
+│
+*)
 
-(*@unicodemath@[[zeck_valid(xs) ⇒ Z0(Σ_F(xs)) = xs.]]@*)
+(*                     zeck_valid(xs) ⇒ Z0(Σ_F(xs)) = xs.                     *)
 
 Theorem Z0_of_sum_fib :
   forall xs, zeck_valid xs -> Z0 (sum_fib xs) = xs.
@@ -546,7 +627,13 @@ Proof.
   - apply Z0_sound.
 Qed.
 
-(*@inline@[[Admissible Fibonacci supports are canonical: among valid supports, equality of the evaluated sums entails equality of the supports.]]@*)
+(*
+│
+│          Admissible Fibonacci supports are canonical: among valid
+│          supports, equality of the evaluated sums entails equality
+│          of the supports.
+│
+*)
 
 Theorem Zeckendorf_unique :
   forall xs ys,
@@ -601,7 +688,13 @@ Proof.
     + specialize (IH k Hin). lia.
 Qed.
 
-(*@inline@[[Every index produced by the concrete extractor lies strictly below the cutoff `r0(x)`, so that the recovered support never reaches the boundary-defining index itself.]]@*)
+(*
+│
+│          Every index produced by the concrete extractor lies
+│          strictly below the cutoff `r0(x)`, so that the recovered
+│          support never reaches the boundary-defining index itself.
+│
+*)
 
 Lemma Z0_indices_below_r0 :
   forall x e,

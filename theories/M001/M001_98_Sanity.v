@@ -1,17 +1,25 @@
-(*@file@*)
+(*M001_98_Sanity.v*)
 
-(*@head.start@*)
-(*@copyright@*)
-(*@doc.proofcase@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                      Author and Copyright remark. Author(s): │
+│                ╭╮╮╮─╮                Milan Rosko  https://www.milanrosko.com │
+│                ││││╭╯                Licence. This file is distributed under │
+│                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
+│                                      visit https://www.mozilla.org/en-US/MPL │
+└──────────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                          Proofcase / M001_98_Sanity                          │
+└──────────────────────────────────────────────────────────────────────────────┘
 
-(*@doc.header@[[Overview]]@*)
+  OVERVIEW
 
-(*@doc.pl@[[Small compile-time probes for the retained M001 boundary.  The
-examples exercise the checker, finite checker, three proof transformations,
-syntactic adequacy, structural monotonicity, and the generic symbolic
-regulator.  They introduce no additional public interface.]]@*)
+  Small compile-time probes for the retained M001 boundary. The examples
+  exercise the checker, finite checker, three proof transformations,
+  syntactic adequacy, structural monotonicity, and the generic symbolic
+  regulator. They introduce no additional public interface.
 
-(*@head.end@*)
+*)
 
 From M001 Require Import M001_95_API.
 
@@ -38,7 +46,13 @@ Definition sanity_B : Formula := Imp sanity_A sanity_A.
 Definition sanity_assumption (A : Formula) : Proof :=
   cons (pl_assumption A) nil.
 
-(*@section@[[SYNTAX AND CHECKING]]@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                             SYNTAX AND CHECKING                              │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
 
 Example sanity_not_self_negation :
   sanity_A <> formula_negation sanity_A.
@@ -69,7 +83,13 @@ Proof.
   reflexivity.
 Qed.
 
-(*@section@[[PROOF TRANSFORMATIONS]]@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                            PROOF TRANSFORMATIONS                             │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
 
 Example sanity_deduction_transform :
   regulator_theory_check_bool
@@ -113,7 +133,13 @@ Proof.
     reflexivity.
 Qed.
 
-(*@section@[[ADEQUACY AND MONOTONICITY]]@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                          ADEQUACY AND MONOTONICITY                           │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
 
 Example sanity_adequacy :
   forall R Gamma A,
@@ -175,7 +201,13 @@ Proof.
   exact sanity_theory_included.
 Qed.
 
-(*@section@[[SYMBOLIC REGULATOR]]@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                              SYMBOLIC REGULATOR                              │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
 
 Definition sanity_symbolic_regulator : S_λ :=
   regulator_theory_symbolic_regulator

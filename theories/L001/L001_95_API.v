@@ -1,32 +1,55 @@
-(*@file@*)
+(*L001_95_API.v*)
 
-(*@head.start@*)
-(*@copyright@*)
-(*@doc.proofcase@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                      Author and Copyright remark. Author(s): │
+│                ╭╮╮╮─╮                Milan Rosko  https://www.milanrosko.com │
+│                ││││╭╯                Licence. This file is distributed under │
+│                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
+│                                      visit https://www.mozilla.org/en-US/MPL │
+└──────────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                           Proofcase / L001_95_API                            │
+└──────────────────────────────────────────────────────────────────────────────┘
 
-(*@doc.header@[[Overview]]@*)
+  OVERVIEW
 
-(*@doc.pl@[[The six canonical L001 contracts together with the derived
-goal-relative, branchwise, local-detachment, and fixed-point-gap endpoints.
-The strengthenings remain ordinary public theorems and do not enlarge the
-aggregate contract.  This API contains no legacy contract names, full-frame
-wrappers, regulator restatements, or duplicate decision surfaces.]]@*)
+  The six canonical L001 contracts together with the derived goal-relative,
+  branchwise, local-detachment, and fixed-point-gap endpoints. The
+  strengthenings remain ordinary public theorems and do not enlarge the
+  aggregate contract. This API contains no legacy contract names, full-frame
+  wrappers, regulator restatements, or duplicate decision surfaces.
 
-(*@head.end@*)
+*)
 
 From L001 Require Export L001_02__Aporetic_Obstruction.
 
-(*@section@[[DERIVED ENDPOINTS]]@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                              DERIVED ENDPOINTS                               │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
 
-(*@doc.pl@[[The cumulative export above exposes
-`closure_modus_ponens_detachment_at`,
-`branchwise_goal_relative_collapse`, `goal_relative_branch_collapse`, and
-`fixedpoint_gap`.  They refine the local-collapse dependency boundary without
-adding clauses to `L001_CONTRACT`.]]@*)
+  The cumulative export above exposes `closure_modus_ponens_detachment_at`,
+  `branchwise_goal_relative_collapse`, `goal_relative_branch_collapse`, and
+  `fixedpoint_gap`. They refine the local-collapse dependency boundary
+  without adding clauses to `L001_CONTRACT`.
 
-(*@section@[[PUBLIC VOCABULARY]]@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                              PUBLIC VOCABULARY                               │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
 
-(*@inline@[[A closure theory is only a formula-indexed proposition.]]@*)
+(*
+│
+│          A closure theory is only a formula-indexed proposition.
+│
+*)
 
 Definition ClosureTheory : Type := Formula -> Prop.
 
@@ -40,10 +63,20 @@ Definition ClosureLocalLEM
     (B : Formula) : Prop :=
   ClosureLocalExcludedMiddle C B.
 
-(*@section@[[CONTRACTS]]@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                                  CONTRACTS                                   │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
 
-(*@inline@[[The local branch and fixed-point data collapse to accepted
-bottom.]]@*)
+(*
+│
+│          The local branch and fixed-point data collapse to accepted
+│          bottom.
+│
+*)
 
 Definition LOCAL_COLLAPSE : Prop :=
   forall (C : ClosureTheory) (B : Formula),
@@ -52,7 +85,11 @@ Definition LOCAL_COLLAPSE : Prop :=
     ClosureLocalLEM C B ->
     C Bot.
 
-(*@inline@[[Consistency turns the local collapse into contradiction.]]@*)
+(*
+│
+│          Consistency turns the local collapse into contradiction.
+│
+*)
 
 Definition LOCAL_OBSTRUCTION : Prop :=
   forall (C : ClosureTheory) (B : Formula),
@@ -62,8 +99,12 @@ Definition LOCAL_OBSTRUCTION : Prop :=
     ClosureLocalLEM C B ->
     False.
 
-(*@inline@[[The bottom goal frame supplies the required negation fixed
-point.]]@*)
+(*
+│
+│          The bottom goal frame supplies the required negation fixed
+│          point.
+│
+*)
 
 Definition NEGATION_DIAGONAL : Prop :=
   forall (C : ClosureTheory) Code
@@ -72,8 +113,12 @@ Definition NEGATION_DIAGONAL : Prop :=
     exists B : Formula,
       ClosureNegationFixedPoint C B.
 
-(*@inline@[[A signed classifier is incompatible with a consistent closure at
-a supplied negation fixed point.]]@*)
+(*
+│
+│          A signed classifier is incompatible with a consistent
+│          closure at a supplied negation fixed point.
+│
+*)
 
 Definition SIGNED_OBSTRUCTION : Prop :=
   forall (C : ClosureTheory) (B : Formula),
@@ -83,8 +128,12 @@ Definition SIGNED_OBSTRUCTION : Prop :=
     ClosureSignedClassification C ->
     False.
 
-(*@inline@[[The corresponding membership obstruction keeps refutation
-completeness explicit.]]@*)
+(*
+│
+│          The corresponding membership obstruction keeps refutation
+│          completeness explicit.
+│
+*)
 
 Definition MEMBERSHIP_OBSTRUCTION : Prop :=
   forall (C : ClosureTheory) (B : Formula),
@@ -95,7 +144,11 @@ Definition MEMBERSHIP_OBSTRUCTION : Prop :=
     ClosureMembershipDecision C ->
     False.
 
-(*@inline@[[Negative-only refutation remains inhabited unconditionally.]]@*)
+(*
+│
+│          Negative-only refutation remains inhabited unconditionally.
+│
+*)
 
 Definition REFUTATION_INHABITED : Prop :=
   forall C : ClosureTheory,
@@ -103,7 +156,11 @@ Definition REFUTATION_INHABITED : Prop :=
       (forall A, r A = false) /\
       (forall A, r A = true -> C (formula_negation A)).
 
-(*@inline@[[The aggregate contains the six contracts in proof order.]]@*)
+(*
+│
+│          The aggregate contains the six contracts in proof order.
+│
+*)
 
 Definition L001_CONTRACT : Prop :=
   LOCAL_COLLAPSE /\

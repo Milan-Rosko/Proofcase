@@ -1,22 +1,36 @@
-(*@file@*)
+(*M001_97_Artifacts.v*)
 
-(*@head.start@*)
-(*@copyright@*)
-(*@doc.proofcase@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                      Author and Copyright remark. Author(s): │
+│                ╭╮╮╮─╮                Milan Rosko  https://www.milanrosko.com │
+│                ││││╭╯                Licence. This file is distributed under │
+│                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
+│                                      visit https://www.mozilla.org/en-US/MPL │
+└──────────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                        Proofcase / M001_97_Artifacts                         │
+└──────────────────────────────────────────────────────────────────────────────┘
 
-(*@doc.header@[[Overview]]@*)
+  OVERVIEW
 
-(*@doc.pl@[[Certification and extraction boundary for the five canonical
-M001 contracts.  The assumption report certifies their aggregate; extraction
-starts only from the checker and the three retained proof transformations.]]@*)
+  Certification and extraction boundary for the five canonical M001
+  contracts. The assumption report certifies their aggregate; extraction
+  starts only from the checker and the three retained proof transformations.
 
-(*@head.end@*)
+*)
 
 From Stdlib Require Import Extraction.
 
 From M001 Require Export M001_95_API.
 
-(*@section@[[CERTIFIED CONTRACT]]@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                              CERTIFIED CONTRACT                              │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
 
 Theorem m001_contract_qed :
   M001_CONTRACT.
@@ -38,12 +52,24 @@ Proof.
                 regulator_theory_check_bool_regulator_theory_monotone_lemma.
 Qed.
 
-(*@section@[[ASSUMPTION REPORT]]@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                              ASSUMPTION REPORT                               │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
 
 Redirect "theories/M001/_appendix/_assumptions/m001_contract_qed"
   Print Assumptions m001_contract_qed.
 
-(*@section@[[OCAML EXTRACTION]]@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                               OCAML EXTRACTION                               │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
 
 Extraction Language OCaml.
 

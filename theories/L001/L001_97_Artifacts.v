@@ -1,20 +1,34 @@
-(*@file@*)
+(*L001_97_Artifacts.v*)
 
-(*@head.start@*)
-(*@copyright@*)
-(*@doc.proofcase@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                      Author and Copyright remark. Author(s): │
+│                ╭╮╮╮─╮                Milan Rosko  https://www.milanrosko.com │
+│                ││││╭╯                Licence. This file is distributed under │
+│                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
+│                                      visit https://www.mozilla.org/en-US/MPL │
+└──────────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                        Proofcase / L001_97_Artifacts                         │
+└──────────────────────────────────────────────────────────────────────────────┘
 
-(*@doc.header@[[Overview]]@*)
+  OVERVIEW
 
-(*@doc.pl@[[Certification boundary for the six canonical L001 contracts.
-Derived corollaries remain in the public API but do not enlarge the certified
-contract surface.]]@*)
+  Certification boundary for the six canonical L001 contracts. Derived
+  corollaries remain in the public API but do not enlarge the certified
+  contract surface.
 
-(*@head.end@*)
+*)
 
 From L001 Require Export L001_95_API.
 
-(*@section@[[CERTIFIED CONTRACT]]@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                              CERTIFIED CONTRACT                              │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
 
 Theorem l001_contract_qed :
   L001_CONTRACT.
@@ -28,7 +42,13 @@ Proof.
   - exact closure_refutation_inhabited.
 Qed.
 
-(*@section@[[ASSUMPTION REPORT]]@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                              ASSUMPTION REPORT                               │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
 
 Redirect "theories/L001/_appendix/_assumptions/l001_contract_qed"
   Print Assumptions l001_contract_qed.

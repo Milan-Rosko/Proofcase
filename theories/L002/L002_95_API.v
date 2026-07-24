@@ -1,18 +1,33 @@
-(*@file@*)
+(*L002_95_API.v*)
 
-(*@head.start@*)
-(*@copyright@*)
-(*@doc.proofcase@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                      Author and Copyright remark. Author(s): │
+│                ╭╮╮╮─╮                Milan Rosko  https://www.milanrosko.com │
+│                ││││╭╯                Licence. This file is distributed under │
+│                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
+│                                      visit https://www.mozilla.org/en-US/MPL │
+└──────────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                           Proofcase / L002_95_API                            │
+└──────────────────────────────────────────────────────────────────────────────┘
 
-(*@doc.header@[[Overview]]@*)
+  OVERVIEW
 
-(*@doc.pl@[[Public API for L002. `L002_CORE_CONTRACT` contains the minimal fixed-point, mirror, coded-recognition, and finite-depth results. The legacy `WITNESS` preserves the earlier broad operational and response-law contract.]]@*)
+  Public API for L002. `L002_CORE_CONTRACT` contains the minimal fixed-point,
+  mirror, coded-recognition, and finite-depth results. The legacy `WITNESS`
+  preserves the earlier broad operational and response-law contract.
 
-(*@head.end@*)
+*)
 
 From L002 Require Export L002_03__Symbolic_Regulation.
 
-(*@inline@[[The preferred irrefutability contract states that a one-way mirror position and M-consistency imply `AsIF`.]]@*)
+(*
+│
+│          The preferred irrefutability contract states that a one-way
+│          mirror position and M-consistency imply `AsIF`.
+│
+*)
 
 Definition ASIF_FROM_EXTERNAL_MIRROR_POSITION_CONTRACT : Prop :=
   forall (M : RegulatorTheory)
@@ -48,7 +63,13 @@ Definition FULL_FIXED_POINT_COLLAPSE_CONTRACT : Prop :=
     ExternalFixedPoint M Gamma chi ->
     regulator_theory_checked_derivable M Gamma Bot.
 
-(*@inline@[[The concrete recognition contract excludes finite checked proof certificates whose literal target is the refutation of an external fixed point.]]@*)
+(*
+│
+│          The concrete recognition contract excludes finite checked
+│          proof certificates whose literal target is the refutation
+│          of an external fixed point.
+│
+*)
 
 Definition CHECKED_REFUTATION_RECOGNITION_OPACITY_CONTRACT : Prop :=
   forall (M : RegulatorTheory)
@@ -59,7 +80,13 @@ Definition CHECKED_REFUTATION_RECOGNITION_OPACITY_CONTRACT : Prop :=
     CheckedRefutationRecognitionCertificate M Gamma chi ->
     False.
 
-(*@inline@[[The coded recognition contract excludes acceptance of a first-class fixed-point claim by L002's finite certificate regulator.]]@*)
+(*
+│
+│          The coded recognition contract excludes acceptance of a
+│          first-class fixed-point claim by L002's finite certificate
+│          regulator.
+│
+*)
 
 Definition CODED_RECOGNITION_OPACITY_CONTRACT : Prop :=
   forall (M : RegulatorTheory)
@@ -85,9 +112,13 @@ Definition CODED_RECOGNITION_EVIDENCE_SPECIFICATION_CONTRACT : Prop :=
     regulator_theory_checked_derivable M Gamma
       (coded_recognition_evidence_formula A).
 
-(*@inline@[[Operational specification: coded recognition is accepted exactly
-when some finite certificate causes the M001 gate to release the advertised
-first-class recognition claim.]]@*)
+(*
+│
+│          Operational specification: coded recognition is accepted
+│          exactly when some finite certificate causes the M001 gate
+│          to release the advertised first-class recognition claim.
+│
+*)
 
 Definition CODED_RECOGNITION_RELEASE_SPECIFICATION_CONTRACT : Prop :=
   forall (M : RegulatorTheory)
@@ -99,10 +130,15 @@ Definition CODED_RECOGNITION_RELEASE_SPECIFICATION_CONTRACT : Prop :=
         M Gamma certificate (recognizes_fixed_point A) =
       Some (recognizes_fixed_point A).
 
-(*@inline@[[Stronger explanatory specification: in M001, K makes the coded
-evidence `A -> not A` equivalent at the derivability level to `not A` itself.
-This precision contract is additive and does not change the shape of the
-legacy aggregate witnesses.]]@*)
+(*
+│
+│          Stronger explanatory specification: in M001, K makes the
+│          coded evidence `A -> not A` equivalent at the derivability
+│          level to `not A` itself. This precision contract is
+│          additive and does not change the shape of the legacy
+│          aggregate witnesses.
+│
+*)
 
 Definition CODED_RECOGNITION_REFUTATION_SPECIFICATION_CONTRACT : Prop :=
   forall (M : RegulatorTheory)
@@ -112,7 +148,12 @@ Definition CODED_RECOGNITION_REFUTATION_SPECIFICATION_CONTRACT : Prop :=
     regulator_theory_checked_derivable M Gamma
       (formula_negation A).
 
-(*@inline@[[The regulated-assumption contract packages every `AsIF` formula as explicitly assumption-licensed content.]]@*)
+(*
+│
+│          The regulated-assumption contract packages every `AsIF`
+│          formula as explicitly assumption-licensed content.
+│
+*)
 
 Definition REGULATED_ASSUMPTION_CONTRACT : Prop :=
   forall (M : RegulatorTheory)
@@ -158,7 +199,13 @@ Definition CODED_SEED_RECURSIVE_MIRROR_CONTRACT : Prop :=
       ~ CodedRecognitionAccepted M Gamma
           (recursive_mirror_formula depth mirror_step chi).
 
-(*@inline@[[The externalization contract transports fixed-point irrefutability through an explicit system response relation.]]@*)
+(*
+│
+│          The externalization contract transports fixed-point
+│          irrefutability through an explicit system response
+│          relation.
+│
+*)
 
 Definition CONDITIONAL_EXTERNALIZATION_CONTRACT : Prop :=
   forall (System : Type)
@@ -173,7 +220,13 @@ Definition CONDITIONAL_EXTERNALIZATION_CONTRACT : Prop :=
     MirrorConsistent M Gamma ->
     externalizes system chi.
 
-(*@inline@[[The attribution contract transports fixed-point irrefutability through an explicit internal-or-external provenance response.]]@*)
+(*
+│
+│          The attribution contract transports fixed-point
+│          irrefutability through an explicit internal-or-external
+│          provenance response.
+│
+*)
 
 Definition CONDITIONAL_ATTRIBUTION_CONTRACT : Prop :=
   forall (M : RegulatorTheory)
@@ -187,7 +240,12 @@ Definition CONDITIONAL_ATTRIBUTION_CONTRACT : Prop :=
     AsIF M Gamma (internal_attribution chi) \/
     AsIF M Gamma (external_attribution chi).
 
-(*@inline@[[The finite-operation contract certifies recurrence for every total trace over a finite state carrier.]]@*)
+(*
+│
+│          The finite-operation contract certifies recurrence for
+│          every total trace over a finite state carrier.
+│
+*)
 
 Definition FINITE_OPERATIONAL_RECURRENCE_CONTRACT : Prop :=
   forall (State : Type)
@@ -264,7 +322,12 @@ Definition CONCRETE_EXTERNALIZATION_CONTRACT : Prop :=
             (logical_finite_operation
                (attributed_provenance_logical_operation L)) time)).
 
-(*@inline@[[The principles contract collects the literal certified and conditional conclusions supported by Symbolic Regulation.]]@*)
+(*
+│
+│          The principles contract collects the literal certified and
+│          conditional conclusions supported by Symbolic Regulation.
+│
+*)
 
 Definition PRINCIPLES_OF_SYMBOLIC_REGULATION_CONTRACT : Prop :=
   (forall (M : RegulatorTheory)
@@ -286,7 +349,14 @@ Definition PRINCIPLES_OF_SYMBOLIC_REGULATION_CONTRACT : Prop :=
             (recursive_mirror_formula depth mirror_step chi)) /\
   CONCRETE_EXTERNALIZATION_CONTRACT.
 
-(*@inline@[[Optional specification bundling relative consistency, witnessed mirror questions, and response traces. The unbounded conclusion retains its outcome-decidability premise.]]@*)
+(*
+│
+│          Optional specification bundling relative consistency,
+│          witnessed mirror questions, and response traces. The
+│          unbounded conclusion retains its outcome-decidability
+│          premise.
+│
+*)
 
 Record CONTROL_QUESTION_SPECIFICATION_CONTRACT : Prop := {
   certified_world_brain_model_consistency :
@@ -349,7 +419,13 @@ Record CONTROL_QUESTION_SPECIFICATION_CONTRACT : Prop := {
       ReentersForever process
 }.
 
-(*@inline@[[The compact Mirror endpoint bundles full-fixed-point collapse, live mirror irrefutability, and coded recognition opacity.]]@*)
+(*
+│
+│          The compact Mirror endpoint bundles full-fixed-point
+│          collapse, live mirror irrefutability, and coded recognition
+│          opacity.
+│
+*)
 
 Definition MIRROR_LEMMA_CONTRACT : Prop :=
   FULL_FIXED_POINT_COLLAPSE_CONTRACT /\
@@ -358,13 +434,24 @@ Definition MIRROR_LEMMA_CONTRACT : Prop :=
   CODED_RECOGNITION_OPACITY_CONTRACT /\
   CODED_RECOGNITION_EVIDENCE_SPECIFICATION_CONTRACT.
 
-(*@inline@[[The compact recursive endpoint bundles all-depth mirror adequacy with the seed-plus-preservation construction.]]@*)
+(*
+│
+│          The compact recursive endpoint bundles all-depth mirror
+│          adequacy with the seed-plus-preservation construction.
+│
+*)
 
 Definition RECURSIVE_MIRROR_LEMMA_CONTRACT : Prop :=
   CODED_RECURSIVE_MIRROR_CONTRACT /\
   CODED_SEED_RECURSIVE_MIRROR_CONTRACT.
 
-(*@inline@[[Primary theorem-core contract. Optional attribution, provenance, externalization, and response specifications are deliberately excluded.]]@*)
+(*
+│
+│          Primary theorem-core contract. Optional attribution,
+│          provenance, externalization, and response specifications
+│          are deliberately excluded.
+│
+*)
 
 Definition L002_CORE_CONTRACT : Prop :=
   GOAL_FRAME_EXTERNAL_FIXED_POINT_CONTRACT /\
@@ -377,7 +464,12 @@ Definition L002_CORE_CONTRACT : Prop :=
 Definition CORE_WITNESS : Prop :=
   L002_CORE_CONTRACT.
 
-(*@inline@[[Legacy broad contract over global mirror results and optional operational and response-law surfaces.]]@*)
+(*
+│
+│          Legacy broad contract over global mirror results and
+│          optional operational and response-law surfaces.
+│
+*)
 
 Definition SYMBOLIC_REGULATION_CONTRACT : Prop :=
   ASIF_FROM_EXTERNAL_MIRROR_POSITION_CONTRACT /\
@@ -397,7 +489,12 @@ Definition SYMBOLIC_REGULATION_CONTRACT : Prop :=
   CONDITIONAL_EXTERNALIZATION_CONTRACT /\
   CONTROL_QUESTION_SPECIFICATION_CONTRACT.
 
-(*@inline@[[Compatibility alias for the legacy broad contract. New clients should prefer `CORE_WITNESS` for the theorem core.]]@*)
+(*
+│
+│          Compatibility alias for the legacy broad contract. New
+│          clients should prefer `CORE_WITNESS` for the theorem core.
+│
+*)
 
 Definition WITNESS : Prop :=
   SYMBOLIC_REGULATION_CONTRACT.

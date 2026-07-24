@@ -1,21 +1,42 @@
-(*@file@*)
+(*L002_03__Symbolic_Regulation.v*)
 
-(*@head.start@*)
-(*@copyright@*)
-(*@doc.proofcase@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                      Author and Copyright remark. Author(s): │
+│                ╭╮╮╮─╮                Milan Rosko  https://www.milanrosko.com │
+│                ││││╭╯                Licence. This file is distributed under │
+│                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
+│                                      visit https://www.mozilla.org/en-US/MPL │
+└──────────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                   Proofcase / L002_03__Symbolic_Regulation                   │
+└──────────────────────────────────────────────────────────────────────────────┘
 
-(*@doc.header@[[Overview]]@*)
+  OVERVIEW
 
-(*@doc.pl@[[Optional consequence layer: finite-state recurrence plus conditional attribution, provenance, and externalization transports. The coded mirror theorems remain the L002 core.]]@*)
+  Optional consequence layer: finite-state recurrence plus conditional
+  attribution, provenance, and externalization transports. The coded mirror
+  theorems remain the L002 core.
 
-(*@head.end@*)
+*)
 
 From L002 Require Export L002_02__Recursive_Mirror_Lemma.
 From Stdlib Require Import Lia.
 
-(*@section@[[FINITE OPERATIONAL LAYER]]@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                           FINITE OPERATIONAL LAYER                           │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
 
-(*@inline@[[A finite list with a duplicate has equal entries at two strictly ordered positions.]]@*)
+(*
+│
+│          A finite list with a duplicate has equal entries at two
+│          strictly ordered positions.
+│
+*)
 
 Lemma finite_list_duplicate_positions :
   forall (A : Type)
@@ -53,7 +74,13 @@ Proof.
       exact Hequal.
 Qed.
 
-(*@inline@[[A total trace over a finite state carrier repeats a state among its first `N + 1` observations, where `N` is the carrier-list length.]]@*)
+(*
+│
+│          A total trace over a finite state carrier repeats a state
+│          among its first `N + 1` observations, where `N` is the
+│          carrier-list length.
+│
+*)
 
 Theorem finite_operational_recurrence :
   forall (State : Type)
@@ -118,9 +145,22 @@ Proof.
       exact Hequal.
 Qed.
 
-(*@section@[[LOGICAL OPERATIONAL REGULATION]]@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                        LOGICAL OPERATIONAL REGULATION                        │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
 
-(*@inline@[[Finite recurrence in a logical operational layer repeats both the operational state and its associated formula, while retaining `AsIF` and recognition opacity at the repeated observation.]]@*)
+(*
+│
+│          Finite recurrence in a logical operational layer repeats
+│          both the operational state and its associated formula,
+│          while retaining `AsIF` and recognition opacity at the
+│          repeated observation.
+│
+*)
 
 Theorem logical_operational_recurrence :
   forall (State : Type)
@@ -164,7 +204,18 @@ Proof.
   - exact (logical_operational_content_opaque L earlier).
 Qed.
 
-(*@inline@[[Legacy structural attribution example: implication reflection is named as one branch and identity as the other. These are stipulated formula codings and demonstrate transport only; they do not identify real internal or external causal origin. The explicit `AttributedProvenanceOperationalLayer` below is the preferred operational attribution model, subject to the same origin guardrail.]]@*)
+(*
+│
+│          Legacy structural attribution example: implication
+│          reflection is named as one branch and identity as the
+│          other. These are stipulated formula codings and demonstrate
+│          transport only; they do not identify real internal or
+│          external causal origin. The explicit
+│          `AttributedProvenanceOperationalLayer` below is the
+│          preferred operational attribution model, subject to the
+│          same origin guardrail.
+│
+*)
 
 Definition implication_reflection_internal_attribution :
     AttributionCoding :=
@@ -191,7 +242,16 @@ Proof.
     + exact (assumption_intro M Gamma A).
 Qed.
 
-(*@inline@[[The structural selected response always realizes the internal branch through implication-reflection preservation. Its selection premise is intentionally unused; it is retained as a compatibility/surface-inhabitation result, not evidence of attribution behavior.]]@*)
+(*
+│
+│          The structural selected response always realizes the
+│          internal branch through implication-reflection
+│          preservation. Its selection premise is intentionally
+│          unused; it is retained as a
+│          compatibility/surface-inhabitation result, not evidence of
+│          attribution behavior.
+│
+*)
 
 Theorem implication_reflection_selected_attribution_response :
   forall (M : RegulatorTheory)
@@ -207,7 +267,13 @@ Proof.
   exact (asif_implication_reflection_mirror M Gamma A Hasif).
 Qed.
 
-(*@inline@[[At the recurrent observation, a selected operational layer yields a concrete internal-or-external attribution position through its registered response law.]]@*)
+(*
+│
+│          At the recurrent observation, a selected operational layer
+│          yields a concrete internal-or-external attribution position
+│          through its registered response law.
+│
+*)
 
 Theorem selected_operational_attribution_recurrence :
   forall (State : Type)
@@ -253,7 +319,13 @@ Proof.
            (selected_logical_operation L) earlier).
 Qed.
 
-(*@section@[[OPERATIONAL PROVENANCE OBSERVATIONS]]@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                     OPERATIONAL PROVENANCE OBSERVATIONS                      │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
 
 Definition operational_attribution_observation
     {State M Gamma}
@@ -289,7 +361,13 @@ Proof.
   - right. eexists. reflexivity.
 Qed.
 
-(*@inline@[[Finite recurrence repeats the complete provenance observation because both logical content and provenance are functions of the repeated operational state.]]@*)
+(*
+│
+│          Finite recurrence repeats the complete provenance
+│          observation because both logical content and provenance are
+│          functions of the repeated operational state.
+│
+*)
 
 Theorem attributed_provenance_operational_recurrence :
   forall State M Gamma
@@ -329,9 +407,21 @@ Proof.
   - exact Hopaque.
 Qed.
 
-(*@section@[[OBSERVABLE EXTERNALIZATION]]@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                          OBSERVABLE EXTERNALIZATION                          │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
 
-(*@inline@[[Concrete operational externalization is an observed state whose explicit provenance tag is external and whose logical content is the advertised formula.]]@*)
+(*
+│
+│          Concrete operational externalization is an observed state
+│          whose explicit provenance tag is external and whose logical
+│          content is the advertised formula.
+│
+*)
 
 Definition operational_externalizes
     {State M Gamma}
@@ -367,7 +457,12 @@ Proof.
   - reflexivity.
 Qed.
 
-(*@inline@[[A one-way external mirror position is internally non-refutable in every consistent embedded theory.]]@*)
+(*
+│
+│          A one-way external mirror position is internally
+│          non-refutable in every consistent embedded theory.
+│
+*)
 
 Theorem oracle_irrefutability_principle :
   forall (M : RegulatorTheory)
@@ -380,7 +475,12 @@ Proof.
   exact external_mirror_position_forces_asif.
 Qed.
 
-(*@inline@[[A fixed symbolic regulator cannot adequately recognize a one-way mirror position from inside its regulated position.]]@*)
+(*
+│
+│          A fixed symbolic regulator cannot adequately recognize a
+│          one-way mirror position from inside its regulated position.
+│
+*)
 
 Theorem recognition_opacity_principle :
   forall (Slambda M : RegulatorTheory)
@@ -398,7 +498,13 @@ Proof.
           Slambda M Gamma S chi Hfixed)).
 Qed.
 
-(*@inline@[[A supplied attribution response transports fixed-point irrefutability to an internal-or-external provenance position.]]@*)
+(*
+│
+│          A supplied attribution response transports fixed-point
+│          irrefutability to an internal-or-external provenance
+│          position.
+│
+*)
 
 Theorem conditional_attribution_principle :
   forall (M : RegulatorTheory)
@@ -420,7 +526,13 @@ Proof.
        M Gamma chi Hfixed Hconsistent).
 Qed.
 
-(*@inline@[[A selected attribution response transports fixed-point irrefutability only when the fixed point belongs to the finite active schema set.]]@*)
+(*
+│
+│          A selected attribution response transports fixed-point
+│          irrefutability only when the fixed point belongs to the
+│          finite active schema set.
+│
+*)
 
 Theorem selected_conditional_attribution_principle :
   forall (M : RegulatorTheory)
@@ -445,9 +557,25 @@ Proof.
          M Gamma chi Hfixed Hconsistent).
 Qed.
 
-(*@section@[[ATTRIBUTIONAL STANDOFF]]@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                            ATTRIBUTIONAL STANDOFF                            │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
 
-(*@inline@[[Exported attributional-standoff result. A supplied ambiguity response makes both provenance formulas irrefutable at the mirror position. The conclusion is `AttributionallyAmbiguous`, not a selection of or evidential lean toward either attribution. This theorem is exported by the API but is not a conjunct of the certified `WITNESS`.]]@*)
+(*
+│
+│          Exported attributional-standoff result. A supplied
+│          ambiguity response makes both provenance formulas
+│          irrefutable at the mirror position. The conclusion is
+│          `AttributionallyAmbiguous`, not a selection of or
+│          evidential lean toward either attribution. This theorem is
+│          exported by the API but is not a conjunct of the certified
+│          `WITNESS`.
+│
+*)
 
 Theorem conditional_attributional_ambiguity_principle :
   forall (M : RegulatorTheory)
@@ -469,9 +597,23 @@ Proof.
        M Gamma chi Hfixed Hconsistent).
 Qed.
 
-(*@section@[[ONE-SIDED RESPONSE BRIDGES]]@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                          ONE-SIDED RESPONSE BRIDGES                          │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
 
-(*@inline@[[Under an opacity response, a fixed-point position whose supplied recognition process is opaque leaves its external-attribution formula irrefutable. This one-sided conclusion comes from the explicit response premise, not from opacity by itself.]]@*)
+(*
+│
+│          Under an opacity response, a fixed-point position whose
+│          supplied recognition process is opaque leaves its
+│          external-attribution formula irrefutable. This one-sided
+│          conclusion comes from the explicit response premise, not
+│          from opacity by itself.
+│
+*)
 
 Theorem conditional_opaque_external_attribution_principle :
   forall (Slambda M : RegulatorTheory)
@@ -497,7 +639,13 @@ Proof.
          Slambda M Gamma S chi Hfixed).
 Qed.
 
-(*@inline@[[A supplied externalization response transports fixed-point irrefutability to external attribution for the selected system.]]@*)
+(*
+│
+│          A supplied externalization response transports fixed-point
+│          irrefutability to external attribution for the selected
+│          system.
+│
+*)
 
 Theorem conditional_externalization_principle :
   forall (System : Type)
@@ -520,7 +668,12 @@ Proof.
        M Gamma chi Hfixed Hconsistent).
 Qed.
 
-(*@inline@[[The same response law externalizes every finite iterate of an adequate recursive mirror.]]@*)
+(*
+│
+│          The same response law externalizes every finite iterate of
+│          an adequate recursive mirror.
+│
+*)
 
 Theorem recursive_conditional_externalization_principle :
   forall (System : Type)
@@ -546,9 +699,20 @@ Proof.
        M Gamma mirror_step chi Hadequate Hconsistent depth).
 Qed.
 
-(*@section@[[PRINCIPLES OF SYMBOLIC REGULATION]]@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                      PRINCIPLES OF SYMBOLIC REGULATION                       │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
 
-(*@inline@[[Concrete coded fixed-point opacity excludes acceptance by L002's finite recognition-certificate regulator.]]@*)
+(*
+│
+│          Concrete coded fixed-point opacity excludes acceptance by
+│          L002's finite recognition-certificate regulator.
+│
+*)
 
 Theorem coded_fixed_point_certificate_opacity :
   forall (M : RegulatorTheory)
@@ -561,9 +725,20 @@ Proof.
   exact coded_recognition_opacity.
 Qed.
 
-(*@section@[[LEGACY INTERPRETIVE ALIASES]]@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                         LEGACY INTERPRETIVE ALIASES                          │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
 
-(*@inline@[[Compatibility wrapper for the legacy `InternalFixedPointRecognition` interface.]]@*)
+(*
+│
+│          Compatibility wrapper for the legacy
+│          `InternalFixedPointRecognition` interface.
+│
+*)
 
 Theorem fixed_point_certificate_opacity :
   forall (Slambda M : RegulatorTheory)
@@ -577,7 +752,12 @@ Proof.
   exact recognition_opacity_principle.
 Qed.
 
-(*@inline@[[Legacy name for `fixed_point_certificate_opacity`; no broader conclusion is added.]]@*)
+(*
+│
+│          Legacy name for `fixed_point_certificate_opacity`; no
+│          broader conclusion is added.
+│
+*)
 
 Theorem incomprehensibility_of_symbolic_regulation :
   forall (Slambda M : RegulatorTheory)
@@ -591,7 +771,12 @@ Proof.
   exact fixed_point_certificate_opacity.
 Qed.
 
-(*@inline@[[Legacy name for all-finite-depth `AsIF` plus legacy recognition opacity.]]@*)
+(*
+│
+│          Legacy name for all-finite-depth `AsIF` plus legacy
+│          recognition opacity.
+│
+*)
 
 Theorem finite_perpetuity_of_ignorance :
   forall (Slambda M : RegulatorTheory)
@@ -619,7 +804,12 @@ Proof.
   - exact (Hopacity depth).
 Qed.
 
-(*@inline@[[Legacy name for conditional external-attribution transport through `OpacityExternalAttributionResponse`.]]@*)
+(*
+│
+│          Legacy name for conditional external-attribution transport
+│          through `OpacityExternalAttributionResponse`.
+│
+*)
 
 Theorem paradox_of_the_external :
   forall (Slambda M : RegulatorTheory)

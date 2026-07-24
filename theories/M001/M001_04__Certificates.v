@@ -1,21 +1,35 @@
-(*@file@*)
+(*M001_04__Certificates.v*)
 
-(*@head.start@*)
-(*@copyright@*)
-(*@doc.proofcase@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                      Author and Copyright remark. Author(s): │
+│                ╭╮╮╮─╮                Milan Rosko  https://www.milanrosko.com │
+│                ││││╭╯                Licence. This file is distributed under │
+│                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
+│                                      visit https://www.mozilla.org/en-US/MPL │
+└──────────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                      Proofcase / M001_04__Certificates                       │
+└──────────────────────────────────────────────────────────────────────────────┘
 
-(*@doc.header@[[Overview]]@*)
+  OVERVIEW
 
-(*@doc.pl@[[Minimal checked-derivability vocabulary.  A proof certificate
-retains one finite script and its checker equation; checked derivability
-forgets the script into an existential proposition.  These two views are the
-only certificate surfaces needed by M001 and L002.]]@*)
+  Minimal checked-derivability vocabulary. A proof certificate retains one
+  finite script and its checker equation; checked derivability forgets the
+  script into an existential proposition. These two views are the only
+  certificate surfaces needed by M001 and L002.
 
-(*@head.end@*)
+*)
 
 From M001 Require Export M001_03__Falsity.
 
-(*@section@[[CHECKED PROOF CERTIFICATES]]@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                          CHECKED PROOF CERTIFICATES                          │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
 
 Definition regulator_theory_proof_certificate
     (R : RegulatorTheory)
@@ -30,8 +44,12 @@ Definition regulator_theory_checked_derivable
   exists p : Proof,
     regulator_theory_check_bool R Gamma p A = true.
 
-(*@inline@[[Forgetting a retained certificate preserves its checked
-derivability claim.]]@*)
+(*
+│
+│          Forgetting a retained certificate preserves its checked
+│          derivability claim.
+│
+*)
 
 Lemma regulator_theory_proof_certificate_derivable_lemma :
   forall R Gamma A,
@@ -43,10 +61,21 @@ Proof.
   exact Hp.
 Qed.
 
-(*@section@[[DEDUCTION LIFT]]@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                                DEDUCTION LIFT                                │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
 
-(*@inline@[[Checked deduction lifts from concrete scripts to existential
-checked derivability by retaining the transformed script as witness.]]@*)
+(*
+│
+│          Checked deduction lifts from concrete scripts to
+│          existential checked derivability by retaining the
+│          transformed script as witness.
+│
+*)
 
 Lemma regulator_theory_checked_derivable_deduction_lemma :
   forall R Gamma A B,

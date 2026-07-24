@@ -1,20 +1,41 @@
-(*@file@*)
+(*L003_01__Binary_Evaluation.v*)
 
-(*@head.start@*)
-(*@copyright@*)
-(*@doc.proofcase@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                      Author and Copyright remark. Author(s): │
+│                ╭╮╮╮─╮                Milan Rosko  https://www.milanrosko.com │
+│                ││││╭╯                Licence. This file is distributed under │
+│                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
+│                                      visit https://www.mozilla.org/en-US/MPL │
+└──────────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                    Proofcase / L003_01__Binary_Evaluation                    │
+└──────────────────────────────────────────────────────────────────────────────┘
 
-(*@doc.header@[[Overview]]@*)
+  OVERVIEW
 
-(*@doc.pl@[[Binary evaluation layer for L003. We derive the constructive consequences of exact binary totality: uniqueness separates verdicts `0` and `1`, while existence makes each verdict equivalent to the negation of the other.]]@*)
+  Binary evaluation layer for L003. We derive the constructive consequences
+  of exact binary totality: uniqueness separates verdicts `0` and `1`, while
+  existence makes each verdict equivalent to the negation of the other.
 
-(*@head.end@*)
+*)
 
 From L003 Require Export L003_00_Premises.
 
-(*@section@[[UNIQUENESS AND BINARY EXHAUSTION]]@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                       UNIQUENESS AND BINARY EXHAUSTION                       │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
 
-(*@inline@[[Any two binary outputs produced by the same total evaluator on the same query must coincide.]]@*)
+(*
+│
+│          Any two binary outputs produced by the same total evaluator
+│          on the same query must coincide.
+│
+*)
 
 Theorem tot2_output_unique :
   forall (out : OutputRelation)
@@ -35,9 +56,14 @@ Proof.
   - apply Hunique. split; assumption.
 Qed.
 
-(*@inline@[[Every query to a `Tot2` evaluator produces one of the two distinguished verdicts.]]@*)
+(*
+│
+│          Every query to a `Tot2` evaluator produces one of the two
+│          distinguished verdicts.
+│
+*)
 
-(*@unicodemath@[[Tot2(out,h) ⇒ ∀ q, ∃ b, (b = 0 ∨ b = 1) ∧ out(h,q,b).]]@*)
+(*           Tot2(out,h) ⇒ ∀ q, ∃ b, (b = 0 ∨ b = 1) ∧ out(h,q,b).            *)
 
 Theorem tot2_has_zero_or_one :
   forall (out : OutputRelation)
@@ -55,11 +81,22 @@ Proof.
   - exact Hout.
 Qed.
 
-(*@section@[[CONSTRUCTIVE BINARY COMPLEMENTS]]@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                       CONSTRUCTIVE BINARY COMPLEMENTS                        │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
 
-(*@inline@[[For a total binary evaluator, producing verdict `0` is equivalent to not producing verdict `1`.]]@*)
+(*
+│
+│          For a total binary evaluator, producing verdict `0` is
+│          equivalent to not producing verdict `1`.
+│
+*)
 
-(*@unicodemath@[[Tot2(out,h) ⇒ (out(h,q,0) ⇔ ¬ out(h,q,1)).]]@*)
+(*                 Tot2(out,h) ⇒ (out(h,q,0) ⇔ ¬ out(h,q,1)).                 *)
 
 Theorem tot2_zero_iff_not_one :
   forall (out : OutputRelation)
@@ -88,9 +125,14 @@ Proof.
     + subst b. exfalso. exact (Hnot_one Hout).
 Qed.
 
-(*@inline@[[Symmetrically, producing verdict `1` is equivalent to not producing verdict `0`.]]@*)
+(*
+│
+│          Symmetrically, producing verdict `1` is equivalent to not
+│          producing verdict `0`.
+│
+*)
 
-(*@unicodemath@[[Tot2(out,h) ⇒ (out(h,q,1) ⇔ ¬ out(h,q,0)).]]@*)
+(*                 Tot2(out,h) ⇒ (out(h,q,1) ⇔ ¬ out(h,q,0)).                 *)
 
 Theorem tot2_one_iff_not_zero :
   forall (out : OutputRelation)

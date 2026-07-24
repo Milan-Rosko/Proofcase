@@ -1,35 +1,54 @@
-(*@file@*)
+(*M001_03__Falsity.v*)
 
-(*@head.start@*)
-(*@copyright@*)
-(*@doc.proofcase@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                      Author and Copyright remark. Author(s): │
+│                ╭╮╮╮─╮                Milan Rosko  https://www.milanrosko.com │
+│                ││││╭╯                Licence. This file is distributed under │
+│                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
+│                                      visit https://www.mozilla.org/en-US/MPL │
+└──────────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                         Proofcase / M001_03__Falsity                         │
+└──────────────────────────────────────────────────────────────────────────────┘
 
-(*@doc.header@[[Overview]]@*)
+  OVERVIEW
 
-(*@doc.pl@[[Executable constructive reductio.  Object-language negation is
-defined with the primitive syntax in `M001_00`; this layer specializes the
-checked deduction transformer to conclusion `Bot`.  A checked contradiction
-under a temporary assumption `A` is thereby transformed into a checked proof
-of `A -> Bot` after the assumption is discharged.]]@*)
+  Executable constructive reductio. Object-language negation is defined with
+  the primitive syntax in `M001_00`; this layer specializes the checked
+  deduction transformer to conclusion `Bot`. A checked contradiction under a
+  temporary assumption `A` is thereby transformed into a checked proof of `A
+  -> Bot` after the assumption is discharged.
 
-(*@doc.pl@[[The transform and its checker theorem are the complete public
-surface.  Reductio certificates require no separate hierarchy: callers may
-retain the source script, compute the target script, and validate either one
-with the ordinary checker.]]@*)
+  The transform and its checker theorem are the complete public surface.
+  Reductio certificates require no separate hierarchy: callers may retain the
+  source script, compute the target script, and validate either one with the
+  ordinary checker.
 
-(*@head.end@*)
+*)
 
 From M001 Require Export M001_02__Abstraction.
 
-(*@section@[[CHECKED REDUCTIO]]@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                               CHECKED REDUCTIO                               │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
 
 Definition regulator_theory_reductio_transform
     (A : Formula)
     (p : Proof) : Proof :=
   regulator_theory_deduction_transform A p.
 
-(*@inline@[[The reductio theorem is constructive and profile-independent.
-It is exactly checked deduction at the conclusion `Bot`.]]@*)
+(*
+│
+│          The reductio theorem is constructive and
+│          profile-independent. It is exactly checked deduction at the
+│          conclusion `Bot`.
+│
+*)
 
 Theorem regulator_theory_reductio_checked :
   forall R Gamma A p,

@@ -1,23 +1,46 @@
-(*@file@*)
+(*L003_95_API.v*)
 
-(*@head.start@*)
-(*@copyright@*)
-(*@doc.proofcase@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                      Author and Copyright remark. Author(s): │
+│                ╭╮╮╮─╮                Milan Rosko  https://www.milanrosko.com │
+│                ││││╭╯                Licence. This file is distributed under │
+│                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
+│                                      visit https://www.mozilla.org/en-US/MPL │
+└──────────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                           Proofcase / L003_95_API                            │
+└──────────────────────────────────────────────────────────────────────────────┘
 
-(*@doc.header@[[Overview]]@*)
+  OVERVIEW
 
-(*@doc.pl@[[Public API and contract surface for L003. We re-export both post-nonclosure branches—the concrete compiled semantics and the indexed-judgment separation—and name the six propositions collected by the package contract.]]@*)
+  Public API and contract surface for L003. We re-export both post-nonclosure
+  branches—the concrete compiled semantics and the indexed-judgment
+  separation—and name the six propositions collected by the package contract.
 
-(*@doc.pl@[[The contract definitions restate theorem shapes; their inhabitants are certified in `L003_97_Artifacts`. Downstream developments should normally import this file rather than the artifact layer.]]@*)
+  The contract definitions restate theorem shapes; their inhabitants are
+  certified in `L003_97_Artifacts`. Downstream developments should normally
+  import this file rather than the artifact layer.
 
-(*@head.end@*)
+*)
 
 From L003 Require Export L003_03__Compiled_Countermachine.
 From L003 Require Export L003_04__Indexed_Judgment.
 
-(*@section@[[ABSTRACT NONCLOSURE CONTRACTS]]@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                        ABSTRACT NONCLOSURE CONTRACTS                         │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
 
-(*@inline@[[The primary contract states evaluator-relative exclusion under a supplied correct diagonal compiler.]]@*)
+(*
+│
+│          The primary contract states evaluator-relative exclusion
+│          under a supplied correct diagonal compiler.
+│
+*)
 
 Definition EVALUATOR_RELATIVE_NONCLOSURE_CONTRACT : Prop :=
   forall (out : OutputRelation)
@@ -30,7 +53,13 @@ Definition EVALUATOR_RELATIVE_NONCLOSURE_CONTRACT : Prop :=
     EvalC out halt query C h ->
     ~ C (diagonal h).
 
-(*@inline@[[The closed-domain contract excludes the existence of an evaluator correct on a domain that contains every evaluator-relative diagonal product.]]@*)
+(*
+│
+│          The closed-domain contract excludes the existence of an
+│          evaluator correct on a domain that contains every
+│          evaluator-relative diagonal product.
+│
+*)
 
 Definition DIAGONALLY_CLOSED_DOMAIN_EXCLUSION_CONTRACT : Prop :=
   forall (out : OutputRelation)
@@ -43,16 +72,34 @@ Definition DIAGONALLY_CLOSED_DOMAIN_EXCLUSION_CONTRACT : Prop :=
     ~ exists h : Code,
         EvalC out halt query C h.
 
-(*@section@[[INDEXED-SELF CONTRACTS]]@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                            INDEXED-SELF CONTRACTS                            │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
 
-(*@inline@[[Successful assigned-label checking does not, for every configuration, entail binding to the active evaluator label.]]@*)
+(*
+│
+│          Successful assigned-label checking does not, for every
+│          configuration, entail binding to the active evaluator
+│          label.
+│
+*)
 
 Definition INDEXED_SELF_CHECKING_NONENTAILMENT_CONTRACT : Prop :=
   ~ (forall configuration : IndexedSelfConfiguration,
        SelfTokenChecks configuration ->
        SelfTokenBound configuration).
 
-(*@inline@[[Even when active-evaluator binding is supplied explicitly, the bound evaluator must exclude its diagonal compiler product from the correctness domain.]]@*)
+(*
+│
+│          Even when active-evaluator binding is supplied explicitly,
+│          the bound evaluator must exclude its diagonal compiler
+│          product from the correctness domain.
+│
+*)
 
 Definition BOUND_EVALUATOR_NONCLOSURE_CONTRACT : Prop :=
   forall (out : OutputRelation)
@@ -65,9 +112,21 @@ Definition BOUND_EVALUATOR_NONCLOSURE_CONTRACT : Prop :=
     BoundEvaluator out halt query C configuration ->
     ~ C (diagonal (active_evaluator configuration)).
 
-(*@section@[[COMPILED-SEMANTICS CONTRACTS]]@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                         COMPILED-SEMANTICS CONTRACTS                         │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
 
-(*@inline@[[The even/odd compiled semantics satisfies the abstract diagonal compiler law for every base output relation and query coding.]]@*)
+(*
+│
+│          The even/odd compiled semantics satisfies the abstract
+│          diagonal compiler law for every base output relation and
+│          query coding.
+│
+*)
 
 Definition CONCRETE_COMPILER_CORRECTNESS_CONTRACT : Prop :=
   forall (base_out : OutputRelation)
@@ -78,7 +137,13 @@ Definition CONCRETE_COMPILER_CORRECTNESS_CONTRACT : Prop :=
       query
       compiled_diagonal_code.
 
-(*@inline@[[Every evaluator correct in the compiled semantics excludes its odd diagonal product from the claimed correctness domain.]]@*)
+(*
+│
+│          Every evaluator correct in the compiled semantics excludes
+│          its odd diagonal product from the claimed correctness
+│          domain.
+│
+*)
 
 Definition CONCRETE_EVALUATOR_NONCLOSURE_CONTRACT : Prop :=
   forall (base_out : OutputRelation)
@@ -91,9 +156,21 @@ Definition CONCRETE_EVALUATOR_NONCLOSURE_CONTRACT : Prop :=
       query C h ->
     ~ C (compiled_diagonal_code h).
 
-(*@section@[[AGGREGATE PACKAGE CONTRACT]]@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                          AGGREGATE PACKAGE CONTRACT                          │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
 
-(*@inline@[[`L003_CORE_CONTRACT` conjoins the two abstract nonclosure results, the two indexed-self results, and the two concrete compiled-semantics results.]]@*)
+(*
+│
+│          `L003_CORE_CONTRACT` conjoins the two abstract nonclosure
+│          results, the two indexed-self results, and the two concrete
+│          compiled-semantics results.
+│
+*)
 
 Definition L003_CORE_CONTRACT : Prop :=
   EVALUATOR_RELATIVE_NONCLOSURE_CONTRACT /\

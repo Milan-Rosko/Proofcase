@@ -1,23 +1,38 @@
-(*@file@*)
+(*A001_05__Pair_Unpair_Correct.v*)
 
-(*@head.start@*)
-(*@copyright@*)
-(*@doc.proofcase@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                      Author and Copyright remark. Author(s): │
+│                ╭╮╮╮─╮                Milan Rosko  https://www.milanrosko.com │
+│                ││││╭╯                Licence. This file is distributed under │
+│                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
+│                                      visit https://www.mozilla.org/en-US/MPL │
+└──────────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                   Proofcase / A001_05__Pair_Unpair_Correct                   │
+└──────────────────────────────────────────────────────────────────────────────┘
 
-(*@doc.header@[[Overview]]@*)
+  OVERVIEW
 
-(*@doc.pl@[[Concrete certified surface for A001 carryless pairing. We specialize the parametric Fibonacci-base construction to the distinguished support engine, define `encode` and `decode`, and establish roundtrip and injectivity.]]@*)
+  Concrete certified surface for A001 carryless pairing. We specialize the
+  parametric Fibonacci-base construction to the distinguished support engine,
+  define `encode` and `decode`, and establish roundtrip and injectivity.
 
-(*@doc.pl@[[The preceding files develop the Zeckendorf support machinery and the carryless band decomposition. The present file is the first user-facing arithmetic surface, packaging those structural results as a concrete pairing function and its inverse.]]@*)
+  The preceding files develop the Zeckendorf support machinery and the
+  carryless band decomposition. The present file is the first user-facing
+  arithmetic surface, packaging those structural results as a concrete
+  pairing function and its inverse.
 
-(*@doc.pl@[[The exported theorem names in this layer are intentionally short: downstream developments depend on `encode`, `decode`, `decode_encode`, and `encode_injective` as the certified pairing interface.]]@*)
+  The exported theorem names in this layer are intentionally short:
+  downstream developments depend on `encode`, `decode`, `decode_encode`, and
+  `encode_injective` as the certified pairing interface.
 
-(*@head.end@*)
+*)
 
 From A001 Require Export A001_00_Premises.
 From A001 Require Export A001_04__Carryless_Bands.
 
-(*@unicodemath@[[boundary(x) ≔ B(x) = 2 · r0(x).]]@*)
+(*                      boundary(x) ≔ B(x) = 2 · r0(x).                       *)
 
 Definition boundary (x : nat) : nat :=
   B base_params x.
@@ -28,9 +43,17 @@ Definition even_band_of (x : nat) : list nat :=
 Definition odd_band_of (x y : nat) : list nat :=
   odd_band base_params x y.
 
-(*@inline@[[`encode` is the concrete carryless map. We place the support of `b` in the odd band above the boundary determined by `a`, place the support of `a` in the even band below that boundary, and evaluate the combined support through `sum_fib`.]]@*)
+(*
+│
+│          `encode` is the concrete carryless map. We place the
+│          support of `b` in the odd band above the boundary
+│          determined by `a`, place the support of `a` in the even
+│          band below that boundary, and evaluate the combined support
+│          through `sum_fib`.
+│
+*)
 
-(*@unicodemath@[[encode(a, b) = Σ_F(even_band(a) ⧺ odd_band(a, b)).]]@*)
+(*             encode(a, b) = Σ_F(even_band(a) ⧺ odd_band(a, b)).             *)
 
 Definition encode (a b : nat) : nat :=
   sum_fib (odd_band_of a b ++ even_band_of a).
@@ -42,7 +65,12 @@ Proof.
   reflexivity.
 Qed.
 
-(*@inline@[[`encode` is the abstract `pair` specialized to `base_params`.]]@*)
+(*
+│
+│          `encode` is the abstract `pair` specialized to
+│          `base_params`.
+│
+*)
 
 Lemma encode_eq_pair :
   forall a b,
@@ -53,9 +81,15 @@ Proof.
   exact (pair_base_as_odd_even_sum a b).
 Qed.
 
-(*@inline@[[The canonical Zeckendorf support of an encoded pair splits into the odd band for the right component and the even band for the left component.]]@*)
+(*
+│
+│          The canonical Zeckendorf support of an encoded pair splits
+│          into the odd band for the right component and the even band
+│          for the left component.
+│
+*)
 
-(*@unicodemath@[[Z0(encode(a, b)) = odd_band(a, b) ⧺ even_band(a).]]@*)
+(*             Z0(encode(a, b)) = odd_band(a, b) ⧺ even_band(a).              *)
 
 Theorem support_of_encode :
   forall a b,
@@ -66,7 +100,12 @@ Proof.
   exact (Z0_pair_is_concat a b).
 Qed.
 
-(*@inline@[[The left support is recovered by filtering the canonical support of the code for even indices.]]@*)
+(*
+│
+│          The left support is recovered by filtering the canonical
+│          support of the code for even indices.
+│
+*)
 
 Corollary even_support_of_encode :
   forall a b,
@@ -77,7 +116,13 @@ Proof.
   exact (Z0_even_split a b).
 Qed.
 
-(*@inline@[[The right support is recovered by selecting precisely those odd indices that lie beyond the boundary determined by the left coordinate.]]@*)
+(*
+│
+│          The right support is recovered by selecting precisely those
+│          odd indices that lie beyond the boundary determined by the
+│          left coordinate.
+│
+*)
 
 Corollary odd_support_of_encode :
   forall a b,
@@ -88,22 +133,31 @@ Proof.
   exact (Z0_odd_split a b).
 Qed.
 
-(*@unicodemath@[[half_even_support(zn) ≔ { k / 2 ∣ k ∈ zn ∧ 2 ∣ k }.]]@*)
+(*            half_even_support(zn) ≔ { k / 2 ∣ k ∈ zn ∧ 2 ∣ k }.             *)
 
 Definition half_even_support : list nat -> list nat :=
   half_even_indices.
 
-(*@unicodemath@[[odd_above_boundary(x, k) = true ⇔ 2 ∤ k ∧ boundary(x) + 1 ≤ k.]]@*)
+(*       odd_above_boundary(x, k) = true ⇔ 2 ∤ k ∧ boundary(x) + 1 ≤ k.       *)
 
 Definition odd_above_boundary (x k : nat) : bool :=
   odd_ge_B1 (boundary x) k.
 
-(*@unicodemath@[[odd_support_indices(x, zn) ≔ { (k − boundary(x) + 1) / 2]][[∣ k ∈ zn ∧ 2 ∤ k ∧ boundary(x) + 1 ≤ k }.]]@*)
+(*          odd_support_indices(x, zn) ≔ { (k − boundary(x) + 1) / 2          *)
+(*                 ∣ k ∈ zn ∧ 2 ∤ k ∧ boundary(x) + 1 ≤ k }.                  *)
 
 Definition odd_support_indices (x : nat) (zn : list nat) : list nat :=
   y_indices (boundary x) zn.
 
-(*@inline@[[`decode` inverts the support-splitting scheme of `encode`. We first reconstruct the left component from the even support of `c`, and then use the recovered boundary to reconstruct the right component from the odd support above it.]]@*)
+(*
+│
+│          `decode` inverts the support-splitting scheme of `encode`.
+│          We first reconstruct the left component from the even
+│          support of `c`, and then use the recovered boundary to
+│          reconstruct the right component from the odd support above
+│          it.
+│
+*)
 
 Definition decode (c : nat) : nat * nat :=
   let zn := Z0 c in
@@ -120,7 +174,12 @@ Qed.
 Lemma add_sub_cancel_l : forall a b, a + b - a = b.
 Proof. intros. lia. Qed.
 
-(*@inline@[[Halving the even band inverts the doubling map, recovering the original Zeckendorf support of the left coordinate.]]@*)
+(*
+│
+│          Halving the even band inverts the doubling map, recovering
+│          the original Zeckendorf support of the left coordinate.
+│
+*)
 
 Lemma map_div2_even_band :
   forall x, map Nat.div2 (even_band_of x) = Z0 x.
@@ -134,7 +193,7 @@ Proof.
   apply div2_two.
 Qed.
 
-(*@unicodemath@[[decode_odd_index(boundary(x), boundary(x) + (2j − 1)) = j.]]@*)
+(*         decode_odd_index(boundary(x), boundary(x) + (2j − 1)) = j.         *)
 
 Lemma decode_encode_odd :
   forall x j,
@@ -148,7 +207,13 @@ Proof.
   apply Nat.div2_double.
 Qed.
 
-(*@inline@[[Applying the odd-band decoder to each odd-band index inverts the affine reindexing of the encoder, recovering the original Zeckendorf support of the right input.]]@*)
+(*
+│
+│          Applying the odd-band decoder to each odd-band index
+│          inverts the affine reindexing of the encoder, recovering
+│          the original Zeckendorf support of the right input.
+│
+*)
 
 Lemma map_decode_odd_band :
   forall x y,
@@ -163,7 +228,13 @@ Proof.
   apply decode_encode_odd.
 Qed.
 
-(*@inline@[[Summing the normalized even part of the canonical support of an encoded pair reconstructs the left coordinate exactly.]]@*)
+(*
+│
+│          Summing the normalized even part of the canonical support
+│          of an encoded pair reconstructs the left coordinate
+│          exactly.
+│
+*)
 
 Lemma sum_fib_half_even_encode :
   forall x y,
@@ -176,7 +247,13 @@ Proof.
   apply Z0_sound.
 Qed.
 
-(*@inline@[[Once the boundary is fixed by the recovered left component, summing the decoded odd support reconstructs the right component exactly.]]@*)
+(*
+│
+│          Once the boundary is fixed by the recovered left component,
+│          summing the decoded odd support reconstructs the right
+│          component exactly.
+│
+*)
 
 Lemma sum_fib_odd_support_encode :
   forall x y,
@@ -189,9 +266,14 @@ Proof.
   apply Z0_sound.
 Qed.
 
-(*@inline@[[Concrete roundtrip law: `decode` recovers both coordinates of any pair produced by `encode`.]]@*)
+(*
+│
+│          Concrete roundtrip law: `decode` recovers both coordinates
+│          of any pair produced by `encode`.
+│
+*)
 
-(*@unicodemath@[[∀ a b, decode(encode(a, b)) = (a, b).]]@*)
+(*                   ∀ a b, decode(encode(a, b)) = (a, b).                    *)
 
 Theorem decode_encode :
   forall a b, decode (encode a b) = (a, b).
@@ -214,9 +296,15 @@ Proof.
   reflexivity.
 Qed.
 
-(*@inline@[[Injectivity follows from the roundtrip theorem: equality of codes forces equality of their decoded coordinates, and therefore equality of the original pairs.]]@*)
+(*
+│
+│          Injectivity follows from the roundtrip theorem: equality of
+│          codes forces equality of their decoded coordinates, and
+│          therefore equality of the original pairs.
+│
+*)
 
-(*@unicodemath@[[encode(a, b) = encode(a', b') ⇒ a = a' ∧ b = b'.]]@*)
+(*              encode(a, b) = encode(a', b') ⇒ a = a' ∧ b = b'.              *)
 
 Theorem encode_injective :
   forall a b a' b',
@@ -230,7 +318,12 @@ Proof.
   split; assumption.
 Qed.
 
-(*@inline@[[First projection of the roundtrip law: left-coordinate recovery, recorded as a standalone statement.]]@*)
+(*
+│
+│          First projection of the roundtrip law: left-coordinate
+│          recovery, recorded as a standalone statement.
+│
+*)
 
 Corollary decode_encode_fst :
   forall a b, fst (decode (encode a b)) = a.
@@ -240,7 +333,12 @@ Proof.
   reflexivity.
 Qed.
 
-(*@inline@[[Second projection of the roundtrip law: right-coordinate recovery, recorded as a standalone statement.]]@*)
+(*
+│
+│          Second projection of the roundtrip law: right-coordinate
+│          recovery, recorded as a standalone statement.
+│
+*)
 
 Corollary decode_encode_snd :
   forall a b, snd (decode (encode a b)) = b.
@@ -250,13 +348,23 @@ Proof.
   reflexivity.
 Qed.
 
-(*@inline@[[A small named instance of the roundtrip theorem at `(1, 1)`.]]@*)
+(*
+│
+│          A small named instance of the roundtrip theorem at `(1,
+│          1)`.
+│
+*)
 
 Corollary decode_encode_1_1 :
   decode (encode 1 1) = (1, 1).
 Proof. reflexivity. Qed.
 
-(*@inline@[[A small named instance of the roundtrip theorem at `(3, 5)`.]]@*)
+(*
+│
+│          A small named instance of the roundtrip theorem at `(3,
+│          5)`.
+│
+*)
 
 Corollary decode_encode_3_5 :
   decode (encode 3 5) = (3, 5).

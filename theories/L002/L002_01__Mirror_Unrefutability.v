@@ -1,20 +1,42 @@
-(*@file@*)
+(*L002_01__Mirror_Unrefutability.v*)
 
-(*@head.start@*)
-(*@copyright@*)
-(*@doc.proofcase@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                      Author and Copyright remark. Author(s): │
+│                ╭╮╮╮─╮                Milan Rosko  https://www.milanrosko.com │
+│                ││││╭╯                Licence. This file is distributed under │
+│                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
+│                                      visit https://www.mozilla.org/en-US/MPL │
+└──────────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                  Proofcase / L002_01__Mirror_Unrefutability                  │
+└──────────────────────────────────────────────────────────────────────────────┘
 
-(*@doc.header@[[Overview]]@*)
+  OVERVIEW
 
-(*@doc.pl@[[Mirror-irrefutability layer. A bottom goal frame produces a collapsing full fixed point; the live theorem instead combines a one-way mirror with local or global consistency. Coded recognition supplies the missing fixed-point direction.]]@*)
+  Mirror-irrefutability layer. A bottom goal frame produces a collapsing full
+  fixed point; the live theorem instead combines a one-way mirror with local
+  or global consistency. Coded recognition supplies the missing fixed-point
+  direction.
 
-(*@head.end@*)
+*)
 
 From L002 Require Export L002_00_Premises.
 
-(*@section@[[EXTERNAL CONSTRUCTION]]@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                            EXTERNAL CONSTRUCTION                             │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
 
-(*@inline@[[The minimal L001 bottom goal frame constructs a full external fixed point for M001 checked derivability.]]@*)
+(*
+│
+│          The minimal L001 bottom goal frame constructs a full
+│          external fixed point for M001 checked derivability.
+│
+*)
 
 Theorem l001_goal_frame_constructs_external_fixed_point :
   forall (M : RegulatorTheory)
@@ -34,9 +56,21 @@ Proof.
        Code ev Hgoal).
 Qed.
 
-(*@section@[[RECOGNITION RE-ENTRY]]@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                             RECOGNITION RE-ENTRY                             │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
 
-(*@inline@[[The concrete refutation-recognition coding is adequate at every formula: accepting its claim under `A` already is a checked derivation of `not A` in that context.]]@*)
+(*
+│
+│          The concrete refutation-recognition coding is adequate at
+│          every formula: accepting its claim under `A` already is a
+│          checked derivation of `not A` in that context.
+│
+*)
 
 Theorem refutation_recognition_adequacy :
   forall (M : RegulatorTheory)
@@ -49,7 +83,13 @@ Proof.
   exact Hrecognition.
 Qed.
 
-(*@inline@[[An accepted adequate recognition certificate yields a base-context derivation of `not chi` by contradiction under `chi` followed by deduction.]]@*)
+(*
+│
+│          An accepted adequate recognition certificate yields a
+│          base-context derivation of `not chi` by contradiction under
+│          `chi` followed by deduction.
+│
+*)
 
 Theorem recognition_reenters_regulator :
   forall (M : RegulatorTheory)
@@ -69,7 +109,14 @@ Proof.
   - exact (assumption_intro M Gamma chi).
 Qed.
 
-(*@inline@[[Adequacy alone excludes the legacy recognition package because it already contains `AsIF`; no mirror or consistency premise is needed for this compatibility result.]]@*)
+(*
+│
+│          Adequacy alone excludes the legacy recognition package
+│          because it already contains `AsIF`; no mirror or
+│          consistency premise is needed for this compatibility
+│          result.
+│
+*)
 
 Theorem recognition_adequacy_excludes_legacy_internal_recognition :
   forall (M : RegulatorTheory)
@@ -86,7 +133,14 @@ Proof.
        M Gamma recognition_claim chi Hadequate Hrecognition).
 Qed.
 
-(*@inline@[[Acceptance by the coded recognition regulator re-enters the embedded theory as a base-context derivation of `not A`: checker soundness supplies `not A` under `A`, the assumption supplies `A`, and deduction discharges it.]]@*)
+(*
+│
+│          Acceptance by the coded recognition regulator re-enters the
+│          embedded theory as a base-context derivation of `not A`:
+│          checker soundness supplies `not A` under `A`, the
+│          assumption supplies `A`, and deduction discharges it.
+│
+*)
 
 Theorem coded_recognition_reenters_regulator :
   forall (M : RegulatorTheory)
@@ -103,11 +157,17 @@ Proof.
   - exact (assumption_intro M Gamma A).
 Qed.
 
-(*@inline@[[Exact recognition/refutation specification.  The forward
-direction is checked re-entry.  Conversely, K lifts any checked refutation
-`not A` to the advertised evidence formula `A -> not A`, which the coded
-recognition regulator accepts.  Thus coded recognition adds a finite
-certificate surface but no stronger proposition than checked refutability.]]@*)
+(*
+│
+│          Exact recognition/refutation specification. The forward
+│          direction is checked re-entry. Conversely, K lifts any
+│          checked refutation `not A` to the advertised evidence
+│          formula `A -> not A`, which the coded recognition regulator
+│          accepts. Thus coded recognition adds a finite certificate
+│          surface but no stronger proposition than checked
+│          refutability.
+│
+*)
 
 Theorem coded_recognition_acceptance_iff_refutation :
   forall (M : RegulatorTheory)
@@ -130,7 +190,13 @@ Proof.
     + exact Hrefutation.
 Qed.
 
-(*@inline@[[Accepted recognition evidence supplies the missing forward direction; together with the one-way mirror it reconstructs the full negation fixed point exactly.]]@*)
+(*
+│
+│          Accepted recognition evidence supplies the missing forward
+│          direction; together with the one-way mirror it reconstructs
+│          the full negation fixed point exactly.
+│
+*)
 
 Theorem coded_recognition_completes_external_fixed_point :
   forall (M : RegulatorTheory)
@@ -146,7 +212,12 @@ Proof.
   - exact Hmirror.
 Qed.
 
-(*@inline@[[A derivation of `not chi` at an external fixed point reconstructs `chi` and therefore derives `Bot`.]]@*)
+(*
+│
+│          A derivation of `not chi` at an external fixed point
+│          reconstructs `chi` and therefore derives `Bot`.
+│
+*)
 
 Theorem external_fixed_point_reentry_collapses :
   forall (M : RegulatorTheory)
@@ -167,7 +238,15 @@ Proof.
        M Gamma chi Bot Hnegchi Hchi).
 Qed.
 
-(*@inline@[[In the M001 specialization a full negation fixed point collapses without an additional branch premise. The forward direction derives `not chi` constructively by assumption, MP, and deduction; the backward direction then recovers `chi`.]]@*)
+(*
+│
+│          In the M001 specialization a full negation fixed point
+│          collapses without an additional branch premise. The forward
+│          direction derives `not chi` constructively by assumption,
+│          MP, and deduction; the backward direction then recovers
+│          `chi`.
+│
+*)
 
 Theorem external_fixed_point_unconditionally_collapses :
   forall (M : RegulatorTheory)
@@ -209,7 +288,13 @@ Proof.
        M Gamma chi Hfixed).
 Qed.
 
-(*@inline@[[A hypothetical refutation at a one-way mirror position reconstructs the mirrored formula and collapses the checked theory.]]@*)
+(*
+│
+│          A hypothetical refutation at a one-way mirror position
+│          reconstructs the mirrored formula and collapses the checked
+│          theory.
+│
+*)
 
 Theorem external_mirror_position_reentry_collapses :
   forall (M : RegulatorTheory)
@@ -230,7 +315,12 @@ Proof.
        M Gamma chi Bot Hnegchi Hchi).
 Qed.
 
-(*@inline@[[Global mirror consistency implies local consistency at every formula.]]@*)
+(*
+│
+│          Global mirror consistency implies local consistency at
+│          every formula.
+│
+*)
 
 Theorem mirror_consistency_implies_local_consistency :
   forall (M : RegulatorTheory)
@@ -246,7 +336,12 @@ Proof.
        M Gamma chi Bot Hnegchi Hchi).
 Qed.
 
-(*@inline@[[A one-way mirror plus local consistency is the minimal irrefutability theorem.]]@*)
+(*
+│
+│          A one-way mirror plus local consistency is the minimal
+│          irrefutability theorem.
+│
+*)
 
 Theorem external_mirror_position_forces_asif_local :
   forall (M : RegulatorTheory)
@@ -280,9 +375,20 @@ Proof.
           M Gamma chi Hconsistent)).
 Qed.
 
-(*@section@[[OPTIONAL RELATIVE-CONSISTENCY AND RESPONSE COROLLARIES]]@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│            OPTIONAL RELATIVE-CONSISTENCY AND RESPONSE COROLLARIES            │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
 
-(*@inline@[[Soundness into a bottom-rejecting predicate yields consistency of the intermediate theory.]]@*)
+(*
+│
+│          Soundness into a bottom-rejecting predicate yields
+│          consistency of the intermediate theory.
+│
+*)
 
 Theorem world_brain_model_frame_brain_consistent :
   forall (V : EpistemicWorld)
@@ -296,7 +402,12 @@ Proof.
   exact (frame_brain_sound frame Bot Hbot).
 Qed.
 
-(*@inline@[[The explicit relative-consistency premise transports consistency to the target theory.]]@*)
+(*
+│
+│          The explicit relative-consistency premise transports
+│          consistency to the target theory.
+│
+*)
 
 Theorem world_brain_model_frame_model_consistent :
   forall (V : EpistemicWorld)
@@ -312,7 +423,13 @@ Proof.
           V brain model Gamma frame)).
 Qed.
 
-(*@inline@[[A negative answer re-enters through the question's mirror witness and collapses the model. Consistency therefore excludes a certified `no`.]]@*)
+(*
+│
+│          A negative answer re-enters through the question's mirror
+│          witness and collapses the model. Consistency therefore
+│          excludes a certified `no`.
+│
+*)
 
 Theorem control_question_negative_answer_impossible :
   forall (M : RegulatorTheory)
@@ -329,7 +446,14 @@ Proof.
        (control_question_mirror question) Hno).
 Qed.
 
-(*@inline@[[Compatibility spelling for `control_question_negative_answer_impossible`; here `no` denotes the explicit negative verdict, not absence of an answer.]]@*)
+(*
+│
+│          Compatibility spelling for
+│          `control_question_negative_answer_impossible`; here `no`
+│          denotes the explicit negative verdict, not absence of an
+│          answer.
+│
+*)
 
 Theorem control_question_no_answer_impossible :
   forall (M : RegulatorTheory)
@@ -341,7 +465,13 @@ Proof.
   exact control_question_negative_answer_impossible.
 Qed.
 
-(*@inline@[[Binary completeness is used only at this step. Once the interface must choose `yes` or `no`, exclusion of the negative branch forces a positive internal judgment.]]@*)
+(*
+│
+│          Binary completeness is used only at this step. Once the
+│          interface must choose `yes` or `no`, exclusion of the
+│          negative branch forces a positive internal judgment.
+│
+*)
 
 Theorem control_question_binary_decision_forces_yes :
   forall (M : RegulatorTheory)
@@ -377,7 +507,15 @@ Proof.
        Hdecision).
 Qed.
 
-(*@inline@[[If the world refutes the control claim and the model is additionally world-sound, a total binary answer is impossible. Relative consistency alone does not assume model soundness, so an internally forced `yes` may instead be externally inaccurate.]]@*)
+(*
+│
+│          If the world refutes the control claim and the model is
+│          additionally world-sound, a total binary answer is
+│          impossible. Relative consistency alone does not assume
+│          model soundness, so an internally forced `yes` may instead
+│          be externally inaccurate.
+│
+*)
 
 Theorem world_sound_binary_control_decision_impossible :
   forall (V : EpistemicWorld)
@@ -402,7 +540,14 @@ Proof.
        Hworld_no).
 Qed.
 
-(*@inline@[[Every checked theorem supplies a one-way mirror position: K lifts an accepted `A` to `not A -> A`. This witnesses that mirror position is a live proof-theoretic condition rather than the inconsistent full fixed-point equivalence.]]@*)
+(*
+│
+│          Every checked theorem supplies a one-way mirror position: K
+│          lifts an accepted `A` to `not A -> A`. This witnesses that
+│          mirror position is a live proof-theoretic condition rather
+│          than the inconsistent full fixed-point equivalence.
+│
+*)
 
 Theorem checked_derivable_is_external_mirror_position :
   forall (M : RegulatorTheory)
@@ -418,7 +563,12 @@ Proof.
   - exact HA.
 Qed.
 
-(*@inline@[[A locally consistent one-way mirror excludes coded recognition acceptance.]]@*)
+(*
+│
+│          A locally consistent one-way mirror excludes coded
+│          recognition acceptance.
+│
+*)
 
 Theorem coded_recognition_acceptance_excluded_local :
   forall (M : RegulatorTheory)
@@ -435,7 +585,12 @@ Proof.
   exact (coded_recognition_reenters_regulator M Gamma chi Haccepted).
 Qed.
 
-(*@inline@[[The global-consistency form is a compatibility corollary of the local theorem.]]@*)
+(*
+│
+│          The global-consistency form is a compatibility corollary of
+│          the local theorem.
+│
+*)
 
 Theorem coded_recognition_acceptance_excluded :
   forall (M : RegulatorTheory)
@@ -464,7 +619,14 @@ Proof.
   exact coded_recognition_acceptance_excluded.
 Qed.
 
-(*@inline@[[Legacy corollary: the already inconsistent conjunction of a full fixed point and consistency excludes a checked refutation certificate. The live theorem below uses only an external mirror position.]]@*)
+(*
+│
+│          Legacy corollary: the already inconsistent conjunction of a
+│          full fixed point and consistency excludes a checked
+│          refutation certificate. The live theorem below uses only an
+│          external mirror position.
+│
+*)
 
 Theorem external_fixed_point_excludes_checked_refutation_recognition :
   forall (M : RegulatorTheory)
@@ -500,7 +662,12 @@ Proof.
   exact Hcertificate.
 Qed.
 
-(*@inline@[[M-to-Slambda inclusion transports an M-derivation of `Bot` outward, so Slambda-consistency implies M-consistency.]]@*)
+(*
+│
+│          M-to-Slambda inclusion transports an M-derivation of `Bot`
+│          outward, so Slambda-consistency implies M-consistency.
+│
+*)
 
 Theorem outer_consistency_implies_mirror_consistency :
   forall (Slambda M : RegulatorTheory)
@@ -516,9 +683,21 @@ Proof.
        M Slambda Gamma Bot Hincluded Hbot).
 Qed.
 
-(*@section@[[MIRROR OPACITY]]@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                                MIRROR OPACITY                                │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
 
-(*@inline@[[Under inclusion and outer consistency, a one-way mirror position is assumption-licensed but has no adequate internal recognition certificate.]]@*)
+(*
+│
+│          Under inclusion and outer consistency, a one-way mirror
+│          position is assumption-licensed but has no adequate
+│          internal recognition certificate.
+│
+*)
 
 Theorem mirror_opacity :
   forall (Slambda M : RegulatorTheory)
@@ -550,7 +729,13 @@ Proof.
          M Gamma recognition_claim chi Hadequate).
 Qed.
 
-(*@inline@[[The fixed-regulator wrapper supplies inclusion, consistency, recognition coding, and adequacy to `mirror_opacity`.]]@*)
+(*
+│
+│          The fixed-regulator wrapper supplies inclusion,
+│          consistency, recognition coding, and adequacy to
+│          `mirror_opacity`.
+│
+*)
 
 Theorem fixed_regulator_mirror_opacity :
   forall (Slambda M : RegulatorTheory)

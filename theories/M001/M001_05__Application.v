@@ -1,26 +1,60 @@
-(*@file@*)
+(*M001_05__Application.v*)
 
-(*@head.start@*)
-(*@copyright@*)
-(*@doc.proofcase@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                      Author and Copyright remark. Author(s): │
+│                ╭╮╮╮─╮                Milan Rosko  https://www.milanrosko.com │
+│                ││││╭╯                Licence. This file is distributed under │
+│                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
+│                                      visit https://www.mozilla.org/en-US/MPL │
+└──────────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                       Proofcase / M001_05__Application                       │
+└──────────────────────────────────────────────────────────────────────────────┘
 
-(*@doc.header@[[Overview]]@*)
+  OVERVIEW
 
-(*@doc.pl@[[Checked MP application for regulator theories. The previous certificate layer gives us `regulator_theory_checked_derivable`; this file proves that checked derivability is closed under modus ponens by explicitly composing two finite checked proof scripts. The construction concatenates the checked proof of `A → B`, shifts every MP reference in the checked proof of `A`, and appends one final MP line for `B`.]]@*)
+  Checked MP application for regulator theories. The previous certificate
+  layer gives us `regulator_theory_checked_derivable`; this file proves that
+  checked derivability is closed under modus ponens by explicitly composing
+  two finite checked proof scripts. The construction concatenates the checked
+  proof of `A → B`, shifts every MP reference in the checked proof of `A`,
+  and appends one final MP line for `B`.
 
-(*@doc.pl@[[The proof-script shifting family is internal scaffolding for application. The public layer is `regulator_theory_mp_compose` together with `regulator_theory_mp_compose_checked_lemma`, plus the checked-derivability closure lemmas for assumptions, axioms, and MP. This layer is still purely syntactic: no semantic validity, model theory, arithmetic coding, or proof search is introduced.]]@*)
+  The proof-script shifting family is internal scaffolding for application.
+  The public layer is `regulator_theory_mp_compose` together with
+  `regulator_theory_mp_compose_checked_lemma`, plus the checked-derivability
+  closure lemmas for assumptions, axioms, and MP. This layer is still purely
+  syntactic: no semantic validity, model theory, arithmetic coding, or proof
+  search is introduced.
 
-(*@head.end@*)
+*)
 
 From M001 Require Export M001_04__Certificates.
 
-(*@section@[[PROOF-SCRIPT SHIFTING]]@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                            PROOF-SCRIPT SHIFTING                             │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
 
-(*@inline@[[Concatenating two checked proof scripts changes the absolute positions of every MP reference inside the second script. `proof_script_shift_index` adds the offset; `proof_script_shift_justification` rewrites only `J_MP` indices; `proof_script_shift_line` lifts the operation to one proof line; and `proof_script_shift` maps it across a whole script.]]@*)
+(*
+│
+│          Concatenating two checked proof scripts changes the
+│          absolute positions of every MP reference inside the second
+│          script. `proof_script_shift_index` adds the offset;
+│          `proof_script_shift_justification` rewrites only `J_MP`
+│          indices; `proof_script_shift_line` lifts the operation to
+│          one proof line; and `proof_script_shift` maps it across a
+│          whole script.
+│
+*)
 
-(*@unicodemath@[[proof_script_shift_index(k,i) ≔ k + i]]@*)
-(*@unicodemath@[[proof_script_shift_justification(k, MP(i,j)) ≔ MP(k+i,k+j)]]@*)
-(*@unicodemath@[[line_formula(proof_script_shift_line(k,line)) = line_formula(line)]]@*)
+(*                   proof_script_shift_index(k,i) ≔ k + i                    *)
+(*         proof_script_shift_justification(k, MP(i,j)) ≔ MP(k+i,k+j)         *)
+(*     line_formula(proof_script_shift_line(k,line)) = line_formula(line)     *)
 
 Definition proof_script_shift_index (offset i : nat) : nat :=
   offset + i.
@@ -103,11 +137,31 @@ Proof.
   exact Hnth.
 Qed.
 
-(*@section@[[SHIFTED CHECKING]]@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                               SHIFTED CHECKING                               │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
 
-(*@inline@[[The shifted-checking lemmas show that a checked suffix remains checked after all of its backward MP references are moved past a checked base proof. `proof_line_valid_bool_shift_after_base_lemma` is the one-line statement; `proof_script_check_from_shift_after_base_lemma` iterates it over a script; and `proof_script_check_from_shift_after_prefix_lemma` is the form used by MP composition.]]@*)
+(*
+│
+│          The shifted-checking lemmas show that a checked suffix
+│          remains checked after all of its backward MP references are
+│          moved past a checked base proof.
+│          `proof_line_valid_bool_shift_after_base_lemma` is the
+│          one-line statement;
+│          `proof_script_check_from_shift_after_base_lemma` iterates
+│          it over a script; and
+│          `proof_script_check_from_shift_after_prefix_lemma` is the
+│          form used by MP composition.
+│
+*)
 
-(*@unicodemath@[[proof_script_check_from_bool(R,Γ,source_prefix,p)=true  ⇒  proof_script_check_from_bool(R,Γ,base ⧺ proof_script_shift(|base|,source_prefix),proof_script_shift(|base|,p))=true]]@*)
+(*          proof_script_check_from_bool(R,Γ,source_prefix,p)=true ⇒          *)
+(*                  proof_script_check_from_bool(R,Γ,base ⧺                   *)
+(*proof_script_shift(|base|,source_prefix),proof_script_shift(|base|,p))=true *)
 
 Lemma proof_line_valid_bool_shift_after_base_lemma :
   forall R Gamma base source_prefix line,
@@ -213,12 +267,27 @@ Proof.
       R Gamma prefix nil p Hp).
 Qed.
 
-(*@section@[[MP PROOF-SCRIPT COMPOSITION]]@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                         MP PROOF-SCRIPT COMPOSITION                          │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
 
-(*@inline@[[`proof_script_last_index p` is the position of the final line of `p`. `regulator_theory_mp_compose B p_imp p_arg` concatenates the checked proof of `A → B`, the shifted checked proof of `A`, and one final MP line proving `B`.]]@*)
+(*
+│
+│          `proof_script_last_index p` is the position of the final
+│          line of `p`. `regulator_theory_mp_compose B p_imp p_arg`
+│          concatenates the checked proof of `A → B`, the shifted
+│          checked proof of `A`, and one final MP line proving `B`.
+│
+*)
 
-(*@unicodemath@[[last_index(p) ≔ |p| - 1]]@*)
-(*@unicodemath@[[regulator_theory_mp_compose(B,p_imp,p_arg) ≔ p_imp ⧺ proof_script_shift(|p_imp|,p_arg) ⧺ MP(B,last_index(p_imp),|p_imp|+last_index(p_arg))]]@*)
+(*                          last_index(p) ≔ |p| - 1                           *)
+(*            regulator_theory_mp_compose(B,p_imp,p_arg) ≔ p_imp ⧺            *)
+(*                    proof_script_shift(|p_imp|,p_arg) ⧺                     *)
+(*             MP(B,last_index(p_imp),|p_imp|+last_index(p_arg))              *)
 
 Definition proof_script_last_index (p : Proof) : nat :=
   pred (length p).
@@ -269,11 +338,27 @@ Proof.
     exact Hlast.
 Qed.
 
-(*@section@[[CHECKED MP COMPOSITION]]@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                            CHECKED MP COMPOSITION                            │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
 
-(*@inline@[[`regulator_theory_mp_compose_checked_lemma` is the central theorem of this file: composing checked scripts for `A → B` and `A` produces a checked script for `B`. The proof shifts the argument script after the implication script, verifies the concatenated prefix, reads both final formulas back by index, and checks the final MP line.]]@*)
+(*
+│
+│          `regulator_theory_mp_compose_checked_lemma` is the central
+│          theorem of this file: composing checked scripts for `A → B`
+│          and `A` produces a checked script for `B`. The proof shifts
+│          the argument script after the implication script, verifies
+│          the concatenated prefix, reads both final formulas back by
+│          index, and checks the final MP line.
+│
+*)
 
-(*@unicodemath@[[R; Γ ⊢check[p_imp] A → B  ∧  R; Γ ⊢check[p_arg] A  ⇒  R; Γ ⊢check[regulator_theory_mp_compose(B,p_imp,p_arg)] B]]@*)
+(*           R; Γ ⊢check[p_imp] A → B ∧ R; Γ ⊢check[p_arg] A ⇒ R; Γ           *)
+(*            ⊢check[regulator_theory_mp_compose(B,p_imp,p_arg)] B            *)
 
 Lemma regulator_theory_mp_compose_checked_lemma :
   forall R Gamma A B p_imp p_arg,
@@ -377,11 +462,26 @@ Proof.
   reflexivity.
 Qed.
 
-(*@section@[[CHECKED-DERIVABILITY APPLICATION]]@*)
+(*
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                       CHECKED-DERIVABILITY APPLICATION                       │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+*)
 
-(*@inline@[[The derivability-level MP lemma forgets the two source scripts after composing them. This is the existential closure form consumed by the later inductive-adequacy and regulator-closure layers: checked derivability is closed under object-level modus ponens because the scripts themselves can be concatenated and re-indexed.]]@*)
+(*
+│
+│          The derivability-level MP lemma forgets the two source
+│          scripts after composing them. This is the existential
+│          closure form consumed by the later inductive-adequacy and
+│          regulator-closure layers: checked derivability is closed
+│          under object-level modus ponens because the scripts
+│          themselves can be concatenated and re-indexed.
+│
+*)
 
-(*@unicodemath@[[R; Γ ⊢check A → B  ∧  R; Γ ⊢check A  ⇒  R; Γ ⊢check B]]@*)
+(*             R; Γ ⊢check A → B ∧ R; Γ ⊢check A ⇒ R; Γ ⊢check B              *)
 
 Lemma regulator_theory_checked_derivable_mp_lemma :
   forall R Gamma A B,
@@ -397,9 +497,16 @@ Proof.
     assumption.
 Qed.
 
-(*@inline@[[One-line assumption and axiom scripts witness the base cases for checked derivability. They are deliberately small: a context member is checked by `J_Assumption`, and an available axiom is checked by `J_Axiom`.]]@*)
+(*
+│
+│          One-line assumption and axiom scripts witness the base
+│          cases for checked derivability. They are deliberately
+│          small: a context member is checked by `J_Assumption`, and
+│          an available axiom is checked by `J_Axiom`.
+│
+*)
 
-(*@unicodemath@[[A ∈ Γ  ⇒  R; Γ ⊢check A]]@*)
+(*                           A ∈ Γ ⇒ R; Γ ⊢check A                            *)
 
 Lemma regulator_theory_assumption_checked_derivable_lemma :
   forall R Gamma A,
@@ -418,7 +525,7 @@ Proof.
   reflexivity.
 Qed.
 
-(*@unicodemath@[[available_axiom_bool(R,A)=true  ⇒  R; Γ ⊢check A]]@*)
+(*               available_axiom_bool(R,A)=true ⇒ R; Γ ⊢check A               *)
 
 Lemma regulator_theory_axiom_checked_derivable_lemma :
   forall R Gamma A,
