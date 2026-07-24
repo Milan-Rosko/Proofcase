@@ -1,57 +1,32 @@
-(*M001_95_API.v*)
+(*@file@*)
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                      Author and Copyright remark. Author(s): │
-│                ╭╮╮╮─╮                Milan Rosko  https://www.milanrosko.com │
-│                ││││╭╯                Licence. This file is distributed under │
-│                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
-│                                      visit https://www.mozilla.org/en-US/MPL │
-└──────────────────────────────────────────────────────────────────────────────┘
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                           Proofcase / M001_95_API                            │
-└──────────────────────────────────────────────────────────────────────────────┘
+(*@head.start@*)
+(*@copyright@*)
+(*@doc.proofcase@*)
 
-  OVERVIEW
+(*@doc.header@[[Overview]]@*)
 
-  Public operational API surface for M001. Importing this file exports
-  primitive syntax, Boolean checking, deduction and reductio transforms,
-  checked and inductive derivability, MP composition, structural
-  monotonicity, and the symbolic-regulator acceptance and release vocabulary
-  used by L002.
+(*@doc.pl@[[Public operational API surface for M001. Importing this file
+exports primitive syntax, Boolean checking, deduction and reductio
+transforms, checked and inductive derivability, MP composition, structural
+monotonicity, and the symbolic-regulator acceptance and release vocabulary
+used by L002.]]@*)
 
-  Evaluation frames, regulator-instruction reification, symbolic worlds, and
-  closure adapters are deliberately outside this API.
+(*@doc.pl@[[Evaluation frames, regulator-instruction reification, symbolic
+worlds, and closure adapters are deliberately outside this API.]]@*)
 
-*)
+(*@head.end@*)
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                                                              │
-│                                PUBLIC EXPORT                                 │
-│                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
-*)
+(*@section@[[PUBLIC EXPORT]]@*)
 
-(*
-│
-│          The public API cumulatively exports the retained M001 stack
-│          through the symbolic-regulator release gate.
-│
-*)
+(*@inline@[[The public API cumulatively exports the retained M001 stack
+through the symbolic-regulator release gate.]]@*)
 
-(*    M001_API ≔ Syntax ⊕ Checker ⊕ Deduction ⊕ Reductio ⊕ Derivability ⊕     *)
-(*    Composition ⊕ Adequacy ⊕ Monotonicity ⊕ SymbolicRegulator ⊕ Release     *)
+(*@unicodemath@[[M001_API ≔ Syntax ⊕ Checker ⊕ Deduction ⊕ Reductio ⊕ Derivability ⊕ Composition ⊕ Adequacy ⊕ Monotonicity ⊕ SymbolicRegulator ⊕ Release]]@*)
 
 From M001 Require Export M001_09__Regulated_Execution.
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                                                              │
-│                                  CONTRACTS                                   │
-│                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
-*)
+(*@section@[[CONTRACTS]]@*)
 
 Definition SYNTAX : Prop :=
   forall A : Formula,

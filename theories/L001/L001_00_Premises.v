@@ -1,56 +1,32 @@
-(*L001_00_Premises.v*)
+(*@file@*)
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                      Author and Copyright remark. Author(s): │
-│                ╭╮╮╮─╮                Milan Rosko  https://www.milanrosko.com │
-│                ││││╭╯                Licence. This file is distributed under │
-│                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
-│                                      visit https://www.mozilla.org/en-US/MPL │
-└──────────────────────────────────────────────────────────────────────────────┘
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                         Proofcase / L001_00_Premises                         │
-└──────────────────────────────────────────────────────────────────────────────┘
+(*@head.start@*)
+(*@copyright@*)
+(*@doc.proofcase@*)
 
-  OVERVIEW
+(*@doc.header@[[Overview]]@*)
 
-  Minimal vocabulary for the six L001 contracts and their derived
-  strengthenings: closure-level mutual implication, global and local
-  detachment, consistency, local bivalence, signed and membership
-  classification, and goal-restricted diagonal production.
+(*@doc.pl@[[Minimal vocabulary for the six L001 contracts and their derived
+strengthenings: closure-level mutual implication, global and local
+detachment, consistency, local bivalence, signed and membership
+classification, and goal-restricted diagonal production.]]@*)
 
-*)
+(*@head.end@*)
 
 From M001 Require Export M001_00_Premises.
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                                                              │
-│                                   CLOSURE                                    │
-│                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
-*)
+(*@section@[[CLOSURE]]@*)
 
-(*
-│
-│          `ClosureEquiv C A B` contains exactly two accepted
-│          implications. It supplies no equality, substitution,
-│          congruence, or transitivity law.
-│
-*)
+(*@inline@[[`ClosureEquiv C A B` contains exactly two accepted implications.
+It supplies no equality, substitution, congruence, or transitivity law.]]@*)
 
 Definition ClosureEquiv
     (C : Formula -> Prop)
     (A B : Formula) : Prop :=
   C (Imp A B) /\ C (Imp B A).
 
-(*
-│
-│          Modus ponens is the only closure rule used by the collapse.
-│          It acts on top-level `C` facts and does not introduce or
-│          discharge assumptions.
-│
-*)
+(*@inline@[[Modus ponens is the only closure rule used by the collapse.  It
+acts on top-level `C` facts and does not introduce or discharge assumptions.]]@*)
 
 Definition ClosureModusPonens
     (C : Formula -> Prop) : Prop :=
@@ -59,14 +35,9 @@ Definition ClosureModusPonens
     C A ->
     C B.
 
-(*
-│
-│          `ClosureDetachmentAt C A D` is one named instance of
-│          closure modus ponens. The branchwise goal-relative collapse
-│          states only the three instances it uses; global
-│          `ClosureModusPonens C` supplies each of them.
-│
-*)
+(*@inline@[[`ClosureDetachmentAt C A D` is one named instance of closure
+modus ponens.  The branchwise goal-relative collapse states only the three
+instances it uses; global `ClosureModusPonens C` supplies each of them.]]@*)
 
 Definition ClosureDetachmentAt
     (C : Formula -> Prop)
@@ -84,56 +55,33 @@ Proof.
   exact (Hmp A D).
 Qed.
 
-(*
-│
-│          Consistency is an external guard: an accepted object-level
-│          bottom formula contradicts the ambient Rocq context.
-│
-*)
+(*@inline@[[Consistency is an external guard: an accepted object-level bottom
+formula contradicts the ambient Rocq context.]]@*)
 
 Definition ClosureConsistent
     (C : Formula -> Prop) : Prop :=
   C Bot -> False.
 
-(*
-│
-│          A negation fixed point is mutual accepted implication
-│          between `B` and `B -> Bot`; it is not a syntactic identity.
-│
-*)
+(*@inline@[[A negation fixed point is mutual accepted implication between `B`
+and `B -> Bot`; it is not a syntactic identity.]]@*)
 
 Definition NegationFixedPointFor
     (C : Formula -> Prop)
     (B : Formula) : Prop :=
   ClosureEquiv C B (formula_negation B).
 
-(*
-│
-│          Local excluded middle is the single branch required at the
-│          fixed formula. The disjunction lives in Rocq, not in the
-│          object language.
-│
-*)
+(*@inline@[[Local excluded middle is the single branch required at the fixed
+formula.  The disjunction lives in Rocq, not in the object language.]]@*)
 
 Definition ClosureLocalExcludedMiddle
     (C : Formula -> Prop)
     (B : Formula) : Prop :=
   C B \/ C (formula_negation B).
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                                                              │
-│                                CLASSIFICATION                                │
-│                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
-*)
+(*@section@[[CLASSIFICATION]]@*)
 
-(*
-│
-│          A signed classifier certifies acceptance of `A` on `true`
-│          and acceptance of its object-language negation on `false`.
-│
-*)
+(*@inline@[[A signed classifier certifies acceptance of `A` on `true` and
+acceptance of its object-language negation on `false`.]]@*)
 
 Record ClosureSignedClassification
     (C : Formula -> Prop) : Type := {
@@ -154,13 +102,8 @@ Arguments signed_classify {C} _ _.
 Arguments signed_true {C} _ _ _.
 Arguments signed_false {C} _ _ _.
 
-(*
-│
-│          A membership decision specifies Boolean membership in `C`.
-│          Its false result supplies non-membership, not an accepted
-│          negation.
-│
-*)
+(*@inline@[[A membership decision specifies Boolean membership in `C`.  Its
+false result supplies non-membership, not an accepted negation.]]@*)
 
 Record ClosureMembershipDecision
     (C : Formula -> Prop) : Type := {
@@ -174,13 +117,8 @@ Record ClosureMembershipDecision
 Arguments membership_decide {C} _ _.
 Arguments membership_spec {C} _ _.
 
-(*
-│
-│          Refutation completeness is the additional bridge from
-│          external non-membership to internal acceptance of the
-│          negated formula.
-│
-*)
+(*@inline@[[Refutation completeness is the additional bridge from external
+non-membership to internal acceptance of the negated formula.]]@*)
 
 Definition ClosureRefutationComplete
     (C : Formula -> Prop) : Prop :=
@@ -188,12 +126,8 @@ Definition ClosureRefutationComplete
     ~ C A ->
     C (formula_negation A).
 
-(*
-│
-│          With that bridge, the same Boolean membership function
-│          becomes a signed classifier.
-│
-*)
+(*@inline@[[With that bridge, the same Boolean membership function becomes a
+signed classifier.]]@*)
 
 Theorem membership_to_signed :
   forall C,
@@ -216,22 +150,11 @@ Proof.
     discriminate Htrue.
 Qed.
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                                                              │
-│                             DIAGONAL PRODUCTION                              │
-│                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
-*)
+(*@section@[[DIAGONAL PRODUCTION]]@*)
 
-(*
-│
-│          The goal frame names only the anti-diagonal behavior
-│          required for one fixed goal `G`. It is a supplied
-│          representability premise, not an evaluator constructed by
-│          L001.
-│
-*)
+(*@inline@[[The goal frame names only the anti-diagonal behavior required for
+one fixed goal `G`.  It is a supplied representability premise, not an
+evaluator constructed by L001.]]@*)
 
 Definition ClosureEvaluationFrameForGoal
     (C : Formula -> Prop)

@@ -1,44 +1,20 @@
-(*A001_02__Base_Fibonacci.v*)
+(*@file@*)
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                      Author and Copyright remark. Author(s): │
-│                ╭╮╮╮─╮                Milan Rosko  https://www.milanrosko.com │
-│                ││││╭╯                Licence. This file is distributed under │
-│                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
-│                                      visit https://www.mozilla.org/en-US/MPL │
-└──────────────────────────────────────────────────────────────────────────────┘
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                     Proofcase / A001_02__Base_Fibonacci                      │
-└──────────────────────────────────────────────────────────────────────────────┘
+(*@head.start@*)
+(*@copyright@*)
+(*@doc.proofcase@*)
 
-  OVERVIEW
+(*@doc.header@[[Overview]]@*)
 
-  We develop Fibonacci arithmetic on `nat`, the concrete Zeckendorf support
-  engine (`Z0`, `r0`), and the structural lemmas — band validity, support
-  uniqueness, and pair/unpair compatibility — on which the pairing and
-  unpairing layers depend.
+(*@doc.pl@[[We develop Fibonacci arithmetic on `nat`, the concrete Zeckendorf support engine (`Z0`, `r0`), and the structural lemmas — band validity, support uniqueness, and pair/unpair compatibility — on which the pairing and unpairing layers depend.]]@*)
 
-*)
+(*@head.end@*)
 
 From A001 Require Export A001_00_Premises.
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                                                              │
-│                             FIBONACCI ARITHMETIC                             │
-│                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
-*)
+(*@section@[[FIBONACCI ARITHMETIC]]@*)
 
-(*
-│
-│          `fib_pair` maintains the pair `(F(n), F(n+1))`, so that the
-│          successor case extends by a single Fibonacci step rather
-│          than revisiting earlier values; `fib` is its first
-│          projection.
-│
-*)
+(*@inline@[[`fib_pair` maintains the pair `(F(n), F(n+1))`, so that the successor case extends by a single Fibonacci step rather than revisiting earlier values; `fib` is its first projection.]]@*)
 
 Fixpoint fib_pair (n : nat) : nat * nat :=
   match n with
@@ -51,14 +27,7 @@ Fixpoint fib_pair (n : nat) : nat * nat :=
 
 Definition fib (n : nat) : nat := fst (fib_pair n).
 
-(*
-│
-│          `sum_fib` evaluates a finite support of Fibonacci indices
-│          as the sum of the corresponding Fibonacci values. This is
-│          the numeric reading map used throughout the carryless
-│          encoding.
-│
-*)
+(*@inline@[[`sum_fib` evaluates a finite support of Fibonacci indices as the sum of the corresponding Fibonacci values. This is the numeric reading map used throughout the carryless encoding.]]@*)
 
 Fixpoint sum_fib (xs : list nat) : nat :=
   match xs with
@@ -66,35 +35,15 @@ Fixpoint sum_fib (xs : list nat) : nat :=
   | k :: xs' => fib k + sum_fib xs'
   end.
 
-(*
-│
-│          `two n = n + n` and `two_j_minus1 j = pred(2j)` are written
-│          additively so that the odd-band reindexing `2j - 1` stays
-│          within `nat` for `j >= 1` without recourse to saturating
-│          subtraction.
-│
-*)
+(*@inline@[[`two n = n + n` and `two_j_minus1 j = pred(2j)` are written additively so that the odd-band reindexing `2j - 1` stays within `nat` for `j >= 1` without recourse to saturating subtraction.]]@*)
 
 Definition two (n : nat) : nat := n + n.
 
 Definition two_j_minus1 (j : nat) : nat := Nat.pred (two j).
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                                                              │
-│                          PARAMETRIC CARRYLESS SHAPE                          │
-│                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
-*)
+(*@section@[[PARAMETRIC CARRYLESS SHAPE]]@*)
 
-(*
-│
-│          `Params` bundles a support extractor `Z` and a cutoff `r`.
-│          The pairing construction is parametric in this pair of
-│          operations; the concrete Zeckendorf instance uses `Z0` and
-│          `r0`.
-│
-*)
+(*@inline@[[`Params` bundles a support extractor `Z` and a cutoff `r`. The pairing construction is parametric in this pair of operations; the concrete Zeckendorf instance uses `Z0` and `r0`.]]@*)
 
 Inductive Params : Type :=
 | Build_Params : (nat -> list nat) -> (nat -> nat) -> Params.
@@ -109,12 +58,11 @@ Definition r (P : Params) : nat -> nat :=
   | Build_Params _ r0 => r0
   end.
 
-(*                            B_P(x) ≔ 2 · r_P(x)                             *)
+(*@unicodemath@[[B_P(x) ≔ 2 · r_P(x)]]@*)
 
 Definition B (P : Params) (x : nat) : nat := 2 * r P x.
 
-(*                    even_band_P(x) ≔ { 2e ∣ e ∈ Z_P(x) }                    *)
-(*           odd_band_P(x, y) ≔ { B_P(x) + (2j − 1) ∣ j ∈ Z_P(y) }            *)
+(*@unicodemath@[[even_band_P(x) ≔ { 2e ∣ e ∈ Z_P(x) }]][[odd_band_P(x, y) ≔ { B_P(x) + (2j − 1) ∣ j ∈ Z_P(y) }]]@*)
 
 Definition even_band (P : Params) (x : nat) : list nat :=
   map (fun e => two e) (Z P x).
@@ -122,59 +70,32 @@ Definition even_band (P : Params) (x : nat) : list nat :=
 Definition odd_band (P : Params) (x y : nat) : list nat :=
   map (fun j => B P x + two_j_minus1 j) (Z P y).
 
-(*
-│
-│          The abstract carryless code is formed by combining the
-│          even-band support of the left input with the odd-band
-│          support of the right input, and then evaluating the result
-│          as a finite Fibonacci support.
-│
-*)
+(*@inline@[[The abstract carryless code is formed by combining the even-band support of the left input with the odd-band support of the right input, and then evaluating the result as a finite Fibonacci support.]]@*)
 
 Definition pair (P : Params) (x y : nat) : nat :=
   sum_fib (even_band P x ++ odd_band P x y).
 
-(*
-│
-│          We isolate the even Zeckendorf indices and renormalize them
-│          by halving; this recovers the candidate support from which
-│          the left component is reconstructed.
-│
-*)
+(*@inline@[[We isolate the even Zeckendorf indices and renormalize them by halving; this recovers the candidate support from which the left component is reconstructed.]]@*)
 
 Definition half_even_indices (zn : list nat) : list nat :=
   map Nat.div2 (filter Nat.even zn).
 
-(*                 odd_ge_B1(B, k) = true ⇔ 2 ∤ k ∧ B + 1 ≤ k                 *)
+(*@unicodemath@[[odd_ge_B1(B, k) = true ⇔ 2 ∤ k ∧ B + 1 ≤ k]]@*)
 
 Definition odd_ge_B1 (Bx k : nat) : bool :=
   Nat.odd k && Nat.leb (S Bx) k.
 
-(*                 decode_odd_index(B, k) ≔ ⌊(k − B + 1) / 2⌋                 *)
+(*@unicodemath@[[decode_odd_index(B, k) ≔ ⌊(k − B + 1) / 2⌋]]@*)
 
 Definition decode_odd_index (Bx k : nat) : nat :=
   Nat.div2 (S (k - Bx)).
 
-(*
-│
-│          The candidate right-hand support is recovered by selecting
-│          precisely those odd indices that lie strictly above the
-│          boundary and transporting them back through the inverse
-│          affine reindexing.
-│
-*)
+(*@inline@[[The candidate right-hand support is recovered by selecting precisely those odd indices that lie strictly above the boundary and transporting them back through the inverse affine reindexing.]]@*)
 
 Definition y_indices (Bx : nat) (zn : list nat) : list nat :=
   map (decode_odd_index Bx) (filter (odd_ge_B1 Bx) zn).
 
-(*
-│
-│          `unpair` is the recovery map associated with parameters
-│          `P`. We first reconstruct the left component from the even
-│          support, and then reconstruct the right component from the
-│          odd support lying above the recovered boundary.
-│
-*)
+(*@inline@[[`unpair` is the recovery map associated with parameters `P`. We first reconstruct the left component from the even support, and then reconstruct the right component from the odd support lying above the recovered boundary.]]@*)
 
 Definition unpair (P : Params) (n : nat) : nat * nat :=
   let zn := Z P n in
@@ -183,15 +104,7 @@ Definition unpair (P : Params) (n : nat) : nat * nat :=
   let y := sum_fib (y_indices Bx zn) in
   (x, y).
 
-(*
-│
-│          The three structural predicates `strictly_decreasing`,
-│          `no_adjacent`, and `all_ge_2` are the conjuncts of
-│          `zeck_valid` below. They encode, respectively, descent, the
-│          gap-of-2 spacing required by Zeckendorf, and the index
-│          lower bound that excludes `fib 0` and `fib 1`.
-│
-*)
+(*@inline@[[The three structural predicates `strictly_decreasing`, `no_adjacent`, and `all_ge_2` are the conjuncts of `zeck_valid` below. They encode, respectively, descent, the gap-of-2 spacing required by Zeckendorf, and the index lower bound that excludes `fib 0` and `fib 1`.]]@*)
 
 Fixpoint strictly_decreasing (xs : list nat) : Prop :=
   match xs with
@@ -219,37 +132,16 @@ Fixpoint all_ge_2 (xs : list nat) : Prop :=
   | a :: xs' => 2 <= a /\ all_ge_2 xs'
   end.
 
-(*
-│
-│          `zeck_valid` is the admissibility predicate for Zeckendorf
-│          supports. It enforces strict descent, the exclusion of
-│          adjacent indices, and the lower bound `2` on every used
-│          index.
-│
-*)
+(*@inline@[[`zeck_valid` is the admissibility predicate for Zeckendorf supports. It enforces strict descent, the exclusion of adjacent indices, and the lower bound `2` on every used index.]]@*)
 
-(*                  zeck_valid(xs) ≔ strictly_decreasing(xs)                  *)
-(*                     ∧ no_adjacent(xs) ∧ all_ge_2(xs).                      *)
+(*@unicodemath@[[zeck_valid(xs) ≔ strictly_decreasing(xs)]][[∧ no_adjacent(xs) ∧ all_ge_2(xs).]]@*)
 
 Definition zeck_valid (xs : list nat) : Prop :=
   strictly_decreasing xs /\ no_adjacent xs /\ all_ge_2 xs.
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                                                              │
-│                                CUTOFF SEARCH                                 │
-│                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
-*)
+(*@section@[[CUTOFF SEARCH]]@*)
 
-(*
-│
-│          `find_r_aux` is the bounded upward search underlying `r0`:
-│          starting at index `k`, we advance until `fib k` strictly
-│          exceeds `x`, with `fuel` capping the loop so the function
-│          remains structurally recursive.
-│
-*)
+(*@inline@[[`find_r_aux` is the bounded upward search underlying `r0`: starting at index `k`, we advance until `fib k` strictly exceeds `x`, with `fuel` capping the loop so the function remains structurally recursive.]]@*)
 
 Fixpoint find_r_aux (x k fuel : nat) : nat :=
   match fuel with
@@ -260,27 +152,13 @@ Fixpoint find_r_aux (x k fuel : nat) : nat :=
       else find_r_aux x (S k) fuel'
   end.
 
-(*
-│
-│          `r0(x)` is the first Fibonacci cutoff strictly above `x`.
-│          The greedy constructor need only search below this index.
-│
-*)
+(*@inline@[[`r0(x)` is the first Fibonacci cutoff strictly above `x`. The greedy constructor need only search below this index.]]@*)
 
-(*                      r0(x) ≔ min { k ∈ ℕ ∣ x < F(k) }                      *)
+(*@unicodemath@[[r0(x) ≔ min { k ∈ ℕ ∣ x < F(k) }]]@*)
 
 Definition r0 (x : nat) : nat := find_r_aux x 0 (S (S x)).
 
-(*
-│
-│          `zeck_greedy_down` is the greedy Zeckendorf descent:
-│          starting at the cutoff `k`, we take `fib k` whenever it
-│          fits in the remainder and the previous index was not taken
-│          (so adjacency is precluded), and otherwise step down by
-│          one. The function returns the support together with the
-│          residual remainder.
-│
-*)
+(*@inline@[[`zeck_greedy_down` is the greedy Zeckendorf descent: starting at the cutoff `k`, we take `fib k` whenever it fits in the remainder and the previous index was not taken (so adjacency is precluded), and otherwise step down by one. The function returns the support together with the residual remainder.]]@*)
 
 Fixpoint zeck_greedy_down (k rem : nat) (prev_taken : bool)
   : list nat * nat :=
@@ -301,35 +179,17 @@ Fixpoint zeck_greedy_down (k rem : nat) (prev_taken : bool)
       end
   end.
 
-(*
-│
-│          `Z0` is the concrete greedy Zeckendorf support. It computes
-│          the canonical non-adjacent Fibonacci index set that
-│          represents the input number.
-│
-*)
+(*@inline@[[`Z0` is the concrete greedy Zeckendorf support. It computes the canonical non-adjacent Fibonacci index set that represents the input number.]]@*)
 
 Definition Z0 (x : nat) : list nat :=
   fst (zeck_greedy_down (r0 x) x false).
 
-(*
-│
-│          `base_params` instantiates the parametric pairing
-│          construction with the concrete support extractor `Z0` and
-│          cutoff `r0`.
-│
-*)
+(*@inline@[[`base_params` instantiates the parametric pairing construction with the concrete support extractor `Z0` and cutoff `r0`.]]@*)
 
 Definition base_params : Params :=
   Build_Params Z0 r0.
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                                                              │
-│                            FIBONACCI RECURRENCES                             │
-│                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
-*)
+(*@section@[[FIBONACCI RECURRENCES]]@*)
 
 Lemma fib_pair_S : forall n a b,
   fib_pair n = (a, b) -> fib_pair (S n) = (b, a + b).
@@ -444,8 +304,7 @@ Proof.
       exact Hlt.
 Qed.
 
-(*                       k ≤ j < find_r_aux(x, k, fuel)                       *)
-(*                                ⇒ F(j) ≤ x.                                 *)
+(*@unicodemath@[[k ≤ j < find_r_aux(x, k, fuel)]][[⇒ F(j) ≤ x.]]@*)
 
 Lemma find_r_aux_before_false :
   forall x k fuel j,
@@ -466,14 +325,9 @@ Proof.
         eapply IH; eauto.
 Qed.
 
-(*
-│
-│          `r0_upper` gives the upper half of the cutoff
-│          characterization: the search terminates strictly above `n`.
-│
-*)
+(*@inline@[[`r0_upper` gives the upper half of the cutoff characterization: the search terminates strictly above `n`.]]@*)
 
-(*                             ∀ n, n < F(r0(n)).                             *)
+(*@unicodemath@[[∀ n, n < F(r0(n)).]]@*)
 
 Lemma r0_upper :
   forall n, n < fib (r0 n).
@@ -495,17 +349,9 @@ Proof.
   lia.
 Qed.
 
-(*
-│
-│          The lower half of the cutoff characterization: every
-│          Fibonacci index strictly below `r0(n)` still evaluates to a
-│          value at most `n`. In conjunction with `r0_upper`, this
-│          identifies `r0(n)` as the least Fibonacci index whose value
-│          lies strictly above `n`.
-│
-*)
+(*@inline@[[The lower half of the cutoff characterization: every Fibonacci index strictly below `r0(n)` still evaluates to a value at most `n`. In conjunction with `r0_upper`, this identifies `r0(n)` as the least Fibonacci index whose value lies strictly above `n`.]]@*)
 
-(*                        ∀ n k, k < r0(n) ⇒ F(k) ≤ n.                        *)
+(*@unicodemath@[[∀ n k, k < r0(n) ⇒ F(k) ≤ n.]]@*)
 
 Lemma r0_minimal :
   forall n k, k < r0 n -> fib k <= n.

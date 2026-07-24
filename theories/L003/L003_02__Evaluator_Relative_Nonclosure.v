@@ -1,51 +1,24 @@
-(*L003_02__Evaluator_Relative_Nonclosure.v*)
+(*@file@*)
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                      Author and Copyright remark. Author(s): │
-│                ╭╮╮╮─╮                Milan Rosko  https://www.milanrosko.com │
-│                ││││╭╯                Licence. This file is distributed under │
-│                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
-│                                      visit https://www.mozilla.org/en-US/MPL │
-└──────────────────────────────────────────────────────────────────────────────┘
-┌──────────────────────────────────────────────────────────────────────────────┐
-│              Proofcase / L003_02__Evaluator_Relative_Nonclosure              │
-└──────────────────────────────────────────────────────────────────────────────┘
+(*@head.start@*)
+(*@copyright@*)
+(*@doc.proofcase@*)
 
-  OVERVIEW
+(*@doc.header@[[Overview]]@*)
 
-  Evaluator-relative nonclosure layer for L003. Given a compiler satisfying
-  `CompilerCorrect`, every total binary evaluator that is correct on a code
-  domain must exclude its own diagonal compiler product from that domain.
+(*@doc.pl@[[Evaluator-relative nonclosure layer for L003. Given a compiler satisfying `CompilerCorrect`, every total binary evaluator that is correct on a code domain must exclude its own diagonal compiler product from that domain.]]@*)
 
-  The result is conditional and constructive: no universal evaluator, machine
-  enumeration, or external computability theorem is assumed. The
-  contradiction is produced solely from evaluator correctness, compiler
-  correctness, and exact binary totality.
+(*@doc.pl@[[The proof is constructive. Evaluator correctness, uniform compiler correctness, and exact binary totality force the diagonal query to carry a verdict equivalent to its own negation; evaluator-relative domain membership is therefore impossible.]]@*)
 
-*)
+(*@head.end@*)
 
 From L003 Require Export L003_01__Binary_Evaluation.
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                                                              │
-│                        EVALUATOR-RELATIVE NONCLOSURE                         │
-│                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
-*)
+(*@section@[[EVALUATOR-RELATIVE NONCLOSURE]]@*)
 
-(*
-│
-│          Assuming the diagonal product lies in `C` turns verdict `1`
-│          into halting, compiler correctness turns halting into
-│          verdict `0`, and binary totality turns verdict `0` into the
-│          negation of verdict `1`. The resulting self-negating
-│          verdict is impossible constructively.
-│
-*)
+(*@inline@[[Assuming the diagonal product lies in `C` turns verdict `1` into halting, compiler correctness turns halting into verdict `0`, and binary totality turns verdict `0` into the negation of verdict `1`. The resulting self-negating verdict is impossible constructively.]]@*)
 
-(*          CompilerCorrect(…) ∧ EvalC(…, C, h) ⇒ ¬ C(diagonal(h)).           *)
+(*@unicodemath@[[CompilerCorrect(…) ∧ EvalC(…, C, h) ⇒ ¬ C(diagonal(h)).]]@*)
 
 Theorem evaluator_relative_nonclosure :
   forall (out : OutputRelation)
@@ -93,21 +66,9 @@ Proof.
   exact (Hnot (Hnegative Hnot)).
 Qed.
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                                                              │
-│                          DIAGONALLY CLOSED DOMAINS                           │
-│                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
-*)
+(*@section@[[DIAGONALLY CLOSED DOMAINS]]@*)
 
-(*
-│
-│          If `C` contains the diagonal compiler product of every
-│          evaluator correct on `C`, then no individual evaluator can
-│          satisfy `EvalC` on that domain.
-│
-*)
+(*@inline@[[If `C` contains the diagonal compiler product of every evaluator correct on `C`, then no individual evaluator can satisfy `EvalC` on that domain.]]@*)
 
 Theorem diagonally_closed_domain_excludes_evaluator :
   forall (out : OutputRelation)
@@ -129,16 +90,9 @@ Proof.
   exact (Hclosed h Heval).
 Qed.
 
-(*
-│
-│          The pointwise exclusion immediately rules out the existence
-│          of any total binary evaluator correct on a diagonally
-│          closed domain.
-│
-*)
+(*@inline@[[The pointwise exclusion immediately rules out the existence of any total binary evaluator correct on a diagonally closed domain.]]@*)
 
-(*            CompilerCorrect(…) ∧ EvaluatorDiagonalClosure(…, C)             *)
-(*                          ⇒ ¬ ∃ h, EvalC(…, C, h).                          *)
+(*@unicodemath@[[CompilerCorrect(…) ∧ EvaluatorDiagonalClosure(…, C)]][[⇒ ¬ ∃ h, EvalC(…, C, h).]]@*)
 
 Theorem no_total_evaluator_on_diagonally_closed_domain :
   forall (out : OutputRelation)

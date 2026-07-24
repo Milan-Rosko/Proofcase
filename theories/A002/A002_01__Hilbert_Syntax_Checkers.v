@@ -1,194 +1,92 @@
-(*A002_01__Hilbert_Syntax_Checkers.v*)
+(*@file@*)
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                      Author and Copyright remark. Author(s): │
-│                ╭╮╮╮─╮                Milan Rosko  https://www.milanrosko.com │
-│                ││││╭╯                Licence. This file is distributed under │
-│                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
-│                                      visit https://www.mozilla.org/en-US/MPL │
-└──────────────────────────────────────────────────────────────────────────────┘
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                 Proofcase / A002_01__Hilbert_Syntax_Checkers                 │
-└──────────────────────────────────────────────────────────────────────────────┘
+(*@head.start@*)
+(*@copyright@*)
+(*@doc.proofcase@*)
 
-  OVERVIEW
+(*@doc.header@[[Overview]]@*)
 
-  Hilbert syntax and checker layer for CARRYLESS SEQUENT. We encode proof
-  lines as A001-canonical pairs of a rule tag and displayed formula, define
-  the fixed K, S, and modus-ponens tags, and implement their total arithmetic
-  checkers.
+(*@doc.pl@[[Hilbert syntax and checker layer for CARRYLESS SEQUENT. We encode proof lines as A001-canonical pairs of a rule tag and displayed formula, define the fixed K, S, and modus-ponens tags, and implement their total arithmetic checkers.]]@*)
 
-  Line and tag parsing establishes the arithmetic outer shape before
-  rule-specific checking begins. The K and S checkers validate their complete
-  formula schemas; the MP checker validates earlier citations and syntactic
-  antecedent/consequent alignment. No checker performs proof search or
-  semantic evaluation.
+(*@doc.pl@[[Line and tag parsing establishes the arithmetic outer shape before rule-specific checking begins. The K and S checkers validate their complete formula schemas; the MP checker validates earlier citations and syntactic antecedent/consequent alignment. No checker performs proof search or semantic evaluation.]]@*)
 
-  The executable flow is deliberately staged: canonical line parsing yields a
-  tag/formula pair; canonical tag parsing yields a rule/payload pair; the
-  selected local checker then returns either a rule-specific certificate
-  payload or the first deterministic arithmetic error. The normalization
-  layer consumes this surface but proves schema validity over inductive
-  syntax, avoiding closed computation over the large arithmetic containers.
+(*@doc.pl@[[The executable flow is deliberately staged: canonical line parsing yields a tag/formula pair; canonical tag parsing yields a rule/payload pair; the selected local checker then returns either a rule-specific certificate payload or the first deterministic arithmetic error. The normalization layer consumes this surface but proves schema validity over inductive syntax, avoiding closed computation over the large arithmetic containers.]]@*)
 
-*)
+(*@head.end@*)
 
 From A002 Require Export A002_00_Premises.
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                                                              │
-│                               LINE CONSTRUCTOR                               │
-│                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
-*)
+(*@section@[[LINE CONSTRUCTOR]]@*)
 
-(*
-│
-│          A proof line pairs a rule tag code with the formula
-│          displayed on that line.
-│
-*)
+(*@inline@[[A proof line pairs a rule tag code with the formula displayed on that line.]]@*)
 
-(*                     code_line(tag,φ) ≔ encode(tag,φ).                      *)
+(*@unicodemath@[[code_line(tag,φ) ≔ encode(tag,φ).]]@*)
 
 Definition code_line (tag formula : nat) : nat :=
   encode tag formula.
 
-(*
-│
-│          `line_tag` reads the rule tag exposed by A001 decoding. It
-│          is dispatched as a rule tag only after the enclosing line
-│          has passed the canonical A001 test.
-│
-*)
+(*@inline@[[`line_tag` reads the rule tag exposed by A001 decoding. It is dispatched as a rule tag only after the enclosing line has passed the canonical A001 test.]]@*)
 
 Definition line_tag (ell : nat) : nat :=
   fst001 ell.
 
-(*
-│
-│          `line_formula` reads the displayed formula exposed by A001
-│          decoding. Rule checkers decide whether this number is a
-│          well-formed formula of the required syntactic shape.
-│
-*)
+(*@inline@[[`line_formula` reads the displayed formula exposed by A001 decoding. Rule checkers decide whether this number is a well-formed formula of the required syntactic shape.]]@*)
 
 Definition line_formula (ell : nat) : nat :=
   snd001 ell.
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                                                              │
-│                                  RULE TAGS                                   │
-│                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
-*)
+(*@section@[[RULE TAGS]]@*)
 
-(*
-│
-│          The fixed CARRYLESS SEQUENT rule code for the K axiom
-│          schema.
-│
-*)
+(*@inline@[[The fixed CARRYLESS SEQUENT rule code for the K axiom schema.]]@*)
 
 Definition RULE_AXK : nat := 0.
 
-(*
-│
-│          The fixed CARRYLESS SEQUENT rule code for the S axiom
-│          schema.
-│
-*)
+(*@inline@[[The fixed CARRYLESS SEQUENT rule code for the S axiom schema.]]@*)
 
 Definition RULE_AXS : nat := 1.
 
-(*
-│
-│          The fixed CARRYLESS SEQUENT rule code for modus ponens.
-│
-*)
+(*@inline@[[The fixed CARRYLESS SEQUENT rule code for modus ponens.]]@*)
 
 Definition RULE_MP : nat := 2.
 
-(*
-│
-│          The K-axiom tag has rule code `RULE_AXK` and empty payload
-│          `0`.
-│
-*)
+(*@inline@[[The K-axiom tag has rule code `RULE_AXK` and empty payload `0`.]]@*)
 
-(*                           tag_axk ≔ encode(0,0).                           *)
+(*@unicodemath@[[tag_axk ≔ encode(0,0).]]@*)
 
 Definition tag_axk : nat :=
   encode RULE_AXK 0.
 
-(*
-│
-│          The S-axiom tag has rule code `RULE_AXS` and empty payload
-│          `0`.
-│
-*)
+(*@inline@[[The S-axiom tag has rule code `RULE_AXS` and empty payload `0`.]]@*)
 
-(*                           tag_axs ≔ encode(1,0).                           *)
+(*@unicodemath@[[tag_axs ≔ encode(1,0).]]@*)
 
 Definition tag_axs : nat :=
   encode RULE_AXS 0.
 
-(*
-│
-│          The modus-ponens tag has rule code `RULE_MP` and a
-│          canonical A001 pair of cited line indices.
-│
-*)
+(*@inline@[[The modus-ponens tag has rule code `RULE_MP` and a canonical A001 pair of cited line indices.]]@*)
 
-(*                    tag_mp(p,q) ≔ encode(2,encode(p,q)).                    *)
+(*@unicodemath@[[tag_mp(p,q) ≔ encode(2,encode(p,q)).]]@*)
 
 Definition tag_mp (p q : nat) : nat :=
   encode RULE_MP (encode p q).
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                                                              │
-│                               RULE TAG PARSING                               │
-│                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
-*)
+(*@section@[[RULE TAG PARSING]]@*)
 
-(*
-│
-│          `rule_code` reads the outer rule code exposed by A001
-│          decoding. It is dispatched only after tag canonicity has
-│          been checked.
-│
-*)
+(*@inline@[[`rule_code` reads the outer rule code exposed by A001 decoding. It is dispatched only after tag canonicity has been checked.]]@*)
 
 Definition rule_code (tag : nat) : nat :=
   fst001 tag.
 
-(*
-│
-│          `rule_payload` reads the outer rule payload exposed by A001
-│          decoding. Its expected shape depends on the checked rule
-│          code.
-│
-*)
+(*@inline@[[`rule_payload` reads the outer rule payload exposed by A001 decoding. Its expected shape depends on the checked rule code.]]@*)
 
 Definition rule_payload (tag : nat) : nat :=
   snd001 tag.
 
-(*
-│
-│          `parse_rule_tag tag` returns `accept (encode rule payload)`
-│          when `tag` is one of the three canonical CARRYLESS SEQUENT
-│          rule tags.
-│
-*)
+(*@inline@[[`parse_rule_tag tag` returns `accept (encode rule payload)` when `tag` is one of the three canonical CARRYLESS SEQUENT rule tags.]]@*)
 
-(*                parse_rule_tag(tag_axk)=accept(encode(0,0)).                *)
-(*                parse_rule_tag(tag_axs)=accept(encode(1,0)).                *)
-(*         parse_rule_tag(tag_mp(p,q))=accept(encode(2,encode(p,q))).         *)
+(*@unicodemath@[[parse_rule_tag(tag_axk)=accept(encode(0,0)).]]@*)
+(*@unicodemath@[[parse_rule_tag(tag_axs)=accept(encode(1,0)).]]@*)
+(*@unicodemath@[[parse_rule_tag(tag_mp(p,q))=accept(encode(2,encode(p,q))).]]@*)
 
 Definition parse_rule_tag (tag : nat) : nat :=
   if canonical001b tag then
@@ -214,26 +112,11 @@ Definition parse_rule_tag (tag : nat) : nat :=
   else
     reject STAGE_TAG 0 ERR_BAD_TAG.
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                                                              │
-│                                 LINE PARSING                                 │
-│                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
-*)
+(*@section@[[LINE PARSING]]@*)
 
-(*
-│
-│          `parse_line ell` returns the canonical tag/formula payload
-│          of a line after checking that the line itself is canonical
-│          and its tag is a valid CARRYLESS SEQUENT rule tag. If tag
-│          parsing fails, the tag parser's encoded diagnostic is
-│          carried as the line parser detail.
-│
-*)
+(*@inline@[[`parse_line ell` returns the canonical tag/formula payload of a line after checking that the line itself is canonical and its tag is a valid CARRYLESS SEQUENT rule tag. If tag parsing fails, the tag parser's encoded diagnostic is carried as the line parser detail.]]@*)
 
-(*              parse_rule_tag(tag)=accept(encode(rule,payload))              *)
-(*           ⇒ parse_line(code_line(tag,φ))=accept(encode(tag,φ)).            *)
+(*@unicodemath@[[parse_rule_tag(tag)=accept(encode(rule,payload))]][[⇒ parse_line(code_line(tag,φ))=accept(encode(tag,φ)).]]@*)
 
 Definition parse_line (ell : nat) : nat :=
   if canonical001b ell then
@@ -247,22 +130,11 @@ Definition parse_line (ell : nat) : nat :=
   else
     reject STAGE_LINE 0 ERR_NONCANONICAL_LINE.
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                                                              │
-│                              CONSTRUCTOR FACTS                               │
-│                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
-*)
+(*@section@[[CONSTRUCTOR FACTS]]@*)
 
-(*
-│
-│          The constructed K tag parses as the K rule with empty
-│          payload.
-│
-*)
+(*@inline@[[The constructed K tag parses as the K rule with empty payload.]]@*)
 
-(*            parse_rule_tag(tag_axk)=accept(encode(RULE_AXK,0)).             *)
+(*@unicodemath@[[parse_rule_tag(tag_axk)=accept(encode(RULE_AXK,0)).]]@*)
 
 Lemma parse_rule_tag_axk :
   parse_rule_tag tag_axk = accept (encode RULE_AXK 0).
@@ -275,14 +147,9 @@ Proof.
   reflexivity.
 Qed.
 
-(*
-│
-│          The constructed S tag parses as the S rule with empty
-│          payload.
-│
-*)
+(*@inline@[[The constructed S tag parses as the S rule with empty payload.]]@*)
 
-(*            parse_rule_tag(tag_axs)=accept(encode(RULE_AXS,0)).             *)
+(*@unicodemath@[[parse_rule_tag(tag_axs)=accept(encode(RULE_AXS,0)).]]@*)
 
 Lemma parse_rule_tag_axs :
   parse_rule_tag tag_axs = accept (encode RULE_AXS 0).
@@ -297,14 +164,9 @@ Proof.
   reflexivity.
 Qed.
 
-(*
-│
-│          A constructed modus-ponens tag parses as the MP rule with
-│          canonical citation payload.
-│
-*)
+(*@inline@[[A constructed modus-ponens tag parses as the MP rule with canonical citation payload.]]@*)
 
-(*      parse_rule_tag(tag_mp(p,q))=accept(encode(RULE_MP,encode(p,q))).      *)
+(*@unicodemath@[[parse_rule_tag(tag_mp(p,q))=accept(encode(RULE_MP,encode(p,q))).]]@*)
 
 Lemma parse_rule_tag_mp :
   forall p q,
@@ -321,14 +183,9 @@ Proof.
   reflexivity.
 Qed.
 
-(*
-│
-│          A line built with the K tag parses to its original
-│          tag/formula payload.
-│
-*)
+(*@inline@[[A line built with the K tag parses to its original tag/formula payload.]]@*)
 
-(*        parse_line(code_line(tag_axk,φ))=accept(encode(tag_axk,φ)).         *)
+(*@unicodemath@[[parse_line(code_line(tag_axk,φ))=accept(encode(tag_axk,φ)).]]@*)
 
 Lemma parse_line_axk :
   forall phi,
@@ -347,14 +204,9 @@ Proof.
   reflexivity.
 Qed.
 
-(*
-│
-│          A line built with the S tag parses to its original
-│          tag/formula payload.
-│
-*)
+(*@inline@[[A line built with the S tag parses to its original tag/formula payload.]]@*)
 
-(*        parse_line(code_line(tag_axs,φ))=accept(encode(tag_axs,φ)).         *)
+(*@unicodemath@[[parse_line(code_line(tag_axs,φ))=accept(encode(tag_axs,φ)).]]@*)
 
 Lemma parse_line_axs :
   forall phi,
@@ -373,14 +225,9 @@ Proof.
   reflexivity.
 Qed.
 
-(*
-│
-│          A line built with an MP tag parses to its original
-│          tag/formula payload.
-│
-*)
+(*@inline@[[A line built with an MP tag parses to its original tag/formula payload.]]@*)
 
-(*    parse_line(code_line(tag_mp(p,q),φ))=accept(encode(tag_mp(p,q),φ)).     *)
+(*@unicodemath@[[parse_line(code_line(tag_mp(p,q),φ))=accept(encode(tag_mp(p,q),φ)).]]@*)
 
 Lemma parse_line_mp :
   forall p q phi,
@@ -400,104 +247,48 @@ Proof.
   reflexivity.
 Qed.
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                                                              │
-│                              RESULT PROJECTIONS                              │
-│                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
-*)
+(*@section@[[RESULT PROJECTIONS]]@*)
 
-(*
-│
-│          Every parser and local checker in this file uses the common
-│          result envelope `encode status payload`. The following
-│          projections and Boolean acceptance test keep downstream
-│          control flow independent of the rule-specific payload
-│          shape.
-│
-*)
+(*@inline@[[Every parser and local checker in this file uses the common result envelope `encode status payload`. The following projections and Boolean acceptance test keep downstream control flow independent of the rule-specific payload shape.]]@*)
 
-(*
-│
-│          `result_status` reads the status component of an A002
-│          arithmetic result. All results built by A002 are canonical
-│          A001 pairs.
-│
-*)
+(*@inline@[[`result_status` reads the status component of an A002 arithmetic result. All results built by A002 are canonical A001 pairs.]]@*)
 
-(*                       result_status(encode(s,p))=s.                        *)
+(*@unicodemath@[[result_status(encode(s,p))=s.]]@*)
 
 Definition result_status (r : nat) : nat :=
   fst001 r.
 
-(*
-│
-│          `result_payload` reads the payload component of an A002
-│          arithmetic result. Its meaning is determined by the status
-│          and by the checker that produced it.
-│
-*)
+(*@inline@[[`result_payload` reads the payload component of an A002 arithmetic result. Its meaning is determined by the status and by the checker that produced it.]]@*)
 
-(*                       result_payload(encode(s,p))=p.                       *)
+(*@unicodemath@[[result_payload(encode(s,p))=p.]]@*)
 
 Definition result_payload (r : nat) : nat :=
   snd001 r.
 
-(*
-│
-│          `acceptedb` is the common executable test for a successful
-│          checker result.
-│
-*)
+(*@inline@[[`acceptedb` is the common executable test for a successful checker result.]]@*)
 
-(*             acceptedb(r) ≔ (result_status(r)=?STATUS_ACCEPT).              *)
+(*@unicodemath@[[acceptedb(r) ≔ (result_status(r)=?STATUS_ACCEPT).]]@*)
 
 Definition acceptedb (r : nat) : bool :=
   Nat.eqb (result_status r) STATUS_ACCEPT.
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                                                              │
-│                              PARSED LINE ACCESS                              │
-│                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
-*)
+(*@section@[[PARSED LINE ACCESS]]@*)
 
-(*
-│
-│          A successful `parse_line` result carries `encode tag phi`;
-│          this projection extracts the displayed formula from that
-│          payload.
-│
-*)
+(*@inline@[[A successful `parse_line` result carries `encode tag phi`; this projection extracts the displayed formula from that payload.]]@*)
 
 Definition parsed_line_formula (payload : nat) : nat :=
   snd001 payload.
 
-(*
-│
-│          `nth_line` fetches a line from a tagged derivation body
-│          using fuel bounded by the claimed derivation length.
-│
-*)
+(*@inline@[[`nth_line` fetches a line from a tagged derivation body using fuel bounded by the claimed derivation length.]]@*)
 
-(*              nth_line(n,body,i) ≔ nth_list_fuel(n+1,body,i).               *)
+(*@unicodemath@[[nth_line(n,body,i) ≔ nth_list_fuel(n+1,body,i).]]@*)
 
 Definition nth_line (n body i : nat) : nat :=
   nth_list_fuel (S n) body i.
 
-(*
-│
-│          `nth_formula` fetches and parses a line, returning the
-│          displayed formula when both operations succeed. It is used
-│          by later soundness statements as the arithmetic
-│          formula-view interface.
-│
-*)
+(*@inline@[[`nth_formula` fetches and parses a line, returning the displayed formula when both operations succeed. It is used by later soundness statements as the arithmetic formula-view interface.]]@*)
 
-(*      nth_list(body,i)=accept(ℓ) ∧ parse_line(ℓ)=accept(encode(tag,φ))      *)
-(*                      ⇒ nth_formula(body,i)=accept(φ).                      *)
+(*@unicodemath@[[nth_list(body,i)=accept(ℓ) ∧ parse_line(ℓ)=accept(encode(tag,φ))]][[⇒ nth_formula(body,i)=accept(φ).]]@*)
 
 Definition nth_formula (body i : nat) : nat :=
   let fetched := nth_list (body) i in
@@ -508,24 +299,11 @@ Definition nth_formula (body i : nat) : nat :=
     else parsed
   else fetched.
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                                                              │
-│                               K AXIOM CHECKER                                │
-│                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
-*)
+(*@section@[[K AXIOM CHECKER]]@*)
 
-(*
-│
-│          `check_axk phi` checks the K schema `A -> (B -> A)` by two
-│          implication parses, one equality test, and formula checks
-│          for the exposed metavariables.
-│
-*)
+(*@inline@[[`check_axk phi` checks the K schema `A -> (B -> A)` by two implication parses, one equality test, and formula checks for the exposed metavariables.]]@*)
 
-(*                  is_formula(A)=true ∧ is_formula(B)=true                   *)
-(*⇒ check_axk(code_imp(A,code_imp(B,A)))=accept(encode(RULE_AXK,encode(A,B))).*)
+(*@unicodemath@[[is_formula(A)=true ∧ is_formula(B)=true]][[⇒ check_axk(code_imp(A,code_imp(B,A)))=accept(encode(RULE_AXK,encode(A,B))).]]@*)
 
 Definition check_axk (phi : nat) : nat :=
   let outer := parse_imp phi in
@@ -553,27 +331,12 @@ Definition check_axk (phi : nat) : nat :=
   else
     reject STAGE_RULE 0 ERR_AXK_NOT_IMP_1.
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                                                              │
-│                               S AXIOM CHECKER                                │
-│                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
-*)
+(*@section@[[S AXIOM CHECKER]]@*)
 
-(*
-│
-│          `check_axs phi` checks the S schema `(A -> (B -> C)) -> ((A
-│          -> B) -> (A -> C))` by six implication parses, four
-│          equality tests, and formula checks for `A`, `B`, and `C`.
-│
-*)
+(*@inline@[[`check_axs phi` checks the S schema `(A -> (B -> C)) -> ((A -> B) -> (A -> C))` by six implication parses, four equality tests, and formula checks for `A`, `B`, and `C`.]]@*)
 
-(*              S(A,B,C) ≔ (A → (B → C)) → ((A → B) → (A → C)).               *)
-(*        is_formula(A)=true ∧ is_formula(B)=true ∧ is_formula(C)=true        *)
-(*                                     ⇒                                      *)
-(*check_axs(code_imp(code_imp(A,code_imp(B,C)),code_imp(code_imp(A,B),code_imp(A,C))))*)
-(*             = accept(encode(RULE_AXS,encode(A,encode(B,C)))).              *)
+(*@unicodemath@[[S(A,B,C) ≔ (A → (B → C)) → ((A → B) → (A → C)).]]@*)
+(*@unicodemath@[[is_formula(A)=true ∧ is_formula(B)=true ∧ is_formula(C)=true]][[⇒ check_axs(code_imp(code_imp(A,code_imp(B,C)),code_imp(code_imp(A,B),code_imp(A,C))))]][[= accept(encode(RULE_AXS,encode(A,encode(B,C)))).]]@*)
 
 Definition check_axs (phi : nat) : nat :=
   let imp1 := parse_imp phi in
@@ -643,25 +406,11 @@ Definition check_axs (phi : nat) : nat :=
   else
     reject STAGE_RULE 0 ERR_AXS_NOT_IMP_1.
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                                                              │
-│                             MODUS PONENS CHECKER                             │
-│                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
-*)
+(*@section@[[MODUS PONENS CHECKER]]@*)
 
-(*
-│
-│          `line_formula_result n body i detail` fetches and parses
-│          line `i`; on success it returns the displayed formula, and
-│          on failure it returns the supplied MP-specific error
-│          detail.
-│
-*)
+(*@inline@[[`line_formula_result n body i detail` fetches and parses line `i`; on success it returns the displayed formula, and on failure it returns the supplied MP-specific error detail.]]@*)
 
-(*                 line_formula_result(n,body,i,d)=accept(φ)                  *)
-(*             ⇔ line i is fetchable, canonical, and displays φ.              *)
+(*@unicodemath@[[line_formula_result(n,body,i,d)=accept(φ)]][[⇔ line i is fetchable, canonical, and displays φ.]]@*)
 
 Definition line_formula_result
   (n body i detail : nat)
@@ -676,18 +425,9 @@ Definition line_formula_result
   else
     reject STAGE_RULE i detail.
 
-(*
-│
-│          `check_mp n body j p q` checks that line `j` follows from
-│          earlier lines `p` and `q`, where line `q` displays an
-│          implication whose antecedent is line `p` and consequent is
-│          line `j`.
-│
-*)
+(*@inline@[[`check_mp n body j p q` checks that line `j` follows from earlier lines `p` and `q`, where line `q` displays an implication whose antecedent is line `p` and consequent is line `j`.]]@*)
 
-(*            p<j ∧ q<j<n ∧ body[p]=A ∧ body[q]=(A→B) ∧ body[j]=B             *)
-(*                                     ⇒                                      *)
-(*check_mp(n,body,j,p,q)=accept(encode(RULE_MP,encode(p,encode(q,encode(A,B))))).*)
+(*@unicodemath@[[p<j ∧ q<j<n ∧ body[p]=A ∧ body[q]=(A→B) ∧ body[j]=B]][[⇒ check_mp(n,body,j,p,q)=accept(encode(RULE_MP,encode(p,encode(q,encode(A,B))))).]]@*)
 
 Definition check_mp (n body j p q : nat) : nat :=
   if Nat.ltb p j then
@@ -731,22 +471,11 @@ Definition check_mp (n body j p q : nat) : nat :=
   else
     reject STAGE_RULE j ERR_MP_P_NOT_LT_J.
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                                                              │
-│                              BASIC RESULT FACTS                              │
-│                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
-*)
+(*@section@[[BASIC RESULT FACTS]]@*)
 
-(*
-│
-│          The status projection of an accepted result is the
-│          acceptance status.
-│
-*)
+(*@inline@[[The status projection of an accepted result is the acceptance status.]]@*)
 
-(*                         acceptedb(accept(p))=true.                         *)
+(*@unicodemath@[[acceptedb(accept(p))=true.]]@*)
 
 Lemma acceptedb_accept :
   forall payload, acceptedb (accept payload) = true.
@@ -757,14 +486,9 @@ Proof.
   apply Nat.eqb_refl.
 Qed.
 
-(*
-│
-│          The payload projection of an accepted result is the
-│          original payload.
-│
-*)
+(*@inline@[[The payload projection of an accepted result is the original payload.]]@*)
 
-(*                        result_payload(accept(p))=p.                        *)
+(*@unicodemath@[[result_payload(accept(p))=p.]]@*)
 
 Lemma result_payload_accept :
   forall payload, result_payload (accept payload) = payload.

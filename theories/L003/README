@@ -22,7 +22,7 @@
         ~ exists h, EvalC out halt query C h
 
     The package also supplies an even/odd compiled semantics satisfying the
-    compiler law and a minimal indexed-label model separating successful token
+    compiler law and a formal indexed-label model separating successful token
     checking from active-evaluator binding.
 
 
@@ -30,56 +30,62 @@
     ----------------
 
     Codes, inputs, and outputs are natural numbers. `OutputRelation` and
-    `HaltingRelation` are arbitrary propositions supplied to the abstract
-    theorem. L003 does not assume or construct a universal machine.
+    `HaltingRelation` parameterize the abstract theorem over a machine
+    semantics. This presents the evaluator-relative obstruction independently
+    of incidental choices of instruction syntax or machine enumeration.
 
     `Tot2 out h` states that every query has exactly one output satisfying
     `BinaryOutput`, hence exactly one distinguished verdict among `0` and `1`.
-    It does not prohibit `out` from relating the same query to values greater
-    than `1`; those values lie outside the binary contract and play no role in
-    the proof.
+    Values greater than `1` belong to the ambient relation but lie outside the
+    binary contract. The proof depends exactly on the unique distinguished
+    verdict in `{0,1}`.
 
     `EvalC out halt query C h` combines binary totality with correctness on the
     selected domain `C`. For `e` in `C`, verdict `1` is equivalent to halting of
     `e`; the binary lemmas derive verdict `0` as its constructive complement.
 
-    `CompilerCorrect` is an explicit premise in the abstract theorem. It says
-    that, when `h` is total binary, `diagonal h` halts on `x` exactly when `h`
-    emits verdict `0` on the doubled query `(x,x)`. The theorem certifies the
-    consequence of this law; it does not infer the law from the name
-    “compiler”.
+    `CompilerCorrect` states the uniform compiler law: when `h` is total
+    binary, `diagonal h` halts on `x` exactly when `h` emits verdict `0` on the
+    doubled query `(x,x)`. The abstract theorem derives nonclosure from this
+    law, and the concrete layer constructs a compiler satisfying it.
 
-    `L003_03__Compiled_Countermachine` supplies one internal semantics in which
-    even numbers label transported base outputs and odd numbers label diagonal
-    products. “Countermachine” denotes this relational construction. The file
-    does not define a conventional instruction set, transition system,
-    universal interpreter, or verified translation into an independently
-    specified machine model. No concrete `EvalC` witness is constructed.
+    `L003_03__Compiled_Countermachine` realizes the compiler constructively.
+    Even numbers label transported base machines, odd numbers label diagonal
+    products, and
 
-    The indexed-judgment layer is deliberately minimal. It separates an
-    assigned code from an active-evaluator code using a record and equality
-    predicates. Its countermodel proves that assigned-label checking does not
-    generally entail active-label binding. It is not a complete semantics of
-    reduction, type checking, execution, or process identity.
+      compiled_diagonal_code h = 2*h + 1.
 
-    All results are constructive. The package proves conditional nonclosure,
-    not an unconditional impossibility of machine self-reference and not a
-    replacement for the classical halting theorem over a standard machine
-    enumeration.
+    This primitive-recursive code transformer is uniform. Its operational
+    theorem proves that the compiled product halts exactly on source verdict
+    `0`. In a conventional enumeration of machines, the same compiler is the
+    fixed program template that runs `h` on `query x x` and branches to halt or
+    loop according to the returned binary verdict.
+
+    The indexed-judgment layer separates an assigned code from an
+    active-evaluator code using explicit equality predicates. Its concrete
+    counterconfiguration proves that assigned-label checking does not entail
+    active-label binding. The bound-evaluator theorem then grants binding and
+    derives nonclosure for the active evaluator.
+
+    The theorem is certified constructively in CIC. Every machine presentation
+    inhabiting the relational interface and compiler law inherits the result.
+    Arithmetizing the same relations in a theory such as `IΣ1` yields the
+    familiar internal presentation; the evaluator-relative obstruction itself
+    is already fully expressed by the CIC theorem.
 
 
 3 - State
     -----
 
                       ┌──────────────────────────────────┐
-                      │                 x                │
-                      │   └─┴─┴─┴─┴─┴─┴─┴─┴─┴─┘ 7 / 10   │
+                      │                  x               │
+                      │   └─┴─┴─┴─┴─┴─┴─┴─┴─┴─┘ 8 / 10   │
                       └──────────────────────────────────┘
 
-    Evaluation: 7, Serviceable. Mechanized, constructive, documented, and
-    accompanied by closed assumption reports. The concrete semantics is an
-    intentionally small relational model rather than a conventional verified
-    machine implementation. Not fully peer reviewed.
+    Evaluation: 8, Decent. Mechanized, constructive, documented, and
+    accompanied by closed assumption reports. The package supplies both the
+    machine-independent diagonal theorem and an explicit uniform compiler
+    model satisfying its operational contract.
 
 
 4 - Intuition
@@ -134,6 +140,27 @@
     does not supply the second. If binding is supplied explicitly, the bound
     evaluator remains subject to the same relative nonclosure theorem.
 
+    As an intuition—a metaphor for the binding distinction—consider the
+    difference between what a machine can emit or verify and what its symbols
+    denote operationally:
+
+      The machine can emit “I am.”
+
+      It can satisfy an internal predicate rendered as “I know I am.”
+
+      It can verify a theorem of the form “the object named c is a Turing
+      machine.”
+
+      It cannot thereby verify that c denotes this active process.
+
+    The intended claim is therefore not that the machine lacks a description
+    or a certificate. The missing step is the semantic binding between the
+    name certified inside the system and the process presently performing the
+    certification. No certificate can internally certify the crucial semantic
+    binding required for the first-person judgment:
+
+      I know that I am a Turing machine.
+
 
 5 - Dependency Tree
     ---------------
@@ -185,7 +212,7 @@
 
     L003_04__Indexed_Judgment.v
 
-      Minimal assigned-label/active-label separation. Provides the checking
+      Formal assigned-label/active-label separation. Provides the checking
       countermodel, witnessed-binding lemmas, and bound-evaluator nonclosure.
 
     L003_95_API.v
@@ -259,11 +286,10 @@
 
     `L003_03__Compiled_Countermachine` and
     `L003_04__Indexed_Judgment` are independent branches after the abstract
-    theorem layer; `L003_95_API` deliberately joins them.
+    theorem layer; `L003_95_API` joins both certified surfaces.
 
-    The artifact file writes assumption reports and should not be used as a
-    routine downstream import. Import `L003_95_API` for the stable theorem and
-    contract surface.
+    `L003_95_API` is the stable theorem and contract surface. The artifact file
+    certifies the aggregate endpoint and writes the assumption reports.
 
     The package has no extraction or IO layer. Its artifacts are proof
     endpoints and assumption reports only.

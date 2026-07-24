@@ -1,46 +1,25 @@
-(*M001_07__Monotonicity.v*)
+(*@file@*)
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                      Author and Copyright remark. Author(s): │
-│                ╭╮╮╮─╮                Milan Rosko  https://www.milanrosko.com │
-│                ││││╭╯                Licence. This file is distributed under │
-│                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
-│                                      visit https://www.mozilla.org/en-US/MPL │
-└──────────────────────────────────────────────────────────────────────────────┘
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                      Proofcase / M001_07__Monotonicity                       │
-└──────────────────────────────────────────────────────────────────────────────┘
+(*@head.start@*)
+(*@copyright@*)
+(*@doc.proofcase@*)
 
-  OVERVIEW
+(*@doc.header@[[Overview]]@*)
 
-  Structural monotonicity for regulator theories. A checked script remains
-  checked when its context is enlarged or when its available axiom source is
-  enlarged. The proofs preserve the concrete script; the existential
-  checked-derivability forms are immediate corollaries.
+(*@doc.pl@[[Structural monotonicity for regulator theories.  A checked
+script remains checked when its context is enlarged or when its available
+axiom source is enlarged.  The proofs preserve the concrete script; the
+existential checked-derivability forms are immediate corollaries.]]@*)
 
-*)
+(*@head.end@*)
 
 From M001 Require Export M001_06__Syntactic_Adequacy.
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                                                              │
-│                             CONTEXT MONOTONICITY                             │
-│                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
-*)
+(*@section@[[CONTEXT MONOTONICITY]]@*)
 
-(*
-│
-│          `context_included Γ Δ` is syntactic Boolean inclusion of
-│          assumptions: every formula recognized by `ctx_mem_bool` in
-│          `Γ` is also recognized in `Δ`. This matches the Boolean
-│          membership test used to validate assumption lines.
-│
-*)
+(*@inline@[[`context_included Γ Δ` is syntactic Boolean inclusion of assumptions: every formula recognized by `ctx_mem_bool` in `Γ` is also recognized in `Δ`. This matches the Boolean membership test used to validate assumption lines.]]@*)
 
-(*       Γ ≤ctx Δ ≔ ∀A. ctx_mem_bool(A,Γ)=true ⇒ ctx_mem_bool(A,Δ)=true       *)
+(*@unicodemath@[[Γ ≤ctx Δ  ≔  ∀A. ctx_mem_bool(A,Γ)=true ⇒ ctx_mem_bool(A,Δ)=true]]@*)
 
 Definition context_included
     (Gamma Delta : Context) : Prop :=
@@ -48,15 +27,7 @@ Definition context_included
     ctx_mem_bool A Gamma = true ->
     ctx_mem_bool A Delta = true.
 
-(*
-│
-│          The line-level context monotonicity proof only changes
-│          assumption lines. Axiom lines depend on the same regulator
-│          theory, and MP lines depend on the same checked prefix and
-│          formula indices, so those branches are definitionally
-│          unchanged.
-│
-*)
+(*@inline@[[The line-level context monotonicity proof only changes assumption lines. Axiom lines depend on the same regulator theory, and MP lines depend on the same checked prefix and formula indices, so those branches are definitionally unchanged.]]@*)
 
 Lemma proof_line_valid_bool_context_monotone_lemma :
   forall R Gamma Delta prefix line,
@@ -101,16 +72,9 @@ Proof.
     exact Hrest.
 Qed.
 
-(*
-│
-│          Full checker monotonicity preserves the same finite proof
-│          script. Only the line-checking conjunct is transported from
-│          `Γ` to `Δ`; the final-formula comparison is independent of
-│          the context.
-│
-*)
+(*@inline@[[Full checker monotonicity preserves the same finite proof script. Only the line-checking conjunct is transported from `Γ` to `Δ`; the final-formula comparison is independent of the context.]]@*)
 
-(*               Γ ≤ctx Δ ∧ R; Γ ⊢check[p] A ⇒ R; Δ ⊢check[p] A               *)
+(*@unicodemath@[[Γ ≤ctx Δ  ∧  R; Γ ⊢check[p] A  ⇒  R; Δ ⊢check[p] A]]@*)
 
 Lemma regulator_theory_check_bool_context_monotone_lemma :
   forall R Gamma Delta p A,
@@ -129,7 +93,7 @@ Proof.
   exact Hlast.
 Qed.
 
-(*                  Γ ≤ctx Δ ∧ R; Γ ⊢check A ⇒ R; Δ ⊢check A                  *)
+(*@unicodemath@[[Γ ≤ctx Δ  ∧  R; Γ ⊢check A  ⇒  R; Δ ⊢check A]]@*)
 
 Lemma regulator_theory_checked_derivable_context_monotone_lemma :
   forall R Gamma Delta A,
@@ -146,25 +110,13 @@ Proof.
   - exact Hp.
 Qed.
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                                                              │
-│                 AXIOM-SET AND REGULATOR-THEORY MONOTONICITY                  │
-│                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
-*)
+(*@section@[[AXIOM-SET AND REGULATOR-THEORY MONOTONICITY]]@*)
 
-(*
-│
-│          `regulator_theory_included R S` is pointwise inclusion of
-│          the available formula axioms after profile and external
-│          axiom source have been combined. It is the monotonicity
-│          hypothesis required by checked scripts.
-│
-*)
+(*@inline@[[`regulator_theory_included R S` is pointwise inclusion of the
+available formula axioms after profile and external axiom source have been
+combined.  It is the monotonicity hypothesis required by checked scripts.]]@*)
 
-(*               R ≤rt S ≔ ∀A. available_axiom_bool(R,A)=true ⇒               *)
-(*                       available_axiom_bool(S,A)=true                       *)
+(*@unicodemath@[[R ≤rt S  ≔  ∀A. available_axiom_bool(R,A)=true ⇒ available_axiom_bool(S,A)=true]]@*)
 
 Definition regulator_theory_included
     (R S : RegulatorTheory) : Prop :=
@@ -172,14 +124,7 @@ Definition regulator_theory_included
     available_axiom_bool R A = true ->
     available_axiom_bool S A = true.
 
-(*
-│
-│          Regulator-theory monotonicity changes only axiom lines.
-│          Assumption and MP validation are independent of the
-│          regulator-theory axiom source once the context and prefix
-│          are fixed.
-│
-*)
+(*@inline@[[Regulator-theory monotonicity changes only axiom lines. Assumption and MP validation are independent of the regulator-theory axiom source once the context and prefix are fixed.]]@*)
 
 Lemma proof_line_valid_bool_regulator_theory_monotone_lemma :
   forall R S Gamma prefix line,
@@ -224,7 +169,7 @@ Proof.
     exact Hrest.
 Qed.
 
-(*               R ≤rt S ∧ R; Γ ⊢check[p] A ⇒ S; Γ ⊢check[p] A                *)
+(*@unicodemath@[[R ≤rt S  ∧  R; Γ ⊢check[p] A  ⇒  S; Γ ⊢check[p] A]]@*)
 
 Lemma regulator_theory_check_bool_regulator_theory_monotone_lemma :
   forall R S Gamma p A,
@@ -243,7 +188,7 @@ Proof.
   exact Hlast.
 Qed.
 
-(*                  R ≤rt S ∧ R; Γ ⊢check A ⇒ S; Γ ⊢check A                   *)
+(*@unicodemath@[[R ≤rt S  ∧  R; Γ ⊢check A  ⇒  S; Γ ⊢check A]]@*)
 
 Lemma regulator_theory_checked_derivable_regulator_theory_monotone_lemma :
   forall R S Gamma A,

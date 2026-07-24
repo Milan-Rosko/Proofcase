@@ -1,60 +1,30 @@
-(*L002_00_Premises.v*)
+(*@file@*)
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                      Author and Copyright remark. Author(s): │
-│                ╭╮╮╮─╮                Milan Rosko  https://www.milanrosko.com │
-│                ││││╭╯                Licence. This file is distributed under │
-│                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
-│                                      visit https://www.mozilla.org/en-US/MPL │
-└──────────────────────────────────────────────────────────────────────────────┘
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                         Proofcase / L002_00_Premises                         │
-└──────────────────────────────────────────────────────────────────────────────┘
+(*@head.start@*)
+(*@copyright@*)
+(*@doc.proofcase@*)
 
-  OVERVIEW
+(*@doc.header@[[Overview]]@*)
 
-  Premise layer for L002. A full negation fixed point collapses M001
-  derivability; a one-way mirror position is instead compatible with
-  consistency and excludes the missing recognized direction.
+(*@doc.pl@[[Premise layer for L002. A full negation fixed point collapses M001 derivability; a one-way mirror position is instead compatible with consistency and excludes the missing recognized direction.]]@*)
 
-  The live core is proof-theoretic: mirror plus consistency yields `AsIF`,
-  while accepted coded recognition reconstructs the full fixed point.
-  Recursive and operational layers are explicit transports of this core.
+(*@doc.pl@[[The live core is proof-theoretic: mirror plus consistency yields `AsIF`, while accepted coded recognition reconstructs the full fixed point. Recursive and operational layers are explicit transports of this core.]]@*)
 
-  All conclusions concern checked derivability, finite certificates, formula
-  iteration, and declared response relations. Applications supply any further
-  interpretation.
+(*@doc.pl@[[All conclusions concern checked derivability, finite certificates, formula iteration, and declared response relations. Applications supply any further interpretation.]]@*)
 
-*)
+(*@head.end@*)
 
 From M001 Require Export M001_95_API.
 From L001 Require Export L001_95_API.
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                                                              │
-│                            REGULATED ASSUMPTIONS                             │
-│                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
-*)
+(*@section@[[REGULATED ASSUMPTIONS]]@*)
 
-(*
-│
-│          A regulated assumption is a formula-indexed predicate
-│          relative to a regulator theory and context.
-│
-*)
+(*@inline@[[A regulated assumption is a formula-indexed predicate relative to a regulator theory and context.]]@*)
 
 Definition RegulatedAssumption : Type :=
   RegulatorTheory -> Context -> Formula -> Prop.
 
-(*
-│
-│          `AsIF M Gamma A` means exactly that `M` has no checked
-│          derivation of `¬A` from `Gamma`.
-│
-*)
+(*@inline@[[`AsIF M Gamma A` means exactly that `M` has no checked derivation of `¬A` from `Gamma`.]]@*)
 
 Definition AsIF
     (M : RegulatorTheory)
@@ -63,22 +33,12 @@ Definition AsIF
   ~ regulator_theory_checked_derivable
       M Gamma (formula_negation A).
 
-(*
-│
-│          `AssumptionLicensed` is the regulated-assumption spelling
-│          of `AsIF`.
-│
-*)
+(*@inline@[[`AssumptionLicensed` is the regulated-assumption spelling of `AsIF`.]]@*)
 
 Definition AssumptionLicensed : RegulatedAssumption :=
   AsIF.
 
-(*
-│
-│          `UnderAssumption M Gamma A B` is checked derivability of
-│          `B` from the extended context `A :: Gamma`.
-│
-*)
+(*@inline@[[`UnderAssumption M Gamma A B` is checked derivability of `B` from the extended context `A :: Gamma`.]]@*)
 
 Definition UnderAssumption
     (M : RegulatorTheory)
@@ -86,14 +46,7 @@ Definition UnderAssumption
     (A B : Formula) : Prop :=
   regulator_theory_checked_derivable M (ctx_extend A Gamma) B.
 
-(*
-│
-│          `AssumptionLicensedContent` packages non-refutability of
-│          `A` with availability of `A` in its own explicitly extended
-│          context. It does not assert autonomous acceptance or
-│          forcing of `A`.
-│
-*)
+(*@inline@[[`AssumptionLicensedContent` packages non-refutability of `A` with availability of `A` in its own explicitly extended context. It does not assert autonomous acceptance or forcing of `A`.]]@*)
 
 Definition AssumptionLicensedContent
     (M : RegulatorTheory)
@@ -102,24 +55,12 @@ Definition AssumptionLicensedContent
   AsIF M Gamma A /\
   UnderAssumption M Gamma A A.
 
-(*
-│
-│          `ForcedContent` is retained as a compatibility alias. The
-│          preferred name is `AssumptionLicensedContent`, since the
-│          second conjunct is availability by the ordinary assumption
-│          rule rather than an autonomous forcing principle.
-│
-*)
+(*@inline@[[`ForcedContent` is retained as a compatibility alias. The preferred name is `AssumptionLicensedContent`, since the second conjunct is availability by the ordinary assumption rule rather than an autonomous forcing principle.]]@*)
 
 Definition ForcedContent :=
   AssumptionLicensedContent.
 
-(*
-│
-│          `AsIFContinuation` combines non-refutability of `A` with
-│          checked derivability of `B` under `A`.
-│
-*)
+(*@inline@[[`AsIFContinuation` combines non-refutability of `A` with checked derivability of `B` under `A`.]]@*)
 
 Definition AsIFContinuation
     (M : RegulatorTheory)
@@ -128,12 +69,7 @@ Definition AsIFContinuation
   AsIF M Gamma A /\
   UnderAssumption M Gamma A B.
 
-(*
-│
-│          The head formula of an extended context has a one-line
-│          checked assumption proof.
-│
-*)
+(*@inline@[[The head formula of an extended context has a one-line checked assumption proof.]]@*)
 
 Theorem assumption_intro :
   forall (M : RegulatorTheory) (Gamma : Context) (A : Formula),
@@ -147,13 +83,7 @@ Proof.
   reflexivity.
 Qed.
 
-(*
-│
-│          Compatibility spelling: every `AsIF` formula satisfies the
-│          legacy `ForcedContent` alias because it is available under
-│          its own assumption.
-│
-*)
+(*@inline@[[Compatibility spelling: every `AsIF` formula satisfies the legacy `ForcedContent` alias because it is available under its own assumption.]]@*)
 
 Theorem licensed_assumption_forces_content :
   forall (M : RegulatorTheory)
@@ -168,12 +98,7 @@ Proof.
   - exact (assumption_intro M Gamma A).
 Qed.
 
-(*
-│
-│          Preferred literal spelling of the compatibility theorem
-│          above.
-│
-*)
+(*@inline@[[Preferred literal spelling of the compatibility theorem above.]]@*)
 
 Theorem licensed_assumption_yields_assumption_licensed_content :
   forall (M : RegulatorTheory)
@@ -185,12 +110,7 @@ Proof.
   exact licensed_assumption_forces_content.
 Qed.
 
-(*
-│
-│          Every base-context checked derivation remains available
-│          after extending the context by one assumption.
-│
-*)
+(*@inline@[[Every base-context checked derivation remains available after extending the context by one assumption.]]@*)
 
 Theorem checked_derivable_under_assumption :
   forall (M : RegulatorTheory)
@@ -209,12 +129,7 @@ Proof.
   - exact Hderivable.
 Qed.
 
-(*
-│
-│          M001 deduction discharges an assumption-relative derivation
-│          of `B` into a base-context derivation of `A -> B`.
-│
-*)
+(*@inline@[[M001 deduction discharges an assumption-relative derivation of `B` into a base-context derivation of `A -> B`.]]@*)
 
 Theorem assumption_discharge :
   forall (M : RegulatorTheory)
@@ -229,24 +144,9 @@ Proof.
        M Gamma A B Hunder).
 Qed.
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                                                              │
-│                 MIRROR POSITION AT THE META/OBJECT BOUNDARY                  │
-│                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
-*)
+(*@section@[[MIRROR POSITION AT THE META/OBJECT BOUNDARY]]@*)
 
-(*
-│
-│          `ExternalFixedPoint M Gamma chi` is L001
-│          negation-fixed-point equivalence specialized to M001
-│          checked derivability. The legacy word `External` marks that
-│          the fixed-point condition is supplied at the metatheoretic
-│          interface to `M`; it does not assert an external causal
-│          source.
-│
-*)
+(*@inline@[[`ExternalFixedPoint M Gamma chi` is L001 negation-fixed-point equivalence specialized to M001 checked derivability. The legacy word `External` marks that the fixed-point condition is supplied at the metatheoretic interface to `M`; it does not assert an external causal source.]]@*)
 
 Definition ExternalFixedPoint
     (M : RegulatorTheory)
@@ -256,18 +156,7 @@ Definition ExternalFixedPoint
     (regulator_theory_checked_derivable M Gamma)
     chi.
 
-(*
-│
-│          `ExternalMirrorPosition M Gamma chi` retains only the
-│          non-collapsing re-entry direction `not chi -> chi`. Unlike
-│          a full negation fixed point, this supplied premise is
-│          compatible in shape with M001 consistency and is sufficient
-│          for the L002 irrefutability argument. Here too `External`
-│          is interface-relative rather than causal: the formal
-│          content is exactly the displayed checked-derivability
-│          condition.
-│
-*)
+(*@inline@[[`ExternalMirrorPosition M Gamma chi` retains only the non-collapsing re-entry direction `not chi -> chi`. Unlike a full negation fixed point, this supplied premise is compatible in shape with M001 consistency and is sufficient for the L002 irrefutability argument. Here too `External` is interface-relative rather than causal: the formal content is exactly the displayed checked-derivability condition.]]@*)
 
 Definition ExternalMirrorPosition
     (M : RegulatorTheory)
@@ -276,25 +165,14 @@ Definition ExternalMirrorPosition
   regulator_theory_checked_derivable M Gamma
     (Imp (formula_negation chi) chi).
 
-(*
-│
-│          `MirrorConsistent M Gamma` excludes a checked M-derivation
-│          of `Bot` from `Gamma`.
-│
-*)
+(*@inline@[[`MirrorConsistent M Gamma` excludes a checked M-derivation of `Bot` from `Gamma`.]]@*)
 
 Definition MirrorConsistent
     (M : RegulatorTheory)
     (Gamma : Context) : Prop :=
   ~ regulator_theory_checked_derivable M Gamma Bot.
 
-(*
-│
-│          `MirrorLocallyConsistent M Gamma chi` excludes simultaneous
-│          checked derivability of `chi` and `¬chi`. It is the minimal
-│          consistency premise for mirror irrefutability.
-│
-*)
+(*@inline@[[`MirrorLocallyConsistent M Gamma chi` excludes simultaneous checked derivability of `chi` and `¬chi`. It is the minimal consistency premise for mirror irrefutability.]]@*)
 
 Definition MirrorLocallyConsistent
     (M : RegulatorTheory)
@@ -304,33 +182,16 @@ Definition MirrorLocallyConsistent
   regulator_theory_checked_derivable M Gamma (formula_negation chi) ->
   False.
 
-(*
-│
-│          `SLambdaConsistent Slambda Gamma` is the corresponding
-│          consistency predicate for the enclosing regulator.
-│
-*)
+(*@inline@[[`SLambdaConsistent Slambda Gamma` is the corresponding consistency predicate for the enclosing regulator.]]@*)
 
 Definition SLambdaConsistent
     (Slambda : RegulatorTheory)
     (Gamma : Context) : Prop :=
   ~ regulator_theory_checked_derivable Slambda Gamma Bot.
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                                                              │
-│            OPTIONAL RELATIVE-CONSISTENCY AND RESPONSE INTERFACES             │
-│                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
-*)
+(*@section@[[OPTIONAL RELATIVE-CONSISTENCY AND RESPONSE INTERFACES]]@*)
 
-(*
-│
-│          `EpistemicWorld` is a predicate on formulas. Bottom
-│          rejection, formula consistency, and theory soundness are
-│          separate premises.
-│
-*)
+(*@inline@[[`EpistemicWorld` is a predicate on formulas. Bottom rejection, formula consistency, and theory soundness are separate premises.]]@*)
 
 Definition EpistemicWorld : Type :=
   Formula -> Prop.
@@ -360,14 +221,7 @@ Definition ModelConsistentRelativeToBrain
   SLambdaConsistent brain Gamma ->
   MirrorConsistent model Gamma.
 
-(*
-│
-│          Legacy-named optional frame: soundness yields consistency
-│          of `brain`, and the explicit relative-consistency premise
-│          transports it to `model`. No general theorem transport is
-│          assumed.
-│
-*)
+(*@inline@[[Legacy-named optional frame: soundness yields consistency of `brain`, and the explicit relative-consistency premise transports it to `model`. No general theorem transport is assumed.]]@*)
 
 Record WorldBrainModelFrame
     (V : EpistemicWorld)
@@ -383,12 +237,7 @@ Arguments frame_world_consistent {V brain model Gamma} _.
 Arguments frame_brain_sound {V brain model Gamma} _ _ _.
 Arguments frame_model_relative_consistency {V brain model Gamma} _ _.
 
-(*
-│
-│          A `ControlQuestion` packages a distinguished formula with
-│          its one-way mirror witness `¬C → C`.
-│
-*)
+(*@inline@[[A `ControlQuestion` packages a distinguished formula with its one-way mirror witness `¬C → C`.]]@*)
 
 Record ControlQuestion
     (M : RegulatorTheory)
@@ -429,35 +278,16 @@ Definition WorldRefutesControlClaim
     (question : ControlQuestion M Gamma) : Prop :=
   V (formula_negation (control_question_formula question)).
 
-(*
-│
-│          The operational control-response alphabet distinguishes a
-│          positive answer, a negative answer, and reflective
-│          re-entry. File 02 connects these tags to recursive mirror
-│          formulas.
-│
-*)
+(*@inline@[[The operational control-response alphabet distinguishes a positive answer, a negative answer, and reflective re-entry. File 02 connects these tags to recursive mirror formulas.]]@*)
 
 Inductive ControlResponse : Type :=
 | control_response_yes
 | control_response_no
 | control_response_reenter.
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                                                              │
-│                           RECOGNITION AND RE-ENTRY                           │
-│                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
-*)
+(*@section@[[RECOGNITION AND RE-ENTRY]]@*)
 
-(*
-│
-│          `CodedRecognitionClaim` makes the formula claimed as a
-│          negation fixed point a first-class regulator output.
-│          Accepted evidence supplies the missing direction `A → ¬A`.
-│
-*)
+(*@inline@[[`CodedRecognitionClaim` makes the formula claimed as a negation fixed point a first-class regulator output. Accepted evidence supplies the missing direction `A → ¬A`.]]@*)
 
 Inductive CodedRecognitionClaim : Type :=
 | recognizes_fixed_point : Formula -> CodedRecognitionClaim.
@@ -468,42 +298,19 @@ Definition coded_recognition_subject
   | recognizes_fixed_point A => A
   end.
 
-(*
-│
-│          A coded recognition certificate retains its advertised
-│          formula and a finite M001 evidence script for the missing
-│          diagonal direction `A -> not A`. Re-entry is computed
-│          separately.
-│
-*)
+(*@inline@[[A coded recognition certificate retains its advertised formula and a finite M001 evidence script for the missing diagonal direction `A -> not A`. Re-entry is computed separately.]]@*)
 
 Record CodedRecognitionCertificate : Type := {
   coded_recognition_certificate_subject : Formula;
   coded_recognition_evidence_script : Proof
 }.
 
-(*
-│
-│          Recognition evidence is the missing diagonal direction `A
-│          -> not A`. A one-way mirror position supplies only `not A
-│          -> A`; successful recognition supplies this converse
-│          without checking the re-entry conclusion directly.
-│
-*)
+(*@inline@[[Recognition evidence is the missing diagonal direction `A -> not A`. A one-way mirror position supplies only `not A -> A`; successful recognition supplies this converse without checking the re-entry conclusion directly.]]@*)
 
 Definition coded_recognition_evidence_formula (A : Formula) : Formula :=
   Imp A (formula_negation A).
 
-(*
-│
-│          The total evidence checker first matches the certificate's
-│          advertised subject against the claim and then runs the
-│          unchanged M001 checker on `A -> not A` in the base context.
-│          This totality is verification of each supplied finite
-│          certificate; it is not proof search, universal certificate
-│          generation, or a total semantic recognition classifier.
-│
-*)
+(*@inline@[[The total evidence checker first matches the certificate's advertised subject against the claim and then runs the unchanged M001 checker on `A -> not A` in the base context. This totality is verification of each supplied finite certificate; it is not proof search, universal certificate generation, or a total semantic recognition classifier.]]@*)
 
 Definition coded_recognition_certificate_check_bool
     (M : RegulatorTheory)
@@ -523,14 +330,7 @@ Definition coded_recognition_certificate_check_bool
 Definition coded_recognition_assumption_script (A : Formula) : Proof :=
   [pl_assumption A].
 
-(*
-│
-│          The re-entry transform is executable proof composition. It
-│          applies the checked evidence `A -> not A` to the one-line
-│          assumption proof of `A`, producing a finite script whose
-│          target is `not A`.
-│
-*)
+(*@inline@[[The re-entry transform is executable proof composition. It applies the checked evidence `A -> not A` to the one-line assumption proof of `A`, producing a finite script whose target is `not A`.]]@*)
 
 Definition coded_recognition_reentry_transform
     (A : Formula)
@@ -540,14 +340,7 @@ Definition coded_recognition_reentry_transform
     evidence_script
     (coded_recognition_assumption_script A).
 
-(*
-│
-│          The recognition checker is packaged through M001's frozen
-│          generic symbolic-regulator interface: finite certificates
-│          are instructions, coded recognition claims are outputs, and
-│          acceptance is the Boolean checker above.
-│
-*)
+(*@inline@[[The recognition checker is packaged through M001's frozen generic symbolic-regulator interface: finite certificates are instructions, coded recognition claims are outputs, and acceptance is the Boolean checker above.]]@*)
 
 Definition coded_recognition_regulator
     (M : RegulatorTheory)
@@ -567,14 +360,9 @@ Definition CodedRecognitionAccepted
     (coded_recognition_regulator M Gamma)
     (recognizes_fixed_point A).
 
-(*
-│
-│          The generic M001 release gate gives coded recognition a
-│          literal operational reading: an accepted certificate
-│          releases its proposed first-class recognition claim, while
-│          a rejected certificate releases nothing.
-│
-*)
+(*@inline@[[The generic M001 release gate gives coded recognition a literal
+operational reading: an accepted certificate releases its proposed first-class
+recognition claim, while a rejected certificate releases nothing.]]@*)
 
 Definition coded_recognition_release
     (M : RegulatorTheory)
@@ -622,13 +410,7 @@ Proof.
        (recognizes_fixed_point A)).
 Qed.
 
-(*
-│
-│          Evidence-checker soundness exposes the accepted recognition
-│          evidence as a checked derivation of the missing diagonal
-│          direction, not yet as its re-entry consequence.
-│
-*)
+(*@inline@[[Evidence-checker soundness exposes the accepted recognition evidence as a checked derivation of the missing diagonal direction, not yet as its re-entry consequence.]]@*)
 
 Theorem coded_recognition_certificate_check_sound :
   forall (M : RegulatorTheory)
@@ -671,14 +453,7 @@ Proof.
   reflexivity.
 Qed.
 
-(*
-│
-│          The checked re-entry theorem is the load-bearing bridge:
-│          accepted evidence and the assumed subject are composed by
-│          the executable M001 MP transformer into a checked proof of
-│          `not A`.
-│
-*)
+(*@inline@[[The checked re-entry theorem is the load-bearing bridge: accepted evidence and the assumed subject are composed by the executable M001 MP transformer into a checked proof of `not A`.]]@*)
 
 Theorem coded_recognition_reentry_transform_checked :
   forall (M : RegulatorTheory)
@@ -786,17 +561,7 @@ Proof.
        M Gamma certificate A Haccepted).
 Qed.
 
-(*
-│
-│          `CodedInternalFixedPointRecognition` is retained as a
-│          compatibility name for acceptance by the first-class coded
-│          recognition regulator. `AsIF` is deliberately not conjoined
-│          here: accepted evidence yields `not A`, while `AsIF` denies
-│          such a checked derivation. Keeping the two predicates
-│          separate makes mirror consistency responsible for the
-│          opacity theorem.
-│
-*)
+(*@inline@[[`CodedInternalFixedPointRecognition` is retained as a compatibility name for acceptance by the first-class coded recognition regulator. `AsIF` is deliberately not conjoined here: accepted evidence yields `not A`, while `AsIF` denies such a checked derivation. Keeping the two predicates separate makes mirror consistency responsible for the opacity theorem.]]@*)
 
 Definition CodedInternalFixedPointRecognition
     (M : RegulatorTheory)
@@ -804,36 +569,18 @@ Definition CodedInternalFixedPointRecognition
     (A : Formula) : Prop :=
   CodedRecognitionAccepted M Gamma A.
 
-(*
-│
-│          A fixed-point recognition coding maps a formula to the
-│          formula intended to certify its fixed-point status.
-│
-*)
+(*@inline@[[A fixed-point recognition coding maps a formula to the formula intended to certify its fixed-point status.]]@*)
 
 Definition FixedPointRecognitionCoding : Type :=
   Formula -> Formula.
 
-(*
-│
-│          The concrete refutation-recognition coding represents
-│          recognition of `A` by the literal object-level claim `not
-│          A`. It is intentionally narrow: unlike an epistemic coding,
-│          its meaning is fixed directly by the checked proof target.
-│
-*)
+(*@inline@[[The concrete refutation-recognition coding represents recognition of `A` by the literal object-level claim `not A`. It is intentionally narrow: unlike an epistemic coding, its meaning is fixed directly by the checked proof target.]]@*)
 
 Definition refutation_recognition_claim :
     FixedPointRecognitionCoding :=
   formula_negation.
 
-(*
-│
-│          A checked refutation-recognition certificate retains the
-│          finite M001 proof script whose checked target is the
-│          concrete recognition claim `not A`.
-│
-*)
+(*@inline@[[A checked refutation-recognition certificate retains the finite M001 proof script whose checked target is the concrete recognition claim `not A`.]]@*)
 
 Definition CheckedRefutationRecognitionCertificate
     (M : RegulatorTheory)
@@ -842,13 +589,7 @@ Definition CheckedRefutationRecognitionCertificate
   regulator_theory_proof_certificate
     M Gamma (refutation_recognition_claim A).
 
-(*
-│
-│          Recognition is adequate at `chi` when accepting its
-│          certificate under `chi` reconstructs `not chi` in the same
-│          extended context.
-│
-*)
+(*@inline@[[Recognition is adequate at `chi` when accepting its certificate under `chi` reconstructs `not chi` in the same extended context.]]@*)
 
 Definition RecognitionAdequacy
     (M : RegulatorTheory)
@@ -858,14 +599,7 @@ Definition RecognitionAdequacy
   UnderAssumption M Gamma chi (recognition_claim chi) ->
   UnderAssumption M Gamma chi (formula_negation chi).
 
-(*
-│
-│          Legacy interface: `InternalFixedPointRecognition` conjoins
-│          `AsIF chi` with assumption-relative recognition. Under
-│          `RecognitionAdequacy` these components are incompatible;
-│          the coded interface above is the canonical live definition.
-│
-*)
+(*@inline@[[Legacy interface: `InternalFixedPointRecognition` conjoins `AsIF chi` with assumption-relative recognition. Under `RecognitionAdequacy` these components are incompatible; the coded interface above is the canonical live definition.]]@*)
 
 Definition InternalFixedPointRecognition
     (M : RegulatorTheory)
@@ -875,13 +609,7 @@ Definition InternalFixedPointRecognition
   AsIF M Gamma chi /\
   UnderAssumption M Gamma chi (recognition_claim chi).
 
-(*
-│
-│          A fixed symbolic regulator packages recognition coding,
-│          M-to-Slambda inclusion, outer consistency, and adequacy at
-│          every one-way external mirror position.
-│
-*)
+(*@inline@[[A fixed symbolic regulator packages recognition coding, M-to-Slambda inclusion, outer consistency, and adequacy at every one-way external mirror position.]]@*)
 
 Record FixedSymbolicRegulator
     (Slambda M : RegulatorTheory)
@@ -901,25 +629,14 @@ Record FixedSymbolicRegulator
         M Gamma fixed_recognition_claim chi
 }.
 
-(*
-│
-│          Projection arguments keep the regulator parameters implicit
-│          at downstream call sites.
-│
-*)
+(*@inline@[[Projection arguments keep the regulator parameters implicit at downstream call sites.]]@*)
 
 Arguments fixed_recognition_claim {Slambda M Gamma} _ _.
 Arguments fixed_regulator_inclusion {Slambda M Gamma} _.
 Arguments fixed_regulator_consistency {Slambda M Gamma} _.
 Arguments fixed_recognition_adequacy {Slambda M Gamma} _ _ _.
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                                                              │
-│                    OPERATIONAL AND ATTRIBUTION INTERFACES                    │
-│                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
-*)
+(*@section@[[OPERATIONAL AND ATTRIBUTION INTERFACES]]@*)
 
 Definition ActiveSchemaSet : Type := list Formula.
 
@@ -942,27 +659,11 @@ Arguments operational_state_eq_dec {State} _ _ _.
 Arguments operational_state_at {State} _ _.
 Arguments operational_state_enumerated {State} _ _.
 
-(*
-│
-│          `AttributionCoding` is a caller-supplied formula
-│          transformer. Naming two instances `internal_attribution`
-│          and `external_attribution` stipulates two object-language
-│          codings; the names do not force either coding to track real
-│          causal origin. No bridge from recognition opacity or
-│          non-refutation to actual provenance is built into this
-│          type.
-│
-*)
+(*@inline@[[`AttributionCoding` is a caller-supplied formula transformer. Naming two instances `internal_attribution` and `external_attribution` stipulates two object-language codings; the names do not force either coding to track real causal origin. No bridge from recognition opacity or non-refutation to actual provenance is built into this type.]]@*)
 
 Definition AttributionCoding : Type := Formula -> Formula.
 
-(*
-│
-│          `AttributionResponse` is an additional bridge law from base
-│          irrefutability to one of two supplied codings. It is not
-│          derived from mirror opacity.
-│
-*)
+(*@inline@[[`AttributionResponse` is an additional bridge law from base irrefutability to one of two supplied codings. It is not derived from mirror opacity.]]@*)
 
 Definition AttributionResponse
     (M : RegulatorTheory) (Gamma : Context)
@@ -982,12 +683,7 @@ Definition SelectedAttributionResponse
     AsIF M Gamma (internal_attribution A) \/
     AsIF M Gamma (external_attribution A).
 
-(*
-│
-│          `AttributionallyAmbiguous` means that both supplied
-│          attribution formulas are `AsIF`.
-│
-*)
+(*@inline@[[`AttributionallyAmbiguous` means that both supplied attribution formulas are `AsIF`.]]@*)
 
 Definition AttributionallyAmbiguous
     (M : RegulatorTheory) (Gamma : Context)
@@ -1068,26 +764,13 @@ Arguments selected_operational_content_selected
 Arguments selected_operational_attribution_response
   {State M Gamma internal_attribution external_attribution} _.
 
-(*
-│
-│          `Provenance` is an explicitly defined two-tag type for
-│          operational attribution. The constructors encode the labels
-│          `internal` and `external`; they do not certify an
-│          independently verified causal origin.
-│
-*)
+(*@inline@[[`Provenance` is an explicitly defined two-tag type for operational attribution. The constructors encode the labels `internal` and `external`; they do not certify an independently verified causal origin.]]@*)
 
 Inductive Provenance : Type :=
 | provenance_internal
 | provenance_external.
 
-(*
-│
-│          `CodedAttributionObservation` pairs logical content with
-│          one stipulated provenance tag. Observation of a tag is not
-│          observation of the real origin named by that tag.
-│
-*)
+(*@inline@[[`CodedAttributionObservation` pairs logical content with one stipulated provenance tag. Observation of a tag is not observation of the real origin named by that tag.]]@*)
 
 Inductive CodedAttributionObservation : Type :=
 | observes_provenance :

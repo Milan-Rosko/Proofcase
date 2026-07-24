@@ -1,24 +1,14 @@
-(*A001_97_Artifacts.v*)
+(*@file@*)
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                      Author and Copyright remark. Author(s): │
-│                ╭╮╮╮─╮                Milan Rosko  https://www.milanrosko.com │
-│                ││││╭╯                Licence. This file is distributed under │
-│                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
-│                                      visit https://www.mozilla.org/en-US/MPL │
-└──────────────────────────────────────────────────────────────────────────────┘
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                        Proofcase / A001_97_Artifacts                         │
-└──────────────────────────────────────────────────────────────────────────────┘
+(*@head.start@*)
+(*@copyright@*)
+(*@doc.proofcase@*)
 
-  OVERVIEW
+(*@doc.header@[[Overview]]@*)
 
-  Artifact layer for A001. We record assumption reports for the citation
-  theorems and extract the certified pairing functions, together with the
-  inspection interface, to OCaml.
+(*@doc.pl@[[Artifact layer for A001. We record assumption reports for the citation theorems and extract the certified pairing functions, together with the inspection interface, to OCaml.]]@*)
 
-*)
+(*@head.end@*)
 
 From A001 Require Import A001_05__Pair_Unpair_Correct.
 From A001 Require Import A001_94_IO.

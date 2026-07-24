@@ -1,53 +1,28 @@
-(*L002_98_Sanity.v*)
+(*@file@*)
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                      Author and Copyright remark. Author(s): │
-│                ╭╮╮╮─╮                Milan Rosko  https://www.milanrosko.com │
-│                ││││╭╯                Licence. This file is distributed under │
-│                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
-│                                      visit https://www.mozilla.org/en-US/MPL │
-└──────────────────────────────────────────────────────────────────────────────┘
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                          Proofcase / L002_98_Sanity                          │
-└──────────────────────────────────────────────────────────────────────────────┘
+(*@head.start@*)
+(*@copyright@*)
+(*@doc.proofcase@*)
 
-  OVERVIEW
+(*@doc.header@[[Overview]]@*)
 
-  Sanity layer for L002/SYMBOLIC REGULATION. We check concrete mirror
-  iteration and restate the fixed-point, recursive-opacity, and
-  conditional-externalization theorem shapes against the public artifact
-  import.
+(*@doc.pl@[[Sanity layer for L002/SYMBOLIC REGULATION. We check concrete mirror iteration and restate the fixed-point, recursive-opacity, and conditional-externalization theorem shapes against the public artifact import.]]@*)
 
-*)
+(*@head.end@*)
 
 From L002 Require Import L002_97_Artifacts.
 
-(*
-│
-│          The sanity seed is the closed implication `Bot -> Bot`.
-│
-*)
+(*@inline@[[The sanity seed is the closed implication `Bot -> Bot`.]]@*)
 
 Definition sanity_chi : Formula :=
   Imp Bot Bot.
 
-(*
-│
-│          The sanity mirror step maps `A` to the self-implication `A
-│          -> A`.
-│
-*)
+(*@inline@[[The sanity mirror step maps `A` to the self-implication `A -> A`.]]@*)
 
 Definition sanity_mirror_step (A : Formula) : Formula :=
   Imp A A.
 
-(*
-│
-│          The sanity operational layer alternates over a two-element
-│          Boolean carrier.
-│
-*)
+(*@inline@[[The sanity operational layer alternates over a two-element Boolean carrier.]]@*)
 
 Definition sanity_finite_operation : FiniteOperationalLayer bool.
 Proof.
@@ -72,12 +47,7 @@ Proof.
        bool sanity_finite_operation).
 Qed.
 
-(*
-│
-│          The logical recurrence API repeats a state and its formula
-│          while retaining `AsIF` and recognition opacity.
-│
-*)
+(*@inline@[[The logical recurrence API repeats a state and its formula while retaining `AsIF` and recognition opacity.]]@*)
 
 Example sanity_logical_operational_recurrence_shape :
   forall State M Gamma
@@ -101,13 +71,7 @@ Proof.
   repeat split; assumption.
 Qed.
 
-(*
-│
-│          The concrete implication-reflection coding supplies a
-│          selected attribution response without an additional
-│          response premise.
-│
-*)
+(*@inline@[[The concrete implication-reflection coding supplies a selected attribution response without an additional response premise.]]@*)
 
 Example sanity_concrete_selected_attribution_response :
   forall M Gamma active,
@@ -119,12 +83,7 @@ Proof.
   exact implication_reflection_selected_attribution_response.
 Qed.
 
-(*
-│
-│          A selected operational layer yields attribution at a
-│          recurrent logical observation.
-│
-*)
+(*@inline@[[A selected operational layer yields attribution at a recurrent logical observation.]]@*)
 
 Example sanity_selected_operational_attribution_recurrence_shape :
   forall State M Gamma internal_attribution external_attribution
@@ -200,11 +159,7 @@ Proof.
   exact externally_attributed_observation_externalizes.
 Qed.
 
-(*
-│
-│          Zero mirror steps return the seed formula.
-│
-*)
+(*@inline@[[Zero mirror steps return the seed formula.]]@*)
 
 Example sanity_mirror_zero :
   recursive_mirror_formula O sanity_mirror_step sanity_chi =
@@ -213,12 +168,7 @@ Proof.
   reflexivity.
 Qed.
 
-(*
-│
-│          Two mirror steps produce the self-implication of the first
-│          iterate.
-│
-*)
+(*@inline@[[Two mirror steps produce the self-implication of the first iterate.]]@*)
 
 Example sanity_mirror_two :
   recursive_mirror_formula 2 sanity_mirror_step sanity_chi =
@@ -227,12 +177,7 @@ Proof.
   reflexivity.
 Qed.
 
-(*
-│
-│          A full negation fixed point unconditionally collapses in
-│          the M001 specialization.
-│
-*)
+(*@inline@[[A full negation fixed point unconditionally collapses in the M001 specialization.]]@*)
 
 Example sanity_external_fixed_point_collapse_shape :
   forall M Gamma chi,
@@ -262,12 +207,7 @@ Proof.
   exact (assumption_intro M Gamma Bot).
 Qed.
 
-(*
-│
-│          The preferred public theorem uses the consistent one-way
-│          mirror position.
-│
-*)
+(*@inline@[[The preferred public theorem uses the consistent one-way mirror position.]]@*)
 
 Example sanity_external_mirror_position_asif_shape :
   forall M Gamma chi,
@@ -278,12 +218,7 @@ Proof.
   exact external_mirror_position_forces_asif.
 Qed.
 
-(*
-│
-│          Soundness and the explicit relative-consistency premise
-│          transport consistency through the optional frame.
-│
-*)
+(*@inline@[[Soundness and the explicit relative-consistency premise transport consistency through the optional frame.]]@*)
 
 Example sanity_world_brain_model_consistency_shape :
   forall V brain model Gamma
@@ -310,13 +245,7 @@ Proof.
   exact control_question_binary_decision_forces_yes.
 Qed.
 
-(*
-│
-│          A world-refuted control claim conflicts with binary
-│          decision only when model-to-world soundness is supplied in
-│          addition to relative consistency.
-│
-*)
+(*@inline@[[A world-refuted control claim conflicts with binary decision only when model-to-world soundness is supplied in addition to relative consistency.]]@*)
 
 Example sanity_world_sound_binary_control_conflict_shape :
   forall V brain model Gamma
@@ -330,12 +259,7 @@ Proof.
   exact world_sound_binary_control_decision_impossible.
 Qed.
 
-(*
-│
-│          The concrete recognition claim for `A` is definitionally
-│          its object-level negation.
-│
-*)
+(*@inline@[[The concrete recognition claim for `A` is definitionally its object-level negation.]]@*)
 
 Example sanity_refutation_recognition_claim (A : Formula) :
   refutation_recognition_claim A = formula_negation A.
@@ -343,13 +267,7 @@ Proof.
   reflexivity.
 Qed.
 
-(*
-│
-│          A consistent external mirror position excludes a retained
-│          finite proof certificate for the concrete
-│          refutation-recognition claim.
-│
-*)
+(*@inline@[[A consistent external mirror position excludes a retained finite proof certificate for the concrete refutation-recognition claim.]]@*)
 
 Example sanity_checked_refutation_recognition_opacity_shape :
   forall M Gamma chi,
@@ -361,12 +279,7 @@ Proof.
   exact external_mirror_position_excludes_checked_refutation_recognition.
 Qed.
 
-(*
-│
-│          Acceptance by the coded recognition regulator has the
-│          advertised checked re-entry behavior.
-│
-*)
+(*@inline@[[Acceptance by the coded recognition regulator has the advertised checked re-entry behavior.]]@*)
 
 Example sanity_coded_recognition_acceptance_sound_shape :
   forall M Gamma A,
@@ -423,12 +336,7 @@ Proof.
   exact coded_recognition_completes_external_fixed_point.
 Qed.
 
-(*
-│
-│          A consistent external mirror position is opaque to the
-│          first-class coded recognition regulator.
-│
-*)
+(*@inline@[[A consistent external mirror position is opaque to the first-class coded recognition regulator.]]@*)
 
 Example sanity_coded_recognition_opacity_shape :
   forall M Gamma chi,
@@ -439,12 +347,7 @@ Proof.
   exact coded_recognition_opacity.
 Qed.
 
-(*
-│
-│          The public recursive theorem yields depth-indexed `AsIF`
-│          and recognition opacity.
-│
-*)
+(*@inline@[[The public recursive theorem yields depth-indexed `AsIF` and recognition opacity.]]@*)
 
 Example sanity_recursive_mirror_shape :
   forall Slambda M Gamma
@@ -486,13 +389,7 @@ Proof.
   exact coded_recursive_mirror_lemma_from_seed.
 Qed.
 
-(*
-│
-│          The constructive bounded control theorem yields a positive
-│          response within the observation bound or re-entry at every
-│          stage through that bound.
-│
-*)
+(*@inline@[[The constructive bounded control theorem yields a positive response within the observation bound or re-entry at every stage through that bound.]]@*)
 
 Example sanity_finite_yes_or_recursive_reentry_shape :
   forall M Gamma mirror_step chi
@@ -508,13 +405,7 @@ Proof.
   exact finite_yes_or_recursive_reentry.
 Qed.
 
-(*
-│
-│          The unbounded control theorem exposes the additional
-│          outcome-decidability premise needed for eventual `yes` or
-│          perpetual finite-depth re-entry.
-│
-*)
+(*@inline@[[The unbounded control theorem exposes the additional outcome-decidability premise needed for eventual `yes` or perpetual finite-depth re-entry.]]@*)
 
 Example sanity_yes_or_recursive_reentry_shape :
   forall M Gamma mirror_step chi
@@ -528,11 +419,7 @@ Proof.
   exact yes_or_recursive_reentry.
 Qed.
 
-(*
-│
-│          The identity mirror preserves every external fixed point.
-│
-*)
+(*@inline@[[The identity mirror preserves every external fixed point.]]@*)
 
 Example sanity_identity_mirror_preserves_positions :
   forall M Gamma,
@@ -542,12 +429,7 @@ Proof.
   exact Hfixed.
 Qed.
 
-(*
-│
-│          The seed-based API derives all finite identity-mirror
-│          positions from a single external fixed point.
-│
-*)
+(*@inline@[[The seed-based API derives all finite identity-mirror positions from a single external fixed point.]]@*)
 
 Example sanity_recursive_mirror_from_seed_shape :
   forall Slambda M Gamma
@@ -567,13 +449,7 @@ Proof.
   - exact (sanity_identity_mirror_preserves_positions M Gamma).
 Qed.
 
-(*
-│
-│          The implication-reflection mirror is a concrete
-│          non-identity constructor with a certified mirror-position
-│          preservation law.
-│
-*)
+(*@inline@[[The implication-reflection mirror is a concrete non-identity constructor with a certified mirror-position preservation law.]]@*)
 
 Example sanity_implication_reflection_mirror_from_seed :
   forall Slambda M Gamma
@@ -597,12 +473,7 @@ Proof.
          M Gamma).
 Qed.
 
-(*
-│
-│          The single-step externalization theorem consumes an
-│          explicit externalization response.
-│
-*)
+(*@inline@[[The single-step externalization theorem consumes an explicit externalization response.]]@*)
 
 Example sanity_externalization_shape :
   forall (System : Type)
@@ -617,13 +488,7 @@ Proof.
   exact conditional_externalization_principle.
 Qed.
 
-(*
-│
-│          The attribution theorem leaves the internal or external
-│          provenance formula irrefutable under a supplied response
-│          law.
-│
-*)
+(*@inline@[[The attribution theorem leaves the internal or external provenance formula irrefutable under a supplied response law.]]@*)
 
 Example sanity_attribution_shape :
   forall M Gamma internal_attribution external_attribution chi,
@@ -637,12 +502,7 @@ Proof.
   exact conditional_attribution_principle.
 Qed.
 
-(*
-│
-│          The ambiguity theorem permits neither supplied provenance
-│          formula to be internally refuted.
-│
-*)
+(*@inline@[[The ambiguity theorem permits neither supplied provenance formula to be internally refuted.]]@*)
 
 Example sanity_attributional_ambiguity_shape :
   forall M Gamma internal_attribution external_attribution chi,
@@ -656,12 +516,7 @@ Proof.
   exact conditional_attributional_ambiguity_principle.
 Qed.
 
-(*
-│
-│          The recursive externalization theorem applies the same
-│          response at every adequate mirror depth.
-│
-*)
+(*@inline@[[The recursive externalization theorem applies the same response at every adequate mirror depth.]]@*)
 
 Example sanity_recursive_externalization_shape :
   forall (System : Type)
@@ -678,12 +533,7 @@ Proof.
   exact recursive_conditional_externalization_principle.
 Qed.
 
-(*
-│
-│          Legacy all-depth wrapper for irrefutability and recognition
-│          opacity.
-│
-*)
+(*@inline@[[Legacy all-depth wrapper for irrefutability and recognition opacity.]]@*)
 
 Example sanity_finite_perpetuity_shape :
   forall Slambda M Gamma
@@ -701,11 +551,7 @@ Proof.
   exact finite_perpetuity_of_ignorance.
 Qed.
 
-(*
-│
-│          Legacy conditional external-attribution wrapper.
-│
-*)
+(*@inline@[[Legacy conditional external-attribution wrapper.]]@*)
 
 Example sanity_paradox_of_external_shape :
   forall Slambda M Gamma

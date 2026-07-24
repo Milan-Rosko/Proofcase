@@ -1,31 +1,18 @@
-(*L002_97_Artifacts.v*)
+(*@file@*)
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                      Author and Copyright remark. Author(s): │
-│                ╭╮╮╮─╮                Milan Rosko  https://www.milanrosko.com │
-│                ││││╭╯                Licence. This file is distributed under │
-│                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
-│                                      visit https://www.mozilla.org/en-US/MPL │
-└──────────────────────────────────────────────────────────────────────────────┘
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                        Proofcase / L002_97_Artifacts                         │
-└──────────────────────────────────────────────────────────────────────────────┘
+(*@head.start@*)
+(*@copyright@*)
+(*@doc.proofcase@*)
 
-  OVERVIEW
+(*@doc.header@[[Overview]]@*)
 
-  Artifact layer for L002. Certifies the primary core and the broad
-  compatibility bundle, then redirects their assumption reports.
+(*@doc.pl@[[Artifact layer for L002. Certifies the primary core and the broad compatibility bundle, then redirects their assumption reports.]]@*)
 
-*)
+(*@head.end@*)
 
 From L002 Require Export L002_95_API.
 
-(*
-│
-│          Certification endpoint for fixed-point irrefutability.
-│
-*)
+(*@inline@[[Certification endpoint for fixed-point irrefutability.]]@*)
 
 Theorem certified_asif_from_external_mirror_position_contract :
   ASIF_FROM_EXTERNAL_MIRROR_POSITION_CONTRACT.
@@ -51,12 +38,7 @@ Proof.
   exact external_fixed_point_unconditionally_collapses.
 Qed.
 
-(*
-│
-│          Certification endpoint for concrete checked
-│          refutation-recognition opacity.
-│
-*)
+(*@inline@[[Certification endpoint for concrete checked refutation-recognition opacity.]]@*)
 
 Theorem certified_checked_refutation_recognition_opacity_contract :
   CHECKED_REFUTATION_RECOGNITION_OPACITY_CONTRACT.
@@ -64,12 +46,7 @@ Proof.
   exact external_mirror_position_excludes_checked_refutation_recognition.
 Qed.
 
-(*
-│
-│          Certification endpoint for the first-class coded
-│          recognition regulator.
-│
-*)
+(*@inline@[[Certification endpoint for the first-class coded recognition regulator.]]@*)
 
 Theorem certified_coded_recognition_opacity_contract :
   CODED_RECOGNITION_OPACITY_CONTRACT.
@@ -89,13 +66,8 @@ Proof.
   exact coded_recognition_acceptance_iff_evidence.
 Qed.
 
-(*
-│
-│          Additive operational endpoint: coded recognition is exactly
-│          the existence of a certificate that releases its claim
-│          through the M001 gate.
-│
-*)
+(*@inline@[[Additive operational endpoint: coded recognition is exactly the
+existence of a certificate that releases its claim through the M001 gate.]]@*)
 
 Theorem certified_coded_recognition_release_specification_contract :
   CODED_RECOGNITION_RELEASE_SPECIFICATION_CONTRACT.
@@ -103,13 +75,9 @@ Proof.
   exact coded_recognition_acceptance_iff_release.
 Qed.
 
-(*
-│
-│          Additive precision endpoint: coded recognition is exactly
-│          checked refutability. It is certified separately so
-│          existing aggregate contract shapes remain stable.
-│
-*)
+(*@inline@[[Additive precision endpoint: coded recognition is exactly checked
+refutability.  It is certified separately so existing aggregate contract
+shapes remain stable.]]@*)
 
 Theorem certified_coded_recognition_refutation_specification_contract :
   CODED_RECOGNITION_REFUTATION_SPECIFICATION_CONTRACT.
@@ -117,11 +85,7 @@ Proof.
   exact coded_recognition_acceptance_iff_refutation.
 Qed.
 
-(*
-│
-│          Certification endpoint for regulated assumptions.
-│
-*)
+(*@inline@[[Certification endpoint for regulated assumptions.]]@*)
 
 Theorem certified_regulated_assumption_contract :
   REGULATED_ASSUMPTION_CONTRACT.
@@ -129,11 +93,7 @@ Proof.
   exact licensed_assumption_forces_content.
 Qed.
 
-(*
-│
-│          Certification endpoint for the Recursive Mirror Lemma.
-│
-*)
+(*@inline@[[Certification endpoint for the Recursive Mirror Lemma.]]@*)
 
 Theorem certified_coded_recursive_mirror_contract :
   CODED_RECURSIVE_MIRROR_CONTRACT.
@@ -153,11 +113,7 @@ Proof.
   exact coded_recursive_mirror_lemma_from_seed.
 Qed.
 
-(*
-│
-│          Certification endpoint for finite operational recurrence.
-│
-*)
+(*@inline@[[Certification endpoint for finite operational recurrence.]]@*)
 
 Theorem certified_finite_operational_recurrence_contract :
   FINITE_OPERATIONAL_RECURRENCE_CONTRACT.
@@ -183,11 +139,7 @@ Proof.
   exact externally_attributed_observation_externalizes.
 Qed.
 
-(*
-│
-│          Certification endpoint for conditional attribution.
-│
-*)
+(*@inline@[[Certification endpoint for conditional attribution.]]@*)
 
 Theorem certified_conditional_attribution_contract :
   CONDITIONAL_ATTRIBUTION_CONTRACT.
@@ -195,12 +147,7 @@ Proof.
   exact conditional_attribution_principle.
 Qed.
 
-(*
-│
-│          Certification endpoint for the realizable Principles of
-│          Symbolic Regulation.
-│
-*)
+(*@inline@[[Certification endpoint for the realizable Principles of Symbolic Regulation.]]@*)
 
 Theorem certified_principles_of_symbolic_regulation_contract :
   PRINCIPLES_OF_SYMBOLIC_REGULATION_CONTRACT.
@@ -220,11 +167,7 @@ Proof.
     + exact certified_concrete_externalization_contract.
 Qed.
 
-(*
-│
-│          Certification endpoint for conditional externalization.
-│
-*)
+(*@inline@[[Certification endpoint for conditional externalization.]]@*)
 
 Theorem certified_conditional_externalization_contract :
   CONDITIONAL_EXTERNALIZATION_CONTRACT.
@@ -232,12 +175,7 @@ Proof.
   exact conditional_externalization_principle.
 Qed.
 
-(*
-│
-│          Certification endpoint for the optional
-│          relative-consistency and response specification.
-│
-*)
+(*@inline@[[Certification endpoint for the optional relative-consistency and response specification.]]@*)
 
 Theorem certified_control_question_specification_contract :
   CONTROL_QUESTION_SPECIFICATION_CONTRACT.
@@ -251,12 +189,7 @@ Proof.
   - exact yes_or_recursive_reentry.
 Qed.
 
-(*
-│
-│          The legacy broad contract conjoins its global and optional
-│          endpoints.
-│
-*)
+(*@inline@[[The legacy broad contract conjoins its global and optional endpoints.]]@*)
 
 Theorem certified_symbolic_regulation_contract :
   SYMBOLIC_REGULATION_CONTRACT.
@@ -295,12 +228,7 @@ Proof.
                                                             { exact certified_control_question_specification_contract. }
 Qed.
 
-(*
-│
-│          `mirror_lemma_qed` is the compact terminal endpoint for
-│          full-fixed-point collapse and live mirror opacity.
-│
-*)
+(*@inline@[[`mirror_lemma_qed` is the compact terminal endpoint for full-fixed-point collapse and live mirror opacity.]]@*)
 
 Theorem mirror_lemma_qed :
   MIRROR_LEMMA_CONTRACT.
@@ -317,12 +245,7 @@ Proof.
         -- exact certified_coded_recognition_evidence_specification_contract.
 Qed.
 
-(*
-│
-│          `recursive_mirror_lemma_qed` is the compact terminal
-│          endpoint for recursive mirror opacity.
-│
-*)
+(*@inline@[[`recursive_mirror_lemma_qed` is the compact terminal endpoint for recursive mirror opacity.]]@*)
 
 Theorem recursive_mirror_lemma_qed :
   RECURSIVE_MIRROR_LEMMA_CONTRACT.
@@ -332,11 +255,7 @@ Proof.
   - exact certified_coded_seed_recursive_mirror_contract.
 Qed.
 
-(*
-│
-│          Primary certified endpoint for the L002 theorem core.
-│
-*)
+(*@inline@[[Primary certified endpoint for the L002 theorem core.]]@*)
 
 Theorem l002_core_qed :
   CORE_WITNESS.
@@ -355,12 +274,7 @@ Proof.
            ++ exact certified_local_coded_recursive_mirror_contract.
 Qed.
 
-(*
-│
-│          Broad compatibility endpoint; new clients should prefer
-│          `l002_core_qed`.
-│
-*)
+(*@inline@[[Broad compatibility endpoint; new clients should prefer `l002_core_qed`.]]@*)
 
 Theorem symbolic_regulation_qed :
   WITNESS.
@@ -368,12 +282,7 @@ Proof.
   exact certified_symbolic_regulation_contract.
 Qed.
 
-(*
-│
-│          Assumption reports cover the primary core, its two compact
-│          components, and the broad compatibility package.
-│
-*)
+(*@inline@[[Assumption reports cover the primary core, its two compact components, and the broad compatibility package.]]@*)
 
 Redirect "theories/L002/_appendix/_assumptions/l002_core_qed"
   Print Assumptions l002_core_qed.

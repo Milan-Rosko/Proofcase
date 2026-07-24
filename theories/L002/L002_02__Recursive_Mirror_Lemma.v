@@ -1,33 +1,18 @@
-(*L002_02__Recursive_Mirror_Lemma.v*)
+(*@file@*)
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                      Author and Copyright remark. Author(s): │
-│                ╭╮╮╮─╮                Milan Rosko  https://www.milanrosko.com │
-│                ││││╭╯                Licence. This file is distributed under │
-│                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
-│                                      visit https://www.mozilla.org/en-US/MPL │
-└──────────────────────────────────────────────────────────────────────────────┘
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                 Proofcase / L002_02__Recursive_Mirror_Lemma                  │
-└──────────────────────────────────────────────────────────────────────────────┘
+(*@head.start@*)
+(*@copyright@*)
+(*@doc.proofcase@*)
 
-  OVERVIEW
+(*@doc.header@[[Overview]]@*)
 
-  Finite recursive-mirror layer. Pointwise mirror adequacy, or a seed plus
-  preservation, transports irrefutability and coded-recognition opacity to
-  every finite iterate.
+(*@doc.pl@[[Finite recursive-mirror layer. Pointwise mirror adequacy, or a seed plus preservation, transports irrefutability and coded-recognition opacity to every finite iterate.]]@*)
 
-*)
+(*@head.end@*)
 
 From L002 Require Export L002_01__Mirror_Unrefutability.
 
-(*
-│
-│          `recursive_mirror_formula depth mirror_step chi` applies
-│          `mirror_step` to `chi` exactly `depth` times.
-│
-*)
+(*@inline@[[`recursive_mirror_formula depth mirror_step chi` applies `mirror_step` to `chi` exactly `depth` times.]]@*)
 
 Fixpoint recursive_mirror_formula
     (depth : nat)
@@ -40,12 +25,7 @@ Fixpoint recursive_mirror_formula
         (recursive_mirror_formula depth' mirror_step chi)
   end.
 
-(*
-│
-│          Recursive-mirror adequacy requires every finite formula
-│          iterate to be a one-way external mirror position.
-│
-*)
+(*@inline@[[Recursive-mirror adequacy requires every finite formula iterate to be a one-way external mirror position.]]@*)
 
 Definition RecursiveMirrorAdequacy
     (M : RegulatorTheory)
@@ -56,13 +36,7 @@ Definition RecursiveMirrorAdequacy
     ExternalMirrorPosition M Gamma
       (recursive_mirror_formula depth mirror_step chi).
 
-(*
-│
-│          A mirror step preserves external fixed-point position when
-│          it maps every externally fixed formula to another
-│          externally fixed formula.
-│
-*)
+(*@inline@[[A mirror step preserves external fixed-point position when it maps every externally fixed formula to another externally fixed formula.]]@*)
 
 Definition MirrorStepPreservesExternalFixedPoints
     (M : RegulatorTheory)
@@ -80,13 +54,7 @@ Definition MirrorStepPreservesExternalMirrorPositions
     ExternalMirrorPosition M Gamma A ->
     ExternalMirrorPosition M Gamma (mirror_step A).
 
-(*
-│
-│          The implication-reflection mirror wraps `A` as `(A -> A) ->
-│          A`. It is syntactically non-identity while remaining
-│          interderivable with `A` in the minimal K/S checked theory.
-│
-*)
+(*@inline@[[The implication-reflection mirror wraps `A` as `(A -> A) -> A`. It is syntactically non-identity while remaining interderivable with `A` in the minimal K/S checked theory.]]@*)
 
 Definition implication_reflection_mirror (A : Formula) : Formula :=
   Imp (Imp A A) A.
@@ -116,14 +84,7 @@ Proof.
     exact (assumption_intro M Gamma A).
 Qed.
 
-(*
-│
-│          The implication-reflection mirror preserves negation fixed
-│          points. The proof uses its two checked implication
-│          directions and explicitly transports the fixed-point
-│          derivations through the wrapper.
-│
-*)
+(*@inline@[[The implication-reflection mirror preserves negation fixed points. The proof uses its two checked implication directions and explicitly transports the fixed-point derivations through the wrapper.]]@*)
 
 Theorem implication_reflection_mirror_preserves_external_fixed_points :
   forall (M : RegulatorTheory) (Gamma : Context),
@@ -206,12 +167,7 @@ Proof.
                M (ctx_extend (formula_negation W) Gamma) A). }
 Qed.
 
-(*
-│
-│          A recursive-mirror position requires every finite formula
-│          iterate to satisfy `AsIF`.
-│
-*)
+(*@inline@[[A recursive-mirror position requires every finite formula iterate to satisfy `AsIF`.]]@*)
 
 Definition RecursiveMirrorPosition
     (M : RegulatorTheory)
@@ -222,12 +178,7 @@ Definition RecursiveMirrorPosition
     AsIF M Gamma
       (recursive_mirror_formula depth mirror_step chi).
 
-(*
-│
-│          Pointwise local consistency is the minimal consistency
-│          premise for recursive irrefutability.
-│
-*)
+(*@inline@[[Pointwise local consistency is the minimal consistency premise for recursive irrefutability.]]@*)
 
 Definition RecursiveMirrorLocallyConsistent
     (M : RegulatorTheory)
@@ -238,11 +189,7 @@ Definition RecursiveMirrorLocallyConsistent
     MirrorLocallyConsistent M Gamma
       (recursive_mirror_formula depth mirror_step chi).
 
-(*
-│
-│          The zero-depth recursive mirror is the seed formula.
-│
-*)
+(*@inline@[[The zero-depth recursive mirror is the seed formula.]]@*)
 
 Theorem recursive_mirror_formula_zero :
   forall mirror_step chi,
@@ -251,12 +198,7 @@ Proof.
   reflexivity.
 Qed.
 
-(*
-│
-│          A successor-depth recursive mirror is one `mirror_step`
-│          applied to the preceding iterate.
-│
-*)
+(*@inline@[[A successor-depth recursive mirror is one `mirror_step` applied to the preceding iterate.]]@*)
 
 Theorem recursive_mirror_formula_successor :
   forall depth mirror_step chi,
@@ -266,13 +208,7 @@ Proof.
   reflexivity.
 Qed.
 
-(*
-│
-│          One externally fixed seed and a fixed-point-preserving
-│          mirror step generate external fixed-point adequacy at every
-│          finite depth.
-│
-*)
+(*@inline@[[One externally fixed seed and a fixed-point-preserving mirror step generate external fixed-point adequacy at every finite depth.]]@*)
 
 Theorem recursive_mirror_adequacy_from_seed :
   forall (M : RegulatorTheory)
@@ -290,12 +226,7 @@ Proof.
     exact (Hpreserves _ IH).
 Qed.
 
-(*
-│
-│          Pointwise mirror adequacy and pointwise local consistency
-│          yield recursive irrefutability.
-│
-*)
+(*@inline@[[Pointwise mirror adequacy and pointwise local consistency yield recursive irrefutability.]]@*)
 
 Theorem recursive_mirror_irrefutability_local :
   forall (M : RegulatorTheory)
@@ -315,11 +246,7 @@ Proof.
        (Hlocal depth)).
 Qed.
 
-(*
-│
-│          Global consistency supplies pointwise local consistency.
-│
-*)
+(*@inline@[[Global consistency supplies pointwise local consistency.]]@*)
 
 Theorem recursive_mirror_irrefutability :
   forall (M : RegulatorTheory)
@@ -341,13 +268,7 @@ Proof.
             Hconsistent)).
 Qed.
 
-(*
-│
-│          For a fixed symbolic regulator, every adequate mirror
-│          iterate satisfies `AsIF` and excludes adequate internal
-│          recognition.
-│
-*)
+(*@inline@[[For a fixed symbolic regulator, every adequate mirror iterate satisfies `AsIF` and excludes adequate internal recognition.]]@*)
 
 Theorem recursive_mirror_lemma :
   forall (Slambda M : RegulatorTheory)
@@ -382,12 +303,7 @@ Proof.
             (Hadequate depth))).
 Qed.
 
-(*
-│
-│          The minimal coded recursive theorem uses pointwise local
-│          consistency.
-│
-*)
+(*@inline@[[The minimal coded recursive theorem uses pointwise local consistency.]]@*)
 
 Theorem coded_recursive_mirror_lemma_local :
   forall (M : RegulatorTheory)
@@ -414,12 +330,7 @@ Proof.
          (Hadequate depth) (Hlocal depth)).
 Qed.
 
-(*
-│
-│          The global-consistency form is retained as a compatibility
-│          corollary.
-│
-*)
+(*@inline@[[The global-consistency form is retained as a compatibility corollary.]]@*)
 
 Theorem coded_recursive_mirror_lemma :
   forall (M : RegulatorTheory)
@@ -444,13 +355,7 @@ Proof.
             Hconsistent)).
 Qed.
 
-(*
-│
-│          The seed-based Recursive Mirror Lemma derives the all-depth
-│          result from one external mirror position and a reusable
-│          preservation law for the supplied mirror step.
-│
-*)
+(*@inline@[[The seed-based Recursive Mirror Lemma derives the all-depth result from one external mirror position and a reusable preservation law for the supplied mirror step.]]@*)
 
 Theorem recursive_mirror_lemma_from_seed :
   forall (Slambda M : RegulatorTheory)
@@ -495,23 +400,9 @@ Proof.
   - exact Hconsistent.
 Qed.
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                                                              │
-│                         OPERATIONAL CONTROL RE-ENTRY                         │
-│                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
-*)
+(*@section@[[OPERATIONAL CONTROL RE-ENTRY]]@*)
 
-(*
-│
-│          A `RecursiveControlProcess` is a total response trace with
-│          sound `yes` and `no` tags. The classification theorems use
-│          negative soundness; positive soundness is exposed
-│          separately below. `reenter` is only a tag and carries no
-│          transition premise.
-│
-*)
+(*@inline@[[A `RecursiveControlProcess` is a total response trace with sound `yes` and `no` tags. The classification theorems use negative soundness; positive soundness is exposed separately below. `reenter` is only a tag and carries no transition premise.]]@*)
 
 Record RecursiveControlProcess
     (M : RegulatorTheory)
@@ -587,14 +478,7 @@ Definition ReentersForever
   forall depth : nat,
     ControlReentersAt process depth.
 
-(*
-│
-│          `ControlOutcomeDecidable` is an additional operational
-│          specification deciding whether an unbounded process ever
-│          answers `yes`. It is not derived from the finite response
-│          alphabet or from proof-theoretic consistency.
-│
-*)
+(*@inline@[[`ControlOutcomeDecidable` is an additional operational specification deciding whether an unbounded process ever answers `yes`. It is not derived from the finite response alphabet or from proof-theoretic consistency.]]@*)
 
 Definition ControlOutcomeDecidable
     {M Gamma mirror_step chi}
@@ -602,12 +486,7 @@ Definition ControlOutcomeDecidable
   EventuallyAnswersYes process \/
   ~ EventuallyAnswersYes process.
 
-(*
-│
-│          Recursive mirror adequacy and model consistency exclude the
-│          negative response at every depth.
-│
-*)
+(*@inline@[[Recursive mirror adequacy and model consistency exclude the negative response at every depth.]]@*)
 
 Theorem recursive_control_negative_response_impossible :
   forall (M : RegulatorTheory)
@@ -632,14 +511,7 @@ Proof.
   exact (recursive_control_no_sound process depth Hno).
 Qed.
 
-(*
-│
-│          Compatibility spelling for
-│          `recursive_control_negative_response_impossible`; `no`
-│          refers to the explicit negative constructor rather than to
-│          a missing response.
-│
-*)
+(*@inline@[[Compatibility spelling for `recursive_control_negative_response_impossible`; `no` refers to the explicit negative constructor rather than to a missing response.]]@*)
 
 Theorem recursive_control_no_response_impossible :
   forall (M : RegulatorTheory)
@@ -681,14 +553,7 @@ Proof.
   - right. reflexivity.
 Qed.
 
-(*
-│
-│          Constructive finite form of `yes` or recursion: at every
-│          supplied observation bound, either a positive answer has
-│          appeared within the bound or every stage through the bound
-│          is a re-entry.
-│
-*)
+(*@inline@[[Constructive finite form of `yes` or recursion: at every supplied observation bound, either a positive answer has appeared within the bound or every stage through the bound is a re-entry.]]@*)
 
 Theorem finite_yes_or_recursive_reentry :
   forall (M : RegulatorTheory)
@@ -734,14 +599,7 @@ Proof.
         -- apply Hthrough. assumption.
 Qed.
 
-(*
-│
-│          The unbounded disjunction requires the explicit
-│          outcome-decidability bridge. Under that bridge, absence of
-│          an eventual `yes` and pointwise exclusion of `no` force
-│          reflective re-entry at every finite depth.
-│
-*)
+(*@inline@[[The unbounded disjunction requires the explicit outcome-decidability bridge. Under that bridge, absence of an eventual `yes` and pointwise exclusion of `no` force reflective re-entry at every finite depth.]]@*)
 
 Theorem yes_or_recursive_reentry :
   forall (M : RegulatorTheory)

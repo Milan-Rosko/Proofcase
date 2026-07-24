@@ -1,23 +1,13 @@
-(*A001_95_API.v*)
+(*@file@*)
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                      Author and Copyright remark. Author(s): │
-│                ╭╮╮╮─╮                Milan Rosko  https://www.milanrosko.com │
-│                ││││╭╯                Licence. This file is distributed under │
-│                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
-│                                      visit https://www.mozilla.org/en-US/MPL │
-└──────────────────────────────────────────────────────────────────────────────┘
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                           Proofcase / A001_95_API                            │
-└──────────────────────────────────────────────────────────────────────────────┘
+(*@head.start@*)
+(*@copyright@*)
+(*@doc.proofcase@*)
 
-  OVERVIEW
+(*@doc.header@[[Overview]]@*)
 
-  Public API surface for A001. We expose the certified carryless pairing
-  surface, so that external developments may depend on a single stable
-  package interface.
+(*@doc.pl@[[Public API surface for A001. We expose the certified carryless pairing surface, so that external developments may depend on a single stable package interface.]]@*)
 
-*)
+(*@head.end@*)
 
 From A001 Require Export A001_05__Pair_Unpair_Correct.

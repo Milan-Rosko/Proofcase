@@ -1,46 +1,27 @@
-(*M001_09__Regulated_Execution.v*)
+(*@file@*)
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                      Author and Copyright remark. Author(s): │
-│                ╭╮╮╮─╮                Milan Rosko  https://www.milanrosko.com │
-│                ││││╭╯                Licence. This file is distributed under │
-│                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
-│                                      visit https://www.mozilla.org/en-US/MPL │
-└──────────────────────────────────────────────────────────────────────────────┘
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                   Proofcase / M001_09__Regulated_Execution                   │
-└──────────────────────────────────────────────────────────────────────────────┘
+(*@head.start@*)
+(*@copyright@*)
+(*@doc.proofcase@*)
 
-  OVERVIEW
+(*@doc.header@[[Overview]]@*)
 
-  Regulated execution for the frozen symbolic-regulator interface. The M001
-  checker is packaged as the canonical proof regulator, while a generic
-  Boolean gate releases a proposed output exactly when its supplied
-  instruction is accepted. Release is pure symbolic computation: an external
-  listener may interpret the released output, but M001 adds no actuator,
-  environment, proof search, or semantic truth predicate.
+(*@doc.pl@[[Regulated execution for the frozen symbolic-regulator interface.
+The M001 checker is packaged as the canonical proof regulator, while a generic
+Boolean gate releases a proposed output exactly when its supplied instruction
+is accepted.  Release is pure symbolic computation: an external listener may
+interpret the released output, but M001 adds no actuator, environment, proof
+search, or semantic truth predicate.]]@*)
 
-*)
+(*@head.end@*)
 
 From M001 Require Export M001_08__Regulation.
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                                                              │
-│                          CANONICAL PROOF REGULATOR                           │
-│                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
-*)
+(*@section@[[CANONICAL PROOF REGULATOR]]@*)
 
-(*
-│
-│          A regulator theory and context determine the canonical M001
-│          symbolic regulator: finite proof scripts are instructions,
-│          formulas are outputs, and the existing Boolean proof
-│          checker is the acceptance function.
-│
-*)
+(*@inline@[[A regulator theory and context determine the canonical M001
+symbolic regulator: finite proof scripts are instructions, formulas are
+outputs, and the existing Boolean proof checker is the acceptance function.]]@*)
 
 Definition regulator_theory_symbolic_regulator
     (R : RegulatorTheory)
@@ -52,13 +33,8 @@ Definition regulator_theory_symbolic_regulator
       regulator_theory_check_bool R Gamma
   |}.
 
-(*
-│
-│          Symbolic derivability for the canonical proof regulator is
-│          definitionally the existing existential
-│          checked-derivability predicate.
-│
-*)
+(*@inline@[[Symbolic derivability for the canonical proof regulator is
+definitionally the existing existential checked-derivability predicate.]]@*)
 
 Theorem regulator_theory_symbolic_regulator_derivable_iff :
   forall (R : RegulatorTheory)
@@ -72,22 +48,11 @@ Proof.
   reflexivity.
 Qed.
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                                                              │
-│                             BOOLEAN RELEASE GATE                             │
-│                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
-*)
+(*@section@[[BOOLEAN RELEASE GATE]]@*)
 
-(*
-│
-│          The release gate preserves the proposed output on
-│          acceptance and blocks it on rejection. It does not
-│          synthesize an output or interpret the output as an external
-│          action.
-│
-*)
+(*@inline@[[The release gate preserves the proposed output on acceptance and
+blocks it on rejection.  It does not synthesize an output or interpret the
+output as an external action.]]@*)
 
 Definition symbolic_regulator_release
     (S : S_λ)
@@ -138,12 +103,8 @@ Proof.
   - exact (symbolic_regulator_release_complete S i b).
 Qed.
 
-(*
-│
-│          An output is symbolically derivable exactly when some
-│          instruction causes the gate to release it.
-│
-*)
+(*@inline@[[An output is symbolically derivable exactly when some instruction
+causes the gate to release it.]]@*)
 
 Theorem symbolic_regulator_derivable_release_iff :
   forall (S : S_λ)
@@ -163,13 +124,9 @@ Proof.
     exact (symbolic_regulator_release_sound S i b Hrelease).
 Qed.
 
-(*
-│
-│          Specializing the release characterization to the canonical
-│          proof regulator identifies released formulas with ordinary
-│          M001 checked derivability.
-│
-*)
+(*@inline@[[Specializing the release characterization to the canonical proof
+regulator identifies released formulas with ordinary M001 checked
+derivability.]]@*)
 
 Theorem regulator_theory_symbolic_regulator_release_iff :
   forall (R : RegulatorTheory)

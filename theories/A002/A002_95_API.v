@@ -1,34 +1,15 @@
-(*A002_95_API.v*)
+(*@file@*)
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                      Author and Copyright remark. Author(s): │
-│                ╭╮╮╮─╮                Milan Rosko  https://www.milanrosko.com │
-│                ││││╭╯                Licence. This file is distributed under │
-│                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
-│                                      visit https://www.mozilla.org/en-US/MPL │
-└──────────────────────────────────────────────────────────────────────────────┘
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                           Proofcase / A002_95_API                            │
-└──────────────────────────────────────────────────────────────────────────────┘
+(*@head.start@*)
+(*@copyright@*)
+(*@doc.proofcase@*)
 
-  OVERVIEW
+(*@doc.header@[[Overview]]@*)
 
-  Public API surface for A002/CARRYLESS SEQUENT. A single import exposes
-  arithmetic normalization, target-sensitive inductive verification, the
-  end-to-end certified arithmetic entry point, independent certificate
-  replay, local and derivation reflection theorems, plus the legacy
-  compatibility verifier, constructors, parsers, Hilbert-rule checkers, and
-  IO dispatcher.
+(*@doc.pl@[[Public API surface for A002/CARRYLESS SEQUENT. A single import exposes arithmetic normalization, target-sensitive inductive verification, the end-to-end certified arithmetic entry point, independent certificate replay, local and derivation reflection theorems, plus the legacy compatibility verifier, constructors, parsers, Hilbert-rule checkers, and IO dispatcher.]]@*)
 
-  Downstream logical developments should prefer `NormalizedProof` and
-  `normalized_verifyb_iff`; arithmetic clients should use the canonical
-  `encode_normalized_*` quotations with `A002_Verify_certified`. Soundness is
-  `certified_verify_accept_sound`, and representational completeness is
-  `certified_verify_complete`. The legacy arithmetic functions remain public
-  for compatibility; artifact generation and sanity probes are excluded from
-  this stable dependency boundary.
+(*@doc.pl@[[Downstream logical developments should prefer `NormalizedProof` and `normalized_verifyb_iff`; arithmetic clients should use the canonical `encode_normalized_*` quotations with `A002_Verify_certified`. Soundness is `certified_verify_accept_sound`, and representational completeness is `certified_verify_complete`. The legacy arithmetic functions remain public for compatibility; artifact generation and sanity probes are excluded from this stable dependency boundary.]]@*)
 
-*)
+(*@head.end@*)
 
 From A002 Require Export A002_94_IO.

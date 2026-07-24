@@ -1,42 +1,24 @@
-(*L001_01__Aporetic_Lemma.v*)
+(*@file@*)
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                      Author and Copyright remark. Author(s): │
-│                ╭╮╮╮─╮                Milan Rosko  https://www.milanrosko.com │
-│                ││││╭╯                Licence. This file is distributed under │
-│                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
-│                                      visit https://www.mozilla.org/en-US/MPL │
-└──────────────────────────────────────────────────────────────────────────────┘
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                     Proofcase / L001_01__Aporetic_Lemma                      │
-└──────────────────────────────────────────────────────────────────────────────┘
+(*@head.start@*)
+(*@copyright@*)
+(*@doc.proofcase@*)
 
-  OVERVIEW
+(*@doc.header@[[Overview]]@*)
 
-  The goal-restricted diagonal theorem and the local collapse hierarchy. The
-  branchwise theorem names exactly three detachment instances; global modus
-  ponens supplies them for the goal-relative theorem, whose bottom
-  specialization is the retained local-collapse contract.
+(*@doc.pl@[[The goal-restricted diagonal theorem and the local collapse
+hierarchy.  The branchwise theorem names exactly three detachment instances;
+global modus ponens supplies them for the goal-relative theorem, whose bottom
+specialization is the retained local-collapse contract.]]@*)
 
-*)
+(*@head.end@*)
 
 From L001 Require Export L001_00_Premises.
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                                                              │
-│                              NEGATION DIAGONAL                               │
-│                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
-*)
+(*@section@[[NEGATION DIAGONAL]]@*)
 
-(*
-│
-│          Specializing the supplied code at itself produces a formula
-│          closure-equivalent to its own negation.
-│
-*)
+(*@inline@[[Specializing the supplied code at itself produces a formula
+closure-equivalent to its own negation.]]@*)
 
 Theorem eval_bottom_negfixp :
   forall (C : Formula -> Prop) Code
@@ -50,22 +32,11 @@ Proof.
   exact (Hc c).
 Qed.
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                                                              │
-│                                LOCAL COLLAPSE                                │
-│                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
-*)
+(*@section@[[LOCAL COLLAPSE]]@*)
 
-(*
-│
-│          For an arbitrary goal `G`, each accepted branch needs only
-│          the fixed-point implication oriented from that branch, one
-│          branch-specific detachment instance, and the shared final
-│          detachment from `B` to `G`.
-│
-*)
+(*@inline@[[For an arbitrary goal `G`, each accepted branch needs only the
+fixed-point implication oriented from that branch, one branch-specific
+detachment instance, and the shared final detachment from `B` to `G`.]]@*)
 
 Theorem branchwise_goal_relative_collapse :
   forall (C : Formula -> Prop) B G,
@@ -84,13 +55,9 @@ Proof.
     exact (Hfinal HBG HB).
 Qed.
 
-(*
-│
-│          Full closure equivalence and global modus ponens supply the
-│          branchwise theorem's oriented implications and three local
-│          detachment instances.
-│
-*)
+(*@inline@[[Full closure equivalence and global modus ponens supply the
+branchwise theorem's oriented implications and three local detachment
+instances.]]@*)
 
 Theorem goal_relative_branch_collapse :
   forall (C : Formula -> Prop) B G,
@@ -118,13 +85,8 @@ Proof.
     split; assumption.
 Qed.
 
-(*
-│
-│          Negation is implication to `Bot`, so the retained local
-│          branch collapse is the bottom specialization of the
-│          goal-relative theorem.
-│
-*)
+(*@inline@[[Negation is implication to `Bot`, so the retained local branch
+collapse is the bottom specialization of the goal-relative theorem.]]@*)
 
 Theorem local_branch_collapse :
   forall (C : Formula -> Prop) B,

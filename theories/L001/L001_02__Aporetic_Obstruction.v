@@ -1,44 +1,26 @@
-(*L001_02__Aporetic_Obstruction.v*)
+(*@file@*)
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                      Author and Copyright remark. Author(s): │
-│                ╭╮╮╮─╮                Milan Rosko  https://www.milanrosko.com │
-│                ││││╭╯                Licence. This file is distributed under │
-│                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
-│                                      visit https://www.mozilla.org/en-US/MPL │
-└──────────────────────────────────────────────────────────────────────────────┘
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                  Proofcase / L001_02__Aporetic_Obstruction                   │
-└──────────────────────────────────────────────────────────────────────────────┘
+(*@head.start@*)
+(*@copyright@*)
+(*@doc.proofcase@*)
 
-  OVERVIEW
+(*@doc.header@[[Overview]]@*)
 
-  Minimal obstruction layer: consistency turns the local collapse into an
-  explicit gap at the negation fixed point, local bivalence closes that gap
-  to contradiction, signed classification supplies its branch, membership
-  reaches it through refutation completeness, and negative-only refutation
-  remains inhabited.
+(*@doc.pl@[[Minimal obstruction layer: consistency turns the local collapse
+into an explicit gap at the negation fixed point, local bivalence closes that
+gap to contradiction, signed classification supplies its branch, membership
+reaches it through refutation completeness, and negative-only refutation
+remains inhabited.]]@*)
 
-*)
+(*@head.end@*)
 
 From L001 Require Export L001_01__Aporetic_Lemma.
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                                                              │
-│                              LOCAL OBSTRUCTION                               │
-│                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
-*)
+(*@section@[[LOCAL OBSTRUCTION]]@*)
 
-(*
-│
-│          At a consistent negation fixed point, either accepted side
-│          would supply a local branch and hence accepted bottom. Both
-│          sides are therefore excluded separately.
-│
-*)
+(*@inline@[[At a consistent negation fixed point, either accepted side would
+supply a local branch and hence accepted bottom.  Both sides are therefore
+excluded separately.]]@*)
 
 Theorem fixedpoint_gap :
   forall (C : Formula -> Prop) B,
@@ -61,12 +43,8 @@ Proof.
     exact HnotB.
 Qed.
 
-(*
-│
-│          Local excluded middle contradicts the two sides of the
-│          fixed-point gap.
-│
-*)
+(*@inline@[[Local excluded middle contradicts the two sides of the fixed-point
+gap.]]@*)
 
 Theorem core_diagonal_obstruction :
   forall (C : Formula -> Prop) B,
@@ -84,21 +62,10 @@ Proof.
   - exact (Hnot_negative Hnegative).
 Qed.
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                                                              │
-│                         CLASSIFICATION OBSTRUCTIONS                          │
-│                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
-*)
+(*@section@[[CLASSIFICATION OBSTRUCTIONS]]@*)
 
-(*
-│
-│          A signed classifier supplies exactly the local branch
-│          needed at a given negation fixed point. No evaluation
-│          premise is used here.
-│
-*)
+(*@inline@[[A signed classifier supplies exactly the local branch needed at a
+given negation fixed point.  No evaluation premise is used here.]]@*)
 
 Theorem local_signed_obstruction :
   forall (C : Formula -> Prop) B,
@@ -117,13 +84,9 @@ Proof.
     exact (signed_false D B Hclassify).
 Qed.
 
-(*
-│
-│          Membership decision reaches the same obstruction only after
-│          refutation completeness converts its negative result into
-│          an accepted object-language negation.
-│
-*)
+(*@inline@[[Membership decision reaches the same obstruction only after
+refutation completeness converts its negative result into an accepted
+object-language negation.]]@*)
 
 Theorem local_membership_obstruction :
   forall (C : Formula -> Prop) B,
@@ -141,21 +104,10 @@ Proof.
        (membership_to_signed C Hrefutation D)).
 Qed.
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                                                              │
-│                                  REFUTATION                                  │
-│                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
-*)
+(*@section@[[REFUTATION]]@*)
 
-(*
-│
-│          Negative-only refutation places no obligation on a false
-│          verdict. The always-false function therefore inhabits it
-│          for every closure predicate.
-│
-*)
+(*@inline@[[Negative-only refutation places no obligation on a false verdict.
+The always-false function therefore inhabits it for every closure predicate.]]@*)
 
 Theorem closure_refutation_inhabited :
   forall C : Formula -> Prop,

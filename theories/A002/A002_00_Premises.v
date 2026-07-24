@@ -1,119 +1,57 @@
-(*A002_00_Premises.v*)
+(*@file@*)
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                      Author and Copyright remark. Author(s): │
-│                ╭╮╮╮─╮                Milan Rosko  https://www.milanrosko.com │
-│                ││││╭╯                Licence. This file is distributed under │
-│                 ╯╯╯╰                 the Mozilla Public License Version 2.0, │
-│                                      visit https://www.mozilla.org/en-US/MPL │
-└──────────────────────────────────────────────────────────────────────────────┘
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                         Proofcase / A002_00_Premises                         │
-└──────────────────────────────────────────────────────────────────────────────┘
+(*@head.start@*)
+(*@copyright@*)
+(*@doc.proofcase@*)
 
-  OVERVIEW
+(*@doc.header@[[Overview]]@*)
 
-  Arithmetic substrate for A002/CARRYLESS SEQUENT. We fix the shared
-  standard-library and A001 carryless-pairing environment, then define result
-  conventions, canonical A001 destructuring, tagged lists, and formula syntax
-  used by the executable verifier layers.
+(*@doc.pl@[[Arithmetic substrate for A002/CARRYLESS SEQUENT. We fix the shared standard-library and A001 carryless-pairing environment, then define result conventions, canonical A001 destructuring, tagged lists, and formula syntax used by the executable verifier layers.]]@*)
 
-  The verifier surface of A002 is deliberately arithmetic: every structured
-  value and checking result is a natural number interpreted through the
-  certified A001 pairing function. This consolidated base contains the
-  effective data representation and its elementary constructor facts, but no
-  proof search or semantic verification.
+(*@doc.pl@[[The verifier surface of A002 is deliberately arithmetic: every structured value and checking result is a natural number interpreted through the certified A001 pairing function. This consolidated base contains the effective data representation and its elementary constructor facts, but no proof search or semantic verification.]]@*)
 
-  A001 decoding is total, so decoding alone is never treated as evidence that
-  a number is structured. Every destructor below is paired with a canonicity
-  test requiring the input to be a fixed point of decode followed by encode.
-  The later normalization layer replaces these rapidly growing arithmetic
-  containers with inductive data after this representation boundary has been
-  made explicit.
+(*@doc.pl@[[A001 decoding is total, so decoding alone is never treated as evidence that a number is structured. Every destructor below is paired with a canonicity test requiring the input to be a fixed point of decode followed by encode. The later normalization layer replaces these rapidly growing arithmetic containers with inductive data after this representation boundary has been made explicit.]]@*)
 
-*)
+(*@head.end@*)
 
 From Stdlib Require Export Arith PeanoNat Bool Lia List Ring ZArith Extraction.
 From A001 Require Export A001_95_API.
 Export ListNotations.
 Global Open Scope list_scope.
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                                                              │
-│                        ARITHMETIC RESULT CONVENTIONS                         │
-│                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
-*)
+(*@section@[[ARITHMETIC RESULT CONVENTIONS]]@*)
 
-(*
-│
-│          A002 returns A001-coded status/payload pairs. Status `0`
-│          means rejection and status `1` means acceptance.
-│
-*)
+(*@inline@[[A002 returns A001-coded status/payload pairs. Status `0` means rejection and status `1` means acceptance.]]@*)
 
-(*              result = encode(status,payload), status ∈ {0,1}.              *)
+(*@unicodemath@[[result = encode(status,payload),   status ∈ {0,1}.]]@*)
 
 Definition STATUS_REJECT : nat := 0.
 Definition STATUS_ACCEPT : nat := 1.
 
-(*
-│
-│          `accept payload` packages a successful arithmetic result.
-│          The payload is always an explicit natural-number
-│          certificate or local certificate component.
-│
-*)
+(*@inline@[[`accept payload` packages a successful arithmetic result. The payload is always an explicit natural-number certificate or local certificate component.]]@*)
 
-(*                          accept(p) ≔ encode(1,p).                          *)
+(*@unicodemath@[[accept(p) ≔ encode(1,p).]]@*)
 
 Definition accept (payload : nat) : nat :=
   encode STATUS_ACCEPT payload.
 
-(*
-│
-│          `code_error stage index detail` records the first local
-│          failure seen by a checker. The stage identifies the
-│          verifier layer, the index identifies the global or
-│          line-local position, and the detail identifies the concrete
-│          failure.
-│
-*)
+(*@inline@[[`code_error stage index detail` records the first local failure seen by a checker. The stage identifies the verifier layer, the index identifies the global or line-local position, and the detail identifies the concrete failure.]]@*)
 
-(*                 code_error(s,i,d) ≔ encode(s,encode(i,d)).                 *)
+(*@unicodemath@[[code_error(s,i,d) ≔ encode(s,encode(i,d)).]]@*)
 
 Definition code_error (stage index detail : nat) : nat :=
   encode stage (encode index detail).
 
-(*
-│
-│          `reject` packages an arithmetic failure result. No
-│          rejection branch returns an uncoded diagnostic.
-│
-*)
+(*@inline@[[`reject` packages an arithmetic failure result. No rejection branch returns an uncoded diagnostic.]]@*)
 
-(*                reject(s,i,d) ≔ encode(0,code_error(s,i,d)).                *)
+(*@unicodemath@[[reject(s,i,d) ≔ encode(0,code_error(s,i,d)).]]@*)
 
 Definition reject (stage index detail : nat) : nat :=
   encode STATUS_REJECT (code_error stage index detail).
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                                                              │
-│                                 ERROR STAGES                                 │
-│                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
-*)
+(*@section@[[ERROR STAGES]]@*)
 
-(*
-│
-│          The stage constants partition errors by verifier layer.
-│          Global errors use index `0`; line-local errors use the
-│          current line index.
-│
-*)
+(*@inline@[[The stage constants partition errors by verifier layer. Global errors use index `0`; line-local errors use the current line index.]]@*)
 
 Definition STAGE_DERIVATION_HEADER : nat := 0.
 Definition STAGE_LIST_STRUCTURE : nat := 1.
@@ -123,20 +61,9 @@ Definition STAGE_FORMULA : nat := 4.
 Definition STAGE_RULE : nat := 5.
 Definition STAGE_CONCLUSION : nat := 6.
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                                                              │
-│                             COMMON ERROR DETAILS                             │
-│                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
-*)
+(*@section@[[COMMON ERROR DETAILS]]@*)
 
-(*
-│
-│          Common structural errors are shared by parsers, list
-│          destructors, and the main verifier.
-│
-*)
+(*@inline@[[Common structural errors are shared by parsers, list destructors, and the main verifier.]]@*)
 
 Definition ERR_NONCANONICAL_DERIVATION : nat := 0.
 Definition ERR_BAD_DERIVATION_LENGTH : nat := 1.
@@ -150,36 +77,18 @@ Definition ERR_INDEX_OUT_OF_RANGE : nat := 10.
 Definition ERR_NONCANONICAL_LINE : nat := 11.
 Definition ERR_UNKNOWN_RULE : nat := 13.
 
-(*
-│
-│          `ERR_NORMALIZED_STEP_REJECTED` is reserved for a
-│          well-formed normalized line whose K, S, or MP obligation
-│          fails. Its accompanying index is the first failing line,
-│          unlike arithmetic normalization failures which are reported
-│          at their own input stage.
-│
-*)
+(*@inline@[[`ERR_NORMALIZED_STEP_REJECTED` is reserved for a well-formed normalized line whose K, S, or MP obligation fails. Its accompanying index is the first failing line, unlike arithmetic normalization failures which are reported at their own input stage.]]@*)
 
 Definition ERR_NORMALIZED_STEP_REJECTED : nat := 14.
 
-(*
-│
-│          Formula-parser errors distinguish non-canonical inputs,
-│          non-implication nodes, and malformed implication payloads.
-│
-*)
+(*@inline@[[Formula-parser errors distinguish non-canonical inputs, non-implication nodes, and malformed implication payloads.]]@*)
 
 Definition ERR_NONCANONICAL_FORMULA : nat := 20.
 Definition ERR_BAD_FORMULA_TAG : nat := 21.
 Definition ERR_BAD_IMP_PAYLOAD : nat := 23.
 Definition ERR_NOT_IMP : nat := 24.
 
-(*
-│
-│          K-axiom errors identify the first failed syntactic
-│          obligation in the shape `A -> (B -> A)`.
-│
-*)
+(*@inline@[[K-axiom errors identify the first failed syntactic obligation in the shape `A -> (B -> A)`.]]@*)
 
 Definition ERR_AXK_NOT_IMP_1 : nat := 40.
 Definition ERR_AXK_NOT_IMP_2 : nat := 41.
@@ -187,13 +96,7 @@ Definition ERR_AXK_A_MISMATCH : nat := 42.
 Definition ERR_AXK_BAD_A : nat := 43.
 Definition ERR_AXK_BAD_B : nat := 44.
 
-(*
-│
-│          S-axiom errors identify the first failed syntactic
-│          obligation in the shape `(A -> (B -> C)) -> ((A -> B) -> (A
-│          -> C))`.
-│
-*)
+(*@inline@[[S-axiom errors identify the first failed syntactic obligation in the shape `(A -> (B -> C)) -> ((A -> B) -> (A -> C))`.]]@*)
 
 Definition ERR_AXS_NOT_IMP_1 : nat := 60.
 Definition ERR_AXS_NOT_IMP_2 : nat := 61.
@@ -209,12 +112,7 @@ Definition ERR_AXS_BAD_A : nat := 70.
 Definition ERR_AXS_BAD_B : nat := 71.
 Definition ERR_AXS_BAD_C : nat := 72.
 
-(*
-│
-│          Modus-ponens errors identify malformed citations, malformed
-│          cited lines, and mismatch against the cited implication.
-│
-*)
+(*@inline@[[Modus-ponens errors identify malformed citations, malformed cited lines, and mismatch against the cited implication.]]@*)
 
 Definition ERR_MP_P_NOT_LT_J : nat := 92.
 Definition ERR_MP_Q_NOT_LT_J : nat := 93.
@@ -225,114 +123,52 @@ Definition ERR_MP_Q_NOT_IMP : nat := 97.
 Definition ERR_MP_ANTECEDENT_MISMATCH : nat := 98.
 Definition ERR_MP_CONSEQUENT_MISMATCH : nat := 99.
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                                                              │
-│                              PUBLIC SHAPE TYPES                              │
-│                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
-*)
+(*@section@[[PUBLIC SHAPE TYPES]]@*)
 
-(*
-│
-│          The exported verifier consumes a derivation code and a
-│          target formula code, and returns an A001-coded arithmetic
-│          result.
-│
-*)
+(*@inline@[[The exported verifier consumes a derivation code and a target formula code, and returns an A001-coded arithmetic result.]]@*)
 
 Definition verifier_t : Type := nat -> nat -> nat.
 
-(*
-│
-│          The standalone certificate checker consumes a derivation
-│          code, a target formula code, and a certificate payload, and
-│          returns an executable Boolean.
-│
-*)
+(*@inline@[[The standalone certificate checker consumes a derivation code, a target formula code, and a certificate payload, and returns an executable Boolean.]]@*)
 
 Definition cert_checker_t : Type := nat -> nat -> nat -> bool.
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                                                              │
-│                         A001 CANONICAL DESTRUCTURING                         │
-│                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
-*)
+(*@section@[[A001 CANONICAL DESTRUCTURING]]@*)
 
-(*
-│
-│          `fst001` is the left projection exposed by the certified
-│          A001 decoder. It is a total arithmetic observation, not by
-│          itself a proof that `c` is a genuine pair code.
-│
-*)
+(*@inline@[[`fst001` is the left projection exposed by the certified A001 decoder. It is a total arithmetic observation, not by itself a proof that `c` is a genuine pair code.]]@*)
 
 Definition fst001 (c : nat) : nat :=
   fst (decode c).
 
-(*
-│
-│          `snd001` is the corresponding right projection. Structured
-│          consumers must establish `canonical001b c = true` before
-│          interpreting either projection.
-│
-*)
+(*@inline@[[`snd001` is the corresponding right projection. Structured consumers must establish `canonical001b c = true` before interpreting either projection.]]@*)
 
 Definition snd001 (c : nat) : nat :=
   snd (decode c).
 
-(*
-│
-│          `recode001` sends an arbitrary number to the canonical A001
-│          code of the pair visible through total decoding. It is the
-│          normalization map whose fixed points constitute the
-│          accepted arithmetic representation.
-│
-*)
+(*@inline@[[`recode001` sends an arbitrary number to the canonical A001 code of the pair visible through total decoding. It is the normalization map whose fixed points constitute the accepted arithmetic representation.]]@*)
 
-(*            recode001(c) ≔ encode(π₁(decode(c)), π₂(decode(c))).            *)
+(*@unicodemath@[[recode001(c) ≔ encode(π₁(decode(c)), π₂(decode(c))).]]@*)
 
 Definition recode001 (c : nat) : nat :=
   encode (fst001 c) (snd001 c).
 
-(*
-│
-│          `canonical001b` is the Boolean representation guard. It
-│          distinguishes actual A001 image points from arbitrary
-│          naturals that the total decoder would otherwise silently
-│          normalize.
-│
-*)
+(*@inline@[[`canonical001b` is the Boolean representation guard. It distinguishes actual A001 image points from arbitrary naturals that the total decoder would otherwise silently normalize.]]@*)
 
-(*                canonical001b(c) = true ⇔ recode001(c) = c.                 *)
+(*@unicodemath@[[canonical001b(c) = true ⇔ recode001(c) = c.]]@*)
 
 Definition canonical001b (c : nat) : bool :=
   Nat.eqb (recode001 c) c.
 
-(*
-│
-│          `is_pair001b c a b` combines the fixed-point guard with
-│          exact equality of both decoded coordinates. It is the
-│          strongest local test used for constructor-specific nodes
-│          such as the unique nil node.
-│
-*)
+(*@inline@[[`is_pair001b c a b` combines the fixed-point guard with exact equality of both decoded coordinates. It is the strongest local test used for constructor-specific nodes such as the unique nil node.]]@*)
 
-(* is_pair001b(c,a,b) = canonical001b(c) ∧? (fst001(c)=?a) ∧? (snd001(c)=?b). *)
+(*@unicodemath@[[is_pair001b(c,a,b) = canonical001b(c) ∧? (fst001(c)=?a) ∧? (snd001(c)=?b).]]@*)
 
 Definition is_pair001b (c a b : nat) : bool :=
   canonical001b c
   && Nat.eqb (fst001 c) a
   && Nat.eqb (snd001 c) b.
 
-(*
-│
-│          The left projection law transports A001's certified
-│          roundtrip theorem to the local wrapper vocabulary.
-│
-*)
+(*@inline@[[The left projection law transports A001's certified roundtrip theorem to the local wrapper vocabulary.]]@*)
 
 Lemma fst001_encode :
   forall a b, fst001 (encode a b) = a.
@@ -343,12 +179,7 @@ Proof.
   reflexivity.
 Qed.
 
-(*
-│
-│          The right projection law is the second coordinate of the
-│          same certified A001 roundtrip.
-│
-*)
+(*@inline@[[The right projection law is the second coordinate of the same certified A001 roundtrip.]]@*)
 
 Lemma snd001_encode :
   forall a b, snd001 (encode a b) = b.
@@ -359,13 +190,7 @@ Proof.
   reflexivity.
 Qed.
 
-(*
-│
-│          Every value constructed with `encode` is a fixed point of
-│          `recode001`, hence passes the canonical representation
-│          guard.
-│
-*)
+(*@inline@[[Every value constructed with `encode` is a fixed point of `recode001`, hence passes the canonical representation guard.]]@*)
 
 Lemma canonical001b_encode :
   forall a b, canonical001b (encode a b) = true.
@@ -377,12 +202,7 @@ Proof.
   apply Nat.eqb_refl.
 Qed.
 
-(*
-│
-│          Freshly encoded coordinates pass the combined
-│          canonical-and-projection test exactly.
-│
-*)
+(*@inline@[[Freshly encoded coordinates pass the combined canonical-and-projection test exactly.]]@*)
 
 Lemma is_pair001b_encode :
   forall a b, is_pair001b (encode a b) a b = true.
@@ -396,13 +216,7 @@ Proof.
   reflexivity.
 Qed.
 
-(*
-│
-│          A successful Boolean canonicity check reflects to the
-│          propositional fixed-point equation required by later
-│          representation proofs.
-│
-*)
+(*@inline@[[A successful Boolean canonicity check reflects to the propositional fixed-point equation required by later representation proofs.]]@*)
 
 Lemma canonical001b_eq :
   forall c,
@@ -415,13 +229,7 @@ Proof.
   exact Hc.
 Qed.
 
-(*
-│
-│          Successful exact pair recognition reflects all three
-│          obligations: outer canonicity and equality of both exposed
-│          coordinates.
-│
-*)
+(*@inline@[[Successful exact pair recognition reflects all three obligations: outer canonicity and equality of both exposed coordinates.]]@*)
 
 Lemma is_pair001b_sound :
   forall c a b,
@@ -440,128 +248,63 @@ Proof.
   - apply Nat.eqb_eq. exact Hsnd.
 Qed.
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                                                              │
-│                                 TAGGED LISTS                                 │
-│                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
-*)
+(*@section@[[TAGGED LISTS]]@*)
 
-(*
-│
-│          Arithmetic lists use disjoint outer tags: `0` for nil and
-│          `1` for cons. The cons payload is itself a canonical A001
-│          pair containing head and tail codes.
-│
-*)
+(*@inline@[[Arithmetic lists use disjoint outer tags: `0` for nil and `1` for cons. The cons payload is itself a canonical A001 pair containing head and tail codes.]]@*)
 
 Definition TAG_NIL : nat := 0.
 Definition TAG_CONS : nat := 1.
 
-(*
-│
-│          `code_nil` is the unique canonical empty-list node; fixing
-│          its payload to zero rules out alternate encodings of nil.
-│
-*)
+(*@inline@[[`code_nil` is the unique canonical empty-list node; fixing its payload to zero rules out alternate encodings of nil.]]@*)
 
-(*                          code_nil ≔ encode(0,0).                           *)
+(*@unicodemath@[[code_nil ≔ encode(0,0).]]@*)
 
 Definition code_nil : nat :=
   encode TAG_NIL 0.
 
-(*
-│
-│          `code_cons h t` nests the head/tail pair beneath the cons
-│          tag. At this raw constructor boundary `t` is merely a
-│          number; bounded list recognition validates the chain
-│          separately.
-│
-*)
+(*@inline@[[`code_cons h t` nests the head/tail pair beneath the cons tag. At this raw constructor boundary `t` is merely a number; bounded list recognition validates the chain separately.]]@*)
 
-(*                  code_cons(h,t) ≔ encode(1, encode(h,t)).                  *)
+(*@unicodemath@[[code_cons(h,t) ≔ encode(1, encode(h,t)).]]@*)
 
 Definition code_cons (h t : nat) : nat :=
   encode TAG_CONS (encode h t).
 
-(*
-│
-│          A derivation header records a claimed list length and the
-│          arithmetic code of its line body. Exact agreement between
-│          the claim and body is checked before verification begins.
-│
-*)
+(*@inline@[[A derivation header records a claimed list length and the arithmetic code of its line body. Exact agreement between the claim and body is checked before verification begins.]]@*)
 
-(*                 code_derivation(n,body) ≔ encode(n,body).                  *)
+(*@unicodemath@[[code_derivation(n,body) ≔ encode(n,body).]]@*)
 
 Definition code_derivation (n body : nat) : nat :=
   encode n body.
 
-(*
-│
-│          `list_tag` reads the outer constructor tag. Its value is
-│          interpreted only on branches where the enclosing node has
-│          passed `canonical001b`.
-│
-*)
+(*@inline@[[`list_tag` reads the outer constructor tag. Its value is interpreted only on branches where the enclosing node has passed `canonical001b`.]]@*)
 
 Definition list_tag (body : nat) : nat :=
   fst001 body.
 
-(*
-│
-│          `list_payload` reads the outer constructor payload under
-│          the same guarded-destructuring discipline.
-│
-*)
+(*@inline@[[`list_payload` reads the outer constructor payload under the same guarded-destructuring discipline.]]@*)
 
 Definition list_payload (body : nat) : nat :=
   snd001 body.
 
-(*
-│
-│          Nil recognition requires the complete canonical pair
-│          `(TAG_NIL,0)`, not merely a decoded zero tag.
-│
-*)
+(*@inline@[[Nil recognition requires the complete canonical pair `(TAG_NIL,0)`, not merely a decoded zero tag.]]@*)
 
 Definition is_nil_nodeb (body : nat) : bool :=
   is_pair001b body TAG_NIL 0.
 
-(*
-│
-│          Cons recognition checks only the canonical outer node and
-│          its tag. The nested head/tail payload is checked
-│          independently by `cons_payloadb`.
-│
-*)
+(*@inline@[[Cons recognition checks only the canonical outer node and its tag. The nested head/tail payload is checked independently by `cons_payloadb`.]]@*)
 
 Definition is_cons_nodeb (body : nat) : bool :=
   canonical001b body && Nat.eqb (list_tag body) TAG_CONS.
 
-(*
-│
-│          A cons payload is admissible exactly when it is itself a
-│          canonical A001 pair, ensuring that head and tail
-│          projections are not taken from a non-image code.
-│
-*)
+(*@inline@[[A cons payload is admissible exactly when it is itself a canonical A001 pair, ensuring that head and tail projections are not taken from a non-image code.]]@*)
 
 Definition cons_payloadb (payload : nat) : bool :=
   canonical001b payload.
 
-(*
-│
-│          `list_exact_lengthb n body` consumes exactly `n` canonical
-│          cons nodes and then requires the unique nil node. The
-│          claimed derivation length therefore supplies both the
-│          traversal bound and the exact-shape specification.
-│
-*)
+(*@inline@[[`list_exact_lengthb n body` consumes exactly `n` canonical cons nodes and then requires the unique nil node. The claimed derivation length therefore supplies both the traversal bound and the exact-shape specification.]]@*)
 
-(*               list_exact_lengthb(0,body)=is_nil_nodeb(body).               *)
-(*         list_exact_lengthb(n+1,cons(h,t))=list_exact_lengthb(n,t).         *)
+(*@unicodemath@[[list_exact_lengthb(0,body)=is_nil_nodeb(body).]]@*)
+(*@unicodemath@[[list_exact_lengthb(n+1,cons(h,t))=list_exact_lengthb(n,t).]]@*)
 
 Fixpoint list_exact_lengthb (n body : nat) : bool :=
   match n with
@@ -577,14 +320,7 @@ Fixpoint list_exact_lengthb (n body : nat) : bool :=
       else false
   end.
 
-(*
-│
-│          `nth_list_fuel fuel body i` performs guarded zero-based
-│          indexing. Every recursive step consumes one unit of fuel
-│          and one cons cell; all structural failures are returned
-│          through the uniform arithmetic rejection channel.
-│
-*)
+(*@inline@[[`nth_list_fuel fuel body i` performs guarded zero-based indexing. Every recursive step consumes one unit of fuel and one cons cell; all structural failures are returned through the uniform arithmetic rejection channel.]]@*)
 
 Fixpoint nth_list_fuel (fuel body i : nat) : nat :=
   match fuel with
@@ -611,23 +347,12 @@ Fixpoint nth_list_fuel (fuel body i : nat) : nat :=
         reject STAGE_LIST_STRUCTURE i ERR_NONCANONICAL_NODE
   end.
 
-(*
-│
-│          `nth_list` supplies the tight structural budget `S i`:
-│          locating index `i` requires inspection of at most `i+1`
-│          cons nodes.
-│
-*)
+(*@inline@[[`nth_list` supplies the tight structural budget `S i`: locating index `i` requires inspection of at most `i+1` cons nodes.]]@*)
 
 Definition nth_list (body i : nat) : nat :=
   nth_list_fuel (S i) body i.
 
-(*
-│
-│          The canonical empty-list constructor satisfies the nil
-│          recognizer.
-│
-*)
+(*@inline@[[The canonical empty-list constructor satisfies the nil recognizer.]]@*)
 
 Lemma is_nil_nodeb_code_nil :
   is_nil_nodeb code_nil = true.
@@ -636,13 +361,7 @@ Proof.
   apply is_pair001b_encode.
 Qed.
 
-(*
-│
-│          Every constructed cons cell satisfies the canonical
-│          outer-node and tag test, independently of whether its tail
-│          later forms a complete list.
-│
-*)
+(*@inline@[[Every constructed cons cell satisfies the canonical outer-node and tag test, independently of whether its tail later forms a complete list.]]@*)
 
 Lemma is_cons_nodeb_code_cons :
   forall h t, is_cons_nodeb (code_cons h t) = true.
@@ -654,12 +373,7 @@ Proof.
   apply Nat.eqb_refl.
 Qed.
 
-(*
-│
-│          The unique nil constructor is recognized as a list of exact
-│          length zero.
-│
-*)
+(*@inline@[[The unique nil constructor is recognized as a list of exact length zero.]]@*)
 
 Lemma list_exact_lengthb_code_nil :
   list_exact_lengthb 0 code_nil = true.
@@ -668,12 +382,7 @@ Proof.
   apply is_nil_nodeb_code_nil.
 Qed.
 
-(*
-│
-│          Prepending a constructed cons cell transports exact-length
-│          recognition from `n` to `S n`.
-│
-*)
+(*@inline@[[Prepending a constructed cons cell transports exact-length recognition from `n` to `S n`.]]@*)
 
 Lemma list_exact_lengthb_code_cons :
   forall n h t,
@@ -692,12 +401,7 @@ Proof.
   exact Hlen.
 Qed.
 
-(*
-│
-│          Index zero of a constructed cons cell returns its head
-│          whenever at least one unit of fuel is available.
-│
-*)
+(*@inline@[[Index zero of a constructed cons cell returns its head whenever at least one unit of fuel is available.]]@*)
 
 Lemma nth_list_fuel_code_cons_zero :
   forall fuel h t,
@@ -715,13 +419,7 @@ Proof.
   reflexivity.
 Qed.
 
-(*
-│
-│          Successor indexing through a constructed cons cell removes
-│          that cell, decrements the requested index, and continues
-│          with the remaining fuel.
-│
-*)
+(*@inline@[[Successor indexing through a constructed cons cell removes that cell, decrements the requested index, and continues with the remaining fuel.]]@*)
 
 Lemma nth_list_fuel_code_cons_succ :
   forall fuel h t i,
@@ -740,86 +438,41 @@ Proof.
   reflexivity.
 Qed.
 
-(*
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                                                              │
-│                                FORMULA SYNTAX                                │
-│                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
-*)
+(*@section@[[FORMULA SYNTAX]]@*)
 
-(*
-│
-│          The arithmetic object language has two disjoint outer tags:
-│          variables carry tag `0`, while implications carry tag `1`
-│          and a nested antecedent/consequent pair.
-│
-*)
+(*@inline@[[The arithmetic object language has two disjoint outer tags: variables carry tag `0`, while implications carry tag `1` and a nested antecedent/consequent pair.]]@*)
 
 Definition TAG_VAR : nat := 0.
 Definition TAG_IMP : nat := 1.
 
-(*
-│
-│          `code_var i` represents the object-language variable with
-│          numerical index `i`. Every natural payload is a valid
-│          variable name.
-│
-*)
+(*@inline@[[`code_var i` represents the object-language variable with numerical index `i`. Every natural payload is a valid variable name.]]@*)
 
-(*                         code_var(i) ≔ encode(0,i).                         *)
+(*@unicodemath@[[code_var(i) ≔ encode(0,i).]]@*)
 
 Definition code_var (i : nat) : nat :=
   encode TAG_VAR i.
 
-(*
-│
-│          `code_imp a b` represents implication by storing the
-│          canonical pair `(a,b)` beneath the implication tag.
-│          Well-formedness of the two component codes is a separate
-│          recursive obligation.
-│
-*)
+(*@inline@[[`code_imp a b` represents implication by storing the canonical pair `(a,b)` beneath the implication tag. Well-formedness of the two component codes is a separate recursive obligation.]]@*)
 
-(*                  code_imp(a,b) ≔ encode(1, encode(a,b)).                   *)
+(*@unicodemath@[[code_imp(a,b) ≔ encode(1, encode(a,b)).]]@*)
 
 Definition code_imp (a b : nat) : nat :=
   encode TAG_IMP (encode a b).
 
-(*
-│
-│          `formula_tag` reads the outer formula constructor exposed
-│          by A001 decoding; callers interpret it only after checking
-│          outer canonicity.
-│
-*)
+(*@inline@[[`formula_tag` reads the outer formula constructor exposed by A001 decoding; callers interpret it only after checking outer canonicity.]]@*)
 
 Definition formula_tag (c : nat) : nat :=
   fst001 c.
 
-(*
-│
-│          `formula_payload` reads the variable index or implication
-│          payload selected by the guarded outer tag.
-│
-*)
+(*@inline@[[`formula_payload` reads the variable index or implication payload selected by the guarded outer tag.]]@*)
 
 Definition formula_payload (c : nat) : nat :=
   snd001 c.
 
-(*
-│
-│          `is_formula_fuel fuel c` is bounded structural recognition
-│          for arithmetic formula trees. Variables terminate
-│          immediately; implications consume one unit of fuel and
-│          require a canonical component pair whose two children both
-│          normalize recursively.
-│
-*)
+(*@inline@[[`is_formula_fuel fuel c` is bounded structural recognition for arithmetic formula trees. Variables terminate immediately; implications consume one unit of fuel and require a canonical component pair whose two children both normalize recursively.]]@*)
 
-(*                 is_formula_fuel(S f, code_var(i)) = true.                  *)
-(*       is_formula_fuel(S f, code_imp(a,b)) = is_formula_fuel(f,a) ∧?        *)
-(*                           is_formula_fuel(f,b).                            *)
+(*@unicodemath@[[is_formula_fuel(S f, code_var(i)) = true.]]@*)
+(*@unicodemath@[[is_formula_fuel(S f, code_imp(a,b)) = is_formula_fuel(f,a) ∧? is_formula_fuel(f,b).]]@*)
 
 Fixpoint is_formula_fuel (fuel c : nat) : bool :=
   match fuel with
@@ -839,38 +492,19 @@ Fixpoint is_formula_fuel (fuel c : nat) : bool :=
       else false
   end.
 
-(*
-│
-│          `formula_bound c = S c` supplies a total arithmetic fuel
-│          budget without requiring a separate size field in the
-│          encoded syntax. The later inductive normalization layer
-│          avoids computing with this large numerical bound.
-│
-*)
+(*@inline@[[`formula_bound c = S c` supplies a total arithmetic fuel budget without requiring a separate size field in the encoded syntax. The later inductive normalization layer avoids computing with this large numerical bound.]]@*)
 
 Definition formula_bound (c : nat) : nat :=
   S c.
 
-(*
-│
-│          `is_formula` is the total arithmetic recognizer obtained by
-│          instantiating the bounded descent with `formula_bound`.
-│
-*)
+(*@inline@[[`is_formula` is the total arithmetic recognizer obtained by instantiating the bounded descent with `formula_bound`.]]@*)
 
 Definition is_formula (c : nat) : bool :=
   is_formula_fuel (formula_bound c) c.
 
-(*
-│
-│          `parse_imp phi` performs only the guarded outer-shape
-│          inversion needed by rule checkers. On success it returns
-│          the canonical antecedent/consequent payload; it does not
-│          recursively certify the two formulas.
-│
-*)
+(*@inline@[[`parse_imp phi` performs only the guarded outer-shape inversion needed by rule checkers. On success it returns the canonical antecedent/consequent payload; it does not recursively certify the two formulas.]]@*)
 
-(*              parse_imp(code_imp(a,b)) = accept(encode(a,b)).               *)
+(*@unicodemath@[[parse_imp(code_imp(a,b)) = accept(encode(a,b)).]]@*)
 
 Definition parse_imp (phi : nat) : nat :=
   if canonical001b phi then
@@ -886,14 +520,7 @@ Definition parse_imp (phi : nat) : nat :=
   else
     reject STAGE_FORMULA 0 ERR_NONCANONICAL_FORMULA.
 
-(*
-│
-│          `parse_formula_diagnostic` lifts total formula recognition
-│          into the uniform arithmetic result convention, returning
-│          the original code on success and a formula-stage diagnostic
-│          on failure.
-│
-*)
+(*@inline@[[`parse_formula_diagnostic` lifts total formula recognition into the uniform arithmetic result convention, returning the original code on success and a formula-stage diagnostic on failure.]]@*)
 
 Definition parse_formula_diagnostic (phi : nat) : nat :=
   if is_formula phi then
@@ -901,12 +528,7 @@ Definition parse_formula_diagnostic (phi : nat) : nat :=
   else
     reject STAGE_FORMULA 0 ERR_BAD_FORMULA_TAG.
 
-(*
-│
-│          Every constructed variable is accepted by bounded formula
-│          recognition for any positive fuel budget.
-│
-*)
+(*@inline@[[Every constructed variable is accepted by bounded formula recognition for any positive fuel budget.]]@*)
 
 Lemma is_formula_fuel_var :
   forall fuel i,
@@ -923,12 +545,7 @@ Proof.
   reflexivity.
 Qed.
 
-(*
-│
-│          The total wrapper recognizes every constructed variable by
-│          specializing the positive-fuel lemma to `formula_bound`.
-│
-*)
+(*@inline@[[The total wrapper recognizes every constructed variable by specializing the positive-fuel lemma to `formula_bound`.]]@*)
 
 Lemma is_formula_var :
   forall i, is_formula (code_var i) = true.
@@ -939,14 +556,7 @@ Proof.
   lia.
 Qed.
 
-(*
-│
-│          If both children are recognized with fuel `f`, their
-│          implication is recognized with one additional step. This is
-│          the structural constructor rule used when relating
-│          arithmetic syntax to inductive normal forms.
-│
-*)
+(*@inline@[[If both children are recognized with fuel `f`, their implication is recognized with one additional step. This is the structural constructor rule used when relating arithmetic syntax to inductive normal forms.]]@*)
 
 Lemma is_formula_fuel_imp :
   forall fuel a b,
@@ -969,13 +579,7 @@ Proof.
   - rewrite snd001_encode. exact Hb.
 Qed.
 
-(*
-│
-│          Guarded implication parsing is a left inverse of the
-│          arithmetic implication constructor: the original canonical
-│          child pair is recovered exactly.
-│
-*)
+(*@inline@[[Guarded implication parsing is a left inverse of the arithmetic implication constructor: the original canonical child pair is recovered exactly.]]@*)
 
 Lemma parse_imp_code_imp :
   forall a b, parse_imp (code_imp a b) = accept (encode a b).
