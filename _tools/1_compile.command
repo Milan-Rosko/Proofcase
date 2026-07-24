@@ -54,6 +54,9 @@ COQ_MAKEFILE="$(command -v coq_makefile || true)"
 COQC="$(command -v coqc || true)"
 COQDEP_BIN="$(command -v coqdep || true)"
 MAKE_BIN="$(command -v gnumake || command -v make || true)"
+COQ_MAKEFILE_SUBCOMMAND=()
+COQC_SUBCOMMAND=()
+COQDEP_SUBCOMMAND=()
 
 # If tools are not in PATH (common when opam env is not loaded), try OPAM's bin dir.
 if [[ -z "${COQ_MAKEFILE}" || -z "${COQC}" || -z "${COQDEP_BIN}" ]]; then
@@ -63,6 +66,29 @@ if [[ -z "${COQ_MAKEFILE}" || -z "${COQC}" || -z "${COQDEP_BIN}" ]]; then
       [[ -z "${COQ_MAKEFILE}" && -x "${OPAM_BIN}/coq_makefile" ]] && COQ_MAKEFILE="${OPAM_BIN}/coq_makefile"
       [[ -z "${COQC}" && -x "${OPAM_BIN}/coqc" ]] && COQC="${OPAM_BIN}/coqc"
       [[ -z "${COQDEP_BIN}" && -x "${OPAM_BIN}/coqdep" ]] && COQDEP_BIN="${OPAM_BIN}/coqdep"
+    fi
+  fi
+fi
+
+# Rocq 9 may install only the unified `rocq` driver. Use its subcommands when
+# the legacy standalone binaries are absent.
+if [[ -z "${COQ_MAKEFILE}" || -z "${COQC}" || -z "${COQDEP_BIN}" ]]; then
+  ROCQ_BIN="$(command -v rocq || true)"
+  if [[ -z "${ROCQ_BIN}" && -x "${HOME}/.opam/default/bin/rocq" ]]; then
+    ROCQ_BIN="${HOME}/.opam/default/bin/rocq"
+  fi
+  if [[ -n "${ROCQ_BIN}" ]]; then
+    if [[ -z "${COQ_MAKEFILE}" ]]; then
+      COQ_MAKEFILE="${ROCQ_BIN}"
+      COQ_MAKEFILE_SUBCOMMAND=(makefile)
+    fi
+    if [[ -z "${COQC}" ]]; then
+      COQC="${ROCQ_BIN}"
+      COQC_SUBCOMMAND=(compile)
+    fi
+    if [[ -z "${COQDEP_BIN}" ]]; then
+      COQDEP_BIN="${ROCQ_BIN}"
+      COQDEP_SUBCOMMAND=(dep)
     fi
   fi
 fi
@@ -196,16 +222,17 @@ rm -rf \
   "output/theories/L001/_appendix/_assumptions" \
   "output/theories/L001/_appendix/_assumptions_classical" \
   "output/theories/L001/_appendix/_assumptions_constructive" \
-  "output/theories/L002/_appendix/_assumptions"
+  "output/theories/L002/_appendix/_assumptions" \
+  "output/theories/L003/_appendix/_assumptions"
 
 # -----------------------------------------------------------------------------
 # Build
 # -----------------------------------------------------------------------------
-"${COQ_MAKEFILE}" -f "_CoqProject" -o "Makefile.coq" | tee -a "${BUILD_LOG}"
+"${COQ_MAKEFILE}" "${COQ_MAKEFILE_SUBCOMMAND[@]}" -f "_CoqProject" -o "Makefile.coq" | tee -a "${BUILD_LOG}"
 
 # Pre-generate dependency graph to avoid intermittent missing-rule failures
 # for .Makefile.coq.d in some make/loadpath states.
-"${COQDEP_BIN}" -vos -dyndep var -f "_CoqProject" > ".Makefile.coq.d"
+"${COQDEP_BIN}" "${COQDEP_SUBCOMMAND[@]}" -vos -dyndep var -f "_CoqProject" > ".Makefile.coq.d"
 
 if [ "${CLEAN}" = "1" ]; then
   "${MAKE_BIN}" -f Makefile.coq clean | tee -a "${BUILD_LOG}"
@@ -400,6 +427,61 @@ if [[ "${L002_ASSUMPTION_GUARD_ENABLED}" = "1" ]]; then
 fi
 
 # -----------------------------------------------------------------------------
+# Constructive L003 assumption-report guard
+# -----------------------------------------------------------------------------
+L003_CONSTRUCTIVE_ASSUMPTIONS="output/theories/L003/_appendix/_assumptions"
+L003_ARTIFACT_SOURCE="${SHADOW}/theories/L003/L003_97_Artifacts.v"
+L003_REQUIRED_CONSTRUCTIVE_REPORTS=(
+  "evaluator_relative_nonclosure"
+  "no_total_evaluator_on_diagonally_closed_domain"
+  "indexed_self_checking_does_not_supply_binding"
+  "compiled_countermachine_correct"
+  "concrete_evaluator_relative_nonclosure"
+  "l003_core_qed"
+)
+L003_ASSUMPTION_GUARD_ENABLED=0
+if grep -Eq '(^|[[:space:]])theories/L003/L003_97_Artifacts\.v([[:space:]]|$)' "${COQPROJECT_SHADOW}"; then
+  L003_ASSUMPTION_GUARD_ENABLED=1
+fi
+
+l003_assumption_reports_present() {
+  for report in "${L003_REQUIRED_CONSTRUCTIVE_REPORTS[@]}"; do
+    if [[ ! -s "${L003_CONSTRUCTIVE_ASSUMPTIONS}/${report}.out" ]]; then
+      return 1
+    fi
+  done
+  return 0
+}
+
+if [[ "${L003_ASSUMPTION_GUARD_ENABLED}" = "1" ]]; then
+  if ! l003_assumption_reports_present; then
+    if [[ -f "${L003_ARTIFACT_SOURCE}" ]]; then
+      touch "${L003_ARTIFACT_SOURCE}"
+      "${MAKE_BIN}" -f Makefile.coq -j "${JOBS}" \
+        "theories/L003/L003_97_Artifacts.vo" | tee -a "${BUILD_LOG}"
+    fi
+  fi
+
+  for report in "${L003_REQUIRED_CONSTRUCTIVE_REPORTS[@]}"; do
+    if [[ ! -s "${L003_CONSTRUCTIVE_ASSUMPTIONS}/${report}.out" ]]; then
+      echo "Missing or empty constructive L003 assumption report: ${L003_CONSTRUCTIVE_ASSUMPTIONS}/${report}.out" | tee -a "${BUILD_LOG}"
+      exit 1
+    fi
+  done
+
+  if grep -R \
+    -e "^Axioms:" \
+    -e "ClassicalEpsilon" \
+    -e "constructive_indefinite_description" \
+    -e "excluded_middle" \
+    -e "classic" \
+    "${L003_CONSTRUCTIVE_ASSUMPTIONS}" | tee -a "${BUILD_LOG}"; then
+    echo "Constructive L003 assumption reports contain forbidden classical or axiom dependencies." | tee -a "${BUILD_LOG}"
+    exit 1
+  fi
+fi
+
+# -----------------------------------------------------------------------------
 # M001 extracted-artifact freshness guard
 # -----------------------------------------------------------------------------
 M001_ARTIFACT_GUARD_ENABLED=0
@@ -484,7 +566,7 @@ fi
   echo "                    Date (UTC): $UTC_NOW,"
   echo
   if [ -n "${COQC}" ]; then
-  echo "                   Rocq version: $(${COQC} --version 2>/dev/null | head -n 1)"
+  echo "                   Rocq version: $("${COQC}" "${COQC_SUBCOMMAND[@]}" --version 2>/dev/null | head -n 1)"
   echo "              _CoqProject source: ${ORIGIN}"
   echo "                _CoqProject path: ${COQPROJ}"
   if [ "${CACHE}" = "1" ]; then

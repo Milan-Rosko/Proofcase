@@ -85,7 +85,7 @@
       fixed-point implications + one local branch
                          │
                          ▼
-              local_branch_collapse
+               local_branch_collapse
                          │
                          ▼
                        C Bot

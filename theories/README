@@ -5,10 +5,11 @@
 
     This directory contains the formal theory packages of Proofcase Export.
     Packages are named by contribution class and a three-digit sequence number.
-    The current tree has two independent dependency branches:
+    The current tree has three independent dependency branches:
 
       arithmetic serialization:  A001 -> A002
       regulator metatheory:       M001 -> L001 -> L002
+      evaluator nonclosure:       L003
 
     Each package is a sequential Rocq development with a stable API boundary,
     an explicit reading contract, and late-stage certification or extraction
@@ -100,18 +101,19 @@
 5 - Dependency Tree
     ---------------
 
-                          Stdlib
-                        ┌───┴───┐
-                        ▼       ▼
-                       A001    M001
-                        ▼       ▼
-                       A002    L001
+                              Stdlib
+                         ┌──────┼──────┐
+                         ▼      ▼      ▼
+                        A001   M001   L003
+                         ▼      ▼
+                        A002   L001
                                 ▼
                                L002
 
     A001/A002 form the arithmetic and serialized-checker branch. M001/L001/L002
-    form the regulator, fixed-point, and mirror branch. No dependency currently
-    crosses between these branches.
+    form the regulator, fixed-point, and mirror branch. L003 is the independent
+    evaluator-relative nonclosure branch. No dependency currently crosses
+    between these branches.
 
 
 6 - Package Index
@@ -144,6 +146,12 @@
       one-way mirror positions, with finite recursive transport and optional
       operational interfaces.
 
+    L003  TURING-ZOMBIE
+
+      Constructive evaluator-relative nonclosure under an explicit diagonal
+      compiler law, with an internal compiled semantics and a minimal
+      assigned-label/active-label separation.
+
 
 7 - Import and Artifact Policy
     --------------------------
@@ -155,6 +163,7 @@
       From M001 Require Import M001_95_API.
       From L001 Require Import L001_95_API.
       From L002 Require Import L002_95_API.
+      From L003 Require Import L003_95_API.
 
     `_appendix/_assumptions/` contains redirected assumption reports.
     `_appendix/_artifacts/` contains extracted or generated deliverables.

@@ -72,3 +72,15 @@
 	theories/L002/L002_95_API.v
 	theories/L002/L002_97_Artifacts.v
 	theories/L002/L002_98_Sanity.v
+
+# Logic Contribution: TURING-ZOMBIE
+
+-Q theories/L003 L003
+
+	theories/L003/L003_00_Premises.v
+	theories/L003/L003_01__Binary_Evaluation.v
+	theories/L003/L003_02__Evaluator_Relative_Nonclosure.v
+	theories/L003/L003_03__Compiled_Countermachine.v
+	theories/L003/L003_04__Indexed_Judgment.v
+	theories/L003/L003_95_API.v
+	theories/L003/L003_97_Artifacts.v

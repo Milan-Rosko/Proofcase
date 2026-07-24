@@ -1,0 +1,269 @@
+(* README *)
+
+1 - Summary
+    -------
+
+    L003 formalizes TURING-ZOMBIE, a constructive evaluator-relative
+    nonclosure theorem. Given a total binary evaluator `h` that is correct on a
+    code domain `C`, and a diagonal compiler satisfying its stated operational
+    law, the compiler product of `h` cannot itself belong to `C`:
+
+      evaluator_relative_nonclosure :
+        CompilerCorrect out halt query diagonal ->
+        EvalC out halt query C h ->
+        ~ C (diagonal h)
+
+    A domain containing the diagonal product of every evaluator correct on
+    that domain therefore admits no such evaluator:
+
+      no_total_evaluator_on_diagonally_closed_domain :
+        CompilerCorrect out halt query diagonal ->
+        EvaluatorDiagonalClosure out halt query diagonal C ->
+        ~ exists h, EvalC out halt query C h
+
+    The package also supplies an even/odd compiled semantics satisfying the
+    compiler law and a minimal indexed-label model separating successful token
+    checking from active-evaluator binding.
+
+
+2 - Reading Contract
+    ----------------
+
+    Codes, inputs, and outputs are natural numbers. `OutputRelation` and
+    `HaltingRelation` are arbitrary propositions supplied to the abstract
+    theorem. L003 does not assume or construct a universal machine.
+
+    `Tot2 out h` states that every query has exactly one output satisfying
+    `BinaryOutput`, hence exactly one distinguished verdict among `0` and `1`.
+    It does not prohibit `out` from relating the same query to values greater
+    than `1`; those values lie outside the binary contract and play no role in
+    the proof.
+
+    `EvalC out halt query C h` combines binary totality with correctness on the
+    selected domain `C`. For `e` in `C`, verdict `1` is equivalent to halting of
+    `e`; the binary lemmas derive verdict `0` as its constructive complement.
+
+    `CompilerCorrect` is an explicit premise in the abstract theorem. It says
+    that, when `h` is total binary, `diagonal h` halts on `x` exactly when `h`
+    emits verdict `0` on the doubled query `(x,x)`. The theorem certifies the
+    consequence of this law; it does not infer the law from the name
+    “compiler”.
+
+    `L003_03__Compiled_Countermachine` supplies one internal semantics in which
+    even numbers label transported base outputs and odd numbers label diagonal
+    products. “Countermachine” denotes this relational construction. The file
+    does not define a conventional instruction set, transition system,
+    universal interpreter, or verified translation into an independently
+    specified machine model. No concrete `EvalC` witness is constructed.
+
+    The indexed-judgment layer is deliberately minimal. It separates an
+    assigned code from an active-evaluator code using a record and equality
+    predicates. Its countermodel proves that assigned-label checking does not
+    generally entail active-label binding. It is not a complete semantics of
+    reduction, type checking, execution, or process identity.
+
+    All results are constructive. The package proves conditional nonclosure,
+    not an unconditional impossibility of machine self-reference and not a
+    replacement for the classical halting theorem over a standard machine
+    enumeration.
+
+
+3 - State
+    -----
+
+                      ┌──────────────────────────────────┐
+                      │                 x                │
+                      │   └─┴─┴─┴─┴─┴─┴─┴─┴─┴─┘ 7 / 10   │
+                      └──────────────────────────────────┘
+
+    Evaluation: 7, Serviceable. Mechanized, constructive, documented, and
+    accompanied by closed assumption reports. The concrete semantics is an
+    intentionally small relational model rather than a conventional verified
+    machine implementation. Not fully peer reviewed.
+
+
+4 - Intuition
+    ---------
+
+    A total binary evaluator `h` assigns one of two distinguished verdicts to
+    every coded query:
+
+                            ┌───────────┐
+      query(e, x) ─────────▶│ evaluator │─────────▶ 0 or 1
+                            │     h     │
+                            └───────────┘
+
+    On the claimed correctness domain `C`, verdict `1` means that `e` halts on
+    `x`. A correct diagonal compiler constructs a code `diagonal h` whose
+    halting behavior follows the opposite verdict produced by `h` on the
+    doubled query:
+
+      halt(diagonal h, x)
+        <-> out(h, query(x, x), 0).
+
+    Suppose the compiled code belonged to `C`. Query the evaluator about that
+    code running on itself:
+
+      out(h, query(diagonal h, diagonal h), 1)
+        <-> halt(diagonal h, diagonal h)       correctness on C
+        <-> out(h, query(diagonal h, diagonal h), 0)
+                                                compiler correctness
+        <-> ~ out(h, query(diagonal h, diagonal h), 1).
+                                                exact binary totality
+
+    This would make verdict `1` equivalent to its own negation. Constructively,
+    that is impossible. The assumption `C (diagonal h)` must therefore be
+    rejected.
+
+    The compiled semantics realizes the required compiler behavior by using
+    disjoint code bands:
+
+      base machine n       ├─▶ 2*n       even code
+      diagonal product h   ├─▶ 2*h + 1   odd code
+
+    An odd product emits `0` precisely when its source evaluator emits `0` on
+    the doubled query. This makes `CompilerCorrect` immediate for the internal
+    relation while keeping the scope of the construction explicit.
+
+    The indexed-label branch addresses a separate identification issue:
+
+      assigned_self_code = token result        always checks
+      active_evaluator   = token result        additional binding premise
+
+    Configuration `(active = 0, assigned = 1)` shows that the first equality
+    does not supply the second. If binding is supplied explicitly, the bound
+    evaluator remains subject to the same relative nonclosure theorem.
+
+
+5 - Dependency Tree
+    ---------------
+
+    Stdlib
+      ▼
+    L003_00_Premises
+      ▼
+    L003_01__Binary_Evaluation
+      ▼
+    L003_02__Evaluator_Relative_Nonclosure
+      ├──────────────────────────────┐
+      ▼                              ▼
+    L003_03__Compiled_Countermachine L003_04__Indexed_Judgment
+      └──────────────────────────────┤
+                                     ▼
+                               L003_95_API
+                                     ▼
+                               L003_97_Artifacts
+
+    L003 is independent of the A001/A002 arithmetic branch and the
+    M001/L001/L002 regulator-metatheory branch.
+
+
+6 - File Guide
+    ----------
+
+    L003_00_Premises.v
+
+      Shared relational vocabulary and abstract hypotheses. Defines `Tot2`,
+      `EvalC`, `CompilerCorrect`, and `EvaluatorDiagonalClosure`.
+
+    L003_01__Binary_Evaluation.v
+
+      Constructive consequences of exact binary totality: output uniqueness,
+      binary exhaustion, and the complementary `0`/`1` equivalences.
+
+    L003_02__Evaluator_Relative_Nonclosure.v
+
+      Primary abstract theorems. Proves evaluator-relative exclusion,
+      pointwise exclusion on diagonally closed domains, and nonexistence of a
+      total evaluator correct on such a domain.
+
+    L003_03__Compiled_Countermachine.v
+
+      Internal even/odd code layout and inductively generated compiled output
+      relation. Proves code separation, diagonal behavior, concrete compiler
+      correctness, and the specialized nonclosure theorem.
+
+    L003_04__Indexed_Judgment.v
+
+      Minimal assigned-label/active-label separation. Provides the checking
+      countermodel, witnessed-binding lemmas, and bound-evaluator nonclosure.
+
+    L003_95_API.v
+
+      Stable package API. Re-exports both development branches and names the
+      six public contracts together with `L003_CORE_CONTRACT`.
+
+    L003_97_Artifacts.v
+
+      Certifies each named contract, proves `l003_core_qed`, and redirects six
+      `Print Assumptions` reports.
+
+    _appendix/_assumptions/
+
+      Generated assumption reports for the primary abstract, indexed-self,
+      concrete, and aggregate endpoints. All six reports are closed under the
+      global context.
+
+
+7 - Public API
+    ----------
+
+    The stable downstream import is:
+
+      `From L003 Require Import L003_95_API.`
+
+    Abstract vocabulary:
+
+      Code, Input, Output                                              (00)
+      OutputRelation, HaltingRelation, QueryCoding                     (00)
+      DiagonalCompiler, BinaryOutput, Tot2                             (00)
+      EvalC, CompilerCorrect, EvaluatorDiagonalClosure                 (00)
+
+    Abstract headline theorems:
+
+      evaluator_relative_nonclosure                                   (02)
+      diagonally_closed_domain_excludes_evaluator                     (02)
+      no_total_evaluator_on_diagonally_closed_domain                  (02)
+
+    Concrete compiled semantics:
+
+      base_machine_code, compiled_diagonal_code                       (03)
+      CompiledOutput, CompiledHalt                                    (03)
+      compiled_countermachine_correct                                 (03)
+      concrete_evaluator_relative_nonclosure                          (03)
+
+    Indexed-label surface:
+
+      IndexedSelfConfiguration, SelfTokenChecks, SelfTokenBound       (04)
+      WitnessedSelfJudgment, BoundEvaluator                           (04)
+      indexed_self_checking_does_not_supply_binding                   (04)
+      bound_evaluator_relative_nonclosure                             (04)
+
+    Contract surface:
+
+      EVALUATOR_RELATIVE_NONCLOSURE_CONTRACT                          (95)
+      DIAGONALLY_CLOSED_DOMAIN_EXCLUSION_CONTRACT                     (95)
+      INDEXED_SELF_CHECKING_NONENTAILMENT_CONTRACT                    (95)
+      BOUND_EVALUATOR_NONCLOSURE_CONTRACT                             (95)
+      CONCRETE_COMPILER_CORRECTNESS_CONTRACT                          (95)
+      CONCRETE_EVALUATOR_NONCLOSURE_CONTRACT                          (95)
+      L003_CORE_CONTRACT                                              (95)
+
+    Aggregate certified endpoint:
+
+      l003_core_qed : L003_CORE_CONTRACT                              (97)
+
+
+8 - Notes
+    -----
+
+    `L003_03__Compiled_Countermachine` and
+    `L003_04__Indexed_Judgment` are independent branches after the abstract
+    theorem layer; `L003_95_API` deliberately joins them.
+
+    The artifact file writes assumption reports and should not be used as a
+    routine downstream import. Import `L003_95_API` for the stable theorem and
+    contract surface.
+
+    The package has no extraction or IO layer. Its artifacts are proof
+    endpoints and assumption reports only.
