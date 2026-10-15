@@ -59,6 +59,12 @@
     only the behavior required by their declared interfaces; no causal,
     epistemic, or infinite-execution interpretation is implicit.
 
+    L002 is formulated in a limitative mode: it specifies an obstruction under
+    explicit assumptions. It constrains what can be certified or realized
+    under those assumptions without supplying a complete behavioral account.
+    An operational demand does not guarantee that it can be met, and a logical
+    obstruction does not uniquely determine an implementation's response.
+
 
 3 - State
     -----
@@ -96,9 +102,18 @@
         -> MirrorLocallyConsistent M Gamma chi
         -> AsIF M Gamma chi
 
+    The inference from `¬chi -> chi` to `¬¬chi` is elementary and
+    intuitionistically valid: assuming `¬chi` gives `chi`, hence a
+    contradiction. L002 claims no novelty for this logical implication.
+    Its role here is object-level: the one-way mirror is supplied as a checked
+    derivation, checked inference turns a checked refutation into a checked
+    derivation of `chi`, and local consistency excludes that refutability.
+    `AsIF` records this absence of a checked refutation.
+
     Coded recognition accepts exactly when the missing direction
-    `chi -> ¬chi` has checked evidence. Acceptance would therefore complete the
-    full fixed point, so the same local premise excludes it:
+    `chi -> ¬chi` has checked evidence. The interface equates this acceptance
+    with checked refutability. Acceptance would complete the full fixed point,
+    so the supplied mirror and local consistency exclude it:
 
       ExternalMirrorPosition M Gamma chi
         -> MirrorLocallyConsistent M Gamma chi
@@ -106,6 +121,10 @@
 
     Global `MirrorConsistent` supplies local consistency at every formula and
     yields the retained compatibility forms of both theorems.
+
+    Reading this configuration as an epistemic position requires additional
+    interpretation. Double-negation reasoning alone establishes neither
+    general epistemic incompleteness nor a behavioral theory of `AsIF`.
 
     At finite recursive depth, the same reasoning is pointwise:
 
@@ -119,6 +138,20 @@
     No unbounded formula, semantic fixed point, or infinite execution is
     constructed. The response, recurrence, attribution, and externalization
     layers are separate interfaces built over this finite theorem core.
+
+    The Halting Problem illustrates the limitative reading. Turing's
+    undecidability result excludes a total computable halting decider. A
+    program given that impossible specification may continue computing,
+    diverge, exhaust resources, or signal failure. These responses concern
+    the implementation; none supplies the excluded total decider.
+
+    “AsIF I am an oracle” is a heuristic description of a system required to
+    supply universally correct halting judgments when no total computable
+    decider is available. It describes the relation between the demand,
+    actual operations, and unavailable universal certification. It attributes
+    neither oracle powers nor a belief in such powers, and nontermination
+    alone does not establish `AsIF`. This analogy is not a theorem of L002
+    or an operational semantics for its checked non-refutability predicate.
 
 
 5 - Dependency Tree

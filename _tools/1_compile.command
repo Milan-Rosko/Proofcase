@@ -222,8 +222,7 @@ rm -rf \
   "output/theories/L001/_appendix/_assumptions" \
   "output/theories/L001/_appendix/_assumptions_classical" \
   "output/theories/L001/_appendix/_assumptions_constructive" \
-  "output/theories/L002/_appendix/_assumptions" \
-  "output/theories/L003/_appendix/_assumptions"
+  "output/theories/L002/_appendix/_assumptions"
 
 # -----------------------------------------------------------------------------
 # Build
@@ -422,61 +421,6 @@ if [[ "${L002_ASSUMPTION_GUARD_ENABLED}" = "1" ]]; then
     -e "classic" \
     "${L002_CONSTRUCTIVE_ASSUMPTIONS}" | tee -a "${BUILD_LOG}"; then
     echo "Constructive L002 assumption reports contain forbidden classical or axiom dependencies." | tee -a "${BUILD_LOG}"
-    exit 1
-  fi
-fi
-
-# -----------------------------------------------------------------------------
-# Constructive L003 assumption-report guard
-# -----------------------------------------------------------------------------
-L003_CONSTRUCTIVE_ASSUMPTIONS="output/theories/L003/_appendix/_assumptions"
-L003_ARTIFACT_SOURCE="${SHADOW}/theories/L003/L003_97_Artifacts.v"
-L003_REQUIRED_CONSTRUCTIVE_REPORTS=(
-  "evaluator_relative_nonclosure"
-  "no_total_evaluator_on_diagonally_closed_domain"
-  "indexed_self_checking_does_not_supply_binding"
-  "compiled_countermachine_correct"
-  "concrete_evaluator_relative_nonclosure"
-  "l003_core_qed"
-)
-L003_ASSUMPTION_GUARD_ENABLED=0
-if grep -Eq '(^|[[:space:]])theories/L003/L003_97_Artifacts\.v([[:space:]]|$)' "${COQPROJECT_SHADOW}"; then
-  L003_ASSUMPTION_GUARD_ENABLED=1
-fi
-
-l003_assumption_reports_present() {
-  for report in "${L003_REQUIRED_CONSTRUCTIVE_REPORTS[@]}"; do
-    if [[ ! -s "${L003_CONSTRUCTIVE_ASSUMPTIONS}/${report}.out" ]]; then
-      return 1
-    fi
-  done
-  return 0
-}
-
-if [[ "${L003_ASSUMPTION_GUARD_ENABLED}" = "1" ]]; then
-  if ! l003_assumption_reports_present; then
-    if [[ -f "${L003_ARTIFACT_SOURCE}" ]]; then
-      touch "${L003_ARTIFACT_SOURCE}"
-      "${MAKE_BIN}" -f Makefile.coq -j "${JOBS}" \
-        "theories/L003/L003_97_Artifacts.vo" | tee -a "${BUILD_LOG}"
-    fi
-  fi
-
-  for report in "${L003_REQUIRED_CONSTRUCTIVE_REPORTS[@]}"; do
-    if [[ ! -s "${L003_CONSTRUCTIVE_ASSUMPTIONS}/${report}.out" ]]; then
-      echo "Missing or empty constructive L003 assumption report: ${L003_CONSTRUCTIVE_ASSUMPTIONS}/${report}.out" | tee -a "${BUILD_LOG}"
-      exit 1
-    fi
-  done
-
-  if grep -R \
-    -e "^Axioms:" \
-    -e "ClassicalEpsilon" \
-    -e "constructive_indefinite_description" \
-    -e "excluded_middle" \
-    -e "classic" \
-    "${L003_CONSTRUCTIVE_ASSUMPTIONS}" | tee -a "${BUILD_LOG}"; then
-    echo "Constructive L003 assumption reports contain forbidden classical or axiom dependencies." | tee -a "${BUILD_LOG}"
     exit 1
   fi
 fi

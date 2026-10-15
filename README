@@ -20,6 +20,16 @@
     note, or conceptual construction.
 
 
+2 - Theories and Build
+    ------------------
+
+    The package index is in theories/README.
+
+    Run _tools/1_compile.command from the project. It builds the root
+    _CoqProject in scratch/shadow and checks that theories/ contains no
+    compiler artifacts.
+
+
 4 - Contact
     -------
 
