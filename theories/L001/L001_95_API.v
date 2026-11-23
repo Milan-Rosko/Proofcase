@@ -32,10 +32,16 @@ From L001 Require Export L001_02__Aporetic_Obstruction.
 └──────────────────────────────────────────────────────────────────────────────┘
 *)
 
-  The cumulative export above exposes `closure_modus_ponens_detachment_at`,
-  `branchwise_goal_relative_collapse`, `goal_relative_branch_collapse`, and
-  `fixedpoint_gap`. They refine the local-collapse dependency boundary
-  without adding clauses to `L001_CONTRACT`.
+(*
+│
+│          The cumulative export above exposes
+│          `closure_modus_ponens_detachment_at`,
+│          `branchwise_goal_relative_collapse`,
+│          `goal_relative_branch_collapse`, and `fixedpoint_gap`. They
+│          refine the local-collapse dependency boundary without
+│          adding clauses to `L001_CONTRACT`.
+│
+*)
 
 (*
 ┌──────────────────────────────────────────────────────────────────────────────┐

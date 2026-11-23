@@ -1,0 +1,523 @@
+(* README *)
+
+1 - Summary
+    -------
+
+    L003 formalizes the SOLVER'S PARADOX: a diagonal obstruction to
+    certification in any language with quotation, pairing, negation,
+    duplication, and existential witness projection. For every verifier `v`
+    the formation rules build the explicit diagonal sentence
+
+      g_v = neg (dup (proj v)),
+
+    and the claim that `g_v` holds of its own quotation is equivalent to its
+    non-acceptance by `v`. Where acceptance is decided, `v` either accepts a
+    false claim or leaves a true claim uncertified:
+
+      - `coding_free_identity`      : at every datum, by formation laws only
+      - `certification_fixed_point` : claim  <->  ~ acceptance
+      - `certification_dichotomy`   : decided acceptance  <->  dichotomy
+      - `dichotomy_sharpness`       : dichotomy  <->  excluded middle
+      - `brute_force_evaluates`     : `BF_n` evaluates level `n` internally
+      - `evaluator_quadratic_lower_bound` 
+                                    : every evaluator of level `n`
+                                      has level at least `(n - 4) (n + 2)`
+      - `solvers_paradox_plain_sat` : the plain-SAT specialization
+
+    The fixed point assumes neither soundness, completeness, nor
+    decidability. The concrete bit-stream language, relativized to an
+    arbitrary oracle and graded by serialization length, contains a
+    brute-force evaluator `BF_n` for every level; the certifiers read off from
+    it form a bounded certification family, so the ascent hierarchy holds
+    there unconditionally. Every circuit verifier determines a plain
+    propositional formula `psi_v`, no larger than `v`, which truth tables
+    classify correctly, while `v` fails to certify the associated diagonal
+    claim.
+
+    The construction is valid at one level, self-referential only under a
+    coding, and settled one level up. The underlying identity holds at every
+    datum and uses no property of quotation; the obstruction holds under
+    every quotation, but which branch obtains depends on the coding; and the
+    diagonal claim is decided by any internal evaluator whose domain contains
+    `g_v`, which lies strictly above `v`.
+
+    `L003_CORE_CONTRACT` contains the coding-free identity, the dichotomy,
+    the size-free fixed point, brute-force evaluation, and the Solver's
+    Paradox for plain SAT. `L003_CONTRACT` collects all thirty-eight
+    contracts.
+
+
+2 - Reading Contract
+    ----------------
+
+    L003 concerns certification, not classification. Every finite
+    propositional formula is decided by `classify`, and
+    `TRUTH_TABLE_CONTRACT` proves this. No contract states that a SAT
+    classifier misclassifies an instance, and nothing in L003 concerns the
+    complexity of satisfiability or the relation of P and NP.
+
+    Semantics is proposition-valued in every layer. `Accepts C v e x` means
+    that some witness makes `v` hold of the encoded claim; it is acceptance,
+    not truth. Quotation carries no abstract law; the concrete serialization
+    is proved to parse uniquely.
+
+    `CODING_FREE_IDENTITY_CONTRACT` is a statement about one verifier at one
+    datum. Reading it as a claim that `g_v` is about itself requires setting
+    the datum to the quotation of `g_v` and reading the verifier's input as
+    a claim. `CODING_SENSITIVITY_CONTRACT` shows that this reading is
+    coding-relative: the fixed point holds under every quotation map, while
+    the branch of `TBit 0` flips between the standard quotation and its
+    bitwise negation, both injective. Faithful interpretations commute with
+    quotation and so cannot perform such a recoding.
+
+    The Certification Dichotomy is indexed by decidability of acceptance at
+    the single diagonal claim. `DICHOTOMY_SHARPNESS_CONTRACT` shows that the
+    dichotomy for all verifiers complete at their claim is equivalent to
+    excluded middle, so the premise cannot be removed intuitionistically.
+    Decidable semantics, in particular Boolean semantics, supplies it for
+    every verifier; truth tables supply it for every circuit verifier. The
+    dichotomy does not say that the diagonal claim is unknowable or that
+    another verifier cannot certify it; changing the verifier changes the
+    diagonal sentence.
+
+    `ASCENT_HIERARCHY_CONTRACT`, `ASCENT_BOUNDS_CONTRACT`, and
+    `PROLIFERATION_CONTRACT` take a `BoundedCertificationFamily`.
+    `BRUTE_FORCE_EVALUATION_CONTRACT` constructs one for the concrete
+    language, and `CONCRETE_HIERARCHY_CONTRACT` is the resulting
+    unconditional instance. The hierarchy states that each certifier is not
+    correct at its own diagonal claim; the sharper dichotomy branch follows
+    wherever acceptance there is decided.
+
+    Diagonal-closed levels are empty whenever negation and duplication
+    strictly raise levels, as they do under serialization length.
+    Statements phrased through diagonal-closed levels are then vacuous; the
+    operative bound is `n < lvl u + c_dup + c_neg` for every evaluator `u`
+    of level `n`.
+
+    `FaithfulInterpretation` and `SizeFreeInterpretation` preserve the
+    diagonal claim and non-acceptance. Acceptance itself is preserved where
+    it is decided on both sides: without decidability, `~ A <-> ~ B` does not
+    give `A <-> B`.
+
+    Relativization is a theorem about one syntax with oracle-dependent
+    semantics: quotation, formation, `BF_n`, the certifiers, and the diagonal
+    sentences are the same terms for every oracle, and the fixed point and
+    the bounded family hold uniformly. L003 contains no complexity theory;
+    the consequence that the framework cannot by itself separate P from NP
+    remains metatheoretic.
+
+    Internal certification is a separate, syntactic layer. `HilbertKS` and
+    `DerivabilityConditions` are explicit premises of every theorem that uses
+    them, and `pc_prov` is not related to semantic truth. The language-level
+    fixed point uses K/S, box representation, and the certified negation and
+    duplication rules, but not D1-D3; its Gödel II consequence uses D1-D3.
+
+
+3 - State
+    -----
+
+                      ┌──────────────────────────────────┐
+                      │                  x               │
+                      │   └─┴─┴─┴─┴─┴─┴─┴─┴─┴─┘ 8 / 10   │
+                      └──────────────────────────────────┘
+
+    Evaluation: 8, Solid. Mechanized, documented, and extracted; reduced to
+    thirty-eight explicit contracts with closed assumption reports. The
+    bounded family and the hierarchy are constructed in the concrete
+    language, every internal evaluator is bounded below quadratically,
+    Tseitin conversion is certified, the SAT layer relativizes, and the
+    internal premises have a model. D1-D3 for a concrete calculus remain
+    open. Not peer reviewed.
+
+
+4 - Intuition
+    ---------
+
+    The abstract shape is Lawvere's: a point-surjective `A -> (A -> bool)`
+    would give Boolean negation a fixed point. L003 realizes this inside a
+    language, with rows as expressions, columns as data, and quotation as the
+    diagonal input. Duplication copies the input and negation negates:
+
+      [[ d_u ]](y)  <->  ~ [[ u ]](<y, y>),     d_u = neg (dup u).
+
+    At `y = code d_u`, `u` and `d_u` cannot agree, because no proposition is
+    equivalent to its own negation. If `u` evaluated a level containing
+    `d_u` they would agree, so evaluators ascend: an evaluator of level `n`
+    has level above `n` minus the formation cost.
+
+    Projection turns a verifier into its acceptance predicate:
+
+      [[ proj v ]](z)  <->  exists w, [[ v ]](<z, wit w>).
+
+    Applying the same construction to `proj v` gives `g_v`:
+
+                       v
+                       │  proj
+                       ▼
+           acceptance of claims  ── dup ──▶ claim about itself
+                                                    │
+                                                    │  neg
+                                                    ▼
+                          g_v at code g_v  <->  ~ (v accepts it)
+
+    Deciding acceptance yields exactly one branch:
+
+      (i)   v accepts the diagonal claim,  and the claim is false;
+      (ii)  v does not accept it,          and the claim is true.
+
+    The verifier `TConst true` realizes (i); `TConst false` realizes (ii).
+    Without a decision the branches cannot be separated: a base expression
+    meaning `Q \/ ~ Q` makes the dichotomy equivalent to that disjunction.
+
+    In the concrete language, data are bit streams and pairing interleaves
+    even and odd positions. `BF_n` is the disjunction, over every term `e` of
+    level at most `n`, of
+
+      (even bits spell the serialization of e)  /\  reindex (e, odd).
+
+    Unique parsing makes exactly one disjunct fire on `<code e, x>`, and
+    reindexing makes it read `x`; duplication is absorbed into the index
+    map, and projection keeps its node with a shifted map. Reading only the
+    claim half of a certification datum turns `BF_n` into a certifier `V n`.
+
+    Fix a circuit verifier `v`: at the diagonal claim, even positions are
+    constants from the quotation of `g_v`, and odd positions are witness
+    bits. Replacing witness bits by variables gives
+
+      ConcreteAccepted O v  <->  Satisfiable psi_v,     |psi_v| <= |v|.
+
+    Truth tables decide `psi_v`, so the branch is decided, but in neither
+    branch do acceptance and truth agree. Tseitin conversion moves `psi_v`
+    into CNF with at most `3 |v| + 1` clauses of width three.
+
+    Bounded certifiers do not escape. If `V n` is sound and complete up to
+    level `n`, its diagonal sentence lies strictly above `n`. A certifier for
+    that higher level settles the old claim and creates a new one:
+
+      n_0  <  lvl (g (V n_0))  =  n_1  <  lvl (g (V n_1))  =  n_2  <  ...
+
+    with `n_(k+1) = lvl (V n_k) + 9` in the concrete language. What grows is
+    the certification boundary, not one unresolved sentence.
+
+
+5 - Dependency Tree
+    ---------------
+
+    Stdlib
+     ▼
+    L003_00_Premises
+     ▼
+    L003_01__Diagonal_Ascent
+     ▼
+    L003_02__Certification_Dichotomy
+     ▼
+    L003_03__Invariance_Size_Free
+     ▼
+    L003_04__Ascent_Hierarchy
+     ▼
+    L003_05__Internal_Certification
+     ▼
+    L003_06__Concrete_Language
+     ▼
+    L003_07__Exhaustive_Evaluation
+     ▼
+    L003_08__Plain_SAT
+     ▼
+    L003_09__Tseitin_CNF
+     ▼
+    L003_10__Coding_Sensitivity
+     ▼
+    L003_11__Evaluator_Lower_Bound
+     ▼
+    L003_12__Relativized_SAT
+     ▼
+    L003_95_API
+     ▼
+    L003_97_Artifacts
+     ▼
+    L003_98_Sanity
+
+
+6 - File Guide
+    ----------
+
+    L003_00_Premises.v
+
+      Stdlib imports and the primitive records: `DiagonalStructure`,
+      `CertificationStructure`, `FaithfulInterpretation`, `SizeFreeLanguage`,
+      `SizeFreeInterpretation`, `ProvabilityCalculus`, `LanguageCalculus`,
+      and the law records `HilbertKS`, `DerivabilityConditions`,
+      `LanguageBoxRepresentation`, `CertifiedNegDupRules`. Defines
+      evaluation, acceptance, soundness, completeness, the diagonal sentence
+      and claim, decidable semantics, bounded families, ascent levels, and
+      predicativity.
+
+    L003_01__Diagonal_Ascent.v
+
+      Lawvere's fixed-point theorem, no point-surjection to `bool`, diagonal
+      escape, Evaluator Ascent, the global and local absence of an internal
+      total classifier, and emptiness of diagonal-closed levels under
+      strictly increasing formation levels.
+
+    L003_02__Certification_Dichotomy.v
+
+      Projection of a sound and complete verifier evaluates its level;
+      Certification Ascent; self-application and the certification fixed
+      point; the dichotomy as decided acceptance, its exclusivity, and its
+      decidable-semantics instance; and the sharpness structure with
+      `dichotomy_sharpness`.
+
+    L003_03__Invariance_Size_Free.v
+
+      Faithful and size-free invariance, the size-free fixed point, pointwise
+      incompleteness, the sharp constructive boundary, the internal truth
+      obstruction, `forget_levels`, and `trivial_grading`.
+
+    L003_04__Ascent_Hierarchy.v
+
+      Diagonal beyond domain, impossibility of impredicative closure,
+      predicativity of correct certifiers, the ascent hierarchy, its
+      two-sided bound, and proliferation.
+
+    L003_05__Internal_Certification.v
+
+      Derived Hilbert rules, Löb, Gödel II, the language-level fixed point,
+      language-level Gödel II, and `consistent_certifies_neither`.
+
+    L003_06__Concrete_Language.v
+
+      Terms with an oracle node, bit-stream pairing, relativized semantics
+      and its extensionality, the prefix-free serialization with unique
+      parsing, the serialization grading, and `concrete_structure O`.
+
+    L003_07__Exhaustive_Evaluation.v
+
+      Reindexing and its semantic lemma, quotation matching, enumeration of
+      every level, `brute_force`, `concrete_certifier`, the concrete bounded
+      family, the concrete hierarchy and proliferation, and relativization.
+
+    L003_08__Plain_SAT.v
+
+      Propositional formulas, truth tables and `classify_correct`, circuit
+      verifiers with Boolean reflection, specialization, the Solver's
+      Paradox for plain SAT, and the two minimal branches.
+
+    L003_09__Tseitin_CNF.v
+
+      Clauses and CNF, Tseitin conversion, its equisatisfiability and linear
+      bounds, and clause-level specialization of circuit verifiers.
+
+    L003_10__Coding_Sensitivity.v
+
+      The concrete language under an arbitrary quotation, the fixed point
+      under every quotation, injectivity of the standard and negated
+      quotations, the branch flip of `TBit 0`, and the failure of recoding to
+      be faithful.
+
+    L003_11__Evaluator_Lower_Bound.v
+
+      Read positions and their extensionality, the cost of reading, the
+      one-bit pairs `TBit i` and `TBit (i + 1)`, the read obligation of every
+      evaluator, and the quadratic lower bound `(n - 4) (n + 2)`.
+
+    L003_12__Relativized_SAT.v
+
+      Boolean oracles, oracle formulas with constant-or-variable arguments,
+      relativized truth tables and their agreement with `classify` on
+      oracle-free formulas, oracle circuits, relativized specialization, and
+      the relativized Solver's Paradox.
+
+    L003_95_API.v
+
+      Stable public API: thirty-eight named contracts, `L003_CORE_CONTRACT`,
+      and `L003_CONTRACT`.
+
+    L003_97_Artifacts.v
+
+      Certifies `l003_core_qed` and `l003_contract_qed`, redirects their
+      assumption reports, and extracts the executable layer to OCaml.
+
+    L003_98_Sanity.v
+
+      Closed computations for grading, reindexing, enumeration, truth tables,
+      circuit recognition, specialization, and Tseitin conversion, and
+      endpoint inhabitation checks.
+
+    INDEX
+
+      Ground-truth index: one entry per contract with its endpoint, the
+      file and line of every theorem it uses, a plain statement, its
+      premises, and whether it is unconditional. The paper cites only from
+      this index.
+
+    _appendix/_artifacts/
+
+      Extracted OCaml: `L003_Plain_SAT.{ml,mli}`, containing quotation and
+      grading, `reindex`, `match_bits`, `terms_upto`, `brute_force`,
+      `concrete_certifier`, `classify`, `circuit_verifierb`,
+      `specialized_formula`, `tseitin`, and `cnf_eval`. The build guard
+      checks that the checked-in files equal the freshly generated ones.
+
+    _appendix/_assumptions/
+
+      Redirected `Print Assumptions` output for `l003_core_qed` and
+      `l003_contract_qed`. Both are closed.
+
+
+7 - Public API
+    ----------
+
+    The stable downstream import is:
+
+      `From L003 Require Import L003_95_API.`
+
+    Structures and vocabulary:
+
+      DiagonalStructure, CertificationStructure, SizeFreeLanguage
+      ExactCosts, BooleanSemantics
+      FaithfulInterpretation, SizeFreeInterpretation
+      ProvabilityCalculus, LanguageCalculus
+      HilbertKS, DerivabilityConditions
+      LanguageBoxRepresentation, CertifiedNegDupRules
+      PointSurjective, Evaluates, DiagonalClosed, diagonal_of
+      Accepts, SoundFor, CompleteFor, DecidableSemantics
+      diagonal_sentence, DiagonalClaim, DiagonalAccepted
+      CertificationFailsAtDiagonal
+      BoundedCertificationFamily, ascent_levels
+      PredicativeAt, ImpredicativelyClosed
+      forget_levels, trivial_grading
+
+    Concrete language:
+
+      ConcreteTerm, BitStream, stream_pair, Oracle, empty_oracle
+      term_sem, term_serialize, term_code, term_level
+      concrete_structure, concrete_language, diagonal_term
+      ConcreteDiagonalClaim, ConcreteAccepted, OracleFree
+      reindex, brute_force, concrete_certifier
+      PropFormula, formula_eval, Satisfiable, classify
+      CircuitVerifier, circuit_verifierb, specialized_formula
+      CNF, cnf_eval, CNFSatisfiable, tseitin
+      Quotation, quoted_structure, QuotedClaim, QuotedAccepted, neg_code
+      reads, position_cost
+      BoolOracle, bool_oracle, OFormula, oclassify, OracleCircuit
+      oracle_specialized_formula, embed_formula
+      ModalFormula, gl_calculus
+
+    Contracts, in proof order:
+
+      LAWVERE_FIXED_POINT_CONTRACT
+      BOOL_NO_POINT_SURJECTION_CONTRACT
+      DIAGONAL_ESCAPE_CONTRACT
+      EVALUATOR_ASCENT_CONTRACT
+      NO_INTERNAL_CLASSIFIER_CONTRACT
+      CERTIFICATION_ASCENT_CONTRACT
+      CODING_FREE_IDENTITY_CONTRACT
+      SELF_APPLICATION_CONTRACT
+      CERTIFICATION_DICHOTOMY_CONTRACT              (decided acceptance)
+      DICHOTOMY_SHARPNESS_CONTRACT
+      FAITHFUL_INVARIANCE_CONTRACT
+      SIZE_FREE_FIXED_POINT_CONTRACT
+      POINTWISE_INCOMPLETENESS_CONTRACT
+      CONSTRUCTIVE_BOUNDARY_CONTRACT
+      INTERNAL_TRUTH_OBSTRUCTION_CONTRACT
+      SIZE_FREE_INVARIANCE_CONTRACT
+      ONE_SEMANTICS_CONTRACT
+      IMPREDICATIVE_CLOSURE_CONTRACT
+      SETTLED_ONE_LEVEL_UP_CONTRACT                 (exact costs)
+      ASCENT_HIERARCHY_CONTRACT                     (bounded family)
+      ASCENT_BOUNDS_CONTRACT                        (bounded family)
+      PROLIFERATION_CONTRACT                        (bounded family)
+      LOEB_CONTRACT                                 (K/S, D1-D3)
+      GOEDEL_SECOND_CONTRACT                        (K/S, D1-D3)
+      LANGUAGE_FIXED_POINT_CONTRACT
+      INTERNAL_MODEL_CONTRACT
+      CONCRETE_GRADING_CONTRACT
+      BRUTE_FORCE_EVALUATION_CONTRACT
+      CONCRETE_HIERARCHY_CONTRACT
+      RELATIVIZATION_CONTRACT
+      TRUTH_TABLE_CONTRACT
+      SPECIALIZATION_CONTRACT
+      SOLVERS_PARADOX_PLAIN_SAT_CONTRACT
+      MINIMAL_BRANCHES_CONTRACT
+      TSEITIN_CONTRACT
+      CODING_SENSITIVITY_CONTRACT
+      EVALUATOR_LOWER_BOUND_CONTRACT
+      RELATIVIZED_SAT_CONTRACT
+
+      L003_CORE_CONTRACT, L003_CONTRACT
+
+    Certified endpoints:
+
+      l003_core_qed     : L003_CORE_CONTRACT
+      l003_contract_qed : L003_CONTRACT
+
+    Principal theorems:
+
+      coding_free_identity : forall C v x,
+        ds_sem C (diagonal_sentence C v) x <->
+        ~ exists w, ds_sem C v (ds_pair C (ds_pair C x x) (cs_wit C w))
+
+      certification_fixed_point : forall C v,
+        DiagonalClaim C v <-> ~ DiagonalAccepted C v
+
+      certification_dichotomy : forall C v,
+        (DiagonalAccepted C v \/ ~ DiagonalAccepted C v) <->
+        CertificationFailsAtDiagonal C v
+
+      dichotomy_sharpness :
+        (forall C v, (DiagonalClaim C v -> DiagonalAccepted C v) ->
+                     CertificationFailsAtDiagonal C v) <->
+        (forall Q : Prop, Q \/ ~ Q)
+
+      concrete_certification_family : forall O,
+        BoundedCertificationFamily (concrete_structure O) concrete_certifier
+
+      solvers_paradox_plain_sat : forall O v,
+        CircuitVerifier v ->
+        formula_size (specialized_formula v) <= term_size v /\
+        (classify (specialized_formula v) = true <->
+         Satisfiable (specialized_formula v)) /\
+        (term_level (diagonal_term v) = term_level v + 9 /\
+         (BF at the level of g_v settles the diagonal claim) /\
+         forall B n, term_level (diagonal_term v) <= n ->
+           Evaluates (concrete_structure O) B n ->
+           term_level v + 3 < term_level B) /\
+        (ConcreteDiagonalClaim O v <-> ~ Satisfiable (specialized_formula v)) /\
+        (exactly one of the two branches)
+
+
+8 - Notes
+    -----
+
+    L003 depends only on Stdlib. It does not import M001: its Hilbert calculus
+    is abstract, carries a box operator, and states its laws as separate
+    records.
+
+    Concrete costs are exact: negation, duplication, and projection each add
+    a three-bit tag, binary connectives add three bits plus both operands,
+    and constants have level four.
+
+    `BF_n` is a definability witness, not an algorithm. `terms_upto`
+    over-approximates each level and grows doubly exponentially, so the
+    extracted `brute_force` is total but usable only at levels below four.
+
+    Every internal evaluator of level `n` has level at least
+    `(n - 4) (n + 2)`, while the constructed `BF_n` has level at least
+    `3^(n+1) - 3`. The quadratic bound depends on the unary index encoding;
+    under binary indices the same argument is much weaker. Whether a
+    polynomial-size evaluator exists is open.
+
+    The internal premises are satisfiable: `INTERNAL_MODEL_CONTRACT` gives a
+    consistent Gödel-Löb calculus over the natural numbers with a certified
+    fixed point of `~ box`, and a consistent language calculus whose box is
+    the atomic claim of the projected verifier and which satisfies every
+    premise of the language-level fixed point and Gödel II. D1-D3 for a
+    proof-checking calculus inside the concrete language, with box as
+    projection of an actual verifier, are a separate project.
+
+    Open obligations, not formalized: the gap between the quadratic and the
+    exponential bound; and concrete D1-D3.
+
+    Freeze: from the release tag on, no renames and no new contracts; only
+    bug fixes, and any change to a statement is reported before it is made.
+    The build is pinned to the Rocq version in `_tools/ROCQ_VERSION`.

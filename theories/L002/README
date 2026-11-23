@@ -3,8 +3,16 @@
 1 - Summary
     -------
 
-    L002 formalizes SYMBOLIC REGULATION: a mirror obstruction over M001 checked
-    derivability. It separates:
+    L002 formalizes a minimal proof-theoretic obstruction intended as a
+    foundation for SYMBOLIC REGULATION: a mirror construction over M001
+    checked derivability. 
+
+    We show that, under a supplied one-way proof-theoretic mirror and local
+    consistency of a constructive proof checker, certain sentences cannot be
+    refuted within that checker. This obstruction requires no soundness
+    assumption and makes no claim about the sentences' truth.
+    
+    We separate:
 
       - a full negation fixed point, which derives `Bot`; and
       - a one-way mirror `formula_negation chi -> chi`, where consistency gives
@@ -65,6 +73,10 @@
     An operational demand does not guarantee that it can be met, and a logical
     obstruction does not uniquely determine an implementation's response.
 
+    Non-refutability alone neither obligates a system to act nor determines
+    which compatible operation it performs. Any positive behavioral
+    consequence requires an independently specified operational relation.
+
 
 3 - State
     -----
@@ -110,6 +122,10 @@
     derivation of `chi`, and local consistency excludes that refutability.
     `AsIF` records this absence of a checked refutation.
 
+    The object-level consequence `¬¬chi` and the metatheoretic statement that
+    no checked derivation of `¬chi` exists are distinct claims; the latter is
+    established relative to the stipulated local consistency condition.
+
     Coded recognition accepts exactly when the missing direction
     `chi -> ¬chi` has checked evidence. The interface equates this acceptance
     with checked refutability. Acceptance would complete the full fixed point,
@@ -145,10 +161,11 @@
     diverge, exhaust resources, or signal failure. These responses concern
     the implementation; none supplies the excluded total decider.
 
-    “AsIF I am an oracle” is a heuristic description of a system required to
-    supply universally correct halting judgments when no total computable
-    decider is available. It describes the relation between the demand,
-    actual operations, and unavailable universal certification. It attributes
+    “AsIF I am an oracle” is a heuristic description of a system placed under
+    a specification demanding universally correct halting judgments, although
+    no total computable implementation can satisfy that specification. It
+    describes the relation between the demand, actual operations, and
+    unavailable universal certification. It attributes
     neither oracle powers nor a belief in such powers, and nontermination
     alone does not establish `AsIF`. This analogy is not a theorem of L002
     or an operational semantics for its checked non-refutability predicate.

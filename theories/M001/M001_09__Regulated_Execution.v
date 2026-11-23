@@ -108,7 +108,7 @@ Proof.
   intros S i b Hrelease.
   unfold symbolic_regulator_release in Hrelease.
   destruct (symbolic_regulator_accepts_bool S i b) eqn:Haccepted.
-  - exact Haccepted.
+  - reflexivity.
   - discriminate Hrelease.
 Qed.
 
