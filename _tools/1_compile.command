@@ -133,6 +133,22 @@ case ":${PATH}:" in
   *) export PATH="${TOOL_BIN_DIR}:${PATH}" ;;
 esac
 
+# Pinned toolchain: the sources are checked against exactly this Rocq version.
+# Set ROCQ_VERSION_OVERRIDE=1 to build with another version at your own risk.
+ROCQ_VERSION_FILE="$(dirname "$0")/ROCQ_VERSION"
+if [[ -f "${ROCQ_VERSION_FILE}" ]]; then
+  ROCQ_PINNED="$(tr -d '[:space:]' < "${ROCQ_VERSION_FILE}")"
+  ROCQ_FOUND="$("${COQC}" ${COQC_SUBCOMMAND[@]+"${COQC_SUBCOMMAND[@]}"} --version 2>/dev/null | sed -n 's/.*version \([0-9][0-9.]*\).*/\1/p' | head -n 1)"
+  if [[ "${ROCQ_FOUND}" != "${ROCQ_PINNED}" ]]; then
+    echo "Rocq version mismatch: pinned ${ROCQ_PINNED}, found ${ROCQ_FOUND:-unknown}."
+    if [[ "${ROCQ_VERSION_OVERRIDE:-0}" != "1" ]]; then
+      echo "Install the pinned version or set ROCQ_VERSION_OVERRIDE=1."
+      exit 1
+    fi
+    echo "Continuing because ROCQ_VERSION_OVERRIDE=1."
+  fi
+fi
+
 CLEAN="${CLEAN:-0}"
 CACHE="${CACHE:-1}"
 GUARD="${GUARD:-1}"
@@ -222,7 +238,12 @@ rm -rf \
   "output/theories/L001/_appendix/_assumptions" \
   "output/theories/L001/_appendix/_assumptions_classical" \
   "output/theories/L001/_appendix/_assumptions_constructive" \
-  "output/theories/L002/_appendix/_assumptions"
+  "output/theories/L002/_appendix/_assumptions" \
+  "output/theories/L003/_appendix/_artifacts" \
+  "output/theories/L003/_appendix/_assumptions"
+
+# Extraction, unlike Redirect, does not create its target directory.
+mkdir -p "output/theories/L003/_appendix/_artifacts"
 
 # -----------------------------------------------------------------------------
 # Build
@@ -270,10 +291,7 @@ fi
 M001_CONSTRUCTIVE_ASSUMPTIONS="output/theories/M001/_appendix/_assumptions"
 M001_ARTIFACT_SOURCE="${SHADOW}/theories/M001/M001_97_Artifacts.v"
 M001_REQUIRED_CONSTRUCTIVE_REPORTS=(
-  "regulator_theory_deduction_checked"
-  "regulator_theory_reductio_checked"
-  "regulator_theory_not_checked_derivable_precompose_lemma"
-  "regulator_theory_syntactic_adequacy_lemma"
+  "m001_contract_qed"
 )
 M001_ASSUMPTION_GUARD_ENABLED=0
 if grep -Eq '(^|[[:space:]])theories/M001/M001_97_Artifacts\.v([[:space:]]|$)' "${COQPROJECT_SHADOW}"; then
@@ -326,8 +344,7 @@ fi
 L001_CONSTRUCTIVE_ASSUMPTIONS="output/theories/L001/_appendix/_assumptions"
 L001_ARTIFACT_SOURCE="${SHADOW}/theories/L001/L001_97_Artifacts.v"
 L001_REQUIRED_CONSTRUCTIVE_REPORTS=(
-  "certified_aporetic_lemma_contract"
-  "aporetic_lemma_qed"
+  "l001_contract_qed"
 )
 L001_ASSUMPTION_GUARD_ENABLED=0
 if grep -Eq '(^|[[:space:]])theories/L001/L001_97_Artifacts\.v([[:space:]]|$)' "${COQPROJECT_SHADOW}"; then
@@ -379,6 +396,7 @@ fi
 L002_CONSTRUCTIVE_ASSUMPTIONS="output/theories/L002/_appendix/_assumptions"
 L002_ARTIFACT_SOURCE="${SHADOW}/theories/L002/L002_97_Artifacts.v"
 L002_REQUIRED_CONSTRUCTIVE_REPORTS=(
+  "l002_core_qed"
   "mirror_lemma_qed"
   "recursive_mirror_lemma_qed"
   "symbolic_regulation_qed"
@@ -426,6 +444,90 @@ if [[ "${L002_ASSUMPTION_GUARD_ENABLED}" = "1" ]]; then
 fi
 
 # -----------------------------------------------------------------------------
+# Constructive L003 assumption-report guard
+# -----------------------------------------------------------------------------
+L003_CONSTRUCTIVE_ASSUMPTIONS="output/theories/L003/_appendix/_assumptions"
+L003_ARTIFACT_SOURCE="${SHADOW}/theories/L003/L003_97_Artifacts.v"
+L003_REQUIRED_CONSTRUCTIVE_REPORTS=(
+  "l003_core_qed"
+  "l003_contract_qed"
+)
+L003_REQUIRED_EXTRACTED_ARTIFACTS=(
+  "L003_Plain_SAT.ml"
+  "L003_Plain_SAT.mli"
+)
+L003_ASSUMPTION_GUARD_ENABLED=0
+if grep -Eq '(^|[[:space:]])theories/L003/L003_97_Artifacts\.v([[:space:]]|$)' "${COQPROJECT_SHADOW}"; then
+  L003_ASSUMPTION_GUARD_ENABLED=1
+fi
+
+solvers_paradox_outputs_present() {
+  for report in "${L003_REQUIRED_CONSTRUCTIVE_REPORTS[@]}"; do
+    if [[ ! -s "${L003_CONSTRUCTIVE_ASSUMPTIONS}/${report}.out" ]]; then
+      return 1
+    fi
+  done
+  for artifact in "${L003_REQUIRED_EXTRACTED_ARTIFACTS[@]}"; do
+    if [[ ! -s "output/theories/L003/_appendix/_artifacts/${artifact}" ]]; then
+      return 1
+    fi
+  done
+  return 0
+}
+
+if [[ "${L003_ASSUMPTION_GUARD_ENABLED}" = "1" ]]; then
+  if ! solvers_paradox_outputs_present; then
+    # Reports and extractions are cleared before every build; a cached
+    # L003_97_Artifacts.vo must be re-emitted once to regenerate both.
+    if [[ -f "${L003_ARTIFACT_SOURCE}" ]]; then
+      touch "${L003_ARTIFACT_SOURCE}"
+      "${MAKE_BIN}" -f Makefile.coq -j "${JOBS}" \
+        "theories/L003/L003_97_Artifacts.vo" | tee -a "${BUILD_LOG}"
+    fi
+  fi
+
+  for report in "${L003_REQUIRED_CONSTRUCTIVE_REPORTS[@]}"; do
+    if [[ ! -s "${L003_CONSTRUCTIVE_ASSUMPTIONS}/${report}.out" ]]; then
+      echo "Missing or empty constructive L003 assumption report: ${L003_CONSTRUCTIVE_ASSUMPTIONS}/${report}.out" | tee -a "${BUILD_LOG}"
+      exit 1
+    fi
+  done
+
+  if grep -R \
+    -e "^Axioms:" \
+    -e "ClassicalEpsilon" \
+    -e "constructive_indefinite_description" \
+    -e "excluded_middle" \
+    -e "classic" \
+    "${L003_CONSTRUCTIVE_ASSUMPTIONS}" | tee -a "${BUILD_LOG}"; then
+    echo "Constructive L003 assumption reports contain forbidden classical or axiom dependencies." | tee -a "${BUILD_LOG}"
+    exit 1
+  fi
+
+  # Extracted-artifact freshness: the checked-in OCaml must equal this build's.
+  for artifact in "${L003_REQUIRED_EXTRACTED_ARTIFACTS[@]}"; do
+    generated="output/theories/L003/_appendix/_artifacts/${artifact}"
+    checked_in="${ROOT}/theories/L003/_appendix/_artifacts/${artifact}"
+
+    if [[ ! -s "${generated}" ]]; then
+      echo "Missing or empty generated L003 extracted artifact: ${generated}" | tee -a "${BUILD_LOG}"
+      exit 1
+    fi
+
+    if [[ ! -s "${checked_in}" ]]; then
+      echo "Missing or empty source L003 extracted artifact: ${checked_in}" | tee -a "${BUILD_LOG}"
+      exit 1
+    fi
+
+    if ! cmp -s "${generated}" "${checked_in}"; then
+      echo "Stale source L003 extracted artifact: ${checked_in}" | tee -a "${BUILD_LOG}"
+      echo "Generated artifact differs from: ${generated}" | tee -a "${BUILD_LOG}"
+      exit 1
+    fi
+  done
+fi
+
+# -----------------------------------------------------------------------------
 # M001 extracted-artifact freshness guard
 # -----------------------------------------------------------------------------
 M001_ARTIFACT_GUARD_ENABLED=0
@@ -434,7 +536,7 @@ if grep -Eq '(^|[[:space:]])theories/M001/M001_97_Artifacts\.v([[:space:]]|$)' "
 fi
 
 if [[ "${M001_ARTIFACT_GUARD_ENABLED}" = "1" ]]; then
-  for artifact in regulator_theory_checker.ml regulator_theory_checker.mli; do
+  for artifact in M001_checker.ml M001_checker.mli; do
     generated="output/theories/M001/_appendix/_artifacts/${artifact}"
     checked_in="${ROOT}/theories/M001/_appendix/_artifacts/${artifact}"
 

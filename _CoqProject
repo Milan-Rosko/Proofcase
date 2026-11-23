@@ -72,3 +72,24 @@
 	theories/L002/L002_95_API.v
 	theories/L002/L002_97_Artifacts.v
 	theories/L002/L002_98_Sanity.v
+
+# Logic Contribution: SOLVER'S PARADOX
+
+-Q theories/L003 L003
+
+	theories/L003/L003_00_Premises.v
+	theories/L003/L003_01__Diagonal_Ascent.v
+	theories/L003/L003_02__Certification_Dichotomy.v
+	theories/L003/L003_03__Invariance_Size_Free.v
+	theories/L003/L003_04__Ascent_Hierarchy.v
+	theories/L003/L003_05__Internal_Certification.v
+	theories/L003/L003_06__Concrete_Language.v
+	theories/L003/L003_07__Exhaustive_Evaluation.v
+	theories/L003/L003_08__Plain_SAT.v
+	theories/L003/L003_09__Tseitin_CNF.v
+	theories/L003/L003_10__Coding_Sensitivity.v
+	theories/L003/L003_11__Evaluator_Lower_Bound.v
+	theories/L003/L003_12__Relativized_SAT.v
+	theories/L003/L003_95_API.v
+	theories/L003/L003_97_Artifacts.v
+	theories/L003/L003_98_Sanity.v
